@@ -17,18 +17,36 @@ Phase 1 deliverable covering three output surfaces from one token source
 | Button secondary | 1px `gold` border, text `gold-light`, bg transparent |
 | Button tier-select | 1px tier-colour border, tier-colour label, `gold` fill on selected |
 | Card | bg `ink-soft`, 1px `border-dark`, radius 4px, `shadow-card` on hover → `shadow-lift` |
-| Tier card | left 3px tier-colour rule, title `gold-light` Playfair, price `cream` |
+| Tier card | left 3px tier-colour rule, title `gold-light` Fraunces, price `cream` |
 | Chapter preview | bg `cream`, text `ink`, serif body for the reading sample |
 | Trust badge | 1px `gold-deep` border, `gold` text, 11px uppercase |
 | Input | bg `ink-soft`, 1px `border-dark`, focus 1px `gold`, error 1px `terracotta` |
 | Footer | bg `ink-soft`, top 1px `gold-deep` rule, `text-muted-on-dark` |
 
 ### Typography in web
-- H1 `Playfair Display` 32–40px, `gold-light`, line-height 1.15
-- H2 `Playfair Display` 24–28px, `gold-light`
+- H1 `Fraunces` 32–40px, `gold-light`, line-height 1.15
+- H2 `Fraunces` 24–28px, `gold-light`
 - Body `Inter` 16px, `text-on-dark`, line-height 1.65
 - Kicker `Inter` 12px uppercase 0.18em, `gold`
-- Pull quote `Playfair Display` italic 20px, `gold-light`, 1px `gold-deep` left rule
+- Pull quote `Fraunces` italic 20px, `gold-light`, 1px `gold-deep` left rule
+- Reading sample body `Source Serif 4` 17px, line-height 1.7
+
+### Brand fonts
+Load `packages/ui/fonts.css` before Tailwind's base layer in
+`apps/web/app/globals.css` (Phase 3):
+
+```css
+@import '@perpustakaan-hati/ui/fonts.css';
+```
+
+Self-hosted woff2 in `packages/brand-tools/fonts/` — never a Google Fonts CDN
+link. Three faces, three jobs:
+
+| role | family | where |
+|---|---|---|
+| Display | Fraunces (variable) | H1–H3, wordmark, pull quotes, cover titles, tier names |
+| Body / UI | Inter (variable) | body copy, buttons, kickers, labels, folios, form fields |
+| Reading | Source Serif 4 (variable) | long-form eBook body, chapter previews |
 
 ### shadcn/ui mapping
 shadcn default tokens are neutral-light. Override in `globals.css`:
@@ -49,19 +67,20 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 
 ### Page geometry
 - Trim 6×9 in (152×229mm). Margins: inner 20mm, outer 15mm, top 18mm, bottom 20mm.
-- Baseline grid 12pt; body 11.5pt Playfair Display (serif reading) / 10.5pt Inter for exercises.
+- Baseline grid 12pt; body 11.5pt Source Serif 4 (serif reading) / 10.5pt Inter for exercises.
+- Display type (titles, chapter openers, pull quotes) Fraunces.
 - Folio: outer bottom corner, 9pt Inter, `gold-deep` on ink pages, `sepia-deep` on cream pages.
 
 ### Master layouts
 | Layout | Description |
 |---|---|
-| `cover` | Full-bleed `ink`, gold wordmark, tier-colour bar, `— by @rahimam —`, title Playfair 28pt `gold-light` |
+| `cover` | Full-bleed `ink`, gold wordmark, tier-colour bar, `— by @rahimam —`, title Fraunces 28pt `gold-light` |
 | `title-page` | Cream, centered wordmark, tagline, tier badge |
-| `chapter-opener` | Ink page, oversized chapter numeral in `gold` outline, chapter title Playfair 24pt, one-line epigraph in `gold-light` italic |
+| `chapter-opener` | Ink page, oversized chapter numeral in `gold` outline, chapter title Fraunces 24pt, one-line epigraph in `gold-light` italic |
 | `body` | Cream page, serif body, drop cap in `sepia`, first-line indent 5mm, no hyphenation |
-| `pull-quote` | Ink page, centered Playfair italic 22pt `gold-light`, thin `gold-deep` rules above/below |
+| `pull-quote` | Ink page, centered Fraunces italic 22pt `gold-light`, thin `gold-deep` rules above/below |
 | `worksheet` | Cream page, dotted 4mm write-on rules in `sepia-deep` 30% opacity, checkbox column 6mm |
-| `reflection-card` | Ink card, 90×50mm, gold border, `olive` healing-tier marker, rounded 4mm, quote + prompt |
+| `reflection-card` | Ink card, 90×50mm, gold border, `green` healing-tier marker, rounded 4mm, quote + prompt |
 | `script-page` | Cream page, two columns: left "Saya mahu kata" (terracotta), right "Cara aku kata" (sepia), for *Skrip Bincang Hati ke Hati* |
 | `back-matter` | Helpline page, `cream`, Talian HEAL 15555 / Befrienders in `sepia`, PDPA note 8pt |
 
@@ -78,20 +97,20 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 ### Quote card layout
 - Ground `ink`, 1px `gold-deep` inner border, 24px padding.
 - Kicker: `— @rahimam —` `gold`, Inter 24px uppercase 0.2em.
-- Quote: Playfair Display 60–72px, `gold-light`, line-height 1.2, max 4 lines.
-- Footer: `PERPUSTAKAAN HATI` Playfair 28px `gold`, tracking 0.22em, bottom-left; `tier badge` bottom-right.
+- Quote: Fraunces 60–72px, `gold-light`, line-height 1.2, max 4 lines.
+- Footer: `PERPUSTAKAAN HATI` Fraunces 28px `gold`, tracking 0.18em, bottom-left; `tier badge` bottom-right.
 - Grid overlay guide only in the template file, never in the exported PNG.
 
 ### Carousel panel (10 slides)
 1. Cover — wordmark, "Karya untuk jiwa yang pernah terluka"
 2–7. Six quote panels, one idea per slide
-8. Tier ladder — three panels side-by-side showing olive / gold / burgundy tiers with prices
+8. Tier ladder — three panels side-by-side showing green / gold / burgundy tiers with prices
 9. Problem slide — "Kennt kamu rasa ini?" (teaser of the pain point)
 10. CTA — "Mula dengan Edisi Poket — percuma", terracotta button block, handle
 
 ### Teaser graphic
 - Never a fake screenshot. Use a real book render or typographic card.
-- Calendar tile template (from the reference artwork): cream ground, `sepia` text, `terracotta` prayer-time accents, Hijri date in Playfair italic, one hadith quote per month.
+- Calendar tile template (from the reference artwork): cream ground, `sepia` text, `terracotta` prayer-time accents, Hijri date in Fraunces italic, one hadith quote per month.
 
 ### Export
 - sRGB, PNG for photos, JPEG q85 for photos, PDF for print assets.

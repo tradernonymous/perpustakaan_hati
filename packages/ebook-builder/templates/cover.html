@@ -4,7 +4,7 @@
   Render to PNG/PDF via Playwright/Chromium in Phase 2.
   Source: docs/brand/ui-kit.md -> "eBook Layout Templates" -> cover
   Placeholders: {{TITLE}}, {{TIER}}, {{SUBTITLE}} + tier class on .cover
-  Tier accent colors: free=olive, standard=gold, premium=burgundy
+  Tier accent colors: free=green, standard=gold, premium=burgundy
 -->
 <html lang="ms">
 <head>
@@ -19,9 +19,29 @@
     --gold: #c9a86a;
     --gold-light: #e9cea2;
     --gold-deep: #a07b45;
-    --olive: #5f6f4a;
+    --green: #5b9b7d;
+    --green-light: #8fc9a8;
     --burgundy: #5c1e17;
-    --accent: var(--olive);
+    --burgundy-light: #c25a58;
+    --accent: var(--green);
+  }
+
+  /* Brand fonts, self-hosted and subset.
+     Source: packages/brand-tools/fonts/ */
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../brand-tools/fonts/FrauncesDisplay.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2');
+    font-weight: 400 700; font-style: italic; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('../../brand-tools/fonts/InterUI.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
   }
 
   body {
@@ -69,7 +89,7 @@
   }
 
   .wordmark {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 92px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
@@ -85,14 +105,14 @@
   }
 
   .title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 104px;
     line-height: 1.12;
     font-weight: 500;
   }
 
   .subtitle {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-style: italic;
     font-size: 44px;
     line-height: 1.4;
@@ -126,13 +146,13 @@
     bottom: 100px;
     width: 120px;
     height: 8px;
-    background: var(--olive);
+    background: var(--green);
   }
 
   /* tier variants */
-  .tier-free     { --accent: var(--olive); }
+  .tier-free     { --accent: var(--green); }
   .tier-standard { --accent: var(--gold); }
-  .tier-premium  { --accent: var(--burgundy); }
+  .tier-premium  { --accent: var(--burgundy-light); }
 </style>
 </head>
 <body>

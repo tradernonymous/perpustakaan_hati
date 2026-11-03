@@ -23,9 +23,30 @@
     --gold-deep: #a07b45;
     --terracotta: #da725b;
     --cream: #fdfee6;
-    --olive: #5f6f4a;
+    --green: #5b9b7d;
+    --green-light: #8fc9a8;
     --burgundy: #5c1e17;
+    --burgundy-light: #c25a58;
     --border-dark: #2a2a2e;
+  }
+
+
+  /* Brand fonts, self-hosted and subset.
+     Source: packages/brand-tools/fonts/ */
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplay.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2');
+    font-weight: 400 700; font-style: italic; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('../../../packages/brand-tools/fonts/InterUI.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
   }
 
   body {
@@ -63,14 +84,14 @@
   }
 
   .wordmark {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 42px;
     letter-spacing: 0.22em;
     color: var(--gold);
   }
 
   .big {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 72px;
     line-height: 1.2;
   }
@@ -101,12 +122,12 @@
     border-top: 6px solid var(--c);
     padding: 30px 26px;
   }
-  .tier h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 34px; color: var(--c); margin-bottom: 10px; }
+  .tier h3 { font-family: 'Fraunces', Georgia, serif; font-size: 34px; color: var(--c); margin-bottom: 10px; }
   .tier p { font-size: 22px; color: #e6e2da; line-height: 1.5; }
   .tier .price { font-size: 26px; color: var(--gold); margin-top: 16px; }
-  .tier-free     { --c: var(--olive); }
+  .tier-free     { --c: var(--green); }
   .tier-standard { --c: var(--gold); }
-  .tier-premium  { --c: var(--burgundy); }
+  .tier-premium  { --c: var(--burgundy-light); }
 
   /* slide 9 problem */
   .s-problem .big { color: var(--terracotta); }

@@ -10,7 +10,7 @@
 | Buku Kerja 30 Hari | PDF (print + fill) | 30 | one prompt per day; dotted write-on rules, `sepia` 30% |
 | Skrip Bincang Hati ke Hati | PDF | 20–25 | two-column script templates: "Saya mahu kata" / "Cara aku kata" |
 | Nota Suara Rahimam | MP3 | 8–10 tracks, 5 min each | *Audio Terapi Hati* — commute/bedtime emotional regulation |
-| Kad Refleksi | printable set | 12 | olive-bordered pocket cards, cut lines included |
+| Kad Refleksi | printable set | 12 | green-bordered pocket cards, cut lines included |
 
 ## Positioning
 Not "a bigger book". The flagship promise is *continuity*: reading + doing +
