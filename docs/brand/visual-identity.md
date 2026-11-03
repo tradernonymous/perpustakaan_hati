@@ -26,24 +26,35 @@ All contrast ratios below were computed from the hex values in this file
 | `cream` | `#fdfee6` | light ground, calendar body | sampled |
 | `paper` | `#f4efe6` | eBook interior ground | brand addition |
 
-### The green ramp
+### The Living Green ramp
 
 Green is the brand's healing signal and the primary accent alongside gold.
 It is a **ramp, not a single colour** — each token is tuned for the ground it
 sits on, because one flat green cannot pass contrast on both dark and light.
 
+The ramp was designed for Design System 2.0 ("Living Sanctuary"). It keeps
+`#5b9b7d` as the main green — it is mature rather than fluorescent, passes
+AA on ink, and is already embedded throughout the templates — and adds
+deeper steps for dimensional work plus two lighter steps for surfaces.
+
 | token | hex | role | on `ink` | on `cream` |
 |---|---|---|---|---|
-| `green` | `#5b9b7d` | **primary green** — healing marker, tier badge, accents | **6.06:1** AA | 3.19:1 AA-large only |
-| `green-light` | `#8fc9a8` | highlights, rules, hover states | **10.44:1** AAA | 1.85:1 — dark ground only |
-| `green-mid` | `#3f7d5e` | body copy on light grounds | 4.06:1 AA-large | **4.76:1** AA |
-| `green-deep` | `#255740` | headings on light grounds | 2.37:1 — dark ground only | **8.15:1** AAA |
-| `green-ink` | `#173c2c` | body text on light grounds | 1.62:1 — dark ground only | **11.92:1** AAA |
-| `green-wash` | `#d9efe1` | soft panel fill (always with `ink` text) | 16.37:1 AAA | 1.18:1 — dark ground only |
+| `green-950` | `#0b2418` | deepest gradient endpoint, 3D back plane | 1.21:1 — dark ground only | **16.02:1** AAA |
+| `green-900` | `#123d2a` | 3D extrusion, dark brand panels | 1.63:1 — dark ground only | **11.87:1** AAA |
+| `green-800` | `#1d5a3d` | deep accent surfaces, body copy on light | 2.43:1 — dark ground only | **7.94:1** AAA |
+| `green-700` | `#2d7954` | strong brand accent, headings on light | 3.74:1 AA-large | **5.16:1** AA |
+| `green-600` | `#3f9167` | CTA gradient start, active state | 5.14:1 AA | 3.76:1 — AA-large only |
+| `green-500` | `#5b9b7d` | **THE main green** — healing marker, tier badge, accents | **6.06:1** AA | 3.19:1 AA-large only |
+| `green-400` | `#7db895` | hover, icons, green text on ink | **8.63:1** AAA | 2.24:1 — dark ground only |
+| `green-300` | `#a7d3b6` | soft highlights, green text on ink | **11.90:1** AAA | 1.62:1 — dark ground only |
+| `green-200` | `#cbe8d5` | light surfaces and dividers | 15.11:1 AAA | 1.28:1 — dark ground only |
+| `green-100` | `#e4f4e9` | pale green background | 17.35:1 AAA | 1.11:1 — dark ground only |
+| `lime-glow` | `#c8e986` | 3D rim light, energy accents — never body text | **14.56:1** AAA | 1.33:1 — dark ground only |
+| `mint-glass` | `#9de1c1` | translucent botanical highlight | **13.16:1** AAA | 1.47:1 — dark ground only |
 
-**The rule that prevents most mistakes:** never set `green` or `green-light`
-as body text on `cream`/`paper`. Use `green-mid`, `green-deep` or `green-ink`
-there. Never set `green-deep` or `green-ink` on `ink`.
+**The rule that prevents most mistakes:** never set `green-500`, `green-400`
+or `green-300` as body text on `cream`/`paper`. Use `green-700`, `green-800`
+or `green-900` there. Never set `green-900` or `green-950` on `ink`.
 
 ### Usage rules
 - Dark-first. `ink` is the default page ground; `cream`/`paper` are the alternative (print / eBook interiors / calendar pages).
@@ -55,33 +66,44 @@ there. Never set `green-deep` or `green-ink` on `ink`.
 
 ## Contrast check (WCAG AA on `ink` ground)
 
-Measured, not estimated:
+Measured, not estimated. Every ratio below is produced by
+`packages/brand-tools/check-contrast.py` — re-run it after any colour change:
+
+```bash
+uv run --no-project python packages/brand-tools/check-contrast.py
+```
 
 | pair | ratio | grade |
 |---|---|---|
 | `cream #fdfee6` on `#0a0a0c` | 19.31:1 | AAA |
 | `gold-light #e9cea2` on `#0a0a0c` | 13.01:1 | AAA |
-| `green-light #8fc9a8` on `#0a0a0c` | 10.44:1 | AAA |
+| `lime-glow #c8e986` on `#0a0a0c` | 14.56:1 | AAA |
+| `green-300 #a7d3b6` on `#0a0a0c` | 11.90:1 | AAA |
+| `mint-glass #9de1c1` on `#0a0a0c` | 13.16:1 | AAA |
+| `green-400 #7db895` on `#0a0a0c` | 8.63:1 | AAA |
 | `gold #c9a86a` on `#0a0a0c` | 8.75:1 | AAA |
 | `terracotta #da725b` on `#0a0a0c` | 6.16:1 | AA |
 | `green #5b9b7d` on `#0a0a0c` | 6.06:1 | AA |
-| `burgundy-light #c25a58` on `#0a0a0c` | 4.61:1 | AA |
+| `green-600 #3f9167` on `#0a0a0c` | 5.14:1 | AA |
 | `gold-deep #a07b45` on `#0a0a0c` | 5.10:1 | AA |
+| `burgundy-light #c25a58` on `#0a0a0c` | 4.61:1 | AA |
 
 On `cream` ground:
 
 | pair | ratio | grade |
 |---|---|---|
 | `ink #0a0a0c` on `#fdfee6` | 19.31:1 | AAA |
-| `green-ink #173c2c` on `#fdfee6` | 11.92:1 | AAA |
+| `green-900 #123d2a` on `#fdfee6` | 11.87:1 | AAA |
 | `burgundy #5c1e17` on `#fdfee6` | 12.40:1 | AAA |
 | `sepia #573a2f` on `#fdfee6` | 9.99:1 | AAA |
-| `green-deep #255740` on `#fdfee6` | 8.15:1 | AAA |
-| `green-mid #3f7d5e` on `#fdfee6` | 4.76:1 | AA |
-| `ink #0a0a0c` on `gold #c9a86a` | 8.75:1 | AAA (dark-on-gold buttons) |
+| `green-800 #1d5a3d` on `#fdfee6` | 7.94:1 | AAA |
+| `green-700 #2d7954` on `#fdfee6` | 5.16:1 | AA |
 
-> **Do not use `sepia`, `burgundy` or `green-deep` as text on `ink`** — they
-> measure 1.93, 1.56 and 2.37:1 respectively. Use them as fills only.
+
+| `ink #0a0a0c` on `#gold #c9a86a` | 8.75:1 | AAA (dark-on-gold buttons) |
+
+> **Do not use `sepia`, `burgundy` or `green-900` as text on `ink`** — they
+> measure 1.93, 1.56 and 1.62:1 respectively. Use them as fills only.
 
 ### Colour-blindness safety
 
@@ -92,14 +114,18 @@ measuring CIE76 ΔE between the simulated colours:
 
 | pair | normal ΔE | worst CVD ΔE |
 |---|---|---|
-| green ~ gold | 43.2 | **24.4** |
-| gold ~ burgundy | 44.8 | **20.6** |
-| green ~ burgundy | 68.2 | **37.8** |
+| green ~ gold | 43.2 | **21.2** (protanopia) |
+| gold ~ burgundy | 44.8 | **36.7** (protanopia) |
+| green ~ burgundy | 70.6 | **19.8** (protanopia) |
 
 All pairs stay well above the ΔE ≈ 10 threshold where tiers would become
 confusable. This is why the green is a *saturated* emerald rather than the
 earlier desaturated olive — desaturated greens sit too close to gold once
 red is removed from the vision.
+
+Because colour alone must never carry the tier, each tier also has a
+distinct **shape**: Edisi Poket = circle, Edisi Membangun = hexagon,
+Teman Hidup = arch/shield. Always render the tier name alongside the badge.
 
 ## Typography
 
@@ -125,10 +151,127 @@ Three faces, each with a distinct job:
 ### Self-hosting
 
 Brand fonts are subset to the brand glyph set and stored as woff2 in
-`packages/brand-tools/fonts/` (~260 KB for all four files). Load with
+`packages/brand-tools/fonts/` (~340 KB for all four files). Load with
 `font-display: swap`. Never rely on Google Fonts CDN at runtime — the
 brand must render identically offline, in the PDF build, and on a
 malay reader's slow phone connection.
+
+The subsets are built from the upstream variable fonts by
+`packages/brand-tools/build-fonts.py`:
+
+```bash
+uv run --no-project --with fonttools --with brotli \
+  python packages/brand-tools/build-fonts.py
+```
+
+Two rules the build enforces, both learned from real fallbacks:
+
+1. **`wght` stays a range** (400–700 / 400–600). A pinned weight makes any
+   other weight request fall back to a system font.
+2. **Each face is subset to the characters it actually contains.** Fraunces
+   has no arrows and no Greek; Source Serif 4 has no double-headed arrows.
+   Subsetting to a character the source lacks drops it silently, and the
+   renderer then falls back — which is exactly how `Δ` in the accessibility
+   notes ended up rendering as Cantarell.
+
+After any font change, audit every template for fallbacks:
+
+```bash
+pdffonts /tmp/design-system-sheet.pdf | grep -ci "noto\|cantarell\|dejavu"
+```
+
+Every template must report `0`.
+
+## The 3D design language
+
+### What "3D type" means here
+
+**Not** a novelty 3D font. That would weaken the editorial character of the
+brand and reintroduce a runtime font dependency.
+
+**Instead:** a vector *treatment* applied to the existing Fraunces outlines —
+the glyph is extruded in vector, given a lit edge, and cast a soft shadow.
+This scales to a poster without blurring and stays portable.
+
+The reference build is `docs/brand/assets/wordmark-3d.svg`, generated by
+`build_wordmark_3d()` in `packages/brand-tools/build-logos.py`.
+
+### Three levels of depth
+
+| level | name | use | token |
+|---|---|---|---|
+| 1 | Soft emboss | ordinary cards, controls | `--depth-1` |
+| 2 | Dimensional surface | featured cards, marketing panels | `--depth-2` |
+| 3 | Dimensional brand object | 3D wordmark, campaign artwork | `--depth-extrude` |
+
+```css
+--depth-1:
+  inset 0 1px 0 rgb(255 255 255 / 0.05),
+  0 8px 24px rgb(0 0 0 / 0.24);
+--depth-2:
+  inset 0 1px 0 rgb(255 255 255 / 0.06),
+  0 18px 50px rgb(0 0 0 / 0.34);
+--depth-3:
+  inset 0 1px 0 rgb(255 255 255 / 0.08),
+  0 32px 80px rgb(0 0 0 / 0.42);
+--depth-extrude:
+  0 3px 0 rgb(18 61 42 / 0.8),
+  0 32px 80px rgb(0 0 0 / 0.42);
+```
+
+Shadows carry a **green undertone**, so raised surfaces feel lit by foliage
+rather than by cold studio light.
+
+### The 3D material recipe
+
+The canonical four-part recipe for extruded brand type:
+
+| part | colour | token |
+|---|---|---|
+| Face | `#f4efe6` or `#e9cea2` | `--material-face` / `--material-face-warm` |
+| Extrusion (side wall) | `#123d2a` | `--material-extrude` |
+| Rim light | `#c8e986` | `--material-rim` |
+| Ambient shadow | `rgb(0 0 0 / 0.45)` | `--material-shadow` |
+
+For a gold 3D wordmark specifically: face `gold #c9a86a`, extrusion
+`gold-deep #a07b45`, rim `green-400 #7db895`.
+
+### Reference assets
+
+| asset | what it is |
+|---|---|
+| `docs/brand/assets/wordmark-3d.svg` | the extruded 3D wordmark (campaign use) |
+| `docs/brand/preview/design-system-2-1.png` | the full design-system showcase sheet |
+| `docs/brand/templates/design-system-sheet.html` | the source of the showcase sheet |
+
+Regenerate the sheet with:
+
+```bash
+uv run --no-project --with weasyprint python -c "
+from weasyprint import HTML
+HTML(filename='docs/brand/templates/design-system-sheet.html').write_pdf('/tmp/ds.pdf')"
+pdftoppm -png -r 96 /tmp/ds.pdf docs/brand/preview/design-system-2
+```
+
+### Where 3D is allowed
+
+| Surface | 3D allowed? |
+|---|---|
+| Social headers, event posters, video openers | **Yes** — full treatment |
+| Tier badges, large CTAs, stat numerals | **Yes** — light bevel only |
+| Site header, eBook cover, PDF master | **No** — use the flat wordmark |
+| Body copy, long-form reading, form fields | **No** |
+
+The flat outlined wordmark remains the primary mark. 3D is a campaign asset.
+
+### Performance and motion
+
+- 3D is a **marketing-layer material system**, not a default UI style.
+- Every 3D surface needs a **static fallback** — a low-end Malaysian phone
+  should never be forced to over-paint.
+- Healing-progress animation is a travelling glow, 200–400 ms, never a
+  spinner. It must respect `prefers-reduced-motion`.
+- Progress always carries a text percentage or label — never colour alone.
 
 ## Logo & watermark stamp
 - Wordmark: `PERPUSTAKAAN HATI` — Fraunces, uppercase, `letter-spacing: 0.18em`, gold `#c9a86a` on ink. Second line `— by @rahimam —` in Inter uppercase 0.25em tracking, `gold-light`.
@@ -139,7 +282,7 @@ malay reader's slow phone connection.
 
 ### Logo files are outlined, not font-dependent
 
-All three SVGs in `docs/brand/assets/` are generated by
+All four SVGs in `docs/brand/assets/` are generated by
 `packages/brand-tools/build-logos.py`, which converts the type to real
 vector outlines. **They do not reference a font by name.** This matters
 because a `<text>` element with `font-family="Fraunces"` silently falls
@@ -153,6 +296,16 @@ uv run --no-project --with fonttools --with brotli \
   python packages/brand-tools/build-logos.py
 ```
 
+The build is reproducible — regenerating produces byte-identical files.
+
+Verify there is no font dependency at any time with:
+
+```bash
+grep -c 'font-family=' docs/brand/assets/*.svg
+```
+
+Every file must report `0`.
+
 ## Tailwind usage
 Wire into `tailwind.config.ts` under `extend`. Copy `docs/brand/design-tokens.css` into the app root.
 
@@ -160,7 +313,9 @@ Wire into `tailwind.config.ts` under `extend`. Copy `docs/brand/design-tokens.cs
 ```css
 :root {
   --ink: #0a0a0c;
+  --ink-raised: #121416;
   --ink-soft: #17171a;
+  --ink-elevated: #202226;
   --gold: #c9a86a;
   --gold-light: #e9cea2;
   --gold-deep: #a07b45;
@@ -173,12 +328,19 @@ Wire into `tailwind.config.ts` under `extend`. Copy `docs/brand/design-tokens.cs
   --terracotta-soft: #e69677;
   --cream: #fdfee6;
   --paper: #f4efe6;
-  --green: #5b9b7d;
-  --green-light: #8fc9a8;
-  --green-mid: #3f7d5e;
-  --green-deep: #255740;
-  --green-ink: #173c2c;
-  --green-wash: #d9efe1;
+  --linen: #eae2d4;
+  --green-950: #0b2418;
+  --green-900: #123d2a;
+  --green-800: #1d5a3d;
+  --green-700: #2d7954;
+  --green-600: #3f9167;
+  --green-500: #5b9b7d;
+  --green-400: #7db895;
+  --green-300: #a7d3b6;
+  --green-200: #cbe8d5;
+  --green-100: #e4f4e9;
+  --lime-glow: #c8e986;
+  --mint-glass: #9de1c1;
 }
 ```
 
@@ -186,26 +348,50 @@ Wire into `tailwind.config.ts` under `extend`. Copy `docs/brand/design-tokens.cs
 ```ts
 extend: {
   colors: {
-    ink: { DEFAULT: '#0a0a0c', soft: '#17171a' },
+    ink: {
+      DEFAULT: '#0a0a0c',
+      raised: '#121416',
+      soft: '#17171a',
+      elevated: '#202226',
+    },
     gold: { DEFAULT: '#c9a86a', light: '#e9cea2', deep: '#a07b45' },
     sepia: { DEFAULT: '#573a2f', deep: '#3a2a21' },
     burgundy: { DEFAULT: '#5c1e17', deep: '#3f1711', light: '#c25a58' },
     terracotta: { DEFAULT: '#da725b', soft: '#e69677' },
     cream: '#fdfee6',
     paper: '#f4efe6',
+    linen: '#eae2d4',
     green: {
+      950: '#0b2418',
+      900: '#123d2a',
+      800: '#1d5a3d',
+      700: '#2d7954',
+      600: '#3f9167',
+      500: '#5b9b7d',
+      400: '#7db895',
+      300: '#a7d3b6',
+      200: '#cbe8d5',
+      100: '#e4f4e9',
       DEFAULT: '#5b9b7d',
-      light: '#8fc9a8',
-      mid: '#3f7d5e',
-      deep: '#255740',
-      ink: '#173c2c',
-      wash: '#d9efe1',
     },
+    lime: { glow: '#c8e986' },
+    mint: { glass: '#9de1c1' },
   },
   fontFamily: {
     display: ['Fraunces', 'Georgia', 'serif'],
     body: ['Inter', 'system-ui', 'sans-serif'],
     reading: ['Source Serif 4', 'Georgia', 'serif'],
+  },
+  boxShadow: {
+    'depth-1': 'inset 0 1px 0 rgb(255 255 255 / 0.05), 0 8px 24px rgb(0 0 0 / 0.24)',
+    'depth-2': 'inset 0 1px 0 rgb(255 255 255 / 0.06), 0 18px 50px rgb(0 0 0 / 0.34)',
+    'depth-3': 'inset 0 1px 0 rgb(255 255 255 / 0.08), 0 32px 80px rgb(0 0 0 / 0.42)',
+    extrude: '0 3px 0 rgb(18 61 42 / 0.8), 0 32px 80px rgb(0 0 0 / 0.42)',
+  },
+  backgroundImage: {
+    'green-cta': 'linear-gradient(135deg, #3f9167, #5b9b7d)',
+    'green-cta-hover': 'linear-gradient(135deg, #2d7954, #4d9573)',
+    'green-deep': 'linear-gradient(160deg, #123d2a, #0b2418)',
   },
 }
 ```

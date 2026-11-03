@@ -218,3 +218,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Brand font build inputs — upstream variable TTFs, downloaded on demand.
+# The subsets in packages/brand-tools/fonts/*.woff2 ARE tracked.
+packages/brand-tools/fonts/source/

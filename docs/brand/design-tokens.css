@@ -1,67 +1,109 @@
-/* Perpustakaan Hati — design tokens
+/* Perpustakaan Hati — design tokens (Design System 2.0 "Living Sanctuary")
    Source: docs/brand/visual-identity.md
-   Usage: copy to app root, import in globals.css.
+   Usage: import in apps/web/app/globals.css (Phase 3), and by the
+   eBook/Threads templates via packages/ui/tokens.css.
    Fonts: Fraunces (display) + Inter (UI) + Source Serif 4 (long-form).
-   Brand fonts are subset and self-hosted — see packages/brand-tools/fonts/. */
+   Brand fonts are subset and self-hosted — see packages/brand-tools/fonts/.
+
+   Every colour pair used for text has a measured WCAG 2.1 contrast ratio.
+   Run the checker to re-verify after any change:
+
+       uv run --no-project python packages/brand-tools/check-contrast.py
+*/
 
 :root {
-  /* core grounds */
+  /* ---- core grounds -------------------------------------------------- */
   --ink: #0a0a0c;
+  --ink-raised: #121416;   /* 3D base layer, sits under ink-soft */
   --ink-soft: #17171a;
-  --cream: #fdfee6;
-  --paper: #f4efe6;
+  --ink-elevated: #202226; /* inputs, popovers, overlays */
 
-  /* gold — primary accent */
+  --cream: #fdfee6;
+  --paper: #f4efe6;        /* eBook interior ground */
+  --linen: #eae2d4;        /* paper texture / warm light border */
+
+  /* ---- gold — structure --------------------------------------------- */
   --gold: #c9a86a;
   --gold-light: #e9cea2;
   --gold-deep: #a07b45;
 
-  /* warm mid-tones */
+  /* ---- warm mid-tones ------------------------------------------------ */
   --sepia: #573a2f;
   --sepia-deep: #3a2a21;
 
-  /* emotional / premium */
+  /* ---- emotional / premium ------------------------------------------- */
   --burgundy: #5c1e17;
   --burgundy-deep: #3f1711;
   --burgundy-light: #c25a58;   /* readable on ink — tier badge text */
 
-  /* conversion */
+  /* ---- conversion ---------------------------------------------------- */
   --terracotta: #da725b;
   --terracotta-soft: #e69677;
 
-  /* healing green — brand primary accent
-     Ramp is role-specific: each token is tuned for the ground it sits on.
-     Never use green on cream (3.19:1) — use green-deep or green-ink there. */
-  --green: #5b9b7d;        /* 6.06:1 on ink — the workhorse */
-  --green-light: #8fc9a8;  /* 10.44:1 on ink — highlights, rules */
-  --green-mid: #3f7d5e;    /* 4.06:1 on ink / 4.76:1 on cream — body copy on light */
-  --green-deep: #255740;   /* 8.15:1 on cream — headings on light */
-  --green-ink: #173c2c;    /* 11.92:1 on cream — body text on light */
-  --green-wash: #d9efe1;   /* 16.37:1 with ink text — soft panel fill */
+  /* ---- Living Green ramp ---------------------------------------------
+     The brand's primary accent. A ramp, not a single colour: each token
+     is tuned for the ground it sits on, because one flat green cannot pass
+     contrast on both dark and light.
+     Rule: never set green-500 / green-400 as body text on cream or paper —
+     use green-700, green-800 or green-900 there. Never set green-900 /
+     green-950 on ink. */
+  --green-950: #0b2418;   /* deepest gradient endpoint */
+  --green-900: #123d2a;   /* 3D extrusion, dark brand panels */
+  --green-800: #1d5a3d;   /* deep accent surfaces */
+  --green-700: #2d7954;   /* strong brand accent, headings on cream */
+  --green-600: #3f9167;   /* CTA gradient start */
+  --green-500: #5b9b7d;   /* THE main green — 6.06:1 on ink */
+  --green-400: #7db895;   /* hover, icons, green text on ink (8.63:1) */
+  --green-300: #a7d3b6;   /* soft highlights, green text on ink (11.90:1) */
+  --green-200: #cbe8d5;   /* light surfaces and dividers */
+  --green-100: #e4f4e9;   /* pale green background */
+  --lime-glow: #c8e986;   /* 3D rim light — accents only, never body text */
+  --mint-glass: #9de1c1;  /* translucent botanical highlight */
 
-  /* text roles */
+  /* Legacy aliases — kept so existing templates keep working.
+     These now point into the ramp above. */
+  --green: var(--green-500);
+  --green-light: var(--green-400);
+  --green-mid: var(--green-700);
+  --green-deep: var(--green-800);
+  --green-ink: var(--green-900);
+  --green-wash: var(--green-100);
+
+  /* ---- semantic roles ------------------------------------------------ */
+  --color-healing: var(--green-500);
+  --color-healing-strong: var(--green-700);
+  --color-healing-light: var(--green-400);
+  --color-growth: var(--lime-glow);
+  --color-success: var(--green-600);
+  --color-success-soft: var(--green-100);
+
+  /* ---- text roles ---------------------------------------------------- */
   --text-on-dark: #e6e2da;
   --text-on-light: #0a0a0c;
   --text-muted-on-dark: #a49c8d;
   --text-muted-on-light: #573a2f;
   --border-dark: #2a2a2e;
   --border-light: #d9cfbf;
+  --border-gold: rgb(201 168 106 / 0.18);
 
-  /* tier colours — fixed, see docs/brand/tier-naming.md
-     Each has a light variant for use as badge text on the ink ground. */
-  --tier-free: var(--green);
+  /* ---- tier colours — fixed, see docs/brand/tier-naming.md
+     Each has a light variant for use as badge text on the ink ground.
+     Verified colour-blind-safe: worst-case CIE76 dE 19.8 (protanopia)
+     between green and burgundy, 21.2 between green and gold. Shape and
+     text labels are still required — colour alone never carries the tier. */
+  --tier-free: var(--green-500);
   --tier-standard: var(--gold);
   --tier-premium: var(--burgundy-light);
-  --tier-free-fill: var(--green);
+  --tier-free-fill: var(--green-500);
   --tier-standard-fill: var(--gold);
   --tier-premium-fill: var(--burgundy);
 
-  /* typography */
+  /* ---- typography ---------------------------------------------------- */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
   --font-reading: 'Source Serif 4', Georgia, serif;
 
-  /* spacing scale */
+  /* ---- spacing scale ------------------------------------------------- */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -71,22 +113,54 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  /* radii + shadow */
+  /* ---- radii ---------------------------------------------------------- */
   --radius-sm: 2px;
   --radius-md: 4px;
   --radius-lg: 8px;
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.28);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.5), 0 16px 48px rgb(0 0 0 / 0.4);
+  --radius-pill: 999px;
 
-  /* motion */
+  /* ---- depth / 3D -----------------------------------------------------
+     Four elevation levels. Shadows carry a green undertone so raised
+     surfaces feel lit by foliage rather than by cold studio light. */
+  --depth-0: none;
+  --depth-1:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 8px 24px rgb(0 0 0 / 0.24);
+  --depth-2:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 18px 50px rgb(0 0 0 / 0.34);
+  --depth-3:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 32px 80px rgb(0 0 0 / 0.42);
+  --depth-extrude:
+    0 3px 0 rgb(18 61 42 / 0.8),
+    0 32px 80px rgb(0 0 0 / 0.42);
+
+  /* legacy shadow aliases */
+  --shadow-card: var(--depth-1);
+  --shadow-lift: var(--depth-2);
+
+  /* ---- 3D material recipe --------------------------------------------
+     The canonical recipe for extruded brand type. Face + side + rim +
+     ambient shadow. Used by the 3D wordmark generator and by any
+     dimensional campaign artwork. */
+  --material-face: #f4efe6;
+  --material-face-warm: #e9cea2;
+  --material-extrude: #123d2a;
+  --material-rim: #c8e986;
+  --material-shadow: rgb(0 0 0 / 0.45);
+
+  /* ---- motion -------------------------------------------------------- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 140ms;
   --dur-base: 240ms;
+  --dur-slow: 400ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-fast: 0ms;
     --dur-base: 0ms;
+    --dur-slow: 0ms;
   }
 }
