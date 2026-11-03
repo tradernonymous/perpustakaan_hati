@@ -1,7 +1,7 @@
 # Tier 1 — Edisi Poket (Free)
 
 > "Teman hati sementara menunggu bas atau train."
-> 15–25 pages · olive tier · RM 0
+> 15–25 pages · green tier · RM 0
 
 ## Purpose
 Pocket diagnostic + fast emotional reset. Built to be read in one sitting on a
@@ -25,4 +25,4 @@ printed on the back cover.
 ## Files
 - `outline.md` (this file) — structure
 - `manuscript/` — chapter Markdown (Phase 2)
-- `covers/` — cover render for olive tier
+- `covers/` — cover render for green tier

@@ -19,8 +19,29 @@
     --gold-light: #e9cea2;
     --gold-deep: #a07b45;
     --terracotta: #da725b;
-    --olive: #5f6f4a;
+    --green: #5b9b7d;
+    --green-light: #8fc9a8;
     --burgundy: #5c1e17;
+    --burgundy-light: #c25a58;
+  }
+
+
+  /* Brand fonts, self-hosted and subset.
+     Source: packages/brand-tools/fonts/ */
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplay.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2');
+    font-weight: 400 700; font-style: italic; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('../../../packages/brand-tools/fonts/InterUI.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
   }
 
   body {
@@ -59,7 +80,7 @@
   }
 
   .quote {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 68px;
     line-height: 1.2;
     margin-top: 96px;
@@ -76,7 +97,7 @@
   }
 
   .wordmark {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Fraunces', Georgia, serif;
     font-size: 40px;
     letter-spacing: 0.22em;
     color: var(--gold);
@@ -87,21 +108,21 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     padding: 14px 26px;
-    border: 2px solid var(--tier-color, var(--olive));
-    color: var(--tier-color, var(--olive));
+    border: 2px solid var(--tier-color, var(--green));
+    color: var(--tier-color, var(--green));
   }
 
   .healing-bar {
     width: 90px;
     height: 8px;
-    background: var(--olive);
+    background: var(--green);
     margin-top: 28px;
   }
 
   /* tier variants */
-  .tier-free     { --tier-color: var(--olive); }
+  .tier-free     { --tier-color: var(--green); }
   .tier-standard { --tier-color: var(--gold); }
-  .tier-premium  { --tier-color: var(--burgundy); }
+  .tier-premium  { --tier-color: var(--burgundy-light); }
 </style>
 </head>
 <body>

@@ -15,8 +15,8 @@
     --popover: 23 23 26;
     --popover-foreground: 230 226 218;
 
-    --primary: 218 114 91;            /* #da725b terracotta */
-    --primary-foreground: 10 10 12;
+    --primary: 91 155 125;            /* #5b9b7d green — brand primary (6.06:1 on ink) */
+    --primary-foreground: 10 10 12;   /* ink on green — 6.06:1 */
 
     --secondary: 23 23 26;
     --secondary-foreground: 233 206 162; /* #e9cea2 gold-light */
@@ -32,7 +32,7 @@
 
     --border: 42 42 46;               /* #2a2a2e border-dark */
     --input: 42 42 46;
-    --ring: 201 168 106;              /* #c9a86a gold */
+    --ring: 143 201 168;              /* #8fc9a8 green-light — 10.44:1 focus ring on ink */
 
     --radius: 0.25rem;
   }
@@ -46,5 +46,8 @@
     --muted-foreground: 87 58 47;     /* #573a2f sepia */
     --border: 217 207 191;            /* #d9cfbf border-light */
     --input: 217 207 191;
+    --primary: 63 125 94;             /* #3f7d5e green-mid — 4.76:1 on cream */
+    --primary-foreground: 253 254 230;
+    --ring: 37 87 64;                 /* #255740 green-deep — 8.15:1 on cream */
   }
 }

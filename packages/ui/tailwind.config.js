@@ -7,10 +7,18 @@ const brandColors = {
   ink: { DEFAULT: '#0a0a0c', soft: '#17171a' },
   gold: { DEFAULT: '#c9a86a', light: '#e9cea2', deep: '#a07b45' },
   sepia: { DEFAULT: '#573a2f', deep: '#3a2a21' },
-  burgundy: { DEFAULT: '#5c1e17', deep: '#3f1711' },
+  burgundy: { DEFAULT: '#5c1e17', deep: '#3f1711', light: '#c25a58' },
   terracotta: { DEFAULT: '#da725b', soft: '#e69677' },
   cream: '#fdfee6',
-  olive: { DEFAULT: '#5f6f4a', deep: '#3c482d' },
+  paper: '#f4efe6',
+  green: {
+    DEFAULT: '#5b9b7d',
+    light: '#8fc9a8',
+    mid: '#3f7d5e',
+    deep: '#255740',
+    ink: '#173c2c',
+    wash: '#d9efe1',
+  },
 };
 
 module.exports = {
@@ -19,8 +27,9 @@ module.exports = {
     extend: {
       colors: brandColors,
       fontFamily: {
-        display: ['Playfair Display', 'Georgia', 'serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
         body: ['Inter', 'system-ui', 'sans-serif'],
+        reading: ['Source Serif 4', 'Georgia', 'serif'],
       },
       borderRadius: { sm: '2px', md: '4px', lg: '8px' },
       boxShadow: {

@@ -1,12 +1,15 @@
 /* Perpustakaan Hati — design tokens
-   Source: docs/brand/visual-identity.md (pixel-sampled from brand reference images)
-   Usage: copy to app root, import in globals.css. */
+   Source: docs/brand/visual-identity.md
+   Usage: copy to app root, import in globals.css.
+   Fonts: Fraunces (display) + Inter (UI) + Source Serif 4 (long-form).
+   Brand fonts are subset and self-hosted — see packages/brand-tools/fonts/. */
 
 :root {
   /* core grounds */
   --ink: #0a0a0c;
   --ink-soft: #17171a;
   --cream: #fdfee6;
+  --paper: #f4efe6;
 
   /* gold — primary accent */
   --gold: #c9a86a;
@@ -20,30 +23,43 @@
   /* emotional / premium */
   --burgundy: #5c1e17;
   --burgundy-deep: #3f1711;
+  --burgundy-light: #c25a58;   /* readable on ink — tier badge text */
 
   /* conversion */
   --terracotta: #da725b;
   --terracotta-soft: #e69677;
 
-  /* healing green */
-  --olive: #5f6f4a;
-  --olive-deep: #3c482d;
+  /* healing green — brand primary accent
+     Ramp is role-specific: each token is tuned for the ground it sits on.
+     Never use green on cream (3.19:1) — use green-deep or green-ink there. */
+  --green: #5b9b7d;        /* 6.06:1 on ink — the workhorse */
+  --green-light: #8fc9a8;  /* 10.44:1 on ink — highlights, rules */
+  --green-mid: #3f7d5e;    /* 4.06:1 on ink / 4.76:1 on cream — body copy on light */
+  --green-deep: #255740;   /* 8.15:1 on cream — headings on light */
+  --green-ink: #173c2c;    /* 11.92:1 on cream — body text on light */
+  --green-wash: #d9efe1;   /* 16.37:1 with ink text — soft panel fill */
 
   /* text roles */
   --text-on-dark: #e6e2da;
   --text-on-light: #0a0a0c;
   --text-muted-on-dark: #a49c8d;
+  --text-muted-on-light: #573a2f;
   --border-dark: #2a2a2e;
   --border-light: #d9cfbf;
 
-  /* tier colours — fixed, see docs/brand/tier-naming.md */
-  --tier-free: var(--olive);
+  /* tier colours — fixed, see docs/brand/tier-naming.md
+     Each has a light variant for use as badge text on the ink ground. */
+  --tier-free: var(--green);
   --tier-standard: var(--gold);
-  --tier-premium: var(--burgundy);
+  --tier-premium: var(--burgundy-light);
+  --tier-free-fill: var(--green);
+  --tier-standard-fill: var(--gold);
+  --tier-premium-fill: var(--burgundy);
 
   /* typography */
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
+  --font-reading: 'Source Serif 4', Georgia, serif;
 
   /* spacing scale */
   --space-1: 0.25rem;

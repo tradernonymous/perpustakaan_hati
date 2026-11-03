@@ -13,9 +13,11 @@ wordmarks, sepia panels, burgundy hearts. It reads like a private library at nig
 That is the brand: **a lit room, a closed door, one warm lamp** — not a clinical
 wellness site, not a bright self-help store.
 
-Green enters here as the brand's healing signal. Olive is the only green that sits
-beside antique gold without going clinical or "forest park". Olive marks *the moment
-of calm* — the healing tier, quiet dividers, the pause in a conversation.
+Green enters here as the brand's healing signal. It is a saturated emerald
+rather than a muted olive: an unsaturated green sits too close to antique gold
+once red is removed from the vision, so the three tier colours would stop being
+tellable apart for colour-blind readers. Green marks *the moment of calm* — the
+healing tier, quiet dividers, the pause in a conversation.
 
 ## Voice
 - Empathetic, poetic but practical — Rahimam voice, BM-first with casual Malaysian English.
@@ -45,7 +47,10 @@ of calm* — the healing tier, quiet dividers, the pause in a conversation.
 - Burgundy — heartbreak, passion, the vulnerable tier
 - Terracotta — action, urgency, conversion
 - Cream — daylight, the calendar, the printable page
-- Olive — healing, growth, the calm green accent
+- Green — healing, growth, the calm green accent (saturated emerald, `#5b9b7d`)
+- Green is the *second* voice: gold leads, green answers. Green marks healing
+  moments (tier badges, dividers, the pause in a conversation) and never takes
+  over the page — gold stays the primary accent.
 
 ## Pillars of the ecosystem
 1. *Sanctuary* — private, stigma-free, no judgment.
