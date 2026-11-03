@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<title>Perpustakaan Hati — Design System 2.0</title>
+<style>
+  /* Perpustakaan Hati — Design System 2.0 showcase
+     Renders the brand tokens, the 3D language and the core components
+     as a single reviewable sheet.
+
+     Render:
+       uv run --no-project --with weasyprint python -c "..."
+     or open in a browser for the interactive version.
+
+     Source of truth: docs/brand/design-tokens.css
+  */
+
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplay.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2');
+    font-weight: 400 700; font-style: italic; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Source Serif 4';
+    src: url('../../../packages/brand-tools/fonts/SourceSerifText.woff2') format('woff2');
+    font-weight: 400 600; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('../../../packages/brand-tools/fonts/InterUI.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+
+  @page { size: 1600px 1200px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0a0a0c;
+    --ink-raised: #121416;
+    --ink-soft: #17171a;
+    --ink-elevated: #202226;
+    --gold: #c9a86a;
+    --gold-light: #e9cea2;
+    --gold-deep: #a07b45;
+    --burgundy: #5c1e17;
+    --burgundy-light: #c25a58;
+    --terracotta: #da725b;
+    --cream: #fdfee6;
+    --paper: #f4efe6;
+    --linen: #eae2d4;
+    --green-950: #0b2418;
+    --green-900: #123d2a;
+    --green-800: #1d5a3d;
+    --green-700: #2d7954;
+    --green-600: #3f9167;
+    --green-500: #5b9b7d;
+    --green-400: #7db895;
+    --green-300: #a7d3b6;
+    --green-200: #cbe8d5;
+    --green-100: #e4f4e9;
+    --lime-glow: #c8e986;
+    --mint-glass: #9de1c1;
+    --text-on-dark: #e6e2da;
+    --text-muted-on-dark: #a49c8d;
+    --border-dark: #2a2a2e;
+    --border-gold: rgb(201 168 106 / 0.18);
+    --depth-1: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 8px 24px rgb(0 0 0 / 0.24);
+    --depth-2: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 18px 50px rgb(0 0 0 / 0.34);
+    --depth-3: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 32px 80px rgb(0 0 0 / 0.42);
+  }
+
+  body {
+    width: 1600px; height: 1200px;
+    background: var(--ink);
+    color: var(--text-on-dark);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    padding: 56px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* soft sanctuary glow behind everything */
+  .glow {
+    position: absolute; top: -320px; left: 50%; transform: translateX(-50%);
+    width: 1200px; height: 700px;
+    background: radial-gradient(ellipse at center,
+      rgb(18 61 42 / 0.75) 0%, rgb(10 10 12 / 0) 70%);
+    pointer-events: none;
+  }
+
+  .sheet { position: relative; }
+
+  /* ---- header ---- */
+  header { display: flex; align-items: flex-end; justify-content: space-between; }
+  .kicker {
+    font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 14px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 54px; font-weight: 600; line-height: 1.05;
+    color: var(--gold-light); letter-spacing: -0.02em;
+  }
+  .sub {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 19px; color: var(--text-muted-on-dark);
+    margin-top: 12px; font-style: italic;
+  }
+  .meta { text-align: right; }
+  .meta .name {
+    font-family: 'Fraunces', Georgia, serif; font-size: 26px;
+    color: var(--gold); letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .meta .ver {
+    font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--text-muted-on-dark); margin-top: 8px;
+  }
+
+  .rule {
+    height: 1px; background: var(--gold-deep); opacity: 0.5;
+    margin: 30px 0 34px;
+  }
+
+  /* ---- three columns ---- */
+  .cols { display: flex; gap: 44px; }
+  .col { flex: 1; }
+
+  h2 {
+    font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 18px;
+    padding-bottom: 9px; border-bottom: 1px solid var(--border-dark);
+  }
+
+  /* ---- swatches ---- */
+  .ramp { display: flex; flex-direction: column; gap: 7px; }
+  .sw { display: flex; align-items: center; gap: 13px; }
+  .chip {
+    width: 52px; height: 34px; border-radius: 3px; flex: none;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 3px 10px rgb(0 0 0 / 0.35);
+  }
+  .sw .nm { font-size: 13px; color: var(--text-on-dark); width: 96px; }
+  .sw .hx { font-size: 12px; color: var(--text-muted-on-dark); width: 74px; }
+  .sw .rt { font-size: 11px; color: var(--text-muted-on-dark); letter-spacing: 0.04em; }
+
+  /* ---- 3D type block ---- */
+  .stage {
+    position: relative; height: 300px; overflow: hidden;
+    background:
+      radial-gradient(ellipse at 50% 38%, rgb(18 61 42 / 0.7) 0%, rgb(10 10 12 / 0) 68%),
+      var(--ink);
+    border: 1px solid var(--border-gold); border-radius: 8px;
+    box-shadow: var(--depth-2);
+    margin-bottom: 22px;
+  }
+  /* Each line is three stacked copies of the same text: the deep-green
+     back wall, the mid-green wall, then the gold face on top. Real
+     stacking beats z-index:-1 pseudo-elements, which get hidden behind
+     the parent's background. */
+  .stage .l1, .stage .l2 {
+    position: absolute; left: 0; right: 0; text-align: center;
+    font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+    letter-spacing: 0.16em; line-height: 1.12;
+  }
+  .stage .l1 { top: 74px; font-size: 42px; height: 48px; }
+  .stage .l2 { top: 132px; font-size: 42px; height: 48px; }
+  .stage .l1 .b, .stage .l2 .b {
+    position: absolute; left: 0; right: 0; top: 0;
+  }
+  .stage .l1 .b, .stage .l2 .b { color: var(--green-900); transform: translate(4px, 8px); }
+  .stage .l1 .m, .stage .l2 .m {
+    position: absolute; left: 0; right: 0; top: 0;
+    color: var(--green-700); transform: translate(2px, 4px);
+  }
+  .stage .l1 .f, .stage .l2 .f {
+    position: absolute; left: 0; right: 0; top: 0; color: var(--gold);
+  }
+  .stage .by {
+    position: absolute; top: 208px; left: 0; right: 0; text-align: center;
+    font-size: 13px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold-light);
+  }
+  .stage .bar {
+    position: absolute; top: 248px; left: 50%; transform: translateX(-50%);
+    width: 44px; height: 4px; background: var(--green-500);
+  }
+  .stage .glowline {
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg,
+      transparent, var(--lime-glow), transparent);
+    opacity: 0.65;
+  }
+
+  /* ---- components ---- */
+  .demo { margin-bottom: 18px; }
+  .demo .lbl {
+    font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text-muted-on-dark); margin-bottom: 9px;
+  }
+
+  .btn {
+    display: inline-block; padding: 13px 26px; border-radius: 2px;
+    font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase;
+    font-weight: 600; background: linear-gradient(135deg, var(--green-600), var(--green-500));
+    color: var(--ink); box-shadow: var(--depth-1);
+  }
+  .btn.ghost {
+    background: transparent; color: var(--gold-light);
+    border: 1px solid var(--gold); box-shadow: none; margin-left: 10px;
+  }
+
+  .card {
+    background: var(--ink-soft); border: 1px solid var(--border-gold);
+    border-radius: 4px; padding: 20px 22px; box-shadow: var(--depth-1);
+  }
+  .card h3 {
+    font-family: 'Fraunces', Georgia, serif; font-size: 23px;
+    color: var(--gold-light); font-weight: 600; margin-bottom: 8px;
+  }
+  .card p {
+    font-family: 'Source Serif 4', Georgia, serif; font-size: 15px;
+    line-height: 1.6; color: var(--text-on-dark);
+  }
+  .card.featured {
+    background: var(--ink-elevated); box-shadow: var(--depth-2);
+    border-top: 2px solid var(--green-700); border-radius: 4px;
+    padding: 20px 22px; margin-top: 14px;
+  }
+  .card.featured h3 { color: var(--green-300); }
+
+  /* progress */
+  .track {
+    height: 8px; border-radius: 999px; overflow: hidden;
+    background: var(--ink-raised); margin-top: 12px;
+  }
+  .track .fill {
+    height: 100%; width: 68%;
+    background: linear-gradient(90deg, var(--green-600), var(--green-400), var(--gold));
+    border-radius: 999px;
+  }
+  .prog-lbl {
+    display: flex; justify-content: space-between; margin-top: 8px;
+    font-size: 12px; color: var(--text-muted-on-dark);
+  }
+  .prog-lbl b { color: var(--green-300); font-weight: 600; }
+
+  /* tiers */
+  .tiers { display: flex; gap: 12px; }
+  .tier {
+    flex: 1; background: var(--ink-soft); border: 1px solid var(--border-dark);
+    border-radius: 4px; padding: 16px; box-shadow: var(--depth-1);
+  }
+  .badge { width: 30px; height: 30px; margin-bottom: 11px; }
+  .tier .nm {
+    font-family: 'Fraunces', Georgia, serif; font-size: 17px;
+    color: var(--gold-light); margin-bottom: 5px;
+  }
+  .tier .pr { font-size: 13px; color: var(--text-muted-on-dark); }
+
+  /* swatch row for neutrals + accents */
+  .strip { display: flex; gap: 7px; margin-bottom: 20px; }
+  .strip div { flex: 1; height: 42px; border-radius: 3px; }
+
+  /* footer strip */
+  .foot {
+    position: absolute; left: 64px; right: 64px; bottom: 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid var(--border-dark); padding-top: 18px;
+  }
+  .foot .note { font-size: 12px; color: var(--text-muted-on-dark); letter-spacing: 0.04em; }
+  .foot .marks { display: flex; gap: 12px; align-items: center; }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="sheet">
+
+    <header>
+      <div>
+        <div class="kicker">Design System 2.0 — Living Sanctuary</div>
+        <h1>Tulisan yang memulihkan</h1>
+        <div class="sub">A sanctuary where words and green life grow inside an ink-dark library.</div>
+      </div>
+      <div class="meta">
+        <div class="name">Perpustakaan Hati</div>
+        <div class="ver">Phase 1 &nbsp;·&nbsp; by @rahimam</div>
+      </div>
+    </header>
+
+    <div class="rule"></div>
+
+    <div class="cols">
+
+      <!-- ============ COL 1 — the green ramp ============ -->
+      <div class="col">
+        <h2>The Living Green ramp</h2>
+        <div class="ramp">
+          <div class="sw"><div class="chip" style="background:#0b2418"></div><div class="nm">green-950</div><div class="hx">#0b2418</div><div class="rt">back plane</div></div>
+          <div class="sw"><div class="chip" style="background:#123d2a"></div><div class="nm">green-900</div><div class="hx">#123d2a</div><div class="rt">3D extrusion</div></div>
+          <div class="sw"><div class="chip" style="background:#1d5a3d"></div><div class="nm">green-800</div><div class="hx">#1d5a3d</div><div class="rt">deep accent</div></div>
+          <div class="sw"><div class="chip" style="background:#2d7954"></div><div class="nm">green-700</div><div class="hx">#2d7954</div><div class="rt">headings on cream</div></div>
+          <div class="sw"><div class="chip" style="background:#3f9167"></div><div class="nm">green-600</div><div class="hx">#3f9167</div><div class="rt">CTA start</div></div>
+          <div class="sw"><div class="chip" style="background:#5b9b7d;box-shadow:inset 0 1px 0 rgb(255 255 255 / 0.18),0 0 0 1px var(--lime-glow)"></div><div class="nm">green-500</div><div class="hx">#5b9b7d</div><div class="rt">the main green</div></div>
+          <div class="sw"><div class="chip" style="background:#7db895"></div><div class="nm">green-400</div><div class="hx">#7db895</div><div class="rt">hover · text</div></div>
+          <div class="sw"><div class="chip" style="background:#a7d3b6"></div><div class="nm">green-300</div><div class="hx">#a7d3b6</div><div class="rt">highlights</div></div>
+          <div class="sw"><div class="chip" style="background:#cbe8d5"></div><div class="nm">green-200</div><div class="hx">#cbe8d5</div><div class="rt">dividers</div></div>
+          <div class="sw"><div class="chip" style="background:#e4f4e9"></div><div class="nm">green-100</div><div class="hx">#e4f4e9</div><div class="rt">pale ground</div></div>
+          <div class="sw"><div class="chip" style="background:#c8e986"></div><div class="nm">lime-glow</div><div class="hx">#c8e986</div><div class="rt">3D rim light</div></div>
+        </div>
+
+        <h2 style="margin-top:32px">Grounds &amp; accents</h2>
+        <div class="strip">
+          <div style="background:#0a0a0c;border:1px solid var(--border-dark)"></div>
+          <div style="background:#17171a"></div>
+          <div style="background:#202226"></div>
+          <div style="background:#c9a86a"></div>
+          <div style="background:#e9cea2"></div>
+          <div style="background:#a07b45"></div>
+          <div style="background:#5c1e17"></div>
+          <div style="background:#c25a58"></div>
+          <div style="background:#da725b"></div>
+          <div style="background:#fdfee6"></div>
+          <div style="background:#f4efe6"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted-on-dark);line-height:1.7">
+          ink · ink-soft · ink-elevated · gold · gold-light · gold-deep ·
+          burgundy · burgundy-light · terracotta · cream · paper
+        </div>
+      </div>
+
+      <!-- ============ COL 2 — 3D + components ============ -->
+      <div class="col">
+        <h2>The 3D language</h2>
+        <div class="stage">
+          <div class="glowline"></div>
+          <div class="l1">
+            <span class="b">PERPUSTAKAAN</span><span class="m">PERPUSTAKAAN</span><span class="f">PERPUSTAKAAN</span>
+          </div>
+          <div class="l2">
+            <span class="b">HATI</span><span class="m">HATI</span><span class="f">HATI</span>
+          </div>
+          <div class="by">— by @rahimam —</div>
+          <div class="bar"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted-on-dark);line-height:1.75;margin-bottom:26px">
+          Vector extrusion of the Fraunces outlines — a gold face, a
+          <span style="color:var(--green-300)">green side wall</span> and a
+          <span style="color:var(--lime-glow)">lime rim light</span>.
+          Not a 3D font: no font dependency, sharp at any size.
+        </div>
+
+        <h2>Components</h2>
+        <div class="demo">
+          <div class="lbl">Primary action</div>
+          <span class="btn">Mula dengan Edisi Poket</span>
+          <span class="btn ghost">Lihat semua edisi</span>
+        </div>
+
+        <div class="demo">
+          <div class="lbl">Healing progress</div>
+          <div class="card">
+            <div style="font-family:'Fraunces',Georgia,serif;font-size:19px;color:var(--gold-light)">
+              Hari ke-14 dari 30
+            </div>
+            <div class="track"><div class="fill"></div></div>
+            <div class="prog-lbl"><span>Bab 4 — Menyebut_NAMES yang ingin dipulihkan</span><b>68%</b></div>
+          </div>
+        </div>
+
+        <div class="demo">
+          <div class="lbl">Featured card · depth-2</div>
+          <div class="card featured">
+            <h3>Edisi Membangun</h3>
+            <p>72 halaman latihan, refleksi dan worksheet yang boleh
+               dicetak — untuk yang sedang membina semula kakinya.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ COL 3 — tiers + type ============ -->
+      <div class="col">
+        <h2>Tiers — colour + shape</h2>
+        <div class="tiers">
+          <div class="tier">
+            <svg class="badge" viewBox="0 0 30 30"><circle cx="15" cy="15" r="13" fill="none" stroke="#5b9b7d" stroke-width="2.5"/></svg>
+            <div class="nm">Edisi Poket</div>
+            <div class="pr">Percuma</div>
+          </div>
+          <div class="tier">
+            <svg class="badge" viewBox="0 0 30 30"><polygon points="15,2 26,8.5 26,21.5 15,28 4,21.5 4,8.5" fill="none" stroke="#c9a86a" stroke-width="2.5"/></svg>
+            <div class="nm">Edisi Membangun</div>
+            <div class="pr">RM 29</div>
+          </div>
+          <div class="tier">
+            <svg class="badge" viewBox="0 0 30 30"><path d="M6 27 L6 12 Q15 1 24 12 L24 27 Z" fill="none" stroke="#c25a58" stroke-width="2.5"/></svg>
+            <div class="nm">Teman Hidup</div>
+            <div class="pr">RM 79–149</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted-on-dark);margin-top:10px;line-height:1.6">
+          Colour never carries the tier alone. Circle · hexagon · arch,
+          always with the name beside it.
+        </div>
+
+        <h2 style="margin-top:30px">Typography</h2>
+        <div style="font-family:'Fraunces',Georgia,serif;font-size:32px;color:var(--gold-light);line-height:1.15;letter-spacing:-0.02em;margin-bottom:6px">
+          Fraunces
+        </div>
+        <div style="font-size:12px;color:var(--text-muted-on-dark);margin-bottom:18px">
+          Display — headings, wordmark, covers, pull quotes
+        </div>
+
+        <div style="font-family:'Inter',system-ui,sans-serif;font-size:15px;color:var(--text-on-dark);line-height:1.65;margin-bottom:6px">
+          Inter — body copy, buttons, kickers, labels, folios
+        </div>
+        <div style="font-size:12px;color:var(--text-muted-on-dark);margin-bottom:18px">
+          Body / UI
+        </div>
+
+        <div style="font-family:'Source Serif 4',Georgia,serif;font-size:16px;color:var(--text-on-dark);line-height:1.6;margin-bottom:6px">
+          Source Serif 4 — long-form reading, 11.5pt/1.6 in the eBook interior,
+          measure 62–68 characters, justified off.
+        </div>
+        <div style="font-size:12px;color:var(--text-muted-on-dark)">Reading</div>
+
+        <h2 style="margin-top:30px">Accessibility</h2>
+        <div style="font-size:12px;color:var(--text-muted-on-dark);line-height:1.85">
+          green-500 on ink — <span style="color:var(--green-300)">6.06:1 AA</span><br>
+          green-400 on ink — <span style="color:var(--green-300)">8.63:1 AAA</span><br>
+          gold-light on ink — <span style="color:var(--green-300)">13.01:1 AAA</span><br>
+          ink on green-500 — <span style="color:var(--green-300)">6.06:1 AA</span><br>
+          Tier CVD separation — worst ΔE <span style="color:var(--green-300)">19.8</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="foot">
+      <div class="note">All ratios measured — packages/brand-tools/check-contrast.py</div>
+      <div class="marks">
+        <span style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted-on-dark)">
+          Phase 1 · Design System 2.0
+        </span>
+        <div style="width:34px;height:5px;background:var(--green-500)"></div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

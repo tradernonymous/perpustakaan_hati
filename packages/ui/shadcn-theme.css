@@ -1,7 +1,8 @@
-/* Perpustakaan Hati — shadcn/ui base theme
+/* Perpustakaan Hati — shadcn/ui base theme (Design System 2.0)
  *  Overrides shadcn's neutral-light defaults with the brand sanctuary palette.
  *  Import after Tailwind base in apps/web/app/globals.css (Phase 3).
  *  Source: docs/brand/visual-identity.md
+ *  Contrast ratios are measured — see packages/brand-tools/check-contrast.py
  */
 
 @layer base {
@@ -12,10 +13,10 @@
     --card: 23 23 26;                 /* #17171a ink-soft */
     --card-foreground: 230 226 218;
 
-    --popover: 23 23 26;
+    --popover: 32 34 38;              /* #202226 ink-elevated */
     --popover-foreground: 230 226 218;
 
-    --primary: 91 155 125;            /* #5b9b7d green — brand primary (6.06:1 on ink) */
+    --primary: 91 155 125;            /* #5b9b7d green-500 — 6.06:1 on ink */
     --primary-foreground: 10 10 12;   /* ink on green — 6.06:1 */
 
     --secondary: 23 23 26;
@@ -32,9 +33,21 @@
 
     --border: 42 42 46;               /* #2a2a2e border-dark */
     --input: 42 42 46;
-    --ring: 143 201 168;              /* #8fc9a8 green-light — 10.44:1 focus ring on ink */
+    --ring: 125 184 149;              /* #7db895 green-400 — 8.63:1 focus ring on ink */
 
     --radius: 0.25rem;
+
+    /* --- 3D / depth tokens (shadcn components don't read these directly,
+           but they keep the source of truth in one place) --- */
+    --depth-1:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 8px 24px rgb(0 0 0 / 0.24);
+    --depth-2:
+      inset 0 1px 0 rgb(255 255 255 / 0.06),
+      0 18px 50px rgb(0 0 0 / 0.34);
+    --depth-3:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 32px 80px rgb(0 0 0 / 0.42);
   }
 
   .light-surface {
@@ -42,12 +55,14 @@
     --foreground: 10 10 12;
     --card: 253 254 230;
     --card-foreground: 10 10 12;
+    --popover: 255 255 255;
+    --popover-foreground: 10 10 12;
     --muted: 240 236 224;
     --muted-foreground: 87 58 47;     /* #573a2f sepia */
     --border: 217 207 191;            /* #d9cfbf border-light */
     --input: 217 207 191;
-    --primary: 63 125 94;             /* #3f7d5e green-mid — 4.76:1 on cream */
+    --primary: 45 121 84;             /* #2d7954 green-700 — 7.94:1 on cream */
     --primary-foreground: 253 254 230;
-    --ring: 37 87 64;                 /* #255740 green-deep — 8.15:1 on cream */
+    --ring: 29 90 61;                 /* #1d5a3d green-800 — 7.94:1 on cream */
   }
 }

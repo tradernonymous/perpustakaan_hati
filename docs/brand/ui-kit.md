@@ -8,19 +8,21 @@ Phase 1 deliverable covering three output surfaces from one token source
 ### Layout
 - Mobile-first, single column, max content width 640px for reading, 1200px for landing grids.
 - Base ground: `ink`. Section alternation: `ink` → `ink-soft` → `cream` (final CTA band on cream for contrast break).
-- Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, `terracotta` fill, `ink` label.
+- Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `ink` label.
 
 ### Components
 | Component | Spec |
 |---|---|
-| Button primary | bg `terracotta`, text `ink`, radius 2px, no shadow, uppercase Inter 12px tracking 0.14em |
+| Button primary | bg `green-cta` gradient `#3f9167→#5b9b7d`, text `ink`, radius 2px, `shadow-depth-1`, uppercase Inter 12px tracking 0.14em |
 | Button secondary | 1px `gold` border, text `gold-light`, bg transparent |
 | Button tier-select | 1px tier-colour border, tier-colour label, `gold` fill on selected |
-| Card | bg `ink-soft`, 1px `border-dark`, radius 4px, `shadow-card` on hover → `shadow-lift` |
-| Tier card | left 3px tier-colour rule, title `gold-light` Fraunces, price `cream` |
+| Card | bg `ink-soft`, 1px `border-gold` (`rgb(201 168 106 / 0.18)`), radius 4px, `shadow-depth-1` on hover → `shadow-depth-2` |
+| Featured card | bg `ink-elevated`, `shadow-depth-2`, top 1px `green-700` highlight rule |
+| Tier card | left 3px tier-colour rule, title `gold-light` Fraunces, price `cream`, tier shape (circle / hexagon / arch) beside the badge |
 | Chapter preview | bg `cream`, text `ink`, serif body for the reading sample |
 | Trust badge | 1px `gold-deep` border, `gold` text, 11px uppercase |
-| Input | bg `ink-soft`, 1px `border-dark`, focus 1px `gold`, error 1px `terracotta` |
+| Input | bg `ink-soft`, 1px `border-dark`, focus 2px `green-400` ring, error 1px `terracotta` |
+| Healing progress | green-to-gold gradient track, travelling glow, text percentage always visible |
 | Footer | bg `ink-soft`, top 1px `gold-deep` rule, `text-muted-on-dark` |
 
 ### Typography in web
@@ -53,15 +55,19 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 ```
 --background: var(--ink)
 --foreground: var(--text-on-dark)
---primary: var(--terracotta)
+--primary: var(--green-500)
 --primary-foreground: var(--ink)
 --secondary: var(--ink-soft)
 --accent: var(--gold)
 --accent-foreground: var(--ink)
 --border: var(--border-dark)
---ring: var(--gold)
+--ring: var(--green-400)
 --radius: 0.25rem
 ```
+
+> **Change from Phase 1:** `--primary` was `terracotta`; it is now the
+> healing green. Terracotta is reserved for conversion accents only —
+> price tags, urgency badges, the final CTA block on a cream band.
 
 ## 2. eBook Layout Templates
 
@@ -100,6 +106,55 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 - Quote: Fraunces 60–72px, `gold-light`, line-height 1.2, max 4 lines.
 - Footer: `PERPUSTAKAAN HATI` Fraunces 28px `gold`, tracking 0.18em, bottom-left; `tier badge` bottom-right.
 - Grid overlay guide only in the template file, never in the exported PNG.
+
+### Design system showcase sheet
+
+`docs/brand/templates/design-system-sheet.html` renders the whole system —
+the green ramp with measured ratios, the 3D wordmark treatment, the core
+components, the tier shapes and the type stack — on one 1600×1200 page.
+
+Export it to PNG with:
+
+```bash
+uv run --no-project --with weasyprint python -c "
+from weasyprint import HTML
+HTML(filename='docs/brand/templates/design-system-sheet.html').write_pdf('/tmp/ds.pdf')"
+pdftoppm -png -r 96 /tmp/ds.pdf docs/brand/preview/design-system-2
+```
+
+### Four fixed social templates
+
+| Template | Ground | Type treatment | Where |
+|---|---|---|---|
+| Quote card | `ink` | Fraunces flat, `gold-light` | 4:5 posts |
+| Tutorial carousel | `paper` / `cream` | Fraunces heading, green numeral, gold folio | 1:1 threads |
+| Tier comparison | `ink` | three `shadow-depth-2` cards, colour + shape | 1:1 threads |
+| Event poster | `ink` | **3D extruded** Fraunces, gold frame | 4:5 / 9:16 story |
+
+The event poster is the only social template that uses the 3D treatment.
+Use `docs/brand/assets/wordmark-3d.svg` — never a re-typed approximation,
+because the extrusion is real vector geometry.
+
+### Image generation direction
+
+Brand imagery should read as *a contemporary library at dusk where deep-green
+botanical shadows grow between books and warm gold light enters a window*.
+
+Include: ink-black interiors, deep emerald foliage, antique-gold light,
+modern bookbinding, paper grain, human details (hands, letters, turning
+pages), restrained dew or glass for contemporary texture.
+
+Avoid: generic smiling stock portraits, fake parchment and scroll clichés,
+floating leaves on a green gradient, neon sci-fi effects, large areas of
+glossy chrome, decorative leaves around the logo.
+
+```text
+A quiet contemporary sanctuary library at dusk, deep forest-green
+botanical shadows, warm antique-gold window light, a single open book on
+an ink-black table, subtle paper grain, tactile natural materials,
+cinematic depth, calm editorial photography, healing atmosphere,
+no text, no logo, no excessive ornament
+```
 
 ### Carousel panel (10 slides)
 1. Cover — wordmark, "Karya untuk jiwa yang pernah terluka"
