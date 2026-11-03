@@ -1,0 +1,50 @@
+/* Perpustakaan Hati — shadcn/ui base theme
+ *  Overrides shadcn's neutral-light defaults with the brand sanctuary palette.
+ *  Import after Tailwind base in apps/web/app/globals.css (Phase 3).
+ *  Source: docs/brand/visual-identity.md
+ */
+
+@layer base {
+  :root {
+    --background: 10 10 12;            /* #0a0a0c ink */
+    --foreground: 230 226 218;        /* #e6e2da text-on-dark */
+
+    --card: 23 23 26;                 /* #17171a ink-soft */
+    --card-foreground: 230 226 218;
+
+    --popover: 23 23 26;
+    --popover-foreground: 230 226 218;
+
+    --primary: 218 114 91;            /* #da725b terracotta */
+    --primary-foreground: 10 10 12;
+
+    --secondary: 23 23 26;
+    --secondary-foreground: 233 206 162; /* #e9cea2 gold-light */
+
+    --muted: 35 35 39;
+    --muted-foreground: 164 156 141;  /* #a49c8d */
+
+    --accent: 201 168 106;            /* #c9a86a gold */
+    --accent-foreground: 10 10 12;
+
+    --destructive: 163 69 50;
+    --destructive-foreground: 253 254 230;
+
+    --border: 42 42 46;               /* #2a2a2e border-dark */
+    --input: 42 42 46;
+    --ring: 201 168 106;              /* #c9a86a gold */
+
+    --radius: 0.25rem;
+  }
+
+  .light-surface {
+    --background: 253 254 230;        /* #fdfee6 cream */
+    --foreground: 10 10 12;
+    --card: 253 254 230;
+    --card-foreground: 10 10 12;
+    --muted: 240 236 224;
+    --muted-foreground: 87 58 47;     /* #573a2f sepia */
+    --border: 217 207 191;            /* #d9cfbf border-light */
+    --input: 217 207 191;
+  }
+}

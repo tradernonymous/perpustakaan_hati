@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<!--
+  Perpustakaan Hati — Threads carousel template (1080x1080, 10 slides)
+  Render to PNG via Playwright/Chromium in Phase 3.
+  Source: docs/brand/ui-kit.md -> "Threads Visual Kit" -> "Carousel panel"
+  Slide 1  cover            | slides 2-7 quote panels
+  Slide 8  tier ladder      | slide 9 problem teaser
+  Slide 10 CTA
+-->
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<title>Threads Carousel</title>
+<style>
+  @page { size: 1080px 1080px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0a0a0c;
+    --ink-soft: #17171a;
+    --gold: #c9a86a;
+    --gold-light: #e9cea2;
+    --gold-deep: #a07b45;
+    --terracotta: #da725b;
+    --cream: #fdfee6;
+    --olive: #5f6f4a;
+    --burgundy: #5c1e17;
+    --border-dark: #2a2a2e;
+  }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    background: var(--ink);
+    color: var(--gold-light);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .slide {
+    position: relative;
+    width: 1080px;
+    height: 1080px;
+    padding: 110px 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 40px;
+    border: 1px solid var(--gold-deep);
+    pointer-events: none;
+  }
+
+  .slide-no {
+    font-size: 24px;
+    letter-spacing: 0.2em;
+    color: var(--gold-deep);
+  }
+
+  .wordmark {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 42px;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+  }
+
+  .big {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 72px;
+    line-height: 1.2;
+  }
+
+  .kicker {
+    font-size: 26px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .sub {
+    font-size: 34px;
+    color: #e6e2da;
+    line-height: 1.5;
+  }
+
+  /* slide 1 cover */
+  .s-cover { align-items: center; text-align: center; }
+  .s-cover .big { font-size: 62px; }
+
+  /* slide 8 tier ladder */
+  .tiers { display: flex; gap: 24px; }
+  .tier {
+    flex: 1;
+    background: var(--ink-soft);
+    border: 1px solid var(--border-dark);
+    border-top: 6px solid var(--c);
+    padding: 30px 26px;
+  }
+  .tier h3 { font-family: 'Playfair Display', Georgia, serif; font-size: 34px; color: var(--c); margin-bottom: 10px; }
+  .tier p { font-size: 22px; color: #e6e2da; line-height: 1.5; }
+  .tier .price { font-size: 26px; color: var(--gold); margin-top: 16px; }
+  .tier-free     { --c: var(--olive); }
+  .tier-standard { --c: var(--gold); }
+  .tier-premium  { --c: var(--burgundy); }
+
+  /* slide 9 problem */
+  .s-problem .big { color: var(--terracotta); }
+
+  /* slide 10 CTA */
+  .s-cta { align-items: center; text-align: center; justify-content: center; }
+  .cta-btn {
+    display: inline-block;
+    background: var(--terracotta);
+    color: var(--ink);
+    font-size: 30px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 26px 52px;
+    margin-top: 48px;
+  }
+  .handle { font-size: 30px; letter-spacing: 0.16em; color: var(--gold); margin-top: 36px; }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="slide s-cover">
+  <div class="slide-no">01</div>
+  <div>
+    <div class="wordmark" style="margin-bottom:40px">PERPUSTAKAAN HATI</div>
+    <div class="kicker" style="margin-bottom:28px">— by @rahimam —</div>
+    <p class="big">Karya untuk jiwa yang pernah terluka</p>
+  </div>
+  <div class="slide-no">KOLEKSI PERPUSTAKAAN HATI</div>
+</section>
+
+<!-- 2-7 QUOTE PANELS -->
+<section class="slide">
+  <div class="kicker">— @rahimam —</div>
+  <p class="big">{{QUOTE_SLIDE}}</p>
+  <div class="wordmark" style="font-size:30px">PERPUSTAKAAN HATI</div>
+</section>
+
+<!-- 8 TIER LADDER -->
+<section class="slide">
+  <div class="kicker">Tiga edisi, satu journey</div>
+  <div class="tiers">
+    <div class="tier tier-free">
+      <h3>Edisi Poket</h3>
+      <p>Diagnosa ringkas, reset pantas.</p>
+      <div class="price">Percuma</div>
+    </div>
+    <div class="tier tier-standard">
+      <h3>Edisi Membangun</h3>
+      <p>Panduan teras yang jujur dan mudah diikuti.</p>
+      <div class="price">RM 29–49</div>
+    </div>
+    <div class="tier tier-premium">
+      <h3>Teman Hidup</h3>
+      <p>Buku kerja 30 hari, skrip, dan nota suara.</p>
+      <div class="price">RM 79–149</div>
+    </div>
+  </div>
+  <div class="wordmark" style="font-size:30px">PERPUSTAKAAN HATI</div>
+</section>
+
+<!-- 9 PROBLEM TEASER -->
+<section class="slide s-problem">
+  <div class="kicker">Kalau kamu terasa ini</div>
+  <p class="big">Maka buku ini bukan untuk kamu.</p>
+  <div class="slide-no">09</div>
+</section>
+
+<!-- 10 CTA -->
+<section class="slide s-cta">
+  <div>
+    <div class="kicker" style="margin-bottom:24px">Mula dari Edisi Poket</div>
+    <p class="big">Percuma. 15–25 muka surat.</p>
+    <span class="cta-btn">Muat Turun</span>
+    <div class="handle">@rahimam</div>
+  </div>
+</section>
+
+</body>
+</html>

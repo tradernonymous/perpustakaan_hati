@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+  Perpustakaan Hati — eBook cover template (6x9in = 1200x1800px at 200dpi)
+  Render to PNG/PDF via Playwright/Chromium in Phase 2.
+  Source: docs/brand/ui-kit.md -> "eBook Layout Templates" -> cover
+  Placeholders: {{TITLE}}, {{TIER}}, {{SUBTITLE}} + tier class on .cover
+  Tier accent colors: free=olive, standard=gold, premium=burgundy
+-->
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<title>Perpustakaan Hati — Cover</title>
+<style>
+  @page { size: 1200px 1800px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0a0a0c;
+    --gold: #c9a86a;
+    --gold-light: #e9cea2;
+    --gold-deep: #a07b45;
+    --olive: #5f6f4a;
+    --burgundy: #5c1e17;
+    --accent: var(--olive);
+  }
+
+  body {
+    width: 1200px;
+    height: 1800px;
+    background: var(--ink);
+    color: var(--gold-light);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .cover {
+    position: relative;
+    width: 1200px;
+    height: 1800px;
+    padding: 150px 110px 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* gold frame */
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 60px;
+    border: 2px solid var(--gold-deep);
+    pointer-events: none;
+  }
+  .cover::after {
+    content: '';
+    position: absolute;
+    inset: 76px;
+    border: 1px solid rgba(201, 168, 106, 0.35);
+    pointer-events: none;
+  }
+
+  .series {
+    font-size: 30px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .wordmark {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 92px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 26px;
+  }
+
+  .rule {
+    width: 220px;
+    height: 2px;
+    background: var(--gold-deep);
+    margin: 54px 0;
+  }
+
+  .title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 104px;
+    line-height: 1.12;
+    font-weight: 500;
+  }
+
+  .subtitle {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 44px;
+    line-height: 1.4;
+    color: var(--gold-light);
+    margin-top: 44px;
+    max-width: 820px;
+  }
+
+  /* tier badge — color drives the tier identity */
+  .tier-badge {
+    margin-top: 76px;
+    font-size: 28px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    padding: 18px 44px;
+  }
+
+  .byline {
+    position: absolute;
+    bottom: 130px;
+    font-size: 32px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .healing-bar {
+    position: absolute;
+    bottom: 100px;
+    width: 120px;
+    height: 8px;
+    background: var(--olive);
+  }
+
+  /* tier variants */
+  .tier-free     { --accent: var(--olive); }
+  .tier-standard { --accent: var(--gold); }
+  .tier-premium  { --accent: var(--burgundy); }
+</style>
+</head>
+<body>
+  <div class="cover tier-free">
+    <div class="series">Koleksi Ebook Perpustakaan Hati</div>
+    <div class="wordmark">Perpustakaan<br />Hati</div>
+    <div class="rule"></div>
+    <h1 class="title">{{TITLE}}</h1>
+    <p class="subtitle">{{SUBTITLE}}</p>
+    <div class="tier-badge">{{TIER}}</div>
+    <div class="byline">— by @rahimam —</div>
+    <div class="healing-bar"></div>
+  </div>
+</body>
+</html>

@@ -76,14 +76,14 @@ flowchart TD
 ### Phase 1: Branding Setup & Design System
 *Goal: Establish a deeply comforting, trustworthy, and recognizable visual identity around Rahimam and "Perpustakaan Hati" before producing content or code.*
 
-- [ ] **Brand Strategy & Narrative Architecture:**
-  - Define the core brand theme (e.g., *Sanctuary Library / Warm Botanical / Nostalgic Healing Journal*) and Rahimam's positioning as the trusted curator of *Perpustakaan Hati*.
-  - Finalize the **official thematic names for the 3 eBook Tiers** (Free, Standard, Premium) so they sound like chapters of a healing journey rather than generic pricing tiers.
-- [ ] **Visual Identity & Design Tokens:**
-  - Color palette (warm parchment/cream backgrounds, comforting sage/terracotta/deep rose accents, high-contrast readable serif + clean sans-serif typography).
+- [x] **Brand Strategy & Narrative Architecture:**
+  - Define the core brand theme (*Sanctuary in Gold* — dark sanctuary, antique gold, healing green) and Rahimam's positioning as the trusted curator of *Perpustakaan Hati*.
+  - Finalize the **official thematic names for the 3 eBook Tiers** — *Edisi Poket* (Free), *Edisi Membangun* (Standard), *Teman Hidup* (Premium flagship).
+- [x] **Visual Identity & Design Tokens:**
+  - Color palette sampled from the brand reference artwork (ink black, antique gold, sepia, burgundy, terracotta, cream) plus olive as the healing green. See `docs/brand/visual-identity.md` and `docs/brand/design-tokens.css`.
   - Logo suite, watermark stamps (*Cop Perpustakaan Hati*), and Rahimam brand photography/avatar guidelines.
-- [ ] **Multi-Format Design System:**
-  - **Web UI Kit:** Reusable Tailwind CSS + `shadcn/ui` tokens for mobile-first reading and checkout.
+- [x] **Multi-Format Design System:**
+  - **Web UI Kit:** Reusable Tailwind CSS + `shadcn/ui` tokens for mobile-first reading and checkout. See `docs/brand/ui-kit.md`.
   - **eBook Layout Templates:** Master interior page layouts, chapter openers, reflection worksheet grids, and cover templates for all 3 tiers.
   - **Threads Visual Kit:** Quote cards, carousel templates, and teaser graphics optimized for Threads sharing.
 

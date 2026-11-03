@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200" role="img" aria-label="Perpustakaan Hati wordmark">
+  <!--
+    Perpustakaan Hati — primary wordmark (production SVG)
+    Source: docs/brand/visual-identity.md -> "Logo & watermark stamp"
+    Colors: gold #c9a86a on ink #0a0a0c
+    Usage: web header, eBook cover, Threads card, print.
+  -->
+  <rect width="1200" height="1200" fill="#0a0a0c"/>
+
+  <!-- top rule -->
+  <line x1="240" y1="330" x2="960" y2="330" stroke="#a07b45" stroke-width="2"/>
+
+  <!-- wordmark -->
+  <text x="600" y="470"
+        font-family="Playfair Display, Georgia, serif"
+        font-size="96"
+        letter-spacing="20"
+        text-anchor="middle"
+        fill="#c9a86a">PERPUSTAKAAN</text>
+  <text x="600" y="600"
+        font-family="Playfair Display, Georgia, serif"
+        font-size="96"
+        letter-spacing="20"
+        text-anchor="middle"
+        fill="#c9a86a">HATI</text>
+
+  <!-- bottom rule -->
+  <line x1="240" y1="700" x2="960" y2="700" stroke="#a07b45" stroke-width="2"/>
+
+  <!-- byline -->
+  <text x="600" y="790"
+        font-family="Inter, system-ui, sans-serif"
+        font-size="34"
+        letter-spacing="10"
+        text-anchor="middle"
+        fill="#e9cea2">— by @rahimam —</text>
+
+  <!-- healing marker -->
+  <rect x="580" y="860" width="40" height="6" fill="#5f6f4a"/>
+</svg>
