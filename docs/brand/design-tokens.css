@@ -1,0 +1,76 @@
+/* Perpustakaan Hati — design tokens
+   Source: docs/brand/visual-identity.md (pixel-sampled from brand reference images)
+   Usage: copy to app root, import in globals.css. */
+
+:root {
+  /* core grounds */
+  --ink: #0a0a0c;
+  --ink-soft: #17171a;
+  --cream: #fdfee6;
+
+  /* gold — primary accent */
+  --gold: #c9a86a;
+  --gold-light: #e9cea2;
+  --gold-deep: #a07b45;
+
+  /* warm mid-tones */
+  --sepia: #573a2f;
+  --sepia-deep: #3a2a21;
+
+  /* emotional / premium */
+  --burgundy: #5c1e17;
+  --burgundy-deep: #3f1711;
+
+  /* conversion */
+  --terracotta: #da725b;
+  --terracotta-soft: #e69677;
+
+  /* healing green */
+  --olive: #5f6f4a;
+  --olive-deep: #3c482d;
+
+  /* text roles */
+  --text-on-dark: #e6e2da;
+  --text-on-light: #0a0a0c;
+  --text-muted-on-dark: #a49c8d;
+  --border-dark: #2a2a2e;
+  --border-light: #d9cfbf;
+
+  /* tier colours — fixed, see docs/brand/tier-naming.md */
+  --tier-free: var(--olive);
+  --tier-standard: var(--gold);
+  --tier-premium: var(--burgundy);
+
+  /* typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  /* spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* radii + shadow */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.28);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.5), 0 16px 48px rgb(0 0 0 / 0.4);
+
+  /* motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+  }
+}

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<!--
+  Perpustakaan Hati — eBook interior master template
+  Usage: packages/ebook-builder (Phase 2) loads a chapter Markdown and wraps
+         each block in the matching .layout-* section below.
+  Source: docs/brand/ui-kit.md -> "eBook Layout Templates"
+  Trim: 6x9in (152x229mm)
+-->
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<title>Perpustakaan Hati</title>
+<style>
+  @page { size: 152mm 229mm; margin: 18mm 15mm 20mm 20mm; }
+  * { box-sizing: border-box; }
+
+  :root {
+    --ink: #0a0a0c;
+    --ink-soft: #17171a;
+    --gold: #c9a86a;
+    --gold-light: #e9cea2;
+    --gold-deep: #a07b45;
+    --sepia: #573a2f;
+    --sepia-deep: #3a2a21;
+    --burgundy: #5c1e17;
+    --terracotta: #da725b;
+    --cream: #fdfee6;
+    --olive: #5f6f4a;
+    --olive-deep: #3c482d;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 11.5pt;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--cream);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    position: relative;
+    min-height: 191mm; /* 229 - top - bottom margins */
+    padding: 0 0 14mm;
+    page-break-after: always;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  .folio {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    color: var(--sepia-deep);
+  }
+
+  /* ---------- cover ---------- */
+  .layout-cover {
+    background: var(--ink);
+    color: var(--gold-light);
+    margin: -18mm -15mm -20mm -20mm;
+    padding: 24mm 18mm 20mm;
+    min-height: 229mm;
+    display: flex;
+    flex-direction: column;
+  }
+  .layout-cover .wordmark {
+    font-size: 22pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-align: center;
+  }
+  .layout-cover .tier-bar {
+    height: 6px;
+    width: 60mm;
+    margin: 10mm auto 14mm;
+    background: var(--olive);
+  }
+  .layout-cover h1 {
+    font-size: 28pt;
+    line-height: 1.15;
+    text-align: center;
+    margin: 0 0 6mm;
+    font-weight: 500;
+  }
+  .layout-cover .byline {
+    font-family: 'Inter', sans-serif;
+    font-size: 11pt;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--gold);
+  }
+  .layout-cover .tagline {
+    font-style: italic;
+    text-align: center;
+    margin-top: 12mm;
+    color: var(--gold-light);
+  }
+
+  /* ---------- title page ---------- */
+  .layout-title-page { text-align: center; padding-top: 30mm; }
+  .layout-title-page .wordmark { font-size: 20pt; letter-spacing: 0.22em; text-transform: uppercase; }
+  .layout-title-page .tagline { font-style: italic; margin-top: 8mm; color: var(--sepia); }
+
+  /* ---------- chapter opener ---------- */
+  .layout-chapter-opener {
+    background: var(--ink);
+    color: var(--gold-light);
+    margin: -18mm -15mm -20mm -20mm;
+    padding: 40mm 18mm 20mm;
+    min-height: 229mm;
+  }
+  .layout-chapter-opener .numeral {
+    font-size: 72pt;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--gold);
+    text-align: center;
+  }
+  .layout-chapter-opener h2 {
+    font-size: 24pt;
+    text-align: center;
+    margin: 6mm 0 4mm;
+    font-weight: 500;
+  }
+  .layout-chapter-opener .epigraph {
+    font-style: italic;
+    text-align: center;
+    color: var(--gold-light);
+  }
+  .layout-chapter-opener .rule {
+    width: 24mm;
+    height: 1px;
+    background: var(--gold-deep);
+    margin: 8mm auto 0;
+  }
+
+  /* ---------- body ---------- */
+  .layout-body p { margin: 0 0 3mm; text-align: justify; hyphens: none; }
+  .layout-body p.indent { text-indent: 5mm; }
+  .layout-body p.lead::first-letter {
+    float: left;
+    font-size: 34pt;
+    line-height: 0.85;
+    padding-right: 2mm;
+    color: var(--sepia);
+  }
+  .layout-body h3 {
+    font-size: 15pt;
+    font-weight: 600;
+    margin: 6mm 0 2mm;
+  }
+  .layout-body h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin: 5mm 0 2mm;
+  }
+
+  /* ---------- pull quote ---------- */
+  .layout-pull-quote {
+    background: var(--ink);
+    color: var(--gold-light);
+    margin: -18mm -15mm -20mm -20mm;
+    padding: 45mm 20mm 20mm;
+    min-height: 229mm;
+    text-align: center;
+  }
+  .layout-pull-quote .quote {
+    font-size: 22pt;
+    font-style: italic;
+    line-height: 1.35;
+  }
+  .layout-pull-quote .rule {
+    width: 24mm;
+    height: 1px;
+    background: var(--gold-deep);
+    margin: 8mm auto;
+  }
+
+  /* ---------- worksheet ---------- */
+  .layout-worksheet { padding-top: 4mm; }
+  .layout-worksheet h3 { font-size: 14pt; margin: 0 0 1mm; }
+  .layout-worksheet .prompt {
+    font-family: 'Inter', sans-serif;
+    font-size: 10pt;
+    color: var(--sepia);
+    margin-bottom: 5mm;
+  }
+  .write-line {
+    border-bottom: 1px dotted rgba(87, 58, 47, 0.3);
+    height: 8mm;
+  }
+  .checkbox-column {
+    display: inline-block;
+    width: 6mm;
+    border-right: 1px dotted rgba(87, 58, 47, 0.3);
+    height: 8mm;
+    margin-right: 3mm;
+    vertical-align: top;
+  }
+
+  /* ---------- reflection card ---------- */
+  .layout-reflection-card {
+    background: var(--ink-soft);
+    border: 1px solid var(--gold);
+    border-radius: 4mm;
+    width: 90mm;
+    min-height: 50mm;
+    padding: 7mm;
+    color: var(--gold-light);
+    position: relative;
+    overflow: hidden;
+  }
+  .layout-reflection-card .healing-marker {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--olive);
+  }
+  .layout-reflection-card .card-quote { font-style: italic; font-size: 11pt; line-height: 1.4; }
+  .layout-reflection-card .card-prompt {
+    font-family: 'Inter', sans-serif;
+    font-size: 8.5pt;
+    color: var(--gold);
+    margin-top: 4mm;
+  }
+
+  /* ---------- script page ---------- */
+  .layout-script-page .script-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6mm;
+    margin-bottom: 5mm;
+  }
+  .layout-script-page .col-head {
+    font-family: 'Inter', sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--gold-deep);
+    padding-bottom: 1.5mm;
+    margin-bottom: 2mm;
+  }
+  .layout-script-page .want .col-head { color: var(--terracotta); }
+  .layout-script-page .how  .col-head { color: var(--sepia); }
+  .layout-script-page .script-row p { font-size: 10.5pt; margin: 0 0 2mm; }
+
+  /* ---------- back matter ---------- */
+  .layout-back-matter h3 { font-size: 14pt; margin-bottom: 2mm; }
+  .layout-back-matter .helpline {
+    font-family: 'Inter', sans-serif;
+    font-size: 11pt;
+    color: var(--sepia);
+    margin-bottom: 4mm;
+  }
+  .layout-back-matter .pdpa {
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    color: var(--sepia-deep);
+    margin-top: 8mm;
+  }
+
+  /* ---------- watermark (paid pages) ---------- */
+  .watermark {
+    position: absolute;
+    right: 8mm;
+    bottom: 14mm;
+    transform: rotate(-20deg);
+    font-family: 'Inter', sans-serif;
+    font-size: 8pt;
+    letter-spacing: 0.12em;
+    color: rgba(233, 206, 162, 0.1);
+    pointer-events: none;
+  }
+  .buyer-line {
+    position: absolute;
+    bottom: 8mm;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 7pt;
+    color: rgba(87, 58, 47, 0.14);
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="page layout-cover">
+  <div class="wordmark">Perpustakaan Hati</div>
+  <div class="tier-bar"></div>
+  <h1>Edisi Poket</h1>
+  <div class="byline">— by @rahimam —</div>
+  <p class="tagline">Teman hati sementara menunggu bas atau train.</p>
+  <div class="watermark">Cop Perpustakaan Hati</div>
+</section>
+
+<!-- TITLE PAGE -->
+<section class="page layout-title-page">
+  <div class="wordmark">Perpustakaan Hati</div>
+  <p class="tagline">Karya untuk jiwa yang pernah terluka</p>
+  <div class="folio">i</div>
+</section>
+
+<!-- CHAPTER OPENER -->
+<section class="page layout-chapter-opener">
+  <div class="numeral">01</div>
+  <h2>Kenapa Buku Ini</h2>
+  <div class="rule"></div>
+  <p class="epigraph">"Sekali baca, lama terasa."</p>
+  <div class="watermark">Cop Perpustakaan Hati</div>
+</section>
+
+<!-- BODY -->
+<section class="page layout-body">
+  <h4>Bab Satu</h4>
+  <h3>Berapa lama kau dalam keadaan ini?</h3>
+  <p class="lead">Ada satu soalan yang tidak pernah aku tanya atas nama sendiri. Bukan
+  kerana tidak tahu jawabnya, tetapi kerana jawapan itu terlalu besar untuk
+  dibincangkan dalam satu perbualan di FB.</p>
+  <p class="indent">Selalu ada orang lain yang lebih atas, lebih sihat, lebih utuh.
+  Dan apabila akhirnya aku tanya, jawapannya bukan "sudah lama", tetapi "sejak dulu".</p>
+  <p class="indent">Sebab aku rasa aku...</p>
+  <div class="folio">2</div>
+  <div class="buyer-line">Nama Pembeli · contoh@email.com</div>
+</section>
+
+<!-- PULL QUOTE -->
+<section class="page layout-pull-quote">
+  <div class="rule"></div>
+  <p class="quote">"Tulisan yang memulihkan."</p>
+  <div class="rule"></div>
+  <div class="watermark">Cop Perpustakaan Hati</div>
+</section>
+
+<!-- WORKSHEET -->
+<section class="page layout-worksheet">
+  <h3>Hari 1 — Satu tindakan kecil</h3>
+  <p class="prompt">Tulis satu perkara kecil yang boleh kamu buat hari ini.</p>
+  <div class="checkbox-column"></div><div class="write-line"></div>
+  <div class="checkbox-column"></div><div class="write-line"></div>
+  <div class="checkbox-column"></div><div class="write-line"></div>
+  <div class="checkbox-column"></div><div class="write-line"></div>
+  <div class="folio">12</div>
+</section>
+
+<!-- REFLECTION CARD -->
+<section class="page">
+  <div class="layout-reflection-card">
+    <div class="healing-marker"></div>
+    <p class="card-quote">"Kalau dia belum berubah selepas kamu berubah, itu jawapan
+    yang paling jujur."</p>
+    <p class="card-prompt">KAD REFLEKSI · HATI</p>
+  </div>
+  <div class="folio">18</div>
+</section>
+
+<!-- SCRIPT PAGE -->
+<section class="page layout-script-page">
+  <div class="script-row want">
+    <div class="col-head">Saya mahu kata</div>
+    <p>"Aku perlukan masa untuk fikir."</p>
+  </div>
+  <div class="script-row how">
+    <div class="col-head">Cara aku kata</div>
+    <p>"Aku bukan marah dengan kau. Aku perlukan satu malam untuk fikir supaya
+    apa yang aku cakap esok lebih jujur."</p>
+  </div>
+  <div class="folio">24</div>
+</section>
+
+<!-- BACK MATTER -->
+<section class="page layout-back-matter">
+  <h3>Sudut Keselamatan</h3>
+  <p class="helpline">
+    Talian HEAL 15555 &nbsp;·&nbsp; Befrienders KL: 03-7627 2929<br />
+    Jika kamu berada dalam keadaan tidak selamat, hubungi 999 atau pergi ke unit
+    kecemasan hospital terdekat.
+  </p>
+  <p class="pdpa">
+    Privasi: data anda dilindungi mengikut PDPA 2010 (Malaysia). Tiada perkongsian data dengan
+    pihak ketiga tanpa kebenaran anda.
+  </p>
+  <div class="folio">28</div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" width="900" height="300" role="img" aria-label="Cop Perpustakaan Hati watermark stamp">
+  <!--
+    Perpustakaan Hati — "Cop Perpustakaan Hati" watermark stamp (production SVG)
+    Source: docs/brand/visual-identity.md -> "Logo & watermark stamp"
+    Placement: bottom-right of every paid eBook page, rotated -20deg by the
+    compiler, 10% opacity. Buyer name/email line is injected by the Phase 2
+    watermarking engine (placeholder below).
+  -->
+  <g fill="none" stroke="#c9a86a" stroke-width="3">
+    <rect x="12" y="40" width="876" height="220"/>
+  </g>
+  <g fill="none" stroke="#a07b45" stroke-width="1.5">
+    <rect x="26" y="54" width="848" height="192"/>
+  </g>
+
+  <text x="450" y="140"
+        font-family="Playfair Display, Georgia, serif"
+        font-size="46"
+        letter-spacing="8"
+        text-anchor="middle"
+        fill="#c9a86a">Cop Perpustakaan Hati</text>
+
+  <line x1="180" y1="168" x2="720" y2="168" stroke="#a07b45" stroke-width="2"/>
+
+  <text x="450" y="212"
+        font-family="Inter, system-ui, sans-serif"
+        font-size="26"
+        letter-spacing="6"
+        text-anchor="middle"
+        fill="#e9cea2">NAMA PEMBELI · CONTOH@EMAIL.COM</text>
+
+  <rect x="395" y="228" width="110" height="6" fill="#5f6f4a"/>
+</svg>
