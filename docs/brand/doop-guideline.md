@@ -4,11 +4,9 @@ Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "K
 Mood: a lantern-lit private library at night. Cinematic, foil-stamped, calm. **GREEN LEADS.**
 Colour share per frame: green 60 / gold 30 / ruby + cream 10. Never invent a new colour. Never use neutral black as a ground.
 
-## Fonts (paste in <head>)
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400..700&family=Source+Serif+4:opsz,wght@8..60,400..600&display=swap" rel="stylesheet">
-```
+## Fonts
+Use Fraunces for display, Inter for UI and labels, and Source Serif 4 for long reading. Shipped templates load the self-hosted files in `packages/brand-tools/fonts/`; never add Google Fonts runtime links. In Doop, use these family names with `Georgia`/`system-ui` fallbacks when local font files are unavailable.
+
 Weights per role: display caps 560, hero word 660, titles 520, italic script 400, Inter labels 600, bylines 500. Never use 800/900. Fraunces = display, Source Serif 4 = long reading, Inter = UI and labels.
 
 ## Tokens (paste in <style>)
@@ -86,4 +84,4 @@ The system is not locked — a new Doop canvas or a new frame may extend it.
 - Tier names, prices and seal shapes stay fixed — colour never carries a tier alone.
 
 ## Source of truth
-Repo `tradernonymous/perpustakaan_hati`: `docs/brand/DESIGN-SYSTEM.md`, `docs/brand/design-tokens.css`, `docs/brand/visual-identity.md`, preview `docs/brand/preview/design-system-3-0.png`. This guideline is `docs/brand/doop-guideline.md`.
+Repo `tradernonymous/perpustakaan_hati`: `docs/brand/design-tokens.css` is the value authority; `docs/brand/DESIGN-SYSTEM.md` is the current-version and navigation authority; `docs/brand/visual-identity.md` holds rationale; preview `docs/brand/preview/design-system-3-1.png`. This guideline is `docs/brand/doop-guideline.md`; its copied token snapshot must stay aligned with `design-tokens.css`.

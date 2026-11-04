@@ -1,5 +1,5 @@
 {
-  "docs/brand/DESIGN-SYSTEM.md": "a2a6baec01a5d7a3f0f56bd91e7627bf2a4b5faf6c1e53ed244ebde55970066a",
+  "docs/brand/DESIGN-SYSTEM.md": "c050726103f4475f5a6ef6ec70707e08733ca4d3274455d0b9fe1b284e946832",
   "docs/brand/assets/cop-stamp.svg": "e30ffe3f3b3ff46f0835e48d9d2a2d69dd67b48a66a457db3e6e0d01c6b988c9",
   "docs/brand/assets/emblem-book-heart.svg": "319a769a585319114990ca49e46717a02178a3356171289b137f767909d384b8",
   "docs/brand/assets/lockup-cinematic.svg": "85ab24ba36e26a95703f6eaa67bde6625b6eab10b05dd716bad1a35b8bd47ee8",
@@ -7,12 +7,12 @@
   "docs/brand/assets/seal-edisi-membangun.svg": "881f7976018c7cdad799548ba42bb794dead9db25c55c495a0e02e980e88c87b",
   "docs/brand/assets/seal-edisi-poket.svg": "3fe101a1bdf8bc8eda25aca089a9b9f6ceeed007188d82aab0d3f13cdc102612",
   "docs/brand/assets/seal-teman-hidup.svg": "c0d669fdc6c278c68ab8b830367badc8cb8d894a43ac7094fd6923bbe852ffeb",
-  "docs/brand/design-tokens.css": "9dccb6306b2e65299725d029210b71a4dfc96dedecd39eac0c868dac7f36280e",
-  "docs/brand/doop-guideline.md": "13db80a86c26885e99e193e35103ea51baae0d67a6f317ac4e8957bfdb59e354",
+  "docs/brand/design-tokens.css": "c3fafcf5140f22cf0e795d7ce2f1c77b54c188de215eb5289020b90dbd84ae26",
+  "docs/brand/doop-guideline.md": "d9ad70cbb3ea9a3d93d00a4586fd7a5d0526dbe3aa86d0c72746f59e7a532b3a",
   "packages/brand-tools/fonts/FrauncesDisplay.woff2": "9b2eb34781c59629bad929ed671b6b9a57385ede5d2e97fa1bd1623f29d898a1",
   "packages/brand-tools/fonts/FrauncesDisplayItalic.woff2": "81003a060af22f6806c44e89e0f8147a9f3654cdfe7161be2d95a2ffc257189d",
   "packages/brand-tools/fonts/InterUI.woff2": "11ecf6f358700710c050185e127ce52421e2073af3b4cdfc9080be1f544a68d5",
   "packages/brand-tools/fonts/SourceSerifText.woff2": "81a469d85dab1172283d8d40e27365c2c5e3e15a1fa33de69d546de672ffa36a",
-  "packages/ui/shadcn-theme.css": "6f8dd4fd09ce9c14c205182d7b60333c3e58d9a426e46cb4e47e6f0a1685a332",
+  "packages/ui/shadcn-theme.css": "f8e440f8df4deb16f76f25c8cac380f0924dfe04dacad0f18829188e76cdf6d3",
   "packages/ui/tailwind.config.js": "5004720bfef63163e80996ec97fb8f28c8789b599fea4bce7a8f7b27798cb9c2"
 }

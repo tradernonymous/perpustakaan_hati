@@ -1,5 +1,5 @@
-/* Perpustakaan Hati — design tokens (Design System 3.0 "Gilded Grove",
-   built on 2.0 "Living Sanctuary" — every 2.0 token is kept)
+/* Perpustakaan Hati — design tokens (Design System 3.1 "Gilded Grove",
+   refined from 3.0 and built on 2.0 "Living Sanctuary" — legacy tokens kept)
    Source: docs/brand/visual-identity.md
    Usage: import in apps/web/app/globals.css (Phase 3), and by the
    eBook/Threads templates via packages/ui/tokens.css.
@@ -152,8 +152,8 @@
   --material-shadow: rgb(0 0 0 / 0.45);
 
   /* =====================================================================
-     DESIGN SYSTEM 3.0 — "GILDED GROVE"
-     Cinematic, lantern-lit, foil-stamped. Built from the 2026 reference
+     DESIGN SYSTEM 3.1 — "GILDED GROVE"
+     Cinematic, lantern-lit, foil-stamped. Refined from the 2026 reference
      boards (open-book + heart emblem, metallic serif type, flanked
      bylines, ribbon banners, scalloped seals) — but re-keyed so GREEN
      stays the main colour: the dark ground itself is a green-black, the

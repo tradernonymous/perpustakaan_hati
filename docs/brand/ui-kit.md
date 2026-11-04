@@ -7,8 +7,8 @@ Phase 1 deliverable covering three output surfaces from one token source
 
 ### Layout
 - Mobile-first, single column, max content width 640px for reading, 1200px for landing grids.
-- Base ground: `ink`. Section alternation: `ink` → `ink-soft` → `cream` (final CTA band on cream for contrast break).
-- Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `ink` label.
+- Base ground: `forest-night`. Section alternation: `forest-night` → `forest-soft` → `cream` (final CTA band on cream for contrast break).
+- Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `forest-night` label.
 
 ### Components
 | Component | Spec |
@@ -16,14 +16,14 @@ Phase 1 deliverable covering three output surfaces from one token source
 | Button primary | bg `green-cta` gradient `#3f9167→#5b9b7d`, text `ink`, radius 2px, `shadow-depth-1`, uppercase Inter 12px tracking 0.14em |
 | Button secondary | 1px `gold` border, text `gold-light`, bg transparent |
 | Button tier-select | 1px tier-colour border, tier-colour label, `gold` fill on selected |
-| Card | bg `ink-soft`, 1px `border-gold` (`rgb(201 168 106 / 0.18)`), radius 4px, `shadow-depth-1` on hover → `shadow-depth-2` |
-| Featured card | bg `ink-elevated`, `shadow-depth-2`, top 1px `green-700` highlight rule |
+| Card | bg `forest-raised`, 1px `border-gold` (`rgb(201 168 106 / 0.18)`), radius 4px, `shadow-depth-1` on hover → `shadow-depth-2` |
+| Featured card | bg `forest-soft`, `shadow-depth-2`, top 1px `green-700` highlight rule |
 | Tier card | left 3px tier-colour rule, title `gold-light` Fraunces, price `cream`, tier shape (circle / hexagon / arch) beside the badge |
 | Chapter preview | bg `cream`, text `ink`, serif body for the reading sample |
 | Trust badge | 1px `gold-deep` border, `gold` text, 11px uppercase |
-| Input | bg `ink-soft`, 1px `border-dark`, focus 2px `green-400` ring, error 1px `terracotta` |
+| Input | bg `forest-soft`, 1px `forest-edge`, focus 2px `green-400` ring, error 1px `burgundy-light` |
 | Healing progress | green-to-gold gradient track, travelling glow, text percentage always visible |
-| Footer | bg `ink-soft`, top 1px `gold-deep` rule, `text-muted-on-dark` |
+| Footer | bg `forest-soft`, top 1px `gold-deep` rule, `text-muted-on-dark` |
 
 ### Typography in web
 - H1 `Fraunces` 32–40px, `gold-light`, line-height 1.15
@@ -53,14 +53,14 @@ link. Three faces, three jobs:
 ### shadcn/ui mapping
 shadcn default tokens are neutral-light. Override in `globals.css`:
 ```
---background: var(--ink)
+--background: var(--forest-night)
 --foreground: var(--text-on-dark)
 --primary: var(--green-500)
---primary-foreground: var(--ink)
---secondary: var(--ink-soft)
+--primary-foreground: var(--forest-night)
+--secondary: var(--forest-soft)
 --accent: var(--gold)
---accent-foreground: var(--ink)
---border: var(--border-dark)
+--accent-foreground: var(--forest-night)
+--border: var(--forest-edge)
 --ring: var(--green-400)
 --radius: 0.25rem
 ```
@@ -127,7 +127,7 @@ Shared rules for both:
 `docs/brand/templates/design-system-3-sheet.html` shows the
 Gilded Grove system: the cinematic lockup, foils, the green-led colour share,
 the ribbon, seals, card, CTA and the `.ph-stage` atmosphere layers. Preview:
-`docs/brand/preview/design-system-3-0.png`. Render it with any headless
+`docs/brand/preview/design-system-3-1.png`. Render it with any headless
 Chromium (`--allow-file-access-from-files --window-size=1600,1200`).
 
 ### Four fixed social templates
@@ -168,8 +168,8 @@ no text, no logo, no excessive ornament
 1. Cover — wordmark, "Karya untuk jiwa yang pernah terluka"
 2–7. Six quote panels, one idea per slide
 8. Tier ladder — three panels side-by-side showing green / gold / burgundy tiers with prices
-9. Problem slide — "Kennt kamu rasa ini?" (teaser of the pain point)
-10. CTA — "Mula dengan Edisi Poket — percuma", terracotta button block, handle
+9. Problem slide — "Pernah rasa begini?" (teaser of the pain point)
+10. CTA — "Mula dengan Edisi Poket — percuma", green button block, handle
 
 ### Teaser graphic
 - Never a fake screenshot. Use a real book render or typographic card.

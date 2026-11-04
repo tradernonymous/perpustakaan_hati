@@ -48,9 +48,9 @@ healing tier, quiet dividers, the pause in a conversation.
 - Terracotta — action, urgency, conversion
 - Cream — daylight, the calendar, the printable page
 - Green — healing, growth, the calm green accent (saturated emerald, `#5b9b7d`)
-- Green is the *second* voice: gold leads, green answers. Green marks healing
-  moments (tier badges, dividers, the pause in a conversation) and never takes
-  over the page — gold stays the primary accent.
+- Green is the *leading* voice: it grounds the page, marks healing moments, and
+  carries primary actions. Gold supports green through frames, rules, bylines,
+  and restrained premium accents; it never takes over the page.
 
 ## Pillars of the ecosystem
 1. *Sanctuary* — private, stigma-free, no judgment.
