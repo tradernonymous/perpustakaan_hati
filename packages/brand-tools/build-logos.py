@@ -112,7 +112,7 @@ def build_cop_stamp(fraunces: TTFont, inter: TTFont) -> None:
 
 
 # --------------------------------------------------------------------------
-# Design System 3.0 "Gilded Grove" — refined type + 3D (v3.1)
+# Design System 3.1 "Gilded Grove" — refined type + 3D (v3.1)
 # --------------------------------------------------------------------------
 # v3 tokens (must match docs/brand/design-tokens.css)
 FOREST_NIGHT = "#07140d"
@@ -379,8 +379,8 @@ def flank(cx: float, y: float, gap: float, length: float, colour: str) -> str:
 def build_emblem() -> None:
     p = "phe"
     body = f"""  <!--
-    Perpustakaan Hati — book-heart emblem (Design System 3.0)
-    Source: docs/brand/visual-identity.md -> "Design System 3.0"
+    Perpustakaan Hati — book-heart emblem (Design System 3.1)
+    Source: docs/brand/visual-identity.md -> "Design System 3.1"
     An emerald-bound open book; a foil heart rises from the spine.
     3D: extruded cover board + heart tube, lighting-filter bevel, gilt
     page block, spine shadow, one glint. Transparent background.
@@ -412,8 +412,8 @@ def build_lockup_cinematic(fraunces: TTFont, fraunces_it: TTFont, inter: TTFont)
     bw = text_width(f_by, "BY @RAHIMAM", 25, 10) / 2
 
     body = f"""  <!--
-    Perpustakaan Hati — cinematic lockup (Design System 3.0 "Gilded Grove")
-    Source: docs/brand/visual-identity.md -> "Design System 3.0"
+    Perpustakaan Hati — cinematic lockup (Design System 3.1 "Gilded Grove")
+    Source: docs/brand/visual-identity.md -> "Design System 3.1"
     Green leads: forest-night ground, emerald glow, emerald-foil HATI.
     Gold frames: gold-foil PERPUSTAKAAN, gilt rules, gold byline.
     3D: 14px graded extrusion + contact shadow + ambient shadow, and a
@@ -487,7 +487,7 @@ def build_seals(fraunces: TTFont, inter: TTFont) -> list[str]:
         pbm = centred(f_lab, bottom, 24, 7, 300, 426)
         scallop = scallop_path(300, 300, 258, 40, 7)
         body = f"""  <!--
-    Perpustakaan Hati — tier seal "{top} {main}" (Design System 3.0)
+    Perpustakaan Hati — tier seal "{top} {main}" (Design System 3.1)
     Source: docs/brand/tier-naming.md (tier colour is fixed)
     3D: extruded foil rim + bevel, recessed medallion, debossed labels.
     Use: eBook covers, store cards, Threads promo cards. Min 96px wide.
@@ -535,7 +535,7 @@ def build_monogram(fraunces: TTFont, inter: TTFont) -> None:
     ph = centred(f_hero, "PH", 400, 6, 600, 690)
     wm = centred(f_lab, "PERPUSTAKAAN HATI", 42, 13, 600, 968)
     body = f"""  <!--
-    Perpustakaan Hati — compact monogram (Design System 3.0)
+    Perpustakaan Hati — compact monogram (Design System 3.1)
     Use below 48px wide (favicon, avatar) and as a small footer lockup.
     3D: 12px graded extrusion + lighting bevel on the emerald-foil PH.
   -->
