@@ -245,14 +245,14 @@ For a gold 3D wordmark specifically: face `gold #c9a86a`, extrusion
 | asset | what it is |
 |---|---|
 | `docs/brand/assets/lockup-cinematic.svg` | the extruded 3D lockup (campaign use) |
-| `docs/brand/preview/design-system-3-0.png` | the full design-system showcase sheet |
+| `docs/brand/preview/design-system-3-1.png` | the full design-system showcase sheet |
 | `docs/brand/templates/design-system-3-sheet.html` | the source of the showcase sheet |
 
 Regenerate the PNG with any headless Chromium:
 
 ```bash
 chrome-headless-shell --allow-file-access-from-files --window-size=1600,1200 \
-  --screenshot=docs/brand/preview/design-system-3-0.png \
+  --screenshot=docs/brand/preview/design-system-3-1.png \
   file://$PWD/docs/brand/templates/design-system-3-sheet.html
 ```
 
@@ -399,7 +399,7 @@ extend: {
 }
 ```
 
-## Design System 3.0 — "Gilded Grove"
+## Design System 3.1 — "Gilded Grove"
 
 v3 takes its cues from the 2026 reference boards: cinematic, lantern-lit
 scenes, metallic serif type, an open book with a heart rising from it,
@@ -471,7 +471,7 @@ One class does it: `.ph-stage` = `forest-night` + `glow-emerald` +
 | `assets/seal-edisi-poket.svg` | tier seal, green fill, gold rim |
 | `assets/seal-edisi-membangun.svg` | tier seal, gold fill, emerald rim |
 | `assets/seal-teman-hidup.svg` | tier seal, burgundy fill, gold rim |
-| `templates/design-system-3-sheet.html` | v3 showcase sheet; PNG at `preview/design-system-3-0.png` |
+| `templates/design-system-3-sheet.html` | v3.1 showcase sheet; PNG at `preview/design-system-3-1.png` |
 | `preview/cover-v3-sample.png` | sample render of the v3 eBook cover |
 
 All are outlined vector (no font dependency). `monogram-stamp.svg` (v3

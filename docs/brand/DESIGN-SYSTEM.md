@@ -36,7 +36,7 @@ Retired 2.0 ink-and-gold assets (do not bring them back): `wordmark-primary.svg`
 | Threads quote card templates | `content/threads/templates/quote-card.html` (A, left aligned), `quote-card-b.html` (B, centred) |
 | Tier names (fixed) | `docs/brand/tier-naming.md` |
 | Doop / AI-designer guideline | `docs/brand/doop-guideline.md` |
-| Showcase sheet | `docs/brand/templates/design-system-3-sheet.html` and `preview/design-system-3-0.png` |
+| Showcase sheet | `docs/brand/templates/design-system-3-sheet.html` and `preview/design-system-3-1.png` |
 
 ## Using it in Doop (via the MCP)
 The guideline `perpustakaan-hati-design-system` is saved on the Doop canvas

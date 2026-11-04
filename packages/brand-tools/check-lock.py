@@ -52,6 +52,14 @@ SKIP = {".git", "node_modules", ".claude", ".idea", ".vscode", ".ruff_cache",
 SELF = {"check-lock.py", BASELINE_NAME, "DESIGN-SYSTEM.md"}
 # Files that deliberately name retired assets to say "do not bring these back".
 RETIREMENT_DOCS = {"DESIGN-SYSTEM.md", "visual-identity.md"}
+CURRENT_VERSION = "3.1"
+CURRENT_SHOWCASE = "docs/brand/preview/design-system-3-1.png"
+CURRENT_SHOWCASE_REFERENCE = "preview/design-system-3-1.png"
+ACTIVE_TEMPLATES = (
+    "content/threads/templates/quote-card.html",
+    "content/threads/templates/quote-card-b.html",
+    "content/threads/templates/carousel.html",
+)
 
 
 def sha(path: Path) -> str:
@@ -93,6 +101,45 @@ def collect(root: Path) -> tuple[list[str], list[str]]:
         for t in REQUIRED_TOKENS:
             if t + ":" not in tokens:
                 warnings.append(f"missing token {t}")
+        if f"--ph-system-version: '{CURRENT_VERSION}.0'" not in tokens:
+            warnings.append(
+                f"current version token is not Design System {CURRENT_VERSION}"
+            )
+
+    design_doc = root / "docs/brand/DESIGN-SYSTEM.md"
+    if design_doc.exists():
+        text = design_doc.read_text(errors="ignore")
+        if "design-system-3-0.png" in text:
+            warnings.append("stale showcase reference: design-system-3-0.png")
+        if CURRENT_SHOWCASE_REFERENCE not in text:
+            warnings.append(
+                f"current showcase is not referenced: {CURRENT_SHOWCASE_REFERENCE}"
+            )
+
+    showcase = root / CURRENT_SHOWCASE
+    if not showcase.exists():
+        warnings.append(f"missing current showcase: {CURRENT_SHOWCASE}")
+
+    theme = root / "docs/brand/brand-theme.md"
+    if theme.exists():
+        text = theme.read_text(errors="ignore").lower()
+        if "gold leads" in text or "gold stays the primary accent" in text:
+            warnings.append("brand guidance is not green-led")
+
+    doop = root / "docs/brand/doop-guideline.md"
+    if doop.exists():
+        text = doop.read_text(errors="ignore").lower()
+        if "fonts.googleapis.com" in text or "fonts.gstatic.com" in text:
+            warnings.append("Doop guidance prescribes Google Fonts runtime loading")
+
+    for relative in ACTIVE_TEMPLATES:
+        template = root / relative
+        if not template.exists():
+            warnings.append(f"missing active template: {relative}")
+            continue
+        text = template.read_text(errors="ignore").lower()
+        if "fonts.googleapis.com" in text or "fonts.gstatic.com" in text:
+            warnings.append(f"active template uses Google Fonts: {relative}")
 
     for path in root.rglob("*"):
         if (not path.is_file() or path.suffix not in SCAN or path.name in SELF

@@ -26,6 +26,7 @@ TEMPLATES = ROOT / "content" / "threads" / "templates"
 
 QUOTE_CARD = TEMPLATES / "quote-card.html"
 QUOTE_CARD_B = TEMPLATES / "quote-card-b.html"
+CAROUSEL = TEMPLATES / "carousel.html"
 
 SANCTIONED_TIERS = {"Edisi Poket", "Edisi Membangun", "Teman Hidup"}
 RETIRED_TIERS = ("Edisi Dompet", "Edisi Pulih")
@@ -76,6 +77,32 @@ def template(request: pytest.FixtureRequest) -> Path:
 def test_both_quote_card_templates_exist() -> None:
     assert QUOTE_CARD.exists()
     assert QUOTE_CARD_B.exists()
+
+
+def test_carousel_template_exists() -> None:
+    assert CAROUSEL.exists()
+
+
+def test_carousel_is_1080x1080() -> None:
+    css = css_of(read(CAROUSEL)).replace(" ", "")
+    assert "width:1080px" in css
+    assert "height:1080px" in css
+
+
+def test_carousel_uses_self_hosted_brand_fonts() -> None:
+    html = read(CAROUSEL)
+    assert "fonts.googleapis.com" not in html
+    assert "fonts.gstatic.com" not in html
+    assert "@font-face" in html
+    assert "packages/brand-tools/fonts/" in html
+
+
+def test_carousel_uses_green_cta_and_forest_surfaces() -> None:
+    css = css_of(read(CAROUSEL)).replace(" ", "").lower()
+    assert "--forest-night:#07140d" in css
+    assert "--forest-raised:#0d2117" in css
+    assert "background:var(--green-500)" in css or "background:var(--cta-v3-bg)" in css
+    assert "background:var(--terracotta)" not in css
 
 
 def test_template_is_1080x1350(template: Path) -> None:

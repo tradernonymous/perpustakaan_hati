@@ -48,7 +48,16 @@ def sandbox(tmp_path: Path) -> Path:
     for svg in (ROOT / "docs/brand/assets").glob("*.svg"):
         shutil.copy(svg, tmp_path / "docs/brand/assets" / svg.name)
     shutil.copy(BASELINE, tmp_path / "packages/brand-tools/design-system.baseline.json")
-    (tmp_path / "docs/brand/DESIGN-SYSTEM.md").write_text("# design system\n")
+    shutil.copy(ROOT / "docs/brand/DESIGN-SYSTEM.md", tmp_path / "docs/brand/DESIGN-SYSTEM.md")
+    for rel in (
+        "docs/brand/brand-theme.md",
+        "docs/brand/preview/design-system-3-1.png",
+        *check_lock.ACTIVE_TEMPLATES,
+    ):
+        src = ROOT / rel
+        dst = tmp_path / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(src, dst)
     # every tracked file must exist in the sandbox, or the checker reports it missing
     for rel in check_lock.TRACKED:
         src = ROOT / rel
@@ -144,3 +153,37 @@ def test_version_token_is_named_system_version() -> None:
     css = (ROOT / "docs/brand/design-tokens.css").read_text()
     assert "--ph-system-version:" in css
     assert "--ph-lock-version" not in css
+
+
+def test_stale_showcase_reference_is_an_advisory_warning(sandbox: Path) -> None:
+    guide = sandbox / "docs/brand/DESIGN-SYSTEM.md"
+    guide.write_text("Design System 3.1\npreview/design-system-3-0.png\n")
+    warnings, errors = check_lock.collect(sandbox)
+    assert any("stale showcase reference" in warning for warning in warnings)
+    assert errors == []
+
+
+def test_gold_led_guidance_is_an_advisory_warning(sandbox: Path) -> None:
+    theme = sandbox / "docs/brand/brand-theme.md"
+    theme.parent.mkdir(parents=True, exist_ok=True)
+    theme.write_text("Gold leads, green answers.\n")
+    warnings, errors = check_lock.collect(sandbox)
+    assert any("green-led" in warning for warning in warnings)
+    assert errors == []
+
+
+def test_google_fonts_runtime_link_is_an_advisory_warning(sandbox: Path) -> None:
+    guide = sandbox / "docs/brand/doop-guideline.md"
+    guide.write_text('<link href="https://fonts.googleapis.com/css2?family=Inter" rel="stylesheet">\n')
+    warnings, errors = check_lock.collect(sandbox)
+    assert any("Google Fonts" in warning for warning in warnings)
+    assert errors == []
+
+
+def test_active_template_google_fonts_link_is_an_advisory_warning(sandbox: Path) -> None:
+    template = sandbox / "content/threads/templates/quote-card.html"
+    template.parent.mkdir(parents=True, exist_ok=True)
+    template.write_text('<link href="https://fonts.gstatic.com/s/inter" rel="preload">\n')
+    warnings, errors = check_lock.collect(sandbox)
+    assert any("active template" in warning for warning in warnings)
+    assert errors == []
