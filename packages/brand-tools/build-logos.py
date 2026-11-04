@@ -5,10 +5,13 @@ Renders the production logo SVGs with brand type converted to OUTLINES
 (paths), so the files never depend on a font being installed on the
 reader's machine or on Google Fonts being reachable.
 
-Also renders a 3D wordmark variant. "3D type" here means a *treatment*:
-the same Fraunces outlines are extruded in vector, given a rim light and
-an ambient shadow. It is deliberately not a novelty 3D font — that would
-break the editorial character of the brand and add a font dependency.
+"3D type" here means a *treatment*: Fraunces outlines are extruded in
+vector, lit with an SVG lighting filter and given contact + ambient
+shadows. It is deliberately not a novelty 3D font — that would break the
+editorial character of the brand and add a font dependency.
+
+Design System 3.0 is LOCKED (see docs/brand/DESIGN-SYSTEM.md): this file
+builds the only sanctioned brand assets.
 
 Usage:
     uv run --no-project --with fonttools --with brotli \
@@ -78,60 +81,6 @@ def svg_doc(width: int, height: int, body: str, title: str) -> str:
     )
 
 
-def build_wordmark(fraunces: TTFont, inter: TTFont) -> None:
-    W = H = 1200
-    p1 = centred(fraunces, "PERPUSTAKAAN", 92, 18, 600, 462)
-    p2 = centred(fraunces, "HATI", 92, 18, 600, 592)
-    pb = centred(inter, "— by @rahimam —", 32, 8, 600, 792)
-    body = f"""  <!--
-    Perpustakaan Hati — primary wordmark (production SVG, outlined type)
-    Source: docs/brand/visual-identity.md -> "Logo & watermark stamp"
-    Colors: gold {GOLD} on ink {INK}
-    Type: Fraunces (display) + Inter (byline). Text is converted to paths,
-    so no font installation or network access is needed to render.
-    Usage: web header, eBook cover, Threads card, print.
-  -->
-  <rect width="{W}" height="{H}" fill="{INK}"/>
-
-  <line x1="230" y1="332" x2="970" y2="332" stroke="{GOLD_DEEP}" stroke-width="2"/>
-
-  <path fill="{GOLD}" d="{p1}"/>
-  <path fill="{GOLD}" d="{p2}"/>
-
-  <line x1="230" y1="700" x2="970" y2="700" stroke="{GOLD_DEEP}" stroke-width="2"/>
-
-  <path fill="{GOLD_LIGHT}" d="{pb}"/>
-
-  <rect x="578" y="862" width="44" height="7" fill="{GREEN}"/>
-"""
-    (OUT / "wordmark-primary.svg").write_text(
-        svg_doc(W, H, body, "Perpustakaan Hati wordmark"), encoding="utf-8")
-
-
-def build_monogram(fraunces: TTFont, inter: TTFont) -> None:
-    W = H = 1200
-    ph = centred(fraunces, "PH", 360, 0, 600, 686)
-    wm = centred(inter, "PERPUSTAKAAN HATI", 44, 13, 600, 962)
-    body = f"""  <!--
-    Perpustakaan Hati — compact monogram / stamp (production SVG, outlined type)
-    Source: docs/brand/visual-identity.md -> "Logo & watermark stamp"
-    Use for: favicon, avatar, cover badge, small footer lockup.
-  -->
-  <rect width="{W}" height="{H}" fill="{INK}"/>
-
-  <rect x="140" y="140" width="920" height="920" fill="none" stroke="{GOLD_DEEP}" stroke-width="6"/>
-  <rect x="170" y="170" width="860" height="860" fill="none" stroke="{GOLD}" stroke-width="1.5"/>
-
-  <path fill="{GOLD}" d="{ph}"/>
-
-  <rect x="470" y="762" width="260" height="10" fill="{GREEN}"/>
-
-  <path fill="{GOLD_LIGHT}" d="{wm}"/>
-"""
-    (OUT / "monogram-stamp.svg").write_text(
-        svg_doc(W, H, body, "Perpustakaan Hati compact mark"), encoding="utf-8")
-
-
 def build_cop_stamp(fraunces: TTFont, inter: TTFont) -> None:
     W, H = 900, 300
     t1 = centred(fraunces, "Cop Perpustakaan Hati", 40, 6, 450, 138)
@@ -160,103 +109,6 @@ def build_cop_stamp(fraunces: TTFont, inter: TTFont) -> None:
 """
     (OUT / "cop-stamp.svg").write_text(
         svg_doc(W, H, body, "Cop Perpustakaan Hati watermark stamp"), encoding="utf-8")
-
-
-def build_wordmark_3d(fraunces: TTFont, inter: TTFont) -> None:
-    """Extruded 3D wordmark — a vector treatment, not a 3D font.
-
-    The Fraunces outlines are stacked in depth to form a real extruded
-    solid: a dark green side face, a lit green edge, then the gold face
-    with a light bevel. Everything is vector, so it scales to a poster
-    without blurring and needs no font on the reader's machine.
-    """
-    W, H = 1600, 900
-    depth = 18          # extrusion depth in user units (1px layers)
-
-    p1 = centred(fraunces, "PERPUSTAKAAN", 118, 22, 800, 430)
-    p2 = centred(fraunces, "HATI", 118, 22, 800, 592)
-    pb = centred(inter, "— by @rahimam —", 34, 9, 800, 760)
-
-    def side_layers(ref: str) -> str:
-        """Solid extruded side face — 1px layers of one shared outline
-        (`<use>`), dark green darkening toward the back. 1px steps keep
-        the side wall continuous at every weight (2px steps striped once
-        the type was set at its real, lighter weight)."""
-        out = []
-        for i in range(depth, 0, -1):
-            dx = round(i * 0.34, 2)
-            k = 1 - i / depth
-            r = round(18 + 20 * k)
-            g = round(61 + 36 * k)
-            b = round(42 + 28 * k)
-            out.append(f'    <use href="#{ref}" fill="rgb({r},{g},{b})" transform="translate({dx},{i})"/>')
-        return "\n".join(out)
-
-    body = f"""  <!--
-    Perpustakaan Hati — 3D wordmark (campaign asset)
-    Source: docs/brand/visual-identity.md -> "3D logo direction"
-    Construction: Fraunces outlines extruded in vector. No 3D font, no
-    runtime font dependency, sharp at any output size.
-    Use: social headers, event posters, video openers.
-    NOT for: site header, eBook cover, PDF master (use wordmark-primary.svg).
-  -->
-  <defs>
-    <path id="ph-l1" d="{p1}"/>
-    <path id="ph-l2" d="{p2}"/>
-    <radialGradient id="ph-glow" cx="50%" cy="42%" r="62%">
-      <stop offset="0%" stop-color="{GREEN_DEEP}" stop-opacity="0.7"/>
-      <stop offset="100%" stop-color="{INK}" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="ph-face" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#eed7a4"/>
-      <stop offset="45%" stop-color="{GOLD}"/>
-      <stop offset="100%" stop-color="#ab8950"/>
-    </linearGradient>
-    <linearGradient id="ph-rim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="{LIME}" stop-opacity="0.8"/>
-      <stop offset="100%" stop-color="{GREEN_400}" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="ph-soft" x="-25%" y="-25%" width="150%" height="170%">
-      <feGaussianBlur stdDeviation="30"/>
-    </filter>
-  </defs>
-
-  <rect width="{W}" height="{H}" fill="{INK}"/>
-  <ellipse cx="800" cy="400" rx="620" ry="320" fill="url(#ph-glow)"/>
-
-  <!-- soft ambient shadow cast down-right onto the ink ground -->
-  <g filter="url(#ph-soft)" opacity="0.6" fill="#000000">
-    <path transform="translate(26,40)" d="{p1}"/>
-    <path transform="translate(26,40)" d="{p2}"/>
-  </g>
-
-  <!-- solid extrusion: dark green side wall -->
-  <g>
-{side_layers("ph-l1")}
-{side_layers("ph-l2")}
-  </g>
-
-  <!-- lit edge: the first 2px of side wall catching the key light -->
-  <use href="#ph-l1" fill="{GREEN_400}" opacity="0.55" transform="translate(0.5,2)"/>
-  <use href="#ph-l2" fill="{GREEN_400}" opacity="0.55" transform="translate(0.5,2)"/>
-
-  <!-- the gold face -->
-  <path fill="url(#ph-face)" d="{p1}"/>
-  <path fill="url(#ph-face)" d="{p2}"/>
-
-  <!-- thin light bevel just under the top edge of each line -->
-  <g opacity="0.45">
-    <path fill="url(#ph-rim)" transform="translate(0,-2)" d="{p1}"/>
-    <path fill="url(#ph-rim)" transform="translate(0,-2)" d="{p2}"/>
-  </g>
-
-  <line x1="330" y1="660" x2="1270" y2="660" stroke="{GOLD_DEEP}" stroke-width="2"/>
-  <path fill="{GOLD_LIGHT}" d="{pb}"/>
-
-  <rect x="756" y="812" width="88" height="8" fill="{GREEN}"/>
-"""
-    (OUT / "wordmark-3d.svg").write_text(
-        svg_doc(W, H, body, "Perpustakaan Hati 3D wordmark"), encoding="utf-8")
 
 
 # --------------------------------------------------------------------------
@@ -567,7 +419,7 @@ def build_lockup_cinematic(fraunces: TTFont, fraunces_it: TTFont, inter: TTFont)
     3D: 14px graded extrusion + contact shadow + ambient shadow, and a
     lighting-filter bevel on both foil lines.
     Use: Threads/IG headers, store hero, video opener, posters.
-    NOT for: site header at < 320px wide (use wordmark-primary.svg).
+    NOT for: site header at < 320px wide (use monogram-stamp.svg).
   -->
   <defs>
 {v3_defs(p)}
@@ -674,22 +526,48 @@ def build_seals(fraunces: TTFont, inter: TTFont) -> list[str]:
     return names
 
 
+def build_monogram(fraunces: TTFont, inter: TTFont) -> None:
+    """Compact mark for favicon / avatar / small footer. v3: forest-night
+    ground, double gilt frame, emerald-foil PH with the lit bevel."""
+    p = "phm"
+    W = H = 1200
+    f_hero, f_lab = weight(fraunces, W_HERO), weight(inter, W_LABEL)
+    ph = centred(f_hero, "PH", 400, 6, 600, 690)
+    wm = centred(f_lab, "PERPUSTAKAAN HATI", 42, 13, 600, 968)
+    body = f"""  <!--
+    Perpustakaan Hati — compact monogram (Design System 3.0)
+    Use below 48px wide (favicon, avatar) and as a small footer lockup.
+    3D: 12px graded extrusion + lighting bevel on the emerald-foil PH.
+  -->
+  <defs>
+{v3_defs(p)}
+    <path id="{p}-ph" d="{ph}"/>
+  </defs>
+{stage(p, W, H, 560)}
+  <rect x="140" y="140" width="920" height="920" fill="none" stroke="{GOLD_DEEP}" stroke-width="6"/>
+  <rect x="170" y="170" width="860" height="860" fill="none" stroke="{GOLD}" stroke-width="1.5"/>
+  <use href="#{p}-ph" fill="#000" opacity="0.55" filter="url(#{p}-blur)" transform="translate(4,28)"/>
+  {extrude(f"{p}-ph", 12, GREEN_800, GREEN_950, 0.15)}
+  <use href="#{p}-ph" fill="url(#{p}-foil-gold)" transform="translate(0,-2.5)"/>
+  <use href="#{p}-ph" fill="url(#{p}-foil-emerald)" filter="url(#{p}-bevel)"/>
+  <path fill="{GOLD_LIGHT}" d="{wm}"/>
+"""
+    (OUT / "monogram-stamp.svg").write_text(
+        svg_doc(W, H, body, "Perpustakaan Hati compact mark"), encoding="utf-8")
+
+
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     fraunces = TTFont(FONTS / "FrauncesDisplay.woff2")
     fraunces_it = TTFont(FONTS / "FrauncesDisplayItalic.woff2")
     inter = TTFont(FONTS / "InterUI.woff2")
-    # 2.0 assets: explicit weights (they used to inherit the Black default)
-    build_wordmark(weight(fraunces, W_DISPLAY), weight(inter, W_BYLINE))
-    build_monogram(weight(fraunces, W_HERO), weight(inter, W_LABEL))
+    build_monogram(fraunces, inter)
     build_cop_stamp(weight(fraunces, W_DISPLAY), weight(inter, W_BYLINE))
-    build_wordmark_3d(weight(fraunces, W_HERO), weight(inter, W_BYLINE))
     build_emblem()
     build_lockup_cinematic(fraunces, fraunces_it, inter)
     seals = build_seals(fraunces, inter)
-    for name in ("wordmark-primary.svg", "monogram-stamp.svg", "cop-stamp.svg",
-                 "wordmark-3d.svg", "emblem-book-heart.svg", "lockup-cinematic.svg",
-                 *seals):
+    for name in ("monogram-stamp.svg", "cop-stamp.svg", "emblem-book-heart.svg",
+                 "lockup-cinematic.svg", *seals):
         print("wrote docs/brand/assets/" + name)
 
 
