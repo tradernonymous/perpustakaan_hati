@@ -1,4 +1,4 @@
-"""Run the local research admin server on loopback only."""
+"""Run the research admin; loopback by default, platform port when hosted."""
 
 import os
 
@@ -8,12 +8,28 @@ from .app import create_app
 from .config import Settings
 
 
+def _port(value: str) -> int:
+    try:
+        port = int(value)
+    except ValueError:
+        raise SystemExit("PORT must be a number.") from None
+    if not 1 <= port <= 65535:
+        raise SystemExit("PORT must be between 1 and 65535.")
+    return port
+
+
 def main() -> None:
+    settings = Settings.from_env(dict(os.environ), strict=False)
+    port = _port(os.environ.get("PORT") or os.environ.get("RESEARCH_ADMIN_PORT") or "8787")
+    host = os.environ.get("RESEARCH_ADMIN_HOST") or ("0.0.0.0" if settings.public_mode else "127.0.0.1")
     uvicorn.run(
-        create_app(Settings.from_env(dict(os.environ), strict=False)),
-        host="127.0.0.1",
-        port=int(os.environ.get("RESEARCH_ADMIN_PORT", "8787")),
+        create_app(settings),
+        host=host,
+        port=port,
         access_log=False,
+        # Deliberately ignore X-Forwarded-For: a spoofable client address would
+        # let an attacker rotate around the login rate limiter.
+        proxy_headers=False,
     )
 
 

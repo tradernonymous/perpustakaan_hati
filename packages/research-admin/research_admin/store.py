@@ -1,5 +1,6 @@
-"""Private SQLite research storage; OAuth credentials stay in Secret Service."""
+"""Private SQLite research storage; OAuth credentials stay encrypted or in the OS keyring."""
 
+import base64
 import hashlib
 import os
 import sqlite3
@@ -8,6 +9,8 @@ from contextlib import closing
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
+
+from cryptography.fernet import Fernet, InvalidToken
 
 
 class StoreError(RuntimeError):
@@ -41,6 +44,47 @@ class SecretVault:
         self._run("clear")
 
 
+class EncryptedVault:
+    """Encrypted-at-rest token for hosts without a desktop keyring (Railway).
+
+    The ciphertext lives beside the research data; the key comes from the
+    platform's secret store (RESEARCH_TOKEN_KEY) and is never written to disk.
+    """
+
+    def __init__(self, db_path: str, key: str):
+        if not key:
+            raise StoreError("RESEARCH_TOKEN_KEY is not set; cannot decrypt the stored Threads token.")
+        self.db_path = str(Path(db_path).expanduser())
+        self.fernet = Fernet(base64.urlsafe_b64encode(hashlib.sha256(key.encode()).digest()))
+
+    def _connect(self):
+        return closing(sqlite3.connect(self.db_path))
+
+    def get(self) -> str | None:
+        with self._connect() as db:
+            row = db.execute("SELECT value FROM secret WHERE id=1").fetchone()
+        if not row:
+            return None
+        try:
+            return self.fernet.decrypt(bytes(row[0])).decode()
+        except (InvalidToken, ValueError):
+            raise StoreError("Stored Threads token cannot be decrypted; check RESEARCH_TOKEN_KEY and reconnect Threads.") from None
+
+    def set(self, value: str) -> None:
+        with self._connect() as db, db:
+            db.execute("INSERT OR REPLACE INTO secret VALUES (1, ?)", (self.fernet.encrypt(value.encode()),))
+
+    def delete(self) -> None:
+        with self._connect() as db, db:
+            db.execute("DELETE FROM secret")
+
+
+def build_vault(settings) -> SecretVault | EncryptedVault:
+    if getattr(settings, "vault_kind", "keyring") == "sqlite":
+        return EncryptedVault(settings.db_path, settings.token_key)
+    return SecretVault(settings.db_path)
+
+
 @dataclass
 class StoredToken:
     access_token: str = field(repr=False)
@@ -60,6 +104,7 @@ class Store:
         with closing(sqlite3.connect(self.db_path)) as db, db:
             db.executescript("""
                 CREATE TABLE IF NOT EXISTS token (id INTEGER PRIMARY KEY CHECK(id=1), expires_at INTEGER NOT NULL);
+                CREATE TABLE IF NOT EXISTS secret (id INTEGER PRIMARY KEY CHECK(id=1), value BLOB NOT NULL);
                 CREATE TABLE IF NOT EXISTS insights (
                     id INTEGER PRIMARY KEY, theme TEXT NOT NULL, quote TEXT NOT NULL,
                     source_url TEXT NOT NULL, ebook_idea TEXT NOT NULL, created_at TEXT NOT NULL,

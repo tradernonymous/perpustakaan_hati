@@ -5,6 +5,7 @@ import hmac
 import json
 import secrets
 import time
+from urllib.parse import urlsplit
 
 import httpx
 from fastapi import FastAPI, Request
@@ -12,18 +13,26 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Resp
 
 from .config import Settings
 from .research import ResearchError, mine_pain_points
-from .store import Store, StoreError
+from .store import Store, StoreError, build_vault
 from .threads_client import ThreadsClient, ThreadsError
 
 SESSION_COOKIE = "research_session"
 STATE_TTL = 600
 SESSION_TTL = 8 * 3600
-ALLOWED_HOSTS = {"127.0.0.1", "localhost", "testserver"}
+LOGIN_MAX_FAILURES = 5
+LOGIN_WINDOW = 300
 SAFE_RESPONSE_HEADERS = {"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "X-Frame-Options": "deny"}
 
 
 def parse_form(data: dict) -> dict:
     return {k: v for k, v in data.items() if isinstance(v, str)}
+
+
+def _hostname(value: str) -> str:
+    value = value.strip().lower()
+    if value.startswith("["):
+        return value[1:].split("]", 1)[0]
+    return value.rsplit(":", 1)[0] if value.count(":") == 1 else value
 
 
 def _signed(value: str, key: bytes) -> str:
@@ -37,7 +46,8 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     app.state.session_key = secrets.token_bytes(32)
     pending_states: dict[str, float] = {}
     sessions: dict[str, float] = {}
-    store = Store(settings.db_path, vault=vault_factory()) if vault_factory else Store(settings.db_path)
+    login_failures: dict[str, list[float]] = {}
+    store = Store(settings.db_path, vault=vault_factory() if vault_factory else build_vault(settings))
     store.init_schema()
     app.state.store = store
 
@@ -48,13 +58,19 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         return response
 
     def safe_origin(request: Request, *, mutation: bool = True) -> bool:
-        host = request.headers.get("host", "").split(":")[0]
-        if host not in ALLOWED_HOSTS:
+        host = _hostname(request.headers.get("host", ""))
+        if host not in settings.allowed_hosts:
             return False
         if not mutation:
             return True
         origin = request.headers.get("origin")
-        return origin is not None and origin.rstrip("/") == str(request.base_url).rstrip("/")
+        if not origin:
+            return False
+        try:
+            parsed = urlsplit(origin)
+        except ValueError:
+            return False
+        return parsed.scheme in ("http", "https") and _hostname(parsed.netloc) == host
 
     def signed_in(request: Request) -> bool:
         expiry = sessions.get(request.cookies.get(SESSION_COOKIE, ""))
@@ -62,7 +78,9 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
 
     @app.middleware("http")
     async def security(request: Request, call_next):
-        if request.headers.get("host", "").split(":")[0] not in ALLOWED_HOSTS:
+        if request.url.path == "/healthz":
+            return await call_next(request)
+        if _hostname(request.headers.get("host", "")) not in settings.allowed_hosts:
             return error(400, "Unexpected host header.")
         if request.method == "POST" and not safe_origin(request):
             return error(403, "Cross-origin or missing-origin requests are blocked.")
@@ -90,16 +108,27 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     async def login(request: Request):
         if not settings.admin_password:
             return error(503, "RESEARCH_ADMIN_PASSWORD is not set. Set it and restart the server.")
+        now = time.time()
+        client = request.client.host if request.client else "unknown"
+        recent = [stamp for stamp in login_failures.get(client, []) if stamp > now - LOGIN_WINDOW]
+        login_failures[client] = recent
+        if len(recent) >= LOGIN_MAX_FAILURES:
+            return error(429, "Too many failed sign-ins. Wait a few minutes and retry.")
         try:
             data = dict(await request.form())
         except Exception:
             data = {}
         if not hmac.compare_digest(str(data.get("password", "")).encode("utf-8"), settings.admin_password.encode("utf-8")):
+            recent.append(now)
             return error(401, "Wrong admin password.")
+        login_failures.pop(client, None)
+        for key, expiry in list(sessions.items()):
+            if expiry < now:
+                del sessions[key]
         token = secrets.token_urlsafe(32)
         sessions[token] = time.time() + SESSION_TTL
         response = RedirectResponse("/", status_code=303)
-        response.set_cookie(SESSION_COOKIE, token, httponly=True, samesite="lax", max_age=SESSION_TTL)
+        response.set_cookie(SESSION_COOKIE, token, httponly=True, secure=settings.secure_cookies, samesite="lax", max_age=SESSION_TTL)
         return response
 
     @app.post("/logout")
@@ -147,7 +176,7 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         state = secrets.token_urlsafe(24)
         pending_states[state] = time.time() + STATE_TTL
         response = RedirectResponse(ThreadsClient(settings, app.state.http).authorize_url(state), status_code=307)
-        response.set_cookie("oauth_browser", _signed(state + request.cookies.get(SESSION_COOKIE, ""), app.state.session_key), httponly=True, samesite="lax", max_age=STATE_TTL)
+        response.set_cookie("oauth_browser", _signed(state + request.cookies.get(SESSION_COOKIE, ""), app.state.session_key), httponly=True, secure=settings.secure_cookies, samesite="lax", max_age=STATE_TTL)
         return response
 
     @app.get("/auth/callback")
@@ -207,5 +236,9 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         if not signed_in(request):
             return error(401, "Sign in first.")
         return {"insights": app.state.store.list_insights()}
+
+    @app.get("/healthz")
+    def healthz():
+        return {"ok": True}
 
     return app
