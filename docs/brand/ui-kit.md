@@ -101,10 +101,25 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 - Template as 3×4 grid at 270×338px each.
 
 ### Quote card layout
-- Ground `ink`, 1px `gold-deep` inner border, 24px padding.
-- Kicker: `— @rahimam —` `gold`, Inter 24px uppercase 0.2em.
-- Quote: Fraunces 60–72px, `gold-light`, line-height 1.2, max 4 lines.
-- Footer: `PERPUSTAKAAN HATI` Fraunces 28px `gold`, tracking 0.18em, bottom-left; `tier badge` bottom-right.
+Two templates ship in `content/threads/templates/`, both 1080×1350 (4:5) and
+both built on Design System 3.1 "Gilded Grove":
+
+| Template | File | Composition |
+|---|---|---|
+| A — left aligned | `quote-card.html` | emblem top-left, quote block left, wordmark + tier seal along the bottom |
+| B — centred | `quote-card-b.html` | emblem centred, quote centred, foil wordmark + tier pill centred below |
+
+Shared rules for both:
+- Ground `forest-night`, one key glow (lantern-dominant), vignette.
+- Kicker: `by @rahimam` flanked by gold rules via `.ph-kicker`.
+- Quote: Fraunces 72px, `gold-light`, line-height 1.24, `cream` for the emphasised phrase.
+- Tagline: Source Serif 4 italic 30px, `green-300`.
+- Wordmark: `PERPUSTAKAAN` foil-gold 38px above `HATI` foil-emerald 76px (B) / 104px (A).
+- Tier: seal 96px minimum, rotated -8deg, tier name + price + one line of tier copy.
+- Fonts self-hosted in `packages/brand-tools/fonts/` — never a Google Fonts CDN link.
+- Copy is filled at render time: `{{QUOTE_LEAD}}`, `{{QUOTE_EMPH}}`, `{{QUOTE_TAIL}}`.
+- Tier class on `.card`: `tier-poket`, `tier-membangun`, `teman-hidup`.
+
 - Grid overlay guide only in the template file, never in the exported PNG.
 
 ### Design system showcase sheet

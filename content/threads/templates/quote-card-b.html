@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<!--
+  Perpustakaan Hati — Threads quote card, Template B (centred)
+  Size: 1080x1350 (4:5). Render to PNG via headless Chromium.
+
+  Design System 3.1 "Gilded Grove". Source of truth:
+  docs/brand/DESIGN-SYSTEM.md, docs/brand/design-tokens.css
+
+  Placeholders:
+    {{QUOTE_LEAD}}   text before the emphasised phrase
+    {{QUOTE_EMPH}}   the phrase wrapped in the cream span
+    {{QUOTE_TAIL}}   text after the emphasised phrase
+  Tier: set the tier class on .card —
+    tier-poket (Free, green), tier-membangun (RM 29-49, gold),
+    teman-hidup (RM 79-149, burgundy). Tier names never change.
+
+  Fonts are self-hosted (packages/brand-tools/fonts/) — never a CDN link.
+-->
+<html lang="ms">
+<head>
+<meta charset="utf-8" />
+<title>Threads Quote Card — Template B</title>
+<link rel="stylesheet" href="../../../docs/brand/design-tokens.css" />
+<style>
+  @page { size: 1080px 1350px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* Inline copy of the tokens the card needs, so the file still renders
+     when opened on its own. The linked stylesheet is the truth. */
+  :root {
+    --forest-night: #07140d;
+    --forest-raised: #0d2117;
+    --green-950: #0b2418;
+    --green-900: #123d2a;
+    --green-800: #1d5a3d;
+    --green-700: #2d7954;
+    --green-600: #3f9167;
+    --green-500: #5b9b7d;
+    --green-400: #7db895;
+    --green-300: #a7d3b6;
+    --gold: #c9a86a;
+    --gold-light: #e9cea2;
+    --gold-deep: #a07b45;
+    --burgundy: #5c1e17;
+    --burgundy-light: #c25a58;
+    --cream: #fdfee6;
+    --paper: #f4efe6;
+    --text-on-dark: #e6e2da;
+    --text-muted-on-dark: #a49c8d;
+    --heart-ruby: #c8343c;
+    --lantern: #f2b85c;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-reading: 'Source Serif 4', Georgia, serif;
+  }
+
+  /* Brand fonts, self-hosted and subset.
+     Source: packages/brand-tools/fonts/ */
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplay.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Fraunces';
+    src: url('../../../packages/brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2');
+    font-weight: 400 700; font-style: italic; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Inter';
+    src: url('../../../packages/brand-tools/fonts/InterUI.woff2') format('woff2');
+    font-weight: 400 700; font-style: normal; font-display: swap;
+  }
+  @font-face {
+    font-family: 'Source Serif 4';
+    src: url('../../../packages/brand-tools/fonts/SourceSerifText.woff2') format('woff2');
+    font-weight: 400 600; font-style: normal; font-display: swap;
+  }
+
+  body {
+    width: 1080px;
+    height: 1350px;
+    background: var(--forest-night);
+    color: var(--text-on-dark);
+    font-family: var(--font-body);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* --- stage ---------------------------------------------------------
+     Lantern-dominant key glow: one per frame, never two of a hue. */
+  .card {
+    --glow-lantern-b: radial-gradient(62% 50% at 50% 30%, rgb(242 184 92 / 0.40), transparent 72%);
+    --glow-emerald-b: radial-gradient(80% 64% at 50% 70%, rgb(63 145 103 / 0.22), transparent 74%);
+    position: relative;
+    width: 1080px;
+    height: 1350px;
+    padding: 86px 104px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    overflow: hidden;
+    background-color: var(--forest-night);
+    background-image:
+      radial-gradient(120% 90% at 50% 45%, transparent 48%, rgb(0 0 0 / 0.72) 100%),
+      var(--glow-lantern-b),
+      var(--glow-emerald-b);
+  }
+
+  .emblem {
+    width: 196px;
+    display: block;
+    filter: drop-shadow(0 14px 26px rgb(0 0 0 / 0.5));
+  }
+
+  .who { margin-top: 30px; width: 100%; }
+
+  .quote {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 72px;
+    line-height: 1.24;
+    letter-spacing: -0.005em;
+    color: var(--gold-light);
+    margin: 64px 0 0;
+    max-width: 880px;
+    text-wrap: balance;
+  }
+  .quote .em { color: var(--cream); }
+
+  .attr {
+    margin-top: 34px;
+    font-family: var(--font-reading);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 30px;
+    color: var(--green-300);
+    max-width: 760px;
+    text-wrap: balance;
+  }
+
+  .spread { flex: 1 1 auto; }
+
+  /* --- footer -------------------------------------------------------- */
+  .footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
+  .mark .ph-foil-gold {
+    font-family: var(--font-display);
+    font-weight: 560;
+    font-size: 38px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    background-image: linear-gradient(178deg,
+      #fff1c9 0%, #ecc983 24%, #b8904a 48%,
+      #9a7638 58%, #f1d79b 78%, #b8904a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .mark .ph-foil-emerald {
+    font-family: var(--font-display);
+    font-weight: 660;
+    font-size: 76px;
+    letter-spacing: 0.06em;
+    color: var(--green-400);
+    background-image: linear-gradient(178deg,
+      #d9f3df 0%, #8fd0a6 22%, #3f9167 46%,
+      #2d7954 58%, #a7d3b6 76%, #3f9167 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Flanked byline: ——— by @rahimam ——— */
+  .ph-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.9em;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+  }
+  .ph-kicker::before,
+  .ph-kicker::after {
+    content: '';
+    flex: 1 1 3em;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+  }
+
+  .tier {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 14px 34px 14px 18px;
+    border: 1px solid rgb(201 168 106 / 0.42);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgb(13 33 23 / 0.92), rgb(7 20 13 / 0.92));
+    box-shadow:
+      inset 0 1px 0 rgb(233 206 162 / 0.14),
+      0 14px 30px rgb(0 0 0 / 0.45);
+  }
+
+  .tier .seal {
+    width: 96px;
+    height: 96px;
+    flex: 0 0 auto;
+    background-image: var(--seal);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: rotate(-8deg);
+    filter: drop-shadow(0 18px 30px rgb(0 0 0 / 0.55));
+  }
+
+  .tier-text {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    text-align: left;
+  }
+  .tier-name {
+    font-family: var(--font-display);
+    font-weight: 560;
+    font-size: 27px;
+    letter-spacing: 0.01em;
+    color: var(--gold-light);
+  }
+  .tier-name::after { content: var(--tier-label); }
+  .tier-sub {
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--text-muted-on-dark);
+  }
+  .tier-sub::after { content: var(--tier-price) ' \00B7 ' var(--tier-note); }
+
+  /* --- tier variants --------------------------------------------------
+     Colour never carries the tier alone: the seal shape and the tier
+     name are always present. */
+  .tier-poket {
+    --seal: url('../../../docs/brand/assets/seal-edisi-poket.svg');
+    --tier-label: 'Edisi Poket';
+    --tier-price: 'Free';
+    --tier-note: 'Ringkas, menyentuh, mudah dibawa.';
+    --tier-color: var(--green-400);
+  }
+  .tier-membangun {
+    --seal: url('../../../docs/brand/assets/seal-edisi-membangun.svg');
+    --tier-label: 'Edisi Membangun';
+    --tier-price: 'RM 29-49';
+    --tier-note: 'Panduan yang paling jujur dan paling mudah diikuti.';
+    --tier-color: var(--gold);
+  }
+  .teman-hidup {
+    --seal: url('../../../docs/brand/assets/seal-teman-hidup.svg');
+    --tier-label: 'Teman Hidup';
+    --tier-price: 'RM 79-149';
+    --tier-note: 'Untuk jiwa yang ingin pulih.';
+    --tier-color: var(--burgundy-light);
+  }
+  .tier { border-color: color-mix(in srgb, var(--tier-color) 42%, transparent); }
+</style>
+</head>
+<body>
+  <div class="card tier-membangun">
+    <img class="emblem" src="../../../docs/brand/assets/emblem-book-heart.svg"
+         alt="Emblem buku dan hati Perpustakaan Hati" />
+    <div class="who ph-kicker">by @rahimam</div>
+    <blockquote class="quote">{{QUOTE_LEAD}} <span class="em">{{QUOTE_EMPH}}</span> {{QUOTE_TAIL}}</blockquote>
+    <div class="attr">Karya untuk jiwa yang pernah terluka</div>
+    <div class="spread"></div>
+    <div class="footer">
+      <div class="mark">
+        <span class="ph-foil-gold">Perpustakaan</span>
+        <span class="ph-foil-emerald">Hati</span>
+      </div>
+      <div class="tier">
+        <span class="seal"></span>
+        <div class="tier-text">
+          <span class="tier-name"></span>
+          <span class="tier-sub"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
