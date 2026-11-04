@@ -7,7 +7,7 @@
     3D: 14px graded extrusion + contact shadow + ambient shadow, and a
     lighting-filter bevel on both foil lines.
     Use: Threads/IG headers, store hero, video opener, posters.
-    NOT for: site header at < 320px wide (use wordmark-primary.svg).
+    NOT for: site header at < 320px wide (use monogram-stamp.svg).
   -->
   <defs>
     <linearGradient id="phl-foil-gold" x1="0" y1="0" x2="0.1" y2="1">

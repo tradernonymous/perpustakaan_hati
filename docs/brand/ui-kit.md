@@ -109,38 +109,23 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 
 ### Design system showcase sheet
 
-**v3 (current):** `docs/brand/templates/design-system-3-sheet.html` shows the
+`docs/brand/templates/design-system-3-sheet.html` shows the
 Gilded Grove system: the cinematic lockup, foils, the green-led colour share,
 the ribbon, seals, card, CTA and the `.ph-stage` atmosphere layers. Preview:
 `docs/brand/preview/design-system-3-0.png`. Render it with any headless
 Chromium (`--allow-file-access-from-files --window-size=1600,1200`).
 
-**v2 (kept for reference):**
-
-`docs/brand/templates/design-system-sheet.html` renders the whole system —
-the green ramp with measured ratios, the 3D wordmark treatment, the core
-components, the tier shapes and the type stack — on one 1600×1200 page.
-
-Export it to PNG with:
-
-```bash
-uv run --no-project --with weasyprint python -c "
-from weasyprint import HTML
-HTML(filename='docs/brand/templates/design-system-sheet.html').write_pdf('/tmp/ds.pdf')"
-pdftoppm -png -r 96 /tmp/ds.pdf docs/brand/preview/design-system-2
-```
-
 ### Four fixed social templates
 
 | Template | Ground | Type treatment | Where |
 |---|---|---|---|
-| Quote card | `ink` | Fraunces flat, `gold-light` | 4:5 posts |
+| Quote card | `forest-night` | Fraunces flat, `gold-light` | 4:5 posts |
 | Tutorial carousel | `paper` / `cream` | Fraunces heading, green numeral, gold folio | 1:1 threads |
-| Tier comparison | `ink` | three `shadow-depth-2` cards, colour + shape | 1:1 threads |
-| Event poster | `ink` | **3D extruded** Fraunces, gold frame | 4:5 / 9:16 story |
+| Tier comparison | `forest-night` | three `shadow-depth-2` cards, colour + shape | 1:1 threads |
+| Event poster | `forest-night` | **3D extruded** Fraunces, gold frame | 4:5 / 9:16 story |
 
 The event poster is the only social template that uses the 3D treatment.
-Use `docs/brand/assets/wordmark-3d.svg` — never a re-typed approximation,
+Use `docs/brand/assets/lockup-cinematic.svg` — never a re-typed approximation,
 because the extrusion is real vector geometry.
 
 ### Image generation direction

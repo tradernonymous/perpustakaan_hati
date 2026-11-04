@@ -161,6 +161,8 @@
      Colour share target per layout: green 60 / gold 30 / ruby+ink 10.
      ===================================================================== */
 
+  --ph-lock-version: '3.1.0';  /* LOCKED — see docs/brand/DESIGN-SYSTEM.md */
+
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
   --forest-raised: #0d2117;  /* cards — 13.04:1 */
