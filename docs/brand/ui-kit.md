@@ -101,20 +101,21 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 - Template as 3×4 grid at 270×338px each.
 
 ### Quote card layout
-Two templates ship in `content/threads/templates/`, both 1080×1350 (4:5) and
-both built on Design System 3.1 "Gilded Grove":
+Three templates ship in `content/threads/templates/`, all 1080×1350 (4:5) and
+all built on Design System 3.1 "Gilded Grove":
 
 | Template | File | Composition |
 |---|---|---|
 | A — left aligned | `quote-card.html` | emblem top-left, quote block left, wordmark + tier seal along the bottom |
 | B — centred | `quote-card-b.html` | emblem centred, quote centred, foil wordmark + tier pill centred below |
+| C — gilded ribbon | `quote-card-c.html` | the cover's double gilt frame, left-aligned editorial quote, foil wordmark left + green `.ph-ribbon` tier band and seal right |
 
-Shared rules for both:
-- Ground `forest-night`, one key glow (lantern-dominant), vignette.
+Shared rules for all three:
+- Ground `forest-night`, one key glow (lantern-dominant on B, emerald-dominant on C), vignette.
 - Kicker: `by @rahimam` flanked by gold rules via `.ph-kicker`.
-- Quote: Fraunces 72px, `gold-light`, line-height 1.24, `cream` for the emphasised phrase.
-- Tagline: Source Serif 4 italic 30px, `green-300`.
-- Wordmark: `PERPUSTAKAAN` foil-gold 38px above `HATI` foil-emerald 76px (B) / 104px (A).
+- Quote: Fraunces 72–76px, `gold-light`, line-height ~1.23, `cream` for the emphasised phrase.
+- Tagline: Source Serif 4 italic 28–30px, `green-300`.
+- Wordmark: `PERPUSTAKAAN` foil-gold above `HATI` foil-emerald (38/76px on B, 34/72px on C, 104px single line on A).
 - Tier: seal 96px minimum, rotated -8deg, tier name + price + one line of tier copy.
 - Fonts self-hosted in `packages/brand-tools/fonts/` — never a Google Fonts CDN link.
 - Copy is filled at render time: `{{QUOTE_LEAD}}`, `{{QUOTE_EMPH}}`, `{{QUOTE_TAIL}}`.

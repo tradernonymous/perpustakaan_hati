@@ -33,7 +33,7 @@ Retired 2.0 ink-and-gold assets (do not bring them back): `wordmark-primary.svg`
 | Tokens and `.ph-*` classes | `docs/brand/design-tokens.css` |
 | Full rationale, contrast numbers, 3D recipes | `docs/brand/visual-identity.md` |
 | Web / eBook / Threads kits | `docs/brand/ui-kit.md` |
-| Threads quote card templates | `content/threads/templates/quote-card.html` (A, left aligned), `quote-card-b.html` (B, centred) |
+| Threads quote card templates | `content/threads/templates/quote-card.html` (A), `quote-card-b.html` (B, centred), `quote-card-c.html` (C, gilded ribbon) |
 | Tier names (fixed) | `docs/brand/tier-naming.md` |
 | Doop / AI-designer guideline | `docs/brand/doop-guideline.md` |
 | Showcase sheet | `docs/brand/templates/design-system-3-sheet.html` and `preview/design-system-3-1.png` |

@@ -26,6 +26,7 @@ TEMPLATES = ROOT / "content" / "threads" / "templates"
 
 QUOTE_CARD = TEMPLATES / "quote-card.html"
 QUOTE_CARD_B = TEMPLATES / "quote-card-b.html"
+QUOTE_CARD_C = TEMPLATES / "quote-card-c.html"
 CAROUSEL = TEMPLATES / "carousel.html"
 
 SANCTIONED_TIERS = {"Edisi Poket", "Edisi Membangun", "Teman Hidup"}
@@ -65,18 +66,19 @@ def is_purple_or_blue(hex_value: str) -> bool:
     return b > r + 12 and b > g + 2
 
 
-@pytest.fixture(params=[QUOTE_CARD, QUOTE_CARD_B], ids=lambda p: p.stem)
+@pytest.fixture(params=[QUOTE_CARD, QUOTE_CARD_B, QUOTE_CARD_C], ids=lambda p: p.stem)
 def template(request: pytest.FixtureRequest) -> Path:
     assert request.param.exists(), f"missing template: {request.param}"
     return request.param
 
 
-# --- structure (both templates) -------------------------------------------
+# --- structure (all quote-card templates) ---------------------------------
 
 
-def test_both_quote_card_templates_exist() -> None:
+def test_all_quote_card_templates_exist() -> None:
     assert QUOTE_CARD.exists()
     assert QUOTE_CARD_B.exists()
+    assert QUOTE_CARD_C.exists()
 
 
 def test_carousel_template_exists() -> None:
@@ -242,3 +244,91 @@ def test_template_b_byline_is_flanked_kicker() -> None:
     html = read(QUOTE_CARD_B)
     assert "ph-kicker" in html
     assert "@rahimam" in html
+
+
+# --- Template C (Design System 3.1, gilded-ribbon variant) ----------------
+
+
+def test_template_c_is_left_aligned() -> None:
+    css = css_of(read(QUOTE_CARD_C)).replace(" ", "")
+    assert "text-align:left" in css
+
+
+def test_template_c_has_the_double_gilt_frame() -> None:
+    """Cover recipe: outer 2px gold-deep frame at inset 56px, inner 1px gold at inset 16px."""
+    blocks = css_blocks(css_of(read(QUOTE_CARD_C)))
+    frames = {
+        sel: body
+        for sel, body in blocks.items()
+        if "::before" in sel or "::after" in sel
+    }
+    outer = [b for b in frames.values() if "inset:56px" in b.replace(" ", "")]
+    inner = [b for b in frames.values() if "inset:16px" in b.replace(" ", "")]
+    assert outer and inner, "Template C lacks the double gilt frame"
+    assert "var(--gold-deep)" in outer[0].replace(" ", "")
+    assert "border:2px" in outer[0].replace(" ", "")
+    assert "border:1px" in inner[0].replace(" ", "")
+
+
+def test_template_c_uses_the_real_brand_assets() -> None:
+    html = read(QUOTE_CARD_C)
+    assert "emblem-book-heart.svg" in html
+    assert "seal-edisi-poket.svg" in html
+
+
+def test_template_c_names_the_poket_tier_on_a_ribbon() -> None:
+    html = read(QUOTE_CARD_C)
+    assert "ph-ribbon" in html
+    assert "Edisi Poket" in html
+
+
+def test_template_c_seal_is_at_least_96px_and_rotated() -> None:
+    css = css_of(read(QUOTE_CARD_C))
+    seals = [body for sel, body in css_blocks(css).items() if "seal" in sel]
+    assert seals, "Template C has no seal rule"
+    for body in seals:
+        width = re.search(r"width:\s*(\d+)px", body)
+        assert width, "Template C seal has no width"
+        assert int(width.group(1)) >= 96, (
+            f"Template C seal is {width.group(1)}px — the system minimum is 96px"
+        )
+    assert "rotate(-8deg)" in css.replace(" ", "")
+
+
+def test_template_c_has_one_key_glow_emerald_dominant() -> None:
+    """Rule 2: one key glow per frame. C is emerald-led, so B stays the lantern card."""
+    css = css_of(read(QUOTE_CARD_C)).replace(" ", "").lower()
+    glows = re.findall(r"--glow-[a-z-]+:radial-gradient", css)
+    assert len(glows) <= 2, f"Template C stacks {len(glows)} glows"
+    assert "glow-emerald" in css
+    em = re.search(r"glow-emerald-c:radial-gradient\([^)]*rgb\(63145103/(\d*\.?\d+)\)", css)
+    assert em, "Template C has no emerald key glow"
+    assert float(em.group(1)) >= 0.3, "emerald glow must dominate on Template C"
+
+
+def test_template_c_uses_foil_for_the_wordmark() -> None:
+    css = css_of(read(QUOTE_CARD_C))
+    assert "ph-foil-gold" in css
+    assert "ph-foil-emerald" in css
+
+
+def test_template_c_foil_is_display_size_only() -> None:
+    for selector, body in css_blocks(css_of(read(QUOTE_CARD_C))).items():
+        if "ph-foil" not in selector:
+            continue
+        sizes = [int(s) for s in re.findall(r"font-size:\s*(\d+)px", body)]
+        if not sizes:
+            continue
+        assert max(sizes) >= 32, f"foil on {selector} at {max(sizes)}px"
+
+
+def test_template_c_byline_is_flanked_kicker() -> None:
+    html = read(QUOTE_CARD_C)
+    assert "ph-kicker" in html
+    assert "@rahimam" in html
+
+
+def test_template_c_quote_uses_brand_colours() -> None:
+    css = css_of(read(QUOTE_CARD_C)).replace(" ", "").lower()
+    assert "--gold-light:#e9cea2" in css
+    assert "--cream:#fdfee6" in css
