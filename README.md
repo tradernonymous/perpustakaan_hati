@@ -96,8 +96,9 @@ flowchart TD
 ### Phase 2: 3-Tier eBook Production Engine
 *Goal: Produce the foundational 3-tier product ladder tailored to the #1 relationship pain points of Rahimam's 10,500+ Threads audience. (Exact tier names to be locked in after Phase 1 theme confirmation).*
 
-- [ ] **Audience Pain-Point Mining (Threads Analytics):**
+- [ ] **Audience Pain-Point Mining (Threads Analytics) — tooling implemented; live research pending:**
   - Analyze Rahimam's top-performing Threads posts, bookmarks, and comment sections to pick the highest-demand relationship topic for Launch #1.
+  - **Tooling ready:** `packages/research-admin` — local password-protected admin app (Threads OAuth + free-only OpenRouter mining, insights stored locally, tokens in the OS keyring). Setup and run instructions: `docs/research-admin.md`. A real research run against the live Threads account is still pending.
 - [ ] **Tier 1 — FREE Tier (*Entry / Lead Magnet*):**
   - **Purpose:** Turn the 10,500 Threads followers into owned WhatsApp & Email subscribers.
   - **Format:** 15–25 page concise diagnostic & quick-relief guide (e.g., identifying toxic patterns, attachment triggers, or 7-day emotional reset).
