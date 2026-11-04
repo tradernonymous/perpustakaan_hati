@@ -94,7 +94,7 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
             data = dict(await request.form())
         except Exception:
             data = {}
-        if not hmac.compare_digest(str(data.get("password", "")), settings.admin_password):
+        if not hmac.compare_digest(str(data.get("password", "")).encode("utf-8"), settings.admin_password.encode("utf-8")):
             return error(401, "Wrong admin password.")
         token = secrets.token_urlsafe(32)
         sessions[token] = time.time() + SESSION_TTL

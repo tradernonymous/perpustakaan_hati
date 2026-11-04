@@ -87,3 +87,11 @@ def test_safe_upstream_failures(client, status, payload, match):
 def test_empty_account_is_valid(client):
     respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": []})
     assert client.collect_research("token")["sources"] == []
+
+
+@pytest.mark.parametrize("paging", [[], None, {"next": 123}, {"next": "https://graph.threads.com/?after=2", "cursors": []}, {"next": "present", "cursors": {"after": [2]}}])
+@respx.mock
+def test_malformed_paging_is_safe_error(client, paging):
+    respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": [post(1)], "paging": paging})
+    with pytest.raises(ThreadsError, match="invalid"):
+        client.fetch_my_posts("token")

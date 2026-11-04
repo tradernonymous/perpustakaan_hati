@@ -12,9 +12,9 @@ Local admin backend that connects to Threads (Meta Graph API) with OAuth, sample
 
 ## One-time setup (Jack only)
 
-1. **Meta app** — <https://developers.facebook.com/apps> → Create app → *Threads* use case. Note the **Threads App ID** (= client id) and **App secret**. Under *Threads API permissions* add `threads_basic`, `threads_read_replies`, `threads_manage_insights`. Under *Valid OAuth redirect URIs* add exactly `http://127.0.0.1:8787/auth/callback`.
+1. **Meta app** — <https://developers.facebook.com/apps> → Create app → *Threads* use case. Note the **Threads App ID** (= client id) and **App secret**. Request `threads_basic`, `threads_read_replies`, `threads_manage_insights`. Add Rahimam as an app tester and accept the invitation while the app is in development mode. The server defaults to `http://127.0.0.1:8787/auth/callback`; the URI registered with Meta must match `THREADS_REDIRECT_URI` exactly. **Meta may require an HTTPS redirect**: if HTTP loopback is rejected, set up a loopback-only HTTPS reverse proxy and set `THREADS_REDIRECT_URI` to that local HTTPS callback. This live OAuth setup has not yet been verified; do not expose the admin publicly or weaken TLS checks.
 2. **OpenRouter key** — <https://openrouter.ai/keys> → create key. The app only ever uses free models (`openrouter/free` router or any `...:free` model); paid models are rejected before any network call, and `provider.max_price` 0 is enforced in the request.
-3. **Store the three secrets in the keyring** (never in files):
+3. **Store the four configuration values in the keyring** (never paste their values into commands or chat). Each command prompts for its value; the values themselves do not go into shell history.
 
 ```bash
 secret-tool store --label='Threads client id' service perpustakaan-hati-research account THREADS_CLIENT_ID
@@ -54,7 +54,7 @@ export RESEARCH_ADMIN_PASSWORD="$(secret-tool lookup service perpustakaan-hati-r
 uv run --project packages/research-admin python -m research_admin
 ```
 
-Open <http://127.0.0.1:8787>, sign in with the admin password, click **connect Threads**, authorise in the popup, then **Run research**.
+Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **connect Threads**, authorise in the same browser tab, then return and use **Run research**. A successful run displays JSON; return to `/` to view the saved insights table. Run commands from the repository root. `secret-tool` and an unlocked Secret Service keyring are required before connecting Threads.
 
 ## Security model
 
@@ -83,5 +83,5 @@ Token refresh: long-lived Threads tokens last ~60 days. When `/auth/status` says
 ## Tests
 
 ```bash
-uv run --project packages/research-admin pytest -q
+uv run --project packages/research-admin pytest packages/research-admin/tests -q
 ```

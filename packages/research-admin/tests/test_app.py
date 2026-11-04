@@ -244,3 +244,10 @@ def test_launcher_defaults_to_loopback(tmp_path):
             runpy.run_module("research_admin", run_name="__main__")
     assert server.call_args.kwargs["host"] == "127.0.0.1"
     assert server.call_args.kwargs["access_log"] is False
+
+
+def test_unicode_passwords_work_and_wrong_password_is_rejected(tmp_path):
+    c = make_app(tmp_path, password="rahsia-心-é")
+    assert c.post("/login", data={"password": "wrong-心"}, follow_redirects=False).status_code == 401
+    assert c.post("/login", data={"password": "rahsia-心-é"}, follow_redirects=False).status_code == 303
+    assert c.get("/auth/status").status_code == 200

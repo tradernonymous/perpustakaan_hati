@@ -97,10 +97,21 @@ class ThreadsClient:
             if len(items) >= limit:
                 return items[:limit]
             paging = payload.get("paging", {})
-            if not paging.get("next"):
+            if not isinstance(paging, dict):
+                raise ThreadsError("Threads returned invalid pagination.")
+            next_page = paging.get("next")
+            if next_page is None or next_page == "":
                 break
+            cursors = paging.get("cursors", {})
+            if not isinstance(next_page, str) or not isinstance(cursors, dict):
+                raise ThreadsError("Threads returned invalid pagination.")
             # Never follow provider-supplied URLs with our bearer token.
-            cursor = paging.get("cursors", {}).get("after") or parse_qs(urlsplit(paging["next"]).query).get("after", [None])[0]
+            try:
+                cursor = cursors.get("after") or parse_qs(urlsplit(next_page).query).get("after", [None])[0]
+            except ValueError:
+                raise ThreadsError("Threads returned invalid pagination.") from None
+            if cursor is not None and not isinstance(cursor, str):
+                raise ThreadsError("Threads returned invalid pagination.")
             if not cursor or cursor == after:
                 break
             after = cursor

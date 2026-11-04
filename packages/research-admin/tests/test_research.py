@@ -71,3 +71,22 @@ def test_paid_model_rejected_before_network():
 def test_missing_key_is_actionable():
     with httpx.Client() as http, pytest.raises(ResearchError, match="OPENROUTER_API_KEY"):
         mine_pain_points([SOURCE], Settings(), http)
+
+
+@pytest.mark.parametrize("content", [None, [], {}, 17])
+@respx.mock
+def test_non_string_content_is_safe_error(content):
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": content}}]})
+    with pytest.raises(ResearchError, match="format"):
+        call()
+
+
+@pytest.mark.parametrize("unlinked", [False, True])
+@respx.mock
+def test_quote_must_belong_to_its_cited_source(unlinked):
+    second = {"text": "Different topic", "permalink": "https://www.threads.com/@sample/post/2"}
+    first = {**SOURCE, "permalink": ""} if unlinked else SOURCE
+    wrong = {**INSIGHT, "source_url": second["permalink"]}
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": json.dumps({"insights": [wrong]})}}]})
+    with pytest.raises(ResearchError, match="evidence"):
+        call([first, second])

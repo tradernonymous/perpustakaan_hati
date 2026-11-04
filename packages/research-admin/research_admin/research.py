@@ -34,21 +34,21 @@ def _model(settings: Settings) -> str:
     return model
 
 
-def _parse_sources(sources: list[dict]) -> tuple[list[str], set[str]]:
-    texts, permalinks = [], set()
+def _parse_sources(sources: list[dict]) -> list[dict]:
+    material = []
     for item in sources:
         text = str(item.get("text") or "").strip()
         permalink = str(item.get("permalink") or "").strip()
-        if text:
-            texts.append(text)
-        if permalink:
-            permalinks.add(permalink)
-    if not texts:
-        raise ResearchError("No post or reply text available to analyse; nothing was sent to the AI provider.")
-    return texts, permalinks
+        if text and permalink:
+            material.append({"text": text, "permalink": permalink})
+    if not material:
+        raise ResearchError("No linked post or reply text available to analyse; nothing was sent to the AI provider.")
+    return material
 
 
 def _extract(content: str) -> dict:
+    if not isinstance(content, str):
+        raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
     match = re.search(r"\{.*\}", content, re.DOTALL)
     if not match:
         raise ResearchError("AI provider returned malformed JSON; retry the research run.")
@@ -61,7 +61,7 @@ def _extract(content: str) -> dict:
     return payload
 
 
-def _validate(insight: dict, texts: list[str], permalinks: set[str], seen_quotes: set[str]) -> dict | None:
+def _validate(insight: dict, material: list[dict], seen_quotes: set[str]) -> dict | None:
     if not isinstance(insight, dict):
         return None
     quote = " ".join(str(insight.get("quote", "")).split())
@@ -70,12 +70,10 @@ def _validate(insight: dict, texts: list[str], permalinks: set[str], seen_quotes
     ebook_idea = str(insight.get("ebook_idea", "")).strip()
     if not (theme and quote and source_url and ebook_idea):
         return None
-    if source_url not in permalinks:
-        return None
     normalized_quote = quote.lower()
     if normalized_quote in seen_quotes:
         return None
-    if not any(normalized_quote in text.lower() for text in texts):
+    if not any(item["permalink"] == source_url and normalized_quote in item["text"].lower() for item in material):
         return None
     seen_quotes.add(normalized_quote)
     return {"theme": theme, "quote": quote, "source_url": source_url, "ebook_idea": ebook_idea}
@@ -85,10 +83,7 @@ def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client
     if not sources:
         return []
     model = _model(settings)
-    texts, permalinks = _parse_sources(sources)
-    material = [{"text": str(i.get("text") or "").strip(), "permalink": str(i.get("permalink") or "").strip()}
-                for i in sources]
-    material = [m for m in material if m["text"] and m["permalink"]]
+    material = _parse_sources(sources)
     try:
         response = http.post(
             URL,
@@ -116,7 +111,7 @@ def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client
         raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.") from None
     payload = _extract(content)
     seen_quotes: set[str] = set()
-    validated = [v for v in (_validate(i, texts, permalinks, seen_quotes) for i in payload["insights"]) if v]
+    validated = [v for v in (_validate(i, material, seen_quotes) for i in payload["insights"]) if v]
     if payload["insights"] and not validated:
         raise ResearchError("AI analysis failed evidence checks; quotes must be verbatim excerpts from the sampled posts. Retry the research run.")
     return validated
