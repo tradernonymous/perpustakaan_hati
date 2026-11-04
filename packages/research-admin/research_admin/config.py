@@ -42,13 +42,21 @@ class Settings:
         if strict and missing:
             raise MissingSecretError("missing required env vars: " + ", ".join(missing))
         public_mode = environ.get("RESEARCH_PUBLIC", "").strip().lower() in TRUE_VALUES or bool(environ.get("RAILWAY_ENVIRONMENT"))
+        # Railway injects the generated domain; derive the callback and host allowlist from it
+        # so a deploy only needs the secrets, not hand-typed URLs.
+        public_domain = environ.get("RAILWAY_PUBLIC_DOMAIN", "").strip().lower().split("/")[0]
         password = environ.get("RESEARCH_ADMIN_PASSWORD", "")
-        redirect_uri = environ.get("THREADS_REDIRECT_URI", "http://127.0.0.1:8787/auth/callback")
+        redirect_uri = environ.get("THREADS_REDIRECT_URI", "").strip()
+        if not redirect_uri:
+            redirect_uri = f"https://{public_domain}/auth/callback" if public_mode and public_domain else "http://127.0.0.1:8787/auth/callback"
+        problems = []
         if public_mode:
             if len(password) < 12:
-                raise MissingSecretError("RESEARCH_ADMIN_PASSWORD must be set to at least 12 characters when the admin is publicly reachable.")
+                problems.append("RESEARCH_ADMIN_PASSWORD must be at least 12 characters")
             if not redirect_uri.startswith("https://"):
-                raise MissingSecretError("THREADS_REDIRECT_URI must be an https:// URL when the admin is publicly reachable.")
+                problems.append("THREADS_REDIRECT_URI must be an https:// URL, or generate a public domain so RAILWAY_PUBLIC_DOMAIN is set")
+        if problems:
+            raise MissingSecretError("public mode is misconfigured: " + "; ".join(problems) + ".")
         vault_kind = environ.get("RESEARCH_VAULT", "keyring").strip().lower()
         if vault_kind not in ("keyring", "sqlite"):
             raise MissingSecretError("RESEARCH_VAULT must be 'keyring' or 'sqlite'.")
@@ -56,6 +64,8 @@ class Settings:
         if vault_kind == "sqlite" and not token_key:
             raise MissingSecretError("RESEARCH_TOKEN_KEY is required when RESEARCH_VAULT=sqlite.")
         hosts = tuple(host.strip().lower() for host in environ.get("RESEARCH_ALLOWED_HOSTS", "").split(",") if host.strip())
+        if not hosts and public_mode and public_domain:
+            hosts = (public_domain,)
         return cls(
             threads_client_id=environ.get("THREADS_CLIENT_ID", ""),
             threads_client_secret=environ.get("THREADS_CLIENT_SECRET", ""),

@@ -48,14 +48,16 @@ openssl rand -base64 32
 | `RESEARCH_TOKEN_KEY` | the value generated in step 4 |
 | `RESEARCH_DB_PATH` | `/data/research.db` |
 | `RESEARCH_PUBLIC` | `1` |
-| `THREADS_REDIRECT_URI` | `https://<domain>/auth/callback` |
-| `RESEARCH_ALLOWED_HOSTS` | `<domain>` (no scheme, no path) |
+
+`THREADS_REDIRECT_URI` and `RESEARCH_ALLOWED_HOSTS` are derived automatically from
+`RAILWAY_PUBLIC_DOMAIN`, which Railway sets as soon as the service has a domain. Set them yourself
+only if you use a custom domain or a proxy in front of Railway.
 
 6. Deploy. Wait for the healthcheck at `/healthz` to pass, then copy the public domain from
    **Settings → Networking → Public Networking**.
 
-7. If the domain was assigned after step 5, update `THREADS_REDIRECT_URI` and
-   `RESEARCH_ALLOWED_HOSTS` with it and redeploy.
+7. If the domain was assigned after the first deploy, redeploy so `RAILWAY_PUBLIC_DOMAIN` is picked
+   up. The derived callback is `https://<domain>/auth/callback`.
 
 8. In the Meta app, add `https://<domain>/auth/callback` to **Valid OAuth Redirect URIs** and keep
    Rahimam added as an app tester while the app is in development mode.
@@ -77,7 +79,8 @@ Expected: `{"ok":true}`. Then confirm `/login` loads and a wrong password is rej
 - The Threads token is encrypted at rest with a key that exists only in Railway's variables. Rotate
   `RESEARCH_TOKEN_KEY` only together with reconnecting Threads, because the old ciphertext cannot be
   decrypted with a new key.
-- `RESEARCH_ALLOWED_HOSTS` must match the public domain exactly, or every request returns 400.
+- `RESEARCH_ALLOWED_HOSTS` must match the public domain exactly, or every request returns 400. It is
+  filled in from `RAILWAY_PUBLIC_DOMAIN` when unset.
 - Do not set `RESEARCH_PUBLIC=0` on Railway: the app would bind loopback and the healthcheck would
   fail.
 - Responses are `no-store`; cookies are `HttpOnly`, `Secure`, `SameSite=Lax`.
@@ -91,7 +94,7 @@ Expected: `{"ok":true}`. Then confirm `/login` loads and a wrong password is rej
 | `400 Threads connection failed; reconnect` | redirect URI mismatch between Meta, `THREADS_REDIRECT_URI`, and the browser URL |
 | `OS keyring unavailable` | `RESEARCH_VAULT=sqlite` was not set |
 | Research history disappears after deploy | volume not mounted at `/data`, or `RESEARCH_DB_PATH` points elsewhere |
-| App exits on boot with `THREADS_REDIRECT_URI must be an https:// URL` | public mode without an HTTPS redirect URI |
+| App exits on boot with `public mode is misconfigured` | the message lists every missing item: a 12+ character password and/or an HTTPS redirect (generate a domain, or set `THREADS_REDIRECT_URI`) |
 
 ## Local use is unchanged
 
