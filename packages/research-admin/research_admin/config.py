@@ -6,6 +6,8 @@ from pathlib import Path
 from collections.abc import Mapping
 
 REQUIRED_KEYS = ("THREADS_CLIENT_ID", "THREADS_CLIENT_SECRET", "OPENROUTER_API_KEY")
+DEFAULT_HOSTS = ("127.0.0.1", "localhost", "testserver")
+TRUE_VALUES = {"1", "true", "yes", "on"}
 
 
 class MissingSecretError(ValueError):
@@ -25,6 +27,11 @@ class Settings:
     redirect_uri: str = "http://127.0.0.1:8787/auth/callback"
     db_path: str = field(default_factory=default_db_path)
     openrouter_model: str = "openrouter/free"
+    allowed_hosts: tuple[str, ...] = DEFAULT_HOSTS
+    secure_cookies: bool = False
+    public_mode: bool = False
+    vault_kind: str = "keyring"
+    token_key: str = field(default="", repr=False)
 
     def missing_threads(self) -> list[str]:
         return [key for key, value in (("THREADS_CLIENT_ID", self.threads_client_id), ("THREADS_CLIENT_SECRET", self.threads_client_secret)) if not value]
@@ -34,12 +41,32 @@ class Settings:
         missing = [key for key in REQUIRED_KEYS if not environ.get(key)]
         if strict and missing:
             raise MissingSecretError("missing required env vars: " + ", ".join(missing))
+        public_mode = environ.get("RESEARCH_PUBLIC", "").strip().lower() in TRUE_VALUES or bool(environ.get("RAILWAY_ENVIRONMENT"))
+        password = environ.get("RESEARCH_ADMIN_PASSWORD", "")
+        redirect_uri = environ.get("THREADS_REDIRECT_URI", "http://127.0.0.1:8787/auth/callback")
+        if public_mode:
+            if len(password) < 12:
+                raise MissingSecretError("RESEARCH_ADMIN_PASSWORD must be set to at least 12 characters when the admin is publicly reachable.")
+            if not redirect_uri.startswith("https://"):
+                raise MissingSecretError("THREADS_REDIRECT_URI must be an https:// URL when the admin is publicly reachable.")
+        vault_kind = environ.get("RESEARCH_VAULT", "keyring").strip().lower()
+        if vault_kind not in ("keyring", "sqlite"):
+            raise MissingSecretError("RESEARCH_VAULT must be 'keyring' or 'sqlite'.")
+        token_key = environ.get("RESEARCH_TOKEN_KEY", "")
+        if vault_kind == "sqlite" and not token_key:
+            raise MissingSecretError("RESEARCH_TOKEN_KEY is required when RESEARCH_VAULT=sqlite.")
+        hosts = tuple(host.strip().lower() for host in environ.get("RESEARCH_ALLOWED_HOSTS", "").split(",") if host.strip())
         return cls(
             threads_client_id=environ.get("THREADS_CLIENT_ID", ""),
             threads_client_secret=environ.get("THREADS_CLIENT_SECRET", ""),
             openrouter_api_key=environ.get("OPENROUTER_API_KEY", ""),
-            admin_password=environ.get("RESEARCH_ADMIN_PASSWORD", ""),
-            redirect_uri=environ.get("THREADS_REDIRECT_URI", "http://127.0.0.1:8787/auth/callback"),
+            admin_password=password,
+            redirect_uri=redirect_uri,
             db_path=environ.get("RESEARCH_DB_PATH", default_db_path()),
             openrouter_model=environ.get("OPENROUTER_MODEL", "openrouter/free"),
+            allowed_hosts=hosts or DEFAULT_HOSTS,
+            secure_cookies=public_mode or environ.get("RESEARCH_SECURE_COOKIES", "").strip().lower() in TRUE_VALUES,
+            public_mode=public_mode,
+            vault_kind=vault_kind,
+            token_key=token_key,
         )

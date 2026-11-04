@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from research_admin.store import Store, StoreError, SecretVault
+from research_admin.store import EncryptedVault, SecretVault, Store, StoreError
 
 
 class MemoryVault:
@@ -36,7 +36,7 @@ def test_token_roundtrip_replaces_and_stays_out_of_sqlite(store):
     assert "new-secret" not in repr(token)
     with sqlite3.connect(store.db_path) as db:
         dump = "".join(db.iterdump())
-    assert "secret" not in dump
+    assert "new-secret" not in dump and "old-secret" not in dump
     store.delete_token()
     assert store.get_token() is None
 
@@ -64,3 +64,31 @@ def test_secret_tool_absent_is_actionable(tmp_path):
     with patch("research_admin.store.subprocess.run", side_effect=FileNotFoundError):
         with pytest.raises(StoreError, match="keyring"):
             vault.set("secret")
+
+
+def test_encrypted_vault_roundtrip_keeps_plaintext_out_of_sqlite(tmp_path):
+    db = str(tmp_path / "research.db")
+    store = Store(db, vault=EncryptedVault(db, "a-long-random-token-key"))
+    store.init_schema()
+    store.save_token("threads-secret-token", 999)
+    assert store.get_token().access_token == "threads-secret-token"
+    with sqlite3.connect(db) as conn:
+        dump = "".join(conn.iterdump())
+    assert "threads-secret-token" not in dump
+    store.delete_token()
+    assert store.get_token() is None
+
+
+def test_encrypted_vault_wrong_key_is_safe_error(tmp_path):
+    db = str(tmp_path / "research.db")
+    store = Store(db, vault=EncryptedVault(db, "right-key-material"))
+    store.init_schema()
+    store.save_token("threads-secret-token", 999)
+    with pytest.raises(StoreError, match="decrypt") as error:
+        Store(db, vault=EncryptedVault(db, "wrong-key-material")).get_token()
+    assert "threads-secret-token" not in str(error.value)
+
+
+def test_encrypted_vault_requires_key(tmp_path):
+    with pytest.raises(StoreError, match="RESEARCH_TOKEN_KEY"):
+        EncryptedVault(str(tmp_path / "research.db"), "")

@@ -1,3 +1,5 @@
+import pytest
+
 from research_admin.config import MissingSecretError, Settings
 
 
@@ -40,6 +42,43 @@ def test_redirect_and_model_overrides_and_secret_repr():
     assert s.openrouter_model == "vendor/example:free"
     assert "private-admin-password" not in repr(s)
     assert "private-provider-key" not in repr(s)
+
+
+def test_railway_environment_turns_on_public_secure_defaults():
+    s = Settings.from_env({
+        "RAILWAY_ENVIRONMENT": "production",
+        "RESEARCH_ADMIN_PASSWORD": "a-long-admin-password",
+        "THREADS_REDIRECT_URI": "https://perpustakaan.up.railway.app/auth/callback",
+    }, strict=False)
+    assert s.public_mode is True
+    assert s.secure_cookies is True
+
+
+def test_allowed_hosts_are_configurable():
+    s = Settings.from_env({"RESEARCH_ALLOWED_HOSTS": "perpustakaan.up.railway.app, localhost"}, strict=False)
+    assert s.allowed_hosts == ("perpustakaan.up.railway.app", "localhost")
+
+
+def test_public_mode_refuses_short_or_missing_admin_password():
+    with pytest.raises(MissingSecretError, match="at least 12"):
+        Settings.from_env({"RAILWAY_ENVIRONMENT": "production", "RESEARCH_ADMIN_PASSWORD": "short"}, strict=False)
+    with pytest.raises(MissingSecretError, match="at least 12"):
+        Settings.from_env({"RAILWAY_ENVIRONMENT": "production"}, strict=False)
+
+
+def test_public_mode_requires_https_redirect():
+    with pytest.raises(MissingSecretError, match="https"):
+        Settings.from_env({"RAILWAY_ENVIRONMENT": "production", "RESEARCH_ADMIN_PASSWORD": "a-long-admin-password"}, strict=False)
+
+
+def test_sqlite_vault_requires_a_key():
+    with pytest.raises(MissingSecretError, match="RESEARCH_TOKEN_KEY"):
+        Settings.from_env({"RESEARCH_VAULT": "sqlite"}, strict=False)
+
+
+def test_unknown_vault_is_rejected():
+    with pytest.raises(MissingSecretError, match="RESEARCH_VAULT"):
+        Settings.from_env({"RESEARCH_VAULT": "magic"}, strict=False)
 
 
 def test_db_path_defaults_to_user_state_dir():

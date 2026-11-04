@@ -18,10 +18,10 @@ OPENROUTER = "https://openrouter.ai/api/v1/chat/completions"
 NOW = int(time.time())
 
 
-def make_app(tmp_path, *, connected=True, password="admin-pass"):
+def make_app(tmp_path, *, connected=True, password="admin-pass", base_url="http://testserver", **overrides):
     settings = Settings(
         threads_client_id="id", threads_client_secret="sec", openrouter_api_key="key",
-        admin_password=password, db_path=str(tmp_path / "research.db"))
+        admin_password=password, db_path=str(tmp_path / "research.db"), **overrides)
     class MemoryVault:
         def __init__(self): self.value = "stored-token" if connected else None
         def get(self): return self.value
@@ -31,7 +31,7 @@ def make_app(tmp_path, *, connected=True, password="admin-pass"):
     app.state.store.init_schema()
     if connected:
         app.state.store.save_token("stored-token", NOW + 5000)
-    client = TestClient(app, headers={"Origin": "http://testserver"})
+    client = TestClient(app, base_url=base_url, headers={"Origin": base_url})
     return client
 
 
@@ -251,3 +251,60 @@ def test_unicode_passwords_work_and_wrong_password_is_rejected(tmp_path):
     assert c.post("/login", data={"password": "wrong-心"}, follow_redirects=False).status_code == 401
     assert c.post("/login", data={"password": "rahsia-心-é"}, follow_redirects=False).status_code == 303
     assert c.get("/auth/status").status_code == 200
+
+
+def test_healthcheck_is_public_and_ignores_host(tmp_path):
+    anon = make_app(tmp_path)
+    response = anon.get("/healthz", headers={"Host": "healthcheck.railway.app"})
+    assert response.status_code == 200
+    assert response.json() == {"ok": True}
+
+
+def test_railway_host_is_accepted_and_cookie_is_secure(tmp_path):
+    c = make_app(tmp_path, password="a-long-admin-password", secure_cookies=True,
+                 allowed_hosts=("perpustakaan.up.railway.app",),
+                 base_url="https://perpustakaan.up.railway.app")
+    response = c.post("/login", data={"password": "a-long-admin-password"}, follow_redirects=False)
+    assert response.status_code == 303
+    assert "secure" in response.headers["set-cookie"].lower()
+    assert c.get("/auth/status").status_code == 200
+
+
+def test_https_origin_matches_host_behind_proxy(tmp_path):
+    c = make_app(tmp_path, allowed_hosts=("perpustakaan.up.railway.app",), secure_cookies=True,
+                 base_url="https://perpustakaan.up.railway.app")
+    login(c)
+    response = c.post("/research/run", data={"consent": "on"})
+    assert response.status_code != 403
+
+
+def test_unlisted_host_rejected_when_allowlist_is_custom(tmp_path):
+    c = make_app(tmp_path, allowed_hosts=("perpustakaan.up.railway.app",))
+    assert c.get("/auth/status", headers={"Host": "attacker.example"}).status_code == 400
+
+
+def test_login_is_rate_limited(tmp_path):
+    c = make_app(tmp_path)
+    for _ in range(5):
+        assert c.post("/login", data={"password": "wrong"}).status_code == 401
+    blocked = c.post("/login", data={"password": "admin-pass"})
+    assert blocked.status_code == 429
+
+
+def test_launcher_uses_railway_port_and_public_host(tmp_path):
+    import runpy
+    env = {
+        "RESEARCH_DB_PATH": str(tmp_path / "launch.db"),
+        "PORT": "8080",
+        "RAILWAY_ENVIRONMENT": "production",
+        "RESEARCH_ADMIN_PASSWORD": "a-long-admin-password",
+        "THREADS_REDIRECT_URI": "https://perpustakaan.up.railway.app/auth/callback",
+        "RESEARCH_VAULT": "sqlite",
+        "RESEARCH_TOKEN_KEY": "a-long-random-token-key",
+    }
+    with patch.dict("os.environ", env):
+        with patch("uvicorn.run") as server:
+            runpy.run_module("research_admin", run_name="__main__")
+    assert server.call_args.kwargs["host"] == "0.0.0.0"
+    assert server.call_args.kwargs["port"] == 8080
+    assert server.call_args.kwargs["proxy_headers"] is False
