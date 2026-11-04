@@ -9,11 +9,15 @@
 <head>
 <meta charset="utf-8" />
 <title>Threads Quote Card</title>
+<link rel="stylesheet" href="../../../docs/brand/design-tokens.css" />
 <style>
   @page { size: 1080px 1350px; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  /* v3 "Gilded Grove": tokens come from design-tokens.css; the inline
+     values below are kept so the card still renders if opened alone. */
   :root {
+    --forest-night: #07140d;
     --ink: #0a0a0c;
     --gold: #c9a86a;
     --gold-light: #e9cea2;
@@ -57,7 +61,7 @@
   body {
     width: 1080px;
     height: 1350px;
-    background: var(--ink);
+    background: var(--forest-night);
     color: var(--gold-light);
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-print-color-adjust: exact;
@@ -133,15 +137,20 @@
   .tier-free     { --tier-color: var(--green); }
   .tier-standard { --tier-color: var(--gold); }
   .tier-premium  { --tier-color: var(--burgundy-light); }
+
+  /* v3 additions */
+  .emblem { width: 180px; display: block; margin-bottom: 18px; filter: drop-shadow(0 12px 24px rgb(0 0 0 / 0.5)); }
+  .wordmark.ph-foil-gold { font-size: 40px; }
 </style>
 </head>
 <body>
-  <div class="card tier-free">
+  <div class="card ph-stage tier-free">
+    <img class="emblem" src="../../../docs/brand/assets/emblem-book-heart.svg" alt="" />
     <div class="kicker">— @rahimam —</div>
     <p class="quote">{{QUOTE}}</p>
     <div class="footer">
       <div>
-        <div class="wordmark">PERPUSTAKAAN HATI</div>
+        <div class="wordmark ph-foil-gold">PERPUSTAKAAN HATI</div>
         <div class="healing-bar"></div>
       </div>
       <div class="tier-badge">{{TIER}}</div>

@@ -1,4 +1,4 @@
-/* Perpustakaan Hati — shadcn/ui base theme (Design System 2.0)
+/* Perpustakaan Hati — shadcn/ui base theme (Design System 3.0 "Gilded Grove")
  *  Overrides shadcn's neutral-light defaults with the brand sanctuary palette.
  *  Import after Tailwind base in apps/web/app/globals.css (Phase 3).
  *  Source: docs/brand/visual-identity.md
@@ -7,22 +7,22 @@
 
 @layer base {
   :root {
-    --background: 10 10 12;            /* #0a0a0c ink */
+    --background: 7 20 13;            /* #07140d forest-night (v3) — 14.58:1 under foreground */
     --foreground: 230 226 218;        /* #e6e2da text-on-dark */
 
-    --card: 23 23 26;                 /* #17171a ink-soft */
+    --card: 13 33 23;                 /* #0d2117 forest-raised — 13.04:1 */
     --card-foreground: 230 226 218;
 
-    --popover: 32 34 38;              /* #202226 ink-elevated */
+    --popover: 20 44 32;              /* #142c20 forest-soft — 11.52:1 */
     --popover-foreground: 230 226 218;
 
     --primary: 91 155 125;            /* #5b9b7d green-500 — 6.06:1 on ink */
-    --primary-foreground: 10 10 12;   /* ink on green — 6.06:1 */
+    --primary-foreground: 7 20 13;    /* forest-night on green — 5.77:1 */
 
-    --secondary: 23 23 26;
+    --secondary: 13 33 23;
     --secondary-foreground: 233 206 162; /* #e9cea2 gold-light */
 
-    --muted: 35 35 39;
+    --muted: 20 44 32;
     --muted-foreground: 164 156 141;  /* #a49c8d */
 
     --accent: 201 168 106;            /* #c9a86a gold */
@@ -31,11 +31,11 @@
     --destructive: 163 69 50;
     --destructive-foreground: 253 254 230;
 
-    --border: 42 42 46;               /* #2a2a2e border-dark */
-    --input: 42 42 46;
+    --border: 33 64 48;               /* #214030 forest hairline */
+    --input: 33 64 48;
     --ring: 125 184 149;              /* #7db895 green-400 — 8.63:1 focus ring on ink */
 
-    --radius: 0.25rem;
+    --radius: 0.5rem;                 /* v3: softer, medallion-friendly */
 
     /* --- 3D / depth tokens (shadcn components don't read these directly,
            but they keep the source of truth in one place) --- */

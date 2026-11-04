@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<title>Perpustakaan Hati — Design System 3.0 "Gilded Grove"</title>
+<!--
+  Perpustakaan Hati — Design System 3.0 showcase sheet (1600x1200).
+  Every colour and component here reads from design-tokens.css; nothing
+  is hard-coded except layout. Render to PNG with any headless Chromium:
+
+    chrome-headless-shell --screenshot=docs/brand/preview/design-system-3-0.png \
+      --window-size=1600,1200 --allow-file-access-from-files \
+      file://$PWD/docs/brand/templates/design-system-3-sheet.html
+-->
+<link rel="stylesheet" href="../design-tokens.css">
+<style>
+  @font-face { font-family: 'Fraunces'; src: url('../../../packages/brand-tools/fonts/FrauncesDisplay.woff2') format('woff2'); font-weight: 400 700; font-style: normal; }
+  @font-face { font-family: 'Fraunces'; src: url('../../../packages/brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2'); font-weight: 400 700; font-style: italic; }
+  @font-face { font-family: 'Source Serif 4'; src: url('../../../packages/brand-tools/fonts/SourceSerifText.woff2') format('woff2'); font-weight: 400 600; }
+  @font-face { font-family: 'Inter'; src: url('../../../packages/brand-tools/fonts/InterUI.woff2') format('woff2'); font-weight: 400 700; }
+
+  @page { size: 1600px 1200px; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { width: 1600px; height: 1200px; font-family: var(--font-body); color: var(--text-on-dark); background: var(--forest-night); }
+
+  .sheet { width: 1600px; height: 1200px; display: grid; grid-template-columns: 820px 1fr; gap: 0; }
+
+  /* left: hero */
+  .hero { display: flex; flex-direction: column; justify-content: space-between; padding: 44px 44px 40px; border-right: 1px solid var(--forest-edge); }
+  .hero > img { width: 100%; border-radius: var(--radius-lg); box-shadow: var(--card-v3-shadow); }
+  .hero h1 { font: 500 44px/1.1 var(--font-display); margin-top: 22px; }
+  .hero h1 em { font-style: italic; color: var(--green-300); }
+  .hero p { color: var(--text-muted-on-dark); font-size: 16px; line-height: 1.6; max-width: 640px; margin-top: 10px; }
+
+  .share { margin-top: 18px; }
+  .share .bar { display: flex; height: 14px; border-radius: var(--radius-pill); overflow: hidden; box-shadow: var(--depth-1); }
+  .share .bar i { display: block; }
+  .share .legend { display: flex; gap: 22px; margin-top: 8px; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted-on-dark); }
+
+  .showcase { display: grid; grid-template-columns: 250px 1fr; gap: 26px; align-items: end; margin-top: 22px; }
+  .showcase .cover { width: 250px; border-radius: var(--radius-md); box-shadow: var(--card-v3-shadow); }
+  .seals { display: flex; gap: 14px; align-items: center; margin-top: 18px; }
+  .seals img { width: 128px; filter: drop-shadow(0 12px 20px rgb(0 0 0 / 0.5)); }
+  .cap { font-size: 13px; color: var(--text-muted-on-dark); line-height: 1.5; margin-top: 10px; }
+
+  .layers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .layer { position: relative; height: 92px; border-radius: var(--radius-md); border: 1px solid var(--forest-edge);
+           background-color: var(--forest-night); display: flex; align-items: flex-end; padding: 8px 10px;
+           font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-on-dark); overflow: hidden; }
+  .layer.l2 { background-image: var(--glow-emerald); }
+  .layer.l3 { background-image: var(--glow-emerald), var(--glow-lantern); }
+  .layer.l4 { background-image: var(--vignette), var(--glow-emerald), var(--glow-lantern); }
+  .layer.l4::after { content: ''; position: absolute; inset: 0; background-image: var(--grain); mix-blend-mode: overlay; }
+
+  /* right: system */
+  .sys { padding: 40px 44px; display: flex; flex-direction: column; gap: 24px; }
+  h2 { font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .sw { height: 74px; border-radius: var(--radius-md); padding: 8px 10px; display: flex; flex-direction: column; justify-content: flex-end; font-size: 11px; line-height: 1.35; box-shadow: var(--depth-1); border: 1px solid var(--forest-edge); }
+  .sw b { font-weight: 600; }
+
+  .foils { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .foil { height: 74px; border-radius: var(--radius-md); display: grid; place-items: center; font: 600 34px/1 var(--font-display); background: var(--forest-raised); border: 1px solid var(--forest-edge); }
+
+  .comp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center; }
+  .ph-card { padding: 22px 24px; }
+  .ph-card blockquote { font: italic 400 21px/1.5 var(--font-reading); color: var(--text-on-dark); }
+  .ph-card cite { display: block; margin-top: 12px; font-style: normal; }
+  .stack { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+  .ph-ribbon { font-size: 22px; }
+
+  .type .spec { display: flex; align-items: baseline; gap: 18px; border-bottom: 1px solid var(--forest-edge); padding: 6px 0; }
+  .type .spec span { width: 120px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted-on-dark); flex: none; }
+  .t-hero { font: 600 54px/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .t-script { font: italic 400 30px/1.2 var(--font-script); color: var(--gold-light); }
+  .t-read { font: 400 18px/1.5 var(--font-reading); }
+
+  .rules { font-size: 13px; line-height: 1.6; color: var(--text-muted-on-dark); columns: 2; column-gap: 28px; }
+  .rules li { margin-left: 16px; break-inside: avoid; }
+  .rules b { color: var(--green-300); font-weight: 600; }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <section class="hero ph-stage">
+    <img src="../assets/lockup-cinematic.svg" alt="Perpustakaan Hati cinematic lockup">
+    <div>
+      <h1>Design System 3.0 — <em>Gilded Grove</em></h1>
+      <p>Cinematic, lantern-lit and foil-stamped. Green still leads: the dark ground is a green-black,
+        the hero word is emerald foil, and gold is only the frame around it.</p>
+      <div class="share">
+        <div class="bar">
+          <i style="flex:60;background:var(--foil-emerald)"></i>
+          <i style="flex:30;background:var(--foil-gold)"></i>
+          <i style="flex:6;background:var(--heart-ruby)"></i>
+          <i style="flex:4;background:var(--cream)"></i>
+        </div>
+        <div class="legend"><span>Green 60</span><span>Gold 30</span><span>Ruby 6</span><span>Cream 4</span></div>
+      </div>
+      <div class="showcase">
+        <img class="cover" src="../preview/cover-v3-sample.png" alt="Sample eBook cover, Edisi Poket">
+        <div>
+          <h2>eBook cover + tier seals</h2>
+          <div class="seals">
+            <img src="../assets/seal-edisi-poket.svg" alt="Edisi Poket seal">
+            <img src="../assets/seal-edisi-membangun.svg" alt="Edisi Membangun seal">
+            <img src="../assets/seal-teman-hidup.svg" alt="Teman Hidup seal">
+          </div>
+          <p class="cap">Seal fill is fixed per tier (green / gold / burgundy); label contrast 5.16 / 8.75 / 12.40 : 1.
+            Cover: packages/ebook-builder/templates/cover.html.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sys">
+    <div>
+      <h2>Grounds &amp; emblem colours</h2>
+      <div class="swatches">
+        <div class="sw" style="background:var(--forest-night)"><b>forest-night</b>#07140d · 14.6:1</div>
+        <div class="sw" style="background:var(--forest-raised)"><b>forest-raised</b>#0d2117 · 13.0:1</div>
+        <div class="sw" style="background:var(--green-700)"><b>green-700</b>#2d7954 · seal</div>
+        <div class="sw" style="background:var(--green-400);color:var(--forest-night)"><b>green-400</b>#7db895 · 8.2:1</div>
+        <div class="sw" style="background:var(--gold);color:var(--ink)"><b>gold</b>#c9a86a · frame</div>
+        <div class="sw" style="background:var(--lantern);color:var(--ink)"><b>lantern</b>#f2b85c · glow</div>
+        <div class="sw" style="background:var(--heart-ruby)"><b>heart-ruby</b>#c8343c · emblem</div>
+        <div class="sw" style="background:var(--cream);color:var(--ink)"><b>cream</b>#fdfee6 · labels</div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Foil — display type only (≥ 32px)</h2>
+      <div class="foils">
+        <div class="foil"><span class="ph-foil-emerald">Hati</span></div>
+        <div class="foil"><span class="ph-foil-gold">Pustaka</span></div>
+        <div class="foil"><span class="ph-foil-pearl">Jiwa</span></div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Components</h2>
+      <div class="comp">
+        <div class="ph-card">
+          <blockquote>“Sekali baca, lama terasa.”</blockquote>
+          <cite class="ph-kicker">@rahimam</cite>
+        </div>
+        <div class="stack">
+          <span class="ph-ribbon">Edisi Poket</span>
+          <button class="ph-cta">Muat turun percuma →</button>
+          <div class="ph-kicker" style="width:100%">by @rahimam</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2>Atmosphere — one class: .ph-stage</h2>
+      <div class="layers">
+        <div class="layer">1 · forest-night</div>
+        <div class="layer l2">2 · + emerald glow</div>
+        <div class="layer l3">3 · + lantern</div>
+        <div class="layer l4">4 · + vignette, grain</div>
+      </div>
+    </div>
+
+    <div class="type">
+      <h2>Type</h2>
+      <div class="spec"><span>Hero · foil</span><b class="t-hero ph-foil-emerald">Jalan Pulang</b></div>
+      <div class="spec"><span>Script accent</span><i class="t-script">Karya untuk jiwa yang pernah terluka</i></div>
+      <div class="spec"><span>Reading</span><p class="t-read">Teman hati sementara menunggu bas atau train.</p></div>
+    </div>
+
+    <ul class="rules">
+      <li><b>One key glow</b> per layout — emerald or lantern, never two of the same.</li>
+      <li><b>Foil</b> only for display words; body text stays flat and AA.</li>
+      <li><b>Ruby</b> lives inside the heart. Never for text or CTAs.</li>
+      <li><b>CTA</b> is always green — forest label on green, 5.77:1.</li>
+      <li><b>Kickers</b> flank with tapered gold rules: — by @rahimam —.</li>
+      <li><b>Motion</b>: one foil sheen on enter; zero under reduced motion.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

@@ -1,4 +1,5 @@
-/* Perpustakaan Hati — design tokens (Design System 2.0 "Living Sanctuary")
+/* Perpustakaan Hati — design tokens (Design System 3.0 "Gilded Grove",
+   built on 2.0 "Living Sanctuary" — every 2.0 token is kept)
    Source: docs/brand/visual-identity.md
    Usage: import in apps/web/app/globals.css (Phase 3), and by the
    eBook/Threads templates via packages/ui/tokens.css.
@@ -150,7 +151,97 @@
   --material-rim: #c8e986;
   --material-shadow: rgb(0 0 0 / 0.45);
 
+  /* =====================================================================
+     DESIGN SYSTEM 3.0 — "GILDED GROVE"
+     Cinematic, lantern-lit, foil-stamped. Built from the 2026 reference
+     boards (open-book + heart emblem, metallic serif type, flanked
+     bylines, ribbon banners, scalloped seals) — but re-keyed so GREEN
+     stays the main colour: the dark ground itself is a green-black, the
+     hero word is emerald foil, and gold is the frame around it.
+     Colour share target per layout: green 60 / gold 30 / ruby+ink 10.
+     ===================================================================== */
+
+  /* ---- v3 grounds: green-black instead of neutral black -------------- */
+  --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
+  --forest-raised: #0d2117;  /* cards — 13.04:1 */
+  --forest-soft: #142c20;    /* overlays, inputs — 11.52:1 */
+  --forest-edge: rgb(157 225 193 / 0.14); /* hairline border on forest */
+
+  /* ---- foil: metallic gradients for DISPLAY TYPE ONLY (≥ 32px) ------
+     Each foil has a flat fallback colour for print/forced-colors. The
+     darkest stop of each foil still clears 3:1 on forest-night. */
+  --foil-emerald:
+    linear-gradient(178deg,
+      #d9f3df 0%, #8fd0a6 22%, #3f9167 46%,
+      #2d7954 58%, #a7d3b6 76%, #3f9167 100%);
+  --foil-emerald-flat: var(--green-400);
+  --foil-gold:
+    linear-gradient(178deg,
+      #fff1c9 0%, #ecc983 24%, #b8904a 48%,
+      #9a7638 58%, #f1d79b 78%, #b8904a 100%);
+  --foil-gold-flat: var(--gold);
+  --foil-pearl:
+    linear-gradient(178deg, #ffffff 0%, #dfe6e1 45%, #9aa79f 60%, #eef2ef 100%);
+  --foil-pearl-flat: #dfe6e1;
+
+  /* ---- emblem colours ---------------------------------------------- */
+  --heart-ruby: #c8343c;     /* the heart in the book emblem — graphic only */
+  --heart-ruby-deep: #7d1a22;
+  --lantern: #f2b85c;        /* warm practical light, glow cores */
+
+  /* ---- light & atmosphere ------------------------------------------
+     Cinematic recipe = ground + one key glow + vignette + grain.
+     Never stack two key glows of the same hue. */
+  --glow-lantern:
+    radial-gradient(60% 50% at 50% 38%, rgb(242 184 92 / 0.30), transparent 70%);
+  --glow-emerald:
+    radial-gradient(70% 60% at 50% 40%, rgb(63 145 103 / 0.42), transparent 72%);
+  --glow-dawn:
+    linear-gradient(180deg, transparent 55%, rgb(242 184 92 / 0.18) 85%, rgb(200 52 60 / 0.10) 100%);
+  --vignette:
+    radial-gradient(120% 90% at 50% 45%, transparent 48%, rgb(0 0 0 / 0.72) 100%);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  /* ---- foil text depth: emboss + cast shadow for foil display type -- */
+  --foil-shadow:
+    drop-shadow(0 1px 0 rgb(255 255 255 / 0.18))
+    drop-shadow(0 3px 0 rgb(18 61 42 / 0.9))
+    drop-shadow(0 14px 22px rgb(0 0 0 / 0.55));
+
+  /* ---- v3 typography ------------------------------------------------ */
+  --font-script: 'Fraunces', Georgia, serif; /* used italic, opsz high, wght 400 */
+  --tracking-display: 0.06em;   /* foil headlines */
+  --tracking-kicker: 0.32em;    /* "— by @rahimam —" flanked bylines */
+  --tracking-ribbon: 0.04em;
+  --size-hero: clamp(3.5rem, 2rem + 6vw, 8rem);
+  --size-display: clamp(2.25rem, 1.4rem + 3vw, 4.5rem);
+  --size-kicker: 0.8125rem;
+
+  /* ---- ornaments ----------------------------------------------------- */
+  --rule-flank: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+  --rule-flank-green: linear-gradient(90deg, transparent, var(--green-400) 30%, var(--green-400) 70%, transparent);
+
+  /* ---- v3 components ------------------------------------------------- */
+  --ribbon-bg: linear-gradient(180deg, var(--green-700), var(--green-800) 55%, var(--green-900));
+  --ribbon-fg: var(--gold-light);       /* 5.35:1 on green-800 */
+  --ribbon-edge: var(--gold);
+  --seal-free-bg: var(--green-700);     /* cream label 5.16:1 */
+  --seal-standard-bg: var(--gold);      /* ink label 8.75:1 */
+  --seal-premium-bg: var(--burgundy);   /* cream label 12.40:1 */
+  --seal-rim: var(--foil-gold);
+  --card-v3-bg: linear-gradient(180deg, var(--forest-raised), var(--forest-night));
+  --card-v3-border: var(--forest-edge);
+  --card-v3-shadow:
+    inset 0 1px 0 rgb(167 211 182 / 0.08),
+    0 24px 60px rgb(0 0 0 / 0.5),
+    0 0 0 1px rgb(201 168 106 / 0.10);
+  --cta-v3-bg: linear-gradient(180deg, var(--green-400), var(--green-500) 50%, var(--green-600));
+  --cta-v3-fg: var(--forest-night);     /* 5.77:1 on green-500 */
+  --cta-v3-glow: 0 0 0 1px rgb(200 233 134 / 0.35), 0 10px 30px rgb(63 145 103 / 0.45);
+
   /* ---- motion -------------------------------------------------------- */
+  --ease-glint: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-glint: 2400ms;  /* foil sheen sweep — once on enter, never looped */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 140ms;
   --dur-base: 240ms;
@@ -162,5 +253,137 @@
     --dur-fast: 0ms;
     --dur-base: 0ms;
     --dur-slow: 0ms;
+    --dur-glint: 0ms;
   }
 }
+
+/* =======================================================================
+   v3 utility classes — opt-in, prefixed `ph-` so they never collide with
+   Tailwind or shadcn. Every class falls back to a flat colour when
+   background-clip:text or gradients are unavailable (print, forced-colors).
+   ======================================================================= */
+
+/* Foil display type. Use only at >= 32px. */
+.ph-foil-emerald,
+.ph-foil-gold,
+.ph-foil-pearl {
+  color: var(--foil-emerald-flat);
+  background-image: var(--foil-emerald);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: var(--foil-shadow);
+}
+.ph-foil-gold  { color: var(--foil-gold-flat);  background-image: var(--foil-gold); }
+.ph-foil-pearl { color: var(--foil-pearl-flat); background-image: var(--foil-pearl); }
+
+@media (forced-colors: active) {
+  .ph-foil-emerald, .ph-foil-gold, .ph-foil-pearl {
+    -webkit-text-fill-color: currentColor;
+    background: none;
+    filter: none;
+  }
+}
+
+/* Cinematic stage: ground + key glow + vignette + grain, in one class. */
+.ph-stage {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--forest-night);
+  background-image: var(--vignette), var(--glow-emerald), var(--glow-lantern);
+}
+.ph-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--grain);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Flanked kicker: ——— by @rahimam ——— */
+.ph-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  font-family: var(--font-body);
+  font-size: var(--size-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+.ph-kicker::before,
+.ph-kicker::after {
+  content: '';
+  flex: 1 1 3em;
+  height: 1px;
+  background: var(--rule-flank);
+}
+
+/* Ribbon banner (emerald with gold edge and notched ends). */
+.ph-ribbon {
+  display: inline-block;
+  padding: 0.55em 2.2em;
+  background: var(--ribbon-bg);
+  color: var(--ribbon-fg);
+  font-family: var(--font-script);
+  font-style: italic;
+  letter-spacing: var(--tracking-ribbon);
+  border-block: 1.5px solid var(--ribbon-edge);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.9em) 50%, 100% 100%, 0 100%, 0.9em 50%);
+  box-shadow: var(--depth-2);
+}
+
+/* Scalloped seal badge. Pair with .is-free / .is-standard / .is-premium. */
+.ph-seal {
+  --seal-bg: var(--seal-free-bg);
+  --seal-fg: var(--cream);
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  aspect-ratio: 1;
+  padding: 1.4rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, var(--seal-bg) 62%, transparent 63%),
+    var(--seal-rim);
+  color: var(--seal-fg);
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* CSS seal is a round medallion; the scalloped version ships as SVG:
+     docs/brand/assets/seal-*.svg */
+  box-shadow: var(--depth-2), inset 0 0 0 0.35rem rgb(0 0 0 / 0.18);
+}
+.ph-seal.is-standard { --seal-bg: var(--seal-standard-bg); --seal-fg: var(--ink); }
+.ph-seal.is-premium  { --seal-bg: var(--seal-premium-bg);  --seal-fg: var(--cream); }
+
+/* v3 card + CTA */
+.ph-card {
+  background: var(--card-v3-bg);
+  border: 1px solid var(--card-v3-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-v3-shadow);
+  color: var(--text-on-dark);
+}
+.ph-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.85em 1.6em;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--cta-v3-bg);
+  color: var(--cta-v3-fg);
+  font: 600 1rem/1 var(--font-body);
+  box-shadow: var(--cta-v3-glow);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.ph-cta:hover { transform: translateY(-1px); box-shadow: var(--cta-v3-glow), 0 0 40px rgb(200 233 134 / 0.25); }
+.ph-cta:focus-visible { outline: 2px solid var(--green-300); outline-offset: 3px; }
