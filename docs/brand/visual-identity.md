@@ -479,3 +479,54 @@ the emblem's detail does not survive at that size.
 What we did **not** take from the boards: photographic scenes baked into
 the logo, the silver/chrome "R" monogram, and the red heart as a solid
 fill. Those would push green out of the lead role.
+
+### v3.1 refinement — real font weights + lit 3D
+
+**Font fix.** `build-fonts.py` used to only *relabel* the weight axis as
+400–700. It never moved the outlines. Fraunces ships with a default weight
+of 900, so every "regular" glyph was really Black, and `font-weight: 700`
+also rendered as 900 (Inter 700 and Source Serif 600 too). The subsetter
+now limits `wght` through the instancer, which re-solves the outlines with
+400 as the true default.
+`packages/brand-tools/tests/test_fonts.py` measures glyph ink against the
+upstream font at every boundary weight (12 tests, ±1.5%). The subsets also
+got 51 KB smaller.
+
+**Weight roles** (same in CSS, Tailwind and the SVG outlines):
+
+| Role | Weight | Token / class | Used for |
+|---|---|---|---|
+| display caps | 560 | `--weight-display`, `.ph-caps`, `font-display` | PERPUSTAKAAN, wordmarks |
+| hero | 660 | `--weight-hero`, `.ph-hero`, `font-hero` | HATI, seal main word, foil words |
+| title | 520 | `--weight-title`, `.ph-title`, `font-title` | eBook / page titles |
+| script | 400 italic | `--weight-script`, `.ph-script` | taglines, ribbons |
+| label | 600 | `--weight-label`, `font-label` | Inter caps on seals |
+| byline | 500 | `--weight-byline`, `font-byline` | kickers, bylines |
+
+**3D in SVG** (`build-logos.py`):
+- `bevel_filter()` is a chiselled-metal bevel made from real lighting.
+  The glyph alpha is blurred into a height map, diffuse light shades the
+  slopes, and specular light adds a hot rim on the lit edge. The key light
+  sits top-left (azimuth 235°). The result is clipped back to the glyph,
+  so outlines never grow.
+- `extrude()` builds a solid side wall from 1px `<use>` copies graded from
+  near to far colour. HATI is 14px deep, PERPUSTAKAAN 4px, the book cover
+  6px, the heart tube 6px and the seal rims 8px.
+- Shadows come in two layers: a tight *contact* shadow (3px blur) plus a
+  soft *ambient* one (14px blur).
+- `deboss_filter()` stamps the seal labels into the medallion: shade above,
+  a light catch below.
+- The emblem gains a gilt page block, a spine shadow and one glint. Glints
+  never touch type, because there they read as a diacritic.
+
+**3D in CSS** (`design-tokens.css`): a lighting filter can't run on text,
+so `--depth-emerald`, `--depth-gold` and `--depth-pearl` chain 1px
+drop-shadows (N steps give an N-px solid) after a 1px top bevel catch.
+They end with a contact and an ambient shadow. `.ph-sheen` sweeps one
+specular band across a foil word on enter. The other elements:
+- **Ribbon:** a lit front band, with notched tails tucked behind and dark
+  fold triangles.
+- **CTA:** a glossy top lip and a 3px green-800 "thickness". On
+  `:active` it sinks into that edge.
+- **Card:** a six-layer bevel, contact and ambient stack, with a hover lift.
+- **Seal:** a rim bevel, a recessed medallion and a debossed label.

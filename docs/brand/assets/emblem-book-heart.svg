@@ -3,34 +3,42 @@
     Perpustakaan Hati — book-heart emblem (Design System 3.0)
     Source: docs/brand/visual-identity.md -> "Design System 3.0"
     An emerald-bound open book; a foil heart rises from the spine.
-    Transparent background: place on forest-night, ink or green-950.
-    Minimum size: 48px wide (favicon uses monogram-stamp.svg instead).
+    3D: extruded cover board + heart tube, lighting-filter bevel, gilt
+    page block, spine shadow, one glint. Transparent background.
+    Minimum size: 48px wide (below that use monogram-stamp.svg).
   -->
   <defs>
-    <linearGradient id="phe-foil-gold" x1="0" y1="0" x2="0.12" y2="1">
-      <stop offset="0" stop-color="#fff1c9"/>
-      <stop offset="0.24" stop-color="#ecc983"/>
-      <stop offset="0.48" stop-color="#b8904a"/>
-      <stop offset="0.58" stop-color="#9a7638"/>
-      <stop offset="0.78" stop-color="#f1d79b"/>
+    <linearGradient id="phe-foil-gold" x1="0" y1="0" x2="0.1" y2="1">
+      <stop offset="0" stop-color="#fff4d6"/>
+      <stop offset="0.2" stop-color="#f0d08e"/>
+      <stop offset="0.46" stop-color="#c49a52"/>
+      <stop offset="0.54" stop-color="#9a7638"/>
+      <stop offset="0.62" stop-color="#d9b46c"/>
+      <stop offset="0.84" stop-color="#f6e2ad"/>
       <stop offset="1" stop-color="#b8904a"/>
     </linearGradient>
-    <linearGradient id="phe-foil-emerald" x1="0" y1="0" x2="0.12" y2="1">
-      <stop offset="0" stop-color="#d9f3df"/>
-      <stop offset="0.22" stop-color="#8fd0a6"/>
+    <linearGradient id="phe-foil-emerald" x1="0" y1="0" x2="0.1" y2="1">
+      <stop offset="0" stop-color="#e3f7e8"/>
+      <stop offset="0.2" stop-color="#9edab2"/>
       <stop offset="0.46" stop-color="#3f9167"/>
-      <stop offset="0.58" stop-color="#2d7954"/>
-      <stop offset="0.76" stop-color="#a7d3b6"/>
+      <stop offset="0.54" stop-color="#2d7954"/>
+      <stop offset="0.62" stop-color="#4fa477"/>
+      <stop offset="0.84" stop-color="#b6e3c4"/>
       <stop offset="1" stop-color="#3f9167"/>
     </linearGradient>
     <linearGradient id="phe-page" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fdfee6"/>
-      <stop offset="0.7" stop-color="#f4efe6"/>
+      <stop offset="0" stop-color="#fffef4"/>
+      <stop offset="0.65" stop-color="#f4efe6"/>
       <stop offset="1" stop-color="#eae2d4"/>
+    </linearGradient>
+    <linearGradient id="phe-page-edge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1d79b"/>
+      <stop offset="1" stop-color="#9a7638"/>
     </linearGradient>
     <linearGradient id="phe-cover" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#2d7954"/>
-      <stop offset="1" stop-color="#123d2a"/>
+      <stop offset="0.55" stop-color="#1d5a3d"/>
+      <stop offset="1" stop-color="#0b2418"/>
     </linearGradient>
     <radialGradient id="phe-lantern" cx="0.5" cy="0.5" r="0.5">
       <stop offset="0" stop-color="#f2b85c" stop-opacity="0.55"/>
@@ -45,29 +53,95 @@
       <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
       <stop offset="1" stop-color="#000" stop-opacity="0.75"/>
     </radialGradient>
+    <radialGradient id="phe-glint" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.25" stop-color="#fff4d6" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff4d6" stop-opacity="0"/>
+    </radialGradient>
     <filter id="phe-blur" x="-30%" y="-30%" width="160%" height="160%">
       <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="phe-contact" x="-10%" y="-10%" width="120%" height="140%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <filter id="phe-bevel" x="-5%" y="-10%" width="110%" height="125%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.6" result="h"/>
+      <feDiffuseLighting in="h" surfaceScale="3.2" diffuseConstant="1" lighting-color="#fff" result="d">
+        <feDistantLight azimuth="235" elevation="50"/>
+      </feDiffuseLighting>
+      <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="0.75" k2="0.42" k3="0" k4="0" result="shaded"/>
+      <feSpecularLighting in="h" surfaceScale="3.2" specularConstant="0.85" specularExponent="26"
+                          lighting-color="#fffbe8" result="s">
+        <feDistantLight azimuth="235" elevation="42"/>
+      </feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="sIn"/>
+      <feComposite in="shaded" in2="sIn" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="0" result="lit"/>
+      <feComposite in="lit" in2="SourceAlpha" operator="in"/>
+    </filter>
+    <filter id="phe-bevel-soft" x="-5%" y="-10%" width="110%" height="125%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3.0" result="h"/>
+      <feDiffuseLighting in="h" surfaceScale="4.5" diffuseConstant="1" lighting-color="#fff" result="d">
+        <feDistantLight azimuth="235" elevation="50"/>
+      </feDiffuseLighting>
+      <feComposite in="SourceGraphic" in2="d" operator="arithmetic" k1="0.75" k2="0.42" k3="0" k4="0" result="shaded"/>
+      <feSpecularLighting in="h" surfaceScale="4.5" specularConstant="0.85" specularExponent="26"
+                          lighting-color="#fffbe8" result="s">
+        <feDistantLight azimuth="235" elevation="42"/>
+      </feSpecularLighting>
+      <feComposite in="s" in2="SourceAlpha" operator="in" result="sIn"/>
+      <feComposite in="shaded" in2="sIn" operator="arithmetic" k1="0" k2="1" k3="0.7" k4="0" result="lit"/>
+      <feComposite in="lit" in2="SourceAlpha" operator="in"/>
+    </filter>
+    <filter id="phe-deboss" x="-5%" y="-20%" width="110%" height="140%">
+      <feOffset in="SourceAlpha" dx="0" dy="2.2" result="down"/>
+      <feComposite in="SourceAlpha" in2="down" operator="out" result="topEdge"/>
+      <feFlood flood-color="#000" flood-opacity="0.45"/>
+      <feComposite in2="topEdge" operator="in" result="shade"/>
+      <feOffset in="SourceAlpha" dx="0" dy="1.6" result="lowAlpha"/>
+      <feComposite in="lowAlpha" in2="SourceAlpha" operator="out" result="catch"/>
+      <feFlood flood-color="#fff" flood-opacity="0.28"/>
+      <feComposite in2="catch" operator="in" result="light"/>
+      <feMerge><feMergeNode in="light"/><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/></feMerge>
     </filter>
   </defs>
   <ellipse cx="300" cy="170" rx="210" ry="170" fill="url(#phe-lantern)"/>
   <g>
-    <path fill="url(#phe-cover)" stroke="url(#phe-foil-gold)" stroke-width="4" d="M300,262 C228,214 116,206 40,228 L28,346 C116,326 228,334 300,372 C372,334 484,326 572,346 L560,228 C484,206 372,214 300,262 Z"/>
-    <path fill="none" stroke="#000" stroke-opacity="0.5" stroke-width="30" filter="url(#phe-blur)" transform="translate(0,14)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="#123d2a" stroke-width="30" stroke-linejoin="round" transform="translate(0,5)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="url(#phe-foil-emerald)" stroke-width="26" stroke-linejoin="round" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="#c8343c" stroke-width="5" stroke-linejoin="round" transform="translate(300,155) scale(0.78) translate(-300,-155)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round" d="M214,96 C222,72 244,62 262,64"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,250 C241.2,210 143.2,200 74.6,224 L64.8,332 C143.2,310 241.2,318 300,358 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,250 C358.8,210 456.8,200 525.4,224 L535.2,332 C456.8,310 358.8,318 300,358 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,244 C240.6,204 141.6,194 72.3,218 L62.4,326 C141.6,304 240.6,312 300,352 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,244 C359.4,204 458.4,194 527.7,218 L537.6,326 C458.4,304 359.4,312 300,352 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,238 C240.0,198 140.0,188 70.0,212 L60.0,320 C140.0,298 240.0,306 300,346 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,238 C360.0,198 460.0,188 530.0,212 L540.0,320 C460.0,298 360.0,306 300,346 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="2.5" stroke-linejoin="round" d="M300,232 C240.0,192 140.0,182 70.0,206 L60.0,314 C140.0,292 240.0,300 300,340 Z"/>
-    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="2.5" stroke-linejoin="round" d="M300,232 C360.0,192 460.0,182 530.0,206 L540.0,314 C460.0,292 360.0,300 300,340 Z"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,246 C250,226 190,220 120,236"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,246 C350,226 410,220 480,236"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,264 C250,244 190,238 120,254"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,264 C350,244 410,238 480,254"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,282 C250,262 190,256 120,272"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,282 C350,262 410,256 480,272"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,300 C250,280 190,274 120,290"/>
-    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,300 C350,280 410,274 480,290"/>
+    <path id="phe-coverpath" d="M300,262 C228,214 116,206 40,228 L28,346 C116,326 228,334 300,372 C372,334 484,326 572,346 L560,228 C484,206 372,214 300,262 Z"/>
+    <use href="#phe-coverpath" fill="#0b2418" transform="translate(0.0,6)"/>
+  <use href="#phe-coverpath" fill="#0c291c" transform="translate(0.0,5)"/>
+  <use href="#phe-coverpath" fill="#0e2e1f" transform="translate(0.0,4)"/>
+  <use href="#phe-coverpath" fill="#0f3323" transform="translate(0.0,3)"/>
+  <use href="#phe-coverpath" fill="#113826" transform="translate(0.0,2)"/>
+  <use href="#phe-coverpath" fill="#123d2a" transform="translate(0.0,1)"/>
+    <use href="#phe-coverpath" fill="url(#phe-cover)" stroke="url(#phe-foil-gold)" stroke-width="3.5" filter="url(#phe-bevel-soft)"/>
+    <path fill="none" stroke="#000" stroke-opacity="0.45" stroke-width="30" filter="url(#phe-blur)" transform="translate(6,16)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#0b2418" stroke-width="27" stroke-linejoin="round" transform="translate(2.4000000000000004,6)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#0f2f1f" stroke-width="27" stroke-linejoin="round" transform="translate(2.0,5)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#123a27" stroke-width="27" stroke-linejoin="round" transform="translate(1.6,4)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#16442e" stroke-width="27" stroke-linejoin="round" transform="translate(1.2000000000000002,3)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#194f36" stroke-width="27" stroke-linejoin="round" transform="translate(0.8,2)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#1d5a3d" stroke-width="27" stroke-linejoin="round" transform="translate(0.4,1)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="url(#phe-foil-emerald)" stroke-width="27" stroke-linejoin="round" filter="url(#phe-bevel-soft)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="none" stroke="#c8343c" stroke-width="4.5" stroke-linejoin="round" transform="translate(300,155) scale(0.775) translate(-300,-155)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/>
+    <path fill="url(#phe-page-edge)" d="M300,256 C241.5,216 144.0,206 75.8,230 L66.0,338 C144.0,316 241.5,324 300,364 Z"/>
+    <path fill="url(#phe-page-edge)" d="M300,256 C358.5,216 456.0,206 524.2,230 L534.0,338 C456.0,316 358.5,324 300,364 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.2" stroke-linejoin="round" d="M300,250 C241.2,210 143.2,200 74.6,224 L64.8,332 C143.2,310 241.2,318 300,358 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.2" stroke-linejoin="round" d="M300,250 C358.8,210 456.8,200 525.4,224 L535.2,332 C456.8,310 358.8,318 300,358 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.2" stroke-linejoin="round" d="M300,244 C240.6,204 141.6,194 72.3,218 L62.4,326 C141.6,304 240.6,312 300,352 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.2" stroke-linejoin="round" d="M300,244 C359.4,204 458.4,194 527.7,218 L537.6,326 C458.4,304 359.4,312 300,352 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.2" stroke-linejoin="round" d="M300,238 C240.0,198 140.0,188 70.0,212 L60.0,320 C140.0,298 240.0,306 300,346 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.2" stroke-linejoin="round" d="M300,238 C360.0,198 460.0,188 530.0,212 L540.0,320 C460.0,298 360.0,306 300,346 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="2.2" stroke-linejoin="round" d="M300,232 C240.0,192 140.0,182 70.0,206 L60.0,314 C140.0,292 240.0,300 300,340 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="2.2" stroke-linejoin="round" d="M300,232 C360.0,192 460.0,182 530.0,206 L540.0,314 C460.0,292 360.0,300 300,340 Z"/>
+    <path fill="#8a6a35" opacity="0.28" filter="url(#phe-contact)" d="M292,236 C296,280 296,312 296,338 L304,338 C304,312 304,280 308,236 Z"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M286,246 C250,226 190,220 120,236"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M314,246 C350,226 410,220 480,236"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M286,264 C250,244 190,238 120,254"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M314,264 C350,244 410,238 480,254"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M286,282 C250,262 190,256 120,272"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M314,282 C350,262 410,256 480,272"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M286,300 C250,280 190,274 120,290"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.4" stroke-width="2" d="M314,300 C350,280 410,274 480,290"/>
+    <circle cx="214" cy="84" r="12.100000000000001" fill="url(#phe-glint)"/><path fill="#fffbe8" opacity="0.95" d="M214,62 Q217.08,80.92 236,84 Q217.08,87.08 214,106 Q210.92,87.08 192,84 Q210.92,80.92 214,62 Z"/>
   </g>
 </svg>
