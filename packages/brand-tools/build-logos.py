@@ -10,8 +10,8 @@ vector, lit with an SVG lighting filter and given contact + ambient
 shadows. It is deliberately not a novelty 3D font — that would break the
 editorial character of the brand and add a font dependency.
 
-Design System 3.0 is LOCKED (see docs/brand/DESIGN-SYSTEM.md): this file
-builds the only sanctioned brand assets.
+Design System 3.1 is the current look (see docs/brand/DESIGN-SYSTEM.md): this
+file builds the current brand assets.
 
 Usage:
     uv run --no-project --with fonttools --with brotli \

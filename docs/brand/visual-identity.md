@@ -1,8 +1,8 @@
 # Visual Identity — Color, Type & Logo
 
-> **LOCKED: Design System 3.1 "Gilded Grove".** Change rules are in
-> [`DESIGN-SYSTEM.md`](./DESIGN-SYSTEM.md). Sections below on the 2.0
-> ink-and-gold look are history; v3 sections are the law.
+> **Current: Design System 3.1 "Gilded Grove".** The system is not locked — it can
+> change. Working rules are in [`DESIGN-SYSTEM.md`](./DESIGN-SYSTEM.md). Sections
+> below on the 2.0 ink-and-gold look are history; v3 sections are the law today.
 
 Palette derived from the 6 brand reference images (pixel-sampled, not guessed).
 Dominant reality in the artwork: **ink black + antique gold + sepia brown**, with

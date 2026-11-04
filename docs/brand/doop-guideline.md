@@ -1,4 +1,4 @@
-# Perpustakaan Hati — Design System 3.1 "Gilded Grove" (LOCKED)
+# Perpustakaan Hati — Design System 3.1 "Gilded Grove"
 
 Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "Karya untuk jiwa yang pernah terluka".
 Mood: a lantern-lit private library at night. Cinematic, foil-stamped, calm. **GREEN LEADS.**
@@ -65,7 +65,7 @@ Do not use "Edisi Dompet" or "Edisi Pulih" publicly. Colour never carries the ti
 - **Threads quote card 1080x1350:** `.ph-stage`, emblem 180px top-left, `— @rahimam —` kicker, quote Fraunces gold-light, footer PERPUSTAKAAN HATI foil-gold + tier badge outline in tier colour.
 - **Cards / CTA:** `.ph-card` on forest-night; one green `.ph-cta` per view; a pressed CTA sinks 3px.
 
-## Rules (binding)
+## Rules (brand guidance — the system is not locked, so these can evolve)
 1. Ground is `--forest-night`. `--ink` only for print. Never `#000`, never pure grey.
 2. One key glow per frame (emerald OR lantern strength dominant). Never two glows of the same hue.
 3. Foil only for display words >= 32px. Body copy flat: text-on-dark on forest = 14.58:1; muted text-muted-on-dark = 6.92:1.
@@ -77,6 +77,13 @@ Do not use "Edisi Dompet" or "Edisi Pulih" publicly. Colour never carries the ti
 9. Motion: one foil sheen on enter, never looped; none under reduced-motion.
 10. Language: Bahasa Malaysia first. Tone: gentle, honest, never clinical, never shaming ("jiwa yang pernah terluka", not "rosak").
 11. AVOID: purple or blue gradients, neon, glassmorphism, 800/900 weights, pure-black grounds, red CTAs, the silver "R" monogram, Edisi Dompet.
+
+## Changing the system
+The system is not locked — a new Doop canvas or a new frame may extend it.
+- Edit `docs/brand/design-tokens.css` and the `.ph-*` classes there, then rebuild assets with `packages/brand-tools/build-logos.py`.
+- Re-run `check-contrast.py` (all required pairs must pass) and the pytest suite.
+- Bump `--ph-system-version` in `design-tokens.css`, then re-save this guide to the Doop canvas with `set_guidelines`.
+- Tier names, prices and seal shapes stay fixed — colour never carries a tier alone.
 
 ## Source of truth
 Repo `tradernonymous/perpustakaan_hati`: `docs/brand/DESIGN-SYSTEM.md`, `docs/brand/design-tokens.css`, `docs/brand/visual-identity.md`, preview `docs/brand/preview/design-system-3-0.png`. This guideline is `docs/brand/doop-guideline.md`.
