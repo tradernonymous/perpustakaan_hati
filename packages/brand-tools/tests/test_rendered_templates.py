@@ -40,6 +40,7 @@ CHROME = (
 RENDERED = {
     "quote-card.html": (1080, 1350),
     "quote-card-b.html": (1080, 1350),
+    "quote-card-c.html": (1080, 1350),
     "carousel.html": (1080, 1080),
 }
 
