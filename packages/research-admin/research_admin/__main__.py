@@ -5,7 +5,7 @@ import os
 import uvicorn
 
 from .app import create_app
-from .config import Settings
+from .config import MissingSecretError, Settings
 
 
 def _port(value: str) -> int:
@@ -19,7 +19,10 @@ def _port(value: str) -> int:
 
 
 def main() -> None:
-    settings = Settings.from_env(dict(os.environ), strict=False)
+    try:
+        settings = Settings.from_env(dict(os.environ), strict=False)
+    except MissingSecretError as exc:
+        raise SystemExit(f"Configuration error: {exc} Set the missing variables and redeploy.") from None
     port = _port(os.environ.get("PORT") or os.environ.get("RESEARCH_ADMIN_PORT") or "8787")
     host = os.environ.get("RESEARCH_ADMIN_HOST") or ("0.0.0.0" if settings.public_mode else "127.0.0.1")
     uvicorn.run(

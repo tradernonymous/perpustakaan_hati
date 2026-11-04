@@ -44,6 +44,48 @@ def test_redirect_and_model_overrides_and_secret_repr():
     assert "private-provider-key" not in repr(s)
 
 
+def test_railway_public_domain_fills_redirect_and_hosts():
+    s = Settings.from_env({
+        "RAILWAY_ENVIRONMENT": "production",
+        "RAILWAY_PUBLIC_DOMAIN": "perpustakaan-production.up.railway.app",
+        "RESEARCH_ADMIN_PASSWORD": "a-long-admin-password",
+    }, strict=False)
+    assert s.redirect_uri == "https://perpustakaan-production.up.railway.app/auth/callback"
+    assert s.allowed_hosts == ("perpustakaan-production.up.railway.app",)
+    assert s.public_mode is True
+
+
+def test_explicit_redirect_and_hosts_override_railway_domain():
+    s = Settings.from_env({
+        "RAILWAY_ENVIRONMENT": "production",
+        "RAILWAY_PUBLIC_DOMAIN": "internal.up.railway.app",
+        "RESEARCH_ADMIN_PASSWORD": "a-long-admin-password",
+        "THREADS_REDIRECT_URI": "https://research.example.com/auth/callback",
+        "RESEARCH_ALLOWED_HOSTS": "research.example.com",
+    }, strict=False)
+    assert s.redirect_uri == "https://research.example.com/auth/callback"
+    assert s.allowed_hosts == ("research.example.com",)
+
+
+def test_public_mode_reports_every_problem_at_once():
+    with pytest.raises(MissingSecretError) as error:
+        Settings.from_env({"RAILWAY_ENVIRONMENT": "production", "RESEARCH_ADMIN_PASSWORD": "short"}, strict=False)
+    message = str(error.value)
+    assert "12 characters" in message
+    assert "RAILWAY_PUBLIC_DOMAIN" in message
+
+
+def test_public_mode_accepts_explicit_https_without_railway_domain():
+    s = Settings.from_env({
+        "RESEARCH_PUBLIC": "1",
+        "RESEARCH_ADMIN_PASSWORD": "a-long-admin-password",
+        "THREADS_REDIRECT_URI": "https://research.example.com/auth/callback",
+        "RESEARCH_ALLOWED_HOSTS": "research.example.com",
+    }, strict=False)
+    assert s.public_mode is True
+    assert s.secure_cookies is True
+
+
 def test_railway_environment_turns_on_public_secure_defaults():
     s = Settings.from_env({
         "RAILWAY_ENVIRONMENT": "production",
