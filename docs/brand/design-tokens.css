@@ -202,15 +202,53 @@
     radial-gradient(120% 90% at 50% 45%, transparent 48%, rgb(0 0 0 / 0.72) 100%);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-  /* ---- foil text depth: emboss + cast shadow for foil display type -- */
-  --foil-shadow:
-    drop-shadow(0 1px 0 rgb(255 255 255 / 0.18))
-    drop-shadow(0 3px 0 rgb(18 61 42 / 0.9))
-    drop-shadow(0 14px 22px rgb(0 0 0 / 0.55));
+  /* ---- 3D type (v3.1) ----------------------------------------------
+     CSS can't run a lighting filter on text, so depth is built from
+     chained 1px drop-shadows: each one copies everything above it, so
+     N steps = an N-px solid extrusion, graded dark toward the back.
+     Order: top bevel catch -> extrusion steps -> contact -> ambient.
+     The SVG lockups use real lighting (build-logos.py bevel_filter). */
+  --depth-emerald:
+    drop-shadow(0 -1px 0 rgb(227 247 232 / 0.55))
+    drop-shadow(0 1px 0 #1d5a3d)
+    drop-shadow(0 1px 0 #19503a)
+    drop-shadow(0 1px 0 #164733)
+    drop-shadow(0 1px 0 #123d2a)
+    drop-shadow(0 1px 0 #0f3324)
+    drop-shadow(0 1px 0 #0b2418)
+    drop-shadow(0 2px 1.5px rgb(0 0 0 / 0.55))
+    drop-shadow(0 16px 22px rgb(0 0 0 / 0.5));
+  --depth-gold:
+    drop-shadow(0 -1px 0 rgb(255 244 214 / 0.6))
+    drop-shadow(0 1px 0 #7a5a28)
+    drop-shadow(0 1px 0 #5e4520)
+    drop-shadow(0 1px 0 #3a2a14)
+    drop-shadow(0 2px 1.5px rgb(0 0 0 / 0.5))
+    drop-shadow(0 10px 16px rgb(0 0 0 / 0.45));
+  --depth-pearl:
+    drop-shadow(0 -1px 0 rgb(255 255 255 / 0.6))
+    drop-shadow(0 1px 0 #6f7c74)
+    drop-shadow(0 1px 0 #4d5852)
+    drop-shadow(0 2px 1.5px rgb(0 0 0 / 0.5))
+    drop-shadow(0 10px 16px rgb(0 0 0 / 0.45));
+  --foil-shadow: var(--depth-emerald); /* 3.0 alias */
 
-  /* ---- v3 typography ------------------------------------------------ */
-  --font-script: 'Fraunces', Georgia, serif; /* used italic, opsz high, wght 400 */
+  /* foil sheen — a single specular band swept across once on enter */
+  --sheen: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / 0.55) 48%, rgb(255 255 255 / 0.15) 52%, transparent 62%);
+
+  /* ---- v3 typography ------------------------------------------------
+     The brand fonts are variable (wght 400-700, see build-fonts.py and
+     packages/brand-tools/tests/test_fonts.py). Weights per role mirror
+     the outline weights in build-logos.py so web and SVG match. */
+  --font-script: 'Fraunces', Georgia, serif; /* used italic, wght 400 */
+  --weight-display: 560;        /* spaced caps: PERPUSTAKAAN, wordmarks */
+  --weight-hero: 660;           /* hero word: HATI, seal main word */
+  --weight-title: 520;          /* eBook / page titles */
+  --weight-script: 400;         /* italic accents, ribbons */
+  --weight-label: 600;          /* Inter caps labels */
+  --weight-byline: 500;         /* Inter kicker / byline */
   --tracking-display: 0.06em;   /* foil headlines */
+  --tracking-caps: 0.2em;       /* spaced display caps */
   --tracking-kicker: 0.32em;    /* "— by @rahimam —" flanked bylines */
   --tracking-ribbon: 0.04em;
   --size-hero: clamp(3.5rem, 2rem + 6vw, 8rem);
@@ -222,7 +260,9 @@
   --rule-flank-green: linear-gradient(90deg, transparent, var(--green-400) 30%, var(--green-400) 70%, transparent);
 
   /* ---- v3 components ------------------------------------------------- */
-  --ribbon-bg: linear-gradient(180deg, var(--green-700), var(--green-800) 55%, var(--green-900));
+  --ribbon-bg: linear-gradient(180deg, #3a8a62 0%, var(--green-700) 18%, var(--green-800) 60%, var(--green-900) 100%);
+  --ribbon-tail: linear-gradient(180deg, var(--green-800), var(--green-950));
+  --ribbon-fold: #04100a;
   --ribbon-fg: var(--gold-light);       /* 5.35:1 on green-800 */
   --ribbon-edge: var(--gold);
   --seal-free-bg: var(--green-700);     /* cream label 5.16:1 */
@@ -232,12 +272,29 @@
   --card-v3-bg: linear-gradient(180deg, var(--forest-raised), var(--forest-night));
   --card-v3-border: var(--forest-edge);
   --card-v3-shadow:
-    inset 0 1px 0 rgb(167 211 182 / 0.08),
-    0 24px 60px rgb(0 0 0 / 0.5),
-    0 0 0 1px rgb(201 168 106 / 0.10);
+    inset 0 1px 0 rgb(167 211 182 / 0.10),     /* top bevel catch */
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),           /* bottom bevel shade */
+    0 0 0 1px rgb(201 168 106 / 0.10),          /* gilt hairline */
+    0 1px 1px rgb(0 0 0 / 0.35),                /* contact */
+    0 6px 12px -2px rgb(0 0 0 / 0.30),          /* key */
+    0 28px 60px -12px rgb(0 0 0 / 0.55);        /* ambient */
+  --card-v3-shadow-hover:
+    inset 0 1px 0 rgb(167 211 182 / 0.14),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(201 168 106 / 0.18),
+    0 2px 2px rgb(0 0 0 / 0.3),
+    0 12px 22px -4px rgb(0 0 0 / 0.32),
+    0 40px 80px -16px rgb(0 0 0 / 0.6);
   --cta-v3-bg: linear-gradient(180deg, var(--green-400), var(--green-500) 50%, var(--green-600));
   --cta-v3-fg: var(--forest-night);     /* 5.77:1 on green-500 */
   --cta-v3-glow: 0 0 0 1px rgb(200 233 134 / 0.35), 0 10px 30px rgb(63 145 103 / 0.45);
+  --cta-v3-edge: var(--green-800);      /* the button's 3px "thickness" */
+  --cta-v3-depth:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),      /* glossy top lip */
+    inset 0 -2px 0 rgb(18 61 42 / 0.35),
+    0 3px 0 var(--cta-v3-edge),                 /* thickness */
+    0 4px 2px rgb(0 0 0 / 0.35),                /* contact */
+    0 12px 28px rgb(63 145 103 / 0.40);         /* green bloom */
 
   /* ---- motion -------------------------------------------------------- */
   --ease-glint: cubic-bezier(0.65, 0, 0.35, 1);
@@ -272,10 +329,38 @@
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: var(--foil-shadow);
+  filter: var(--depth-emerald);
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: geometricPrecision;
 }
-.ph-foil-gold  { color: var(--foil-gold-flat);  background-image: var(--foil-gold); }
-.ph-foil-pearl { color: var(--foil-pearl-flat); background-image: var(--foil-pearl); }
+.ph-foil-gold  { color: var(--foil-gold-flat);  background-image: var(--foil-gold);  filter: var(--depth-gold); }
+.ph-foil-pearl { color: var(--foil-pearl-flat); background-image: var(--foil-pearl); filter: var(--depth-pearl); }
+
+/* Opt-in sheen: one specular sweep on enter. Zero-duration under reduced
+   motion, which leaves the band parked off the text. */
+.ph-foil-emerald.ph-sheen { background-image: var(--sheen), var(--foil-emerald); }
+.ph-foil-gold.ph-sheen    { background-image: var(--sheen), var(--foil-gold); }
+.ph-foil-pearl.ph-sheen   { background-image: var(--sheen), var(--foil-pearl); }
+.ph-sheen {
+  background-size: 250% 100%, 100% 100%;
+  background-position: 120% 0, 0 0;
+  background-repeat: no-repeat;
+  animation: ph-sheen var(--dur-glint) var(--ease-glint) 400ms 1 both;
+}
+@keyframes ph-sheen {
+  from { background-position: 120% 0, 0 0; }
+  to   { background-position: -120% 0, 0 0; }
+}
+
+/* Type roles — weights match the SVG outlines from build-logos.py */
+.ph-caps  { font-family: var(--font-display); font-weight: var(--weight-display);
+            letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+.ph-hero  { font-family: var(--font-display); font-weight: var(--weight-hero);
+            letter-spacing: var(--tracking-display); line-height: 1; }
+.ph-title { font-family: var(--font-display); font-weight: var(--weight-title);
+            letter-spacing: -0.005em; line-height: 1.08; text-wrap: balance; }
+.ph-script { font-family: var(--font-script); font-style: italic; font-weight: var(--weight-script); }
 
 @media (forced-colors: active) {
   .ph-foil-emerald, .ph-foil-gold, .ph-foil-pearl {
@@ -321,18 +406,53 @@
   background: var(--rule-flank);
 }
 
-/* Ribbon banner (emerald with gold edge and notched ends). */
+/* Ribbon banner — 3D: a lit front band with gold edges, plus two
+   notched tails tucked BEHIND it, each with a dark fold triangle where
+   the ribbon turns back. */
 .ph-ribbon {
+  position: relative;
   display: inline-block;
-  padding: 0.55em 2.2em;
+  margin-inline: 1.6em;
+  padding: 0.5em 1.6em 0.55em;
   background: var(--ribbon-bg);
   color: var(--ribbon-fg);
   font-family: var(--font-script);
   font-style: italic;
+  font-weight: var(--weight-script);
   letter-spacing: var(--tracking-ribbon);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
   border-block: 1.5px solid var(--ribbon-edge);
-  clip-path: polygon(0 0, 100% 0, calc(100% - 0.9em) 50%, 100% 100%, 0 100%, 0.9em 50%);
-  box-shadow: var(--depth-2);
+  box-shadow:
+    inset 0 1px 0 rgb(255 241 201 / 0.35),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    0 10px 18px -6px rgb(0 0 0 / 0.6);
+}
+.ph-ribbon::before,
+.ph-ribbon::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0.45em;
+  bottom: -0.45em;
+  width: 2.2em;
+  border-block: 1.5px solid var(--gold-deep);
+  filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.45));
+}
+/* Each tail = notched band + a dark fold triangle in the corner that
+   peeks out under the front band (0.6em x 0.45em). */
+.ph-ribbon::before {
+  left: -1.6em;
+  background:
+    linear-gradient(to bottom left, var(--ribbon-fold) 50%, transparent 50%) right bottom / 0.6em 0.45em no-repeat,
+    var(--ribbon-tail);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0.7em 50%);
+}
+.ph-ribbon::after {
+  right: -1.6em;
+  background:
+    linear-gradient(to bottom right, var(--ribbon-fold) 50%, transparent 50%) left bottom / 0.6em 0.45em no-repeat,
+    var(--ribbon-tail);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.7em) 50%, 100% 100%, 0 100%);
 }
 
 /* Scalloped seal badge. Pair with .is-free / .is-standard / .is-premium. */
@@ -358,7 +478,14 @@
   text-transform: uppercase;
   /* CSS seal is a round medallion; the scalloped version ships as SVG:
      docs/brand/assets/seal-*.svg */
-  box-shadow: var(--depth-2), inset 0 0 0 0.35rem rgb(0 0 0 / 0.18);
+  box-shadow:
+    inset 0 0 0 0.35rem rgb(0 0 0 / 0.18),       /* recessed medallion */
+    inset 0 2px 3px rgb(255 255 255 / 0.35),     /* rim bevel catch */
+    inset 0 -2px 3px rgb(0 0 0 / 0.35),          /* rim bevel shade */
+    0 3px 0 rgb(0 0 0 / 0.25),                   /* coin thickness */
+    0 14px 26px rgb(0 0 0 / 0.5);
+  /* debossed label: shade above, light catch below */
+  text-shadow: 0 -1px 0 rgb(0 0 0 / 0.4), 0 1px 0 rgb(255 255 255 / 0.22);
 }
 .ph-seal.is-standard { --seal-bg: var(--seal-standard-bg); --seal-fg: var(--ink); }
 .ph-seal.is-premium  { --seal-bg: var(--seal-premium-bg);  --seal-fg: var(--cream); }
@@ -370,7 +497,9 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--card-v3-shadow);
   color: var(--text-on-dark);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
+.ph-card:is(a, button, [tabindex]):hover { transform: translateY(-2px); box-shadow: var(--card-v3-shadow-hover); }
 .ph-cta {
   display: inline-flex;
   align-items: center;
@@ -381,9 +510,19 @@
   background: var(--cta-v3-bg);
   color: var(--cta-v3-fg);
   font: 600 1rem/1 var(--font-body);
-  box-shadow: var(--cta-v3-glow);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.3);
+  box-shadow: var(--cta-v3-depth);
   cursor: pointer;
-  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
 }
-.ph-cta:hover { transform: translateY(-1px); box-shadow: var(--cta-v3-glow), 0 0 40px rgb(200 233 134 / 0.25); }
+.ph-cta:hover { transform: translateY(-1px); box-shadow: var(--cta-v3-depth), 0 0 40px rgb(200 233 134 / 0.25); }
+/* pressed: sinks into its own 3px edge */
+.ph-cta:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    inset 0 2px 6px rgb(18 61 42 / 0.45),
+    0 0 0 var(--cta-v3-edge),
+    0 1px 1px rgb(0 0 0 / 0.3);
+}
 .ph-cta:focus-visible { outline: 2px solid var(--green-300); outline-offset: 3px; }

@@ -137,8 +137,14 @@ def build(name: str, spec: dict) -> None:
 
     font = TTFont(src)
 
-    # 1. pin the non-weight axes to the brand's chosen values
-    inst = instancer.instantiateVariableFont(font, spec["pins"], inplace=False)
+    # 1. pin the non-weight axes, and LIMIT wght to the brand range with
+    #    its light end as the new default. The limit must go through the
+    #    instancer: it re-solves the outlines and deltas. Merely relabelling
+    #    fvar (the old approach) left Fraunces at its upstream default of
+    #    900, so "regular" was Black and 700 resolved to 900.
+    lo, hi = spec["wght_range"]
+    limits = {**spec["pins"], "wght": (lo, lo, hi)}
+    inst = instancer.instantiateVariableFont(font, limits, inplace=False)
 
     # The instancer can leave gvar without a .notdef entry, which makes the
     # subsetter's gvar pass raise KeyError. Give it an empty variation set
@@ -164,13 +170,6 @@ def build(name: str, spec: dict) -> None:
     subsetter = subset.Subsetter(options=options)
     subsetter.populate(text=charset)
     subsetter.subset(inst)
-
-    # 3. declare the surviving wght range so any weight request resolves
-    lo, hi = spec["wght_range"]
-    if "fvar" in inst:
-        for axis in inst["fvar"].axes:
-            if axis.axisTag == "wght":
-                axis.minValue, axis.maxValue, axis.defaultValue = lo, hi, lo
 
     # Pin head timestamps to a fixed value so the build is byte-reproducible.
     epoch = 3600 * 24 * 365 * 25   # 1995-01-01, a fixed arbitrary stamp

@@ -75,6 +75,9 @@ module.exports = {
         body: ['Inter', 'system-ui', 'sans-serif'],
         reading: ['Source Serif 4', 'Georgia', 'serif'],
       },
+      // weights per role — fonts are variable 400-700 (build-fonts.py);
+      // these match the SVG outline weights in build-logos.py
+      fontWeight: { display: '560', hero: '660', title: '520', label: '600', byline: '500' },
       borderRadius: { sm: '2px', md: '4px', lg: '8px', pill: '999px' },
       boxShadow: brandShadows,
       letterSpacing: {

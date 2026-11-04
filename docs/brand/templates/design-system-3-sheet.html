@@ -28,7 +28,7 @@
   /* left: hero */
   .hero { display: flex; flex-direction: column; justify-content: space-between; padding: 44px 44px 40px; border-right: 1px solid var(--forest-edge); }
   .hero > img { width: 100%; border-radius: var(--radius-lg); box-shadow: var(--card-v3-shadow); }
-  .hero h1 { font: 500 44px/1.1 var(--font-display); margin-top: 22px; }
+  .hero h1 { font: var(--weight-title) 44px/1.1 var(--font-display); margin-top: 22px; }
   .hero h1 em { font-style: italic; color: var(--green-300); }
   .hero p { color: var(--text-muted-on-dark); font-size: 16px; line-height: 1.6; max-width: 640px; margin-top: 10px; }
 
@@ -61,7 +61,7 @@
   .sw b { font-weight: 600; }
 
   .foils { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .foil { height: 74px; border-radius: var(--radius-md); display: grid; place-items: center; font: 600 34px/1 var(--font-display); background: var(--forest-raised); border: 1px solid var(--forest-edge); }
+  .foil { height: 74px; border-radius: var(--radius-md); display: grid; place-items: center; font: var(--weight-hero) 36px/1 var(--font-display); letter-spacing: 0.04em; background: var(--forest-raised); border: 1px solid var(--forest-edge); }
 
   .comp { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center; }
   .ph-card { padding: 22px 24px; }
@@ -69,10 +69,11 @@
   .ph-card cite { display: block; margin-top: 12px; font-style: normal; }
   .stack { display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
   .ph-ribbon { font-size: 22px; }
+  .stack { padding-left: 1.6em; }
 
   .type .spec { display: flex; align-items: baseline; gap: 18px; border-bottom: 1px solid var(--forest-edge); padding: 6px 0; }
   .type .spec span { width: 120px; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted-on-dark); flex: none; }
-  .t-hero { font: 600 54px/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .t-hero { font: var(--weight-hero) 54px/1 var(--font-display); letter-spacing: var(--tracking-display); }
   .t-script { font: italic 400 30px/1.2 var(--font-script); color: var(--gold-light); }
   .t-read { font: 400 18px/1.5 var(--font-reading); }
 
