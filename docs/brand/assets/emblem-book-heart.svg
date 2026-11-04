@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 420" width="600" height="420" role="img" aria-label="Perpustakaan Hati book-heart emblem">
+  <!--
+    Perpustakaan Hati — book-heart emblem (Design System 3.0)
+    Source: docs/brand/visual-identity.md -> "Design System 3.0"
+    An emerald-bound open book; a foil heart rises from the spine.
+    Transparent background: place on forest-night, ink or green-950.
+    Minimum size: 48px wide (favicon uses monogram-stamp.svg instead).
+  -->
+  <defs>
+    <linearGradient id="phe-foil-gold" x1="0" y1="0" x2="0.12" y2="1">
+      <stop offset="0" stop-color="#fff1c9"/>
+      <stop offset="0.24" stop-color="#ecc983"/>
+      <stop offset="0.48" stop-color="#b8904a"/>
+      <stop offset="0.58" stop-color="#9a7638"/>
+      <stop offset="0.78" stop-color="#f1d79b"/>
+      <stop offset="1" stop-color="#b8904a"/>
+    </linearGradient>
+    <linearGradient id="phe-foil-emerald" x1="0" y1="0" x2="0.12" y2="1">
+      <stop offset="0" stop-color="#d9f3df"/>
+      <stop offset="0.22" stop-color="#8fd0a6"/>
+      <stop offset="0.46" stop-color="#3f9167"/>
+      <stop offset="0.58" stop-color="#2d7954"/>
+      <stop offset="0.76" stop-color="#a7d3b6"/>
+      <stop offset="1" stop-color="#3f9167"/>
+    </linearGradient>
+    <linearGradient id="phe-page" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fdfee6"/>
+      <stop offset="0.7" stop-color="#f4efe6"/>
+      <stop offset="1" stop-color="#eae2d4"/>
+    </linearGradient>
+    <linearGradient id="phe-cover" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d7954"/>
+      <stop offset="1" stop-color="#123d2a"/>
+    </linearGradient>
+    <radialGradient id="phe-lantern" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#f2b85c" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#f2b85c" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#f2b85c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="phe-emerald-glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#3f9167" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#3f9167" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="phe-vignette" cx="0.5" cy="0.45" r="0.75">
+      <stop offset="0.55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity="0.75"/>
+    </radialGradient>
+    <filter id="phe-blur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+  </defs>
+  <ellipse cx="300" cy="170" rx="210" ry="170" fill="url(#phe-lantern)"/>
+  <g>
+    <path fill="url(#phe-cover)" stroke="url(#phe-foil-gold)" stroke-width="4" d="M300,262 C228,214 116,206 40,228 L28,346 C116,326 228,334 300,372 C372,334 484,326 572,346 L560,228 C484,206 372,214 300,262 Z"/>
+    <path fill="none" stroke="#000" stroke-opacity="0.5" stroke-width="30" filter="url(#phe-blur)" transform="translate(0,14)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="#123d2a" stroke-width="30" stroke-linejoin="round" transform="translate(0,5)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="url(#phe-foil-emerald)" stroke-width="26" stroke-linejoin="round" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="#c8343c" stroke-width="5" stroke-linejoin="round" transform="translate(300,155) scale(0.78) translate(-300,-155)" d="M300,262 C246,214 186,176 186,118 C186,76 218,48 254,48 C278,48 293,60 300,78 C307,60 322,48 346,48 C382,48 414,76 414,118 C414,176 354,214 300,262 Z"/><path fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="3" stroke-linecap="round" d="M214,96 C222,72 244,62 262,64"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,250 C241.2,210 143.2,200 74.6,224 L64.8,332 C143.2,310 241.2,318 300,358 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,250 C358.8,210 456.8,200 525.4,224 L535.2,332 C456.8,310 358.8,318 300,358 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,244 C240.6,204 141.6,194 72.3,218 L62.4,326 C141.6,304 240.6,312 300,352 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,244 C359.4,204 458.4,194 527.7,218 L537.6,326 C458.4,304 359.4,312 300,352 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,238 C240.0,198 140.0,188 70.0,212 L60.0,320 C140.0,298 240.0,306 300,346 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="1.5" stroke-linejoin="round" d="M300,238 C360.0,198 460.0,188 530.0,212 L540.0,320 C460.0,298 360.0,306 300,346 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="2.5" stroke-linejoin="round" d="M300,232 C240.0,192 140.0,182 70.0,206 L60.0,314 C140.0,292 240.0,300 300,340 Z"/>
+    <path fill="url(#phe-page)" stroke="#b8904a" stroke-width="2.5" stroke-linejoin="round" d="M300,232 C360.0,192 460.0,182 530.0,206 L540.0,314 C460.0,292 360.0,300 300,340 Z"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,246 C250,226 190,220 120,236"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,246 C350,226 410,220 480,236"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,264 C250,244 190,238 120,254"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,264 C350,244 410,238 480,254"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,282 C250,262 190,256 120,272"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,282 C350,262 410,256 480,272"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M286,300 C250,280 190,274 120,290"/>
+    <path fill="none" stroke="#b8904a" stroke-opacity="0.45" stroke-width="2" d="M314,300 C350,280 410,274 480,290"/>
+  </g>
+</svg>

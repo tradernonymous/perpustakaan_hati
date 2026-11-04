@@ -109,6 +109,14 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 
 ### Design system showcase sheet
 
+**v3 (current):** `docs/brand/templates/design-system-3-sheet.html` shows the
+Gilded Grove system: the cinematic lockup, foils, the green-led colour share,
+the ribbon, seals, card, CTA and the `.ph-stage` atmosphere layers. Preview:
+`docs/brand/preview/design-system-3-0.png`. Render it with any headless
+Chromium (`--allow-file-access-from-files --window-size=1600,1200`).
+
+**v2 (kept for reference):**
+
 `docs/brand/templates/design-system-sheet.html` renders the whole system —
 the green ramp with measured ratios, the 3D wordmark treatment, the core
 components, the tier shapes and the type stack — on one 1600×1200 page.

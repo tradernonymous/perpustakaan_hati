@@ -140,6 +140,14 @@ PALETTE = {
     "text-on-light": "#0a0a0c",
     "stone-light": "#a49c8d",
     "sepia": "#573a2f",
+    # Design System 3.0 "Gilded Grove"
+    "forest-night": "#07140d",
+    "forest-raised": "#0d2117",
+    "forest-soft": "#142c20",
+    "foil-emerald-low": "#2d7954",
+    "foil-gold-low": "#9a7638",
+    "heart-ruby": "#c8343c",
+    "lantern": "#f2b85c",
 }
 
 # (foreground, background, required ratio, human reason)
@@ -166,6 +174,29 @@ REQUIRED_PAIRS = [
     ("green-800", "paper", 4.5, "green body copy on a paper ground"),
     ("burgundy", "cream", 4.5, "burgundy text on a cream ground"),
     ("sepia", "cream", 4.5, "sepia text on a cream ground"),
+    # ---- Design System 3.0 "Gilded Grove" ------------------------------
+    # forest-night replaces ink as the default dark ground: a green-black,
+    # so even "empty" space reads green.
+    ("text-on-dark", "forest-night", 4.5, "body copy on the v3 main ground"),
+    ("text-on-dark", "forest-raised", 4.5, "body copy on a v3 card"),
+    ("text-on-dark", "forest-soft", 4.5, "body copy on a v3 overlay"),
+    ("gold-light", "forest-night", 4.5, "headings on the v3 main ground"),
+    ("green-400", "forest-night", 4.5, "green text on the v3 main ground"),
+    ("green-300", "forest-raised", 4.5, "green text on a v3 card"),
+    ("stone-light", "forest-night", 4.5, "muted copy on the v3 ground"),
+    # foil gradients are display-size only: their darkest stop must still
+    # clear 3:1 (WCAG large text) so the word never drops out.
+    ("foil-emerald-low", "forest-night", 3.0, "darkest emerald-foil stop, display type"),
+    ("foil-gold-low", "forest-night", 3.0, "darkest gold-foil stop, display type"),
+    # non-text graphics (WCAG 1.4.11): 3:1 against the ground
+    ("heart-ruby", "forest-night", 3.0, "emblem heart against the v3 ground"),
+    ("lantern", "forest-night", 3.0, "lantern glow core against the v3 ground"),
+    # components
+    ("gold-light", "green-800", 4.5, "ribbon banner label on emerald"),
+    ("cream", "green-700", 4.5, "seal badge label on emerald"),
+    ("cream", "burgundy", 4.5, "seal badge label on burgundy"),
+    ("ink", "gold", 4.5, "seal badge label on gold"),
+    ("forest-night", "green-500", 4.5, "forest label on a green CTA"),
 ]
 
 # tier colours must remain tellable apart without relying on hue alone
@@ -272,7 +303,7 @@ def main() -> int:
         print("RAMP REPORT (every green step on every ground)")
         print("=" * 78)
         greens = [k for k in PALETTE if k.startswith("green-") or k in ("lime-glow", "mint-glass")]
-        for ground in ("ink", "ink-soft", "cream", "paper"):
+        for ground in ("forest-night", "ink", "ink-soft", "cream", "paper"):
             print(f"  on {ground}:")
             for g in greens:
                 print(f"    {g:<12} {contrast(PALETTE[g], PALETTE[ground]):>6.2f}:1")
