@@ -1,0 +1,42 @@
+/* Perpustakaan Hati — brand fonts (self-hosted)
+ *
+ * Import in apps/web/app/globals.css, BEFORE Tailwind's base layer:
+ *   @import '@perpustakaan-hati/ui/fonts.css';
+ *
+ * Files live in packages/brand-tools/fonts/ and are subset to the brand
+ * glyph set (~340 KB for all four). Self-hosted on purpose: the brand must
+ * render identically offline, in the PDF build, and on a slow phone
+ * connection in Malaysia. Do not swap these for a Google Fonts CDN link.
+ */
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/FrauncesDisplay.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fraunces';
+  src: url('/fonts/FrauncesDisplayItalic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Source Serif 4';
+  src: url('/fonts/SourceSerifText.woff2') format('woff2');
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/InterUI.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}

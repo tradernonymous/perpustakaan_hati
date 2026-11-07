@@ -117,7 +117,8 @@ flowchart TD
 ### Phase 3: Website Production & Malaysian Payment Gateway
 *Goal: Launch a fast, mobile-first web platform optimized for traffic clicking through from Threads on mobile devices, with zero-friction Malaysian checkout.*
 
-- [ ] **Threads-First Mobile Storefront (Next.js App Router):**
+- [ ] **Threads-First Mobile Storefront (Next.js App Router) — built in `apps/web`; Railway deploy and real-device check pending:**
+  - **Status:** hero, free-tier opt-in (saved to SQLite), tier comparison, chapter previews, placeholder testimonials and safety footer are built and tested (`npm test` in `apps/web`). Testimonials are marked placeholders until real reader quotes exist. Deploy steps: `docs/deploy-railway-web.md`.
   - Ultra-fast landing experience tailored for in-app mobile browsers (Threads/Instagram webview).
   - Dedicated landing sections for the **Free Tier opt-in**, **Standard vs. Premium Tier comparison**, chapter previews, and reader confessions/testimonials.
 - [ ] **Malaysian Payment Gateway Integration:**

@@ -1,0 +1,669 @@
+/* Perpustakaan Hati — design tokens (Design System 3.1 "Gilded Grove",
+   Warmer Grove extension: green 50 / gold 40 / ruby + cream 10, charts
+   locked, Teman Hati companion surface, three-layer semantic tokens.
+   Refined from 3.0 and built on 2.0 "Living Sanctuary" — legacy tokens kept)
+   Source: docs/brand/visual-identity.md
+   Usage: import in apps/web/app/globals.css (Phase 3), and by the
+   eBook/Threads templates via packages/ui/tokens.css.
+   Fonts: Fraunces (display) + Inter (UI) + Source Serif 4 (long-form).
+   Brand fonts are subset and self-hosted — see packages/brand-tools/fonts/.
+
+   Every colour pair used for text has a measured WCAG 2.1 contrast ratio.
+   Run the checker to re-verify after any change:
+
+       uv run --no-project python packages/brand-tools/check-contrast.py
+*/
+
+:root {
+  /* ---- core grounds -------------------------------------------------- */
+  --ink: #0a0a0c;
+  --ink-raised: #121416;   /* 3D base layer, sits under ink-soft */
+  --ink-soft: #17171a;
+  --ink-elevated: #202226; /* inputs, popovers, overlays */
+
+  --cream: #fdfee6;
+  --paper: #f4efe6;        /* eBook interior ground */
+  --linen: #eae2d4;        /* paper texture / warm light border */
+
+  /* ---- gold — structure --------------------------------------------- */
+  --gold: #c9a86a;
+  --gold-light: #e9cea2;
+  --gold-deep: #a07b45;
+
+  /* ---- warm mid-tones ------------------------------------------------ */
+  --sepia: #573a2f;
+  --sepia-deep: #3a2a21;
+
+  /* ---- emotional / premium ------------------------------------------- */
+  --burgundy: #5c1e17;
+  --burgundy-deep: #3f1711;
+  --burgundy-light: #c25a58;   /* readable on ink — tier badge text */
+
+  /* ---- conversion ---------------------------------------------------- */
+  --terracotta: #da725b;
+  --terracotta-soft: #e69677;
+
+  /* ---- Living Green ramp ---------------------------------------------
+     The brand's primary accent. A ramp, not a single colour: each token
+     is tuned for the ground it sits on, because one flat green cannot pass
+     contrast on both dark and light.
+     Rule: never set green-500 / green-400 as body text on cream or paper —
+     use green-700, green-800 or green-900 there. Never set green-900 /
+     green-950 on ink. */
+  --green-950: #0b2418;   /* deepest gradient endpoint */
+  --green-900: #123d2a;   /* 3D extrusion, dark brand panels */
+  --green-800: #1d5a3d;   /* deep accent surfaces */
+  --green-700: #2d7954;   /* strong brand accent, headings on cream */
+  --green-600: #3f9167;   /* CTA gradient start */
+  --green-500: #5b9b7d;   /* THE main green — 6.06:1 on ink */
+  --green-400: #7db895;   /* hover, icons, green text on ink (8.63:1) */
+  --green-300: #a7d3b6;   /* soft highlights, green text on ink (11.90:1) */
+  --green-200: #cbe8d5;   /* light surfaces and dividers */
+  --green-100: #e4f4e9;   /* pale green background */
+  --lime-glow: #c8e986;   /* 3D rim light — accents only, never body text */
+  --mint-glass: #9de1c1;  /* translucent botanical highlight */
+
+  /* Legacy aliases — kept so existing templates keep working.
+     These now point into the ramp above. */
+  --green: var(--green-500);
+  --green-light: var(--green-400);
+  --green-mid: var(--green-700);
+  --green-deep: var(--green-800);
+  --green-ink: var(--green-900);
+  --green-wash: var(--green-100);
+
+  /* ---- semantic roles ------------------------------------------------ */
+  --color-healing: var(--green-500);
+  --color-healing-strong: var(--green-700);
+  --color-healing-light: var(--green-400);
+  --color-growth: var(--lime-glow);
+  --color-success: var(--green-600);
+  --color-success-soft: var(--green-100);
+
+  /* ---- text roles ---------------------------------------------------- */
+  --text-on-dark: #e6e2da;
+  --text-on-light: #0a0a0c;
+  --text-muted-on-dark: #a49c8d;
+  --text-muted-on-light: #573a2f;
+  --border-dark: #2a2a2e;
+  --border-light: #d9cfbf;
+  --border-gold: rgb(201 168 106 / 0.18);
+
+  /* ---- tier colours — fixed, see docs/brand/tier-naming.md
+     Each has a light variant for use as badge text on the ink ground.
+     Verified colour-blind-safe: worst-case CIE76 dE 19.8 (protanopia)
+     between green and burgundy, 21.2 between green and gold. Shape and
+     text labels are still required — colour alone never carries the tier. */
+  --tier-free: var(--green-500);
+  --tier-standard: var(--gold);
+  --tier-premium: var(--burgundy-light);
+  --tier-free-fill: var(--green-500);
+  --tier-standard-fill: var(--gold);
+  --tier-premium-fill: var(--burgundy);
+
+  /* ---- typography ---------------------------------------------------- */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-reading: 'Source Serif 4', Georgia, serif;
+
+  /* ---- spacing scale ------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- radii ---------------------------------------------------------- */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-pill: 999px;
+
+  /* ---- depth / 3D -----------------------------------------------------
+     Four elevation levels. Shadows carry a green undertone so raised
+     surfaces feel lit by foliage rather than by cold studio light. */
+  --depth-0: none;
+  --depth-1:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 8px 24px rgb(0 0 0 / 0.24);
+  --depth-2:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 18px 50px rgb(0 0 0 / 0.34);
+  --depth-3:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 32px 80px rgb(0 0 0 / 0.42);
+  --depth-extrude:
+    0 3px 0 rgb(18 61 42 / 0.8),
+    0 32px 80px rgb(0 0 0 / 0.42);
+
+  /* legacy shadow aliases */
+  --shadow-card: var(--depth-1);
+  --shadow-lift: var(--depth-2);
+
+  /* ---- 3D material recipe --------------------------------------------
+     The canonical recipe for extruded brand type. Face + side + rim +
+     ambient shadow. Used by the 3D wordmark generator and by any
+     dimensional campaign artwork. */
+  --material-face: #f4efe6;
+  --material-face-warm: #e9cea2;
+  --material-extrude: #123d2a;
+  --material-rim: #c8e986;
+  --material-shadow: rgb(0 0 0 / 0.45);
+
+  /* =====================================================================
+     DESIGN SYSTEM 3.1 — "GILDED GROVE"
+     Cinematic, lantern-lit, foil-stamped. Refined from the 2026 reference
+     boards (open-book + heart emblem, metallic serif type, flanked
+     bylines, ribbon banners, scalloped seals) — but re-keyed so GREEN
+     stays the main colour: the dark ground itself is a green-black, the
+     hero word is emerald foil, and gold is the frame around it.
+     Colour share target per layout: green 50 / gold 40 / ruby+cream 10.
+     Green stays the lead; gold warmth rises via borders, rules, lantern glow.
+     ===================================================================== */
+
+  --ph-system-version: '3.1.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+
+  /* ---- v3 grounds: green-black instead of neutral black -------------- */
+  --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
+  --forest-raised: #0d2117;  /* cards — 13.04:1 */
+  --forest-soft: #142c20;    /* overlays, inputs — 11.52:1 */
+  --forest-edge: rgb(157 225 193 / 0.14); /* hairline border on forest */
+
+  /* ---- foil: metallic gradients for DISPLAY TYPE ONLY (≥ 32px) ------
+     Each foil has a flat fallback colour for print/forced-colors. The
+     darkest stop of each foil still clears 3:1 on forest-night. */
+  --foil-emerald:
+    linear-gradient(178deg,
+      #d9f3df 0%, #8fd0a6 22%, #3f9167 46%,
+      #2d7954 58%, #a7d3b6 76%, #3f9167 100%);
+  --foil-emerald-flat: var(--green-400);
+  --foil-gold:
+    linear-gradient(178deg,
+      #fff1c9 0%, #ecc983 24%, #b8904a 48%,
+      #9a7638 58%, #f1d79b 78%, #b8904a 100%);
+  --foil-gold-flat: var(--gold);
+  --foil-pearl:
+    linear-gradient(178deg, #ffffff 0%, #dfe6e1 45%, #9aa79f 60%, #eef2ef 100%);
+  --foil-pearl-flat: #dfe6e1;
+
+  /* ---- emblem colours ---------------------------------------------- */
+  --heart-ruby: #c8343c;     /* the heart in the book emblem — graphic only */
+  --heart-ruby-deep: #7d1a22;
+  --lantern: #f2b85c;        /* warm practical light, glow cores */
+
+  /* ---- light & atmosphere ------------------------------------------
+     Cinematic recipe = ground + one key glow + vignette + grain.
+     Never stack two key glows of the same hue. */
+  --glow-lantern:
+    radial-gradient(60% 50% at 50% 38%, rgb(242 184 92 / 0.30), transparent 70%);
+  --glow-emerald:
+    radial-gradient(70% 60% at 50% 40%, rgb(63 145 103 / 0.42), transparent 72%);
+  --glow-dawn:
+    linear-gradient(180deg, transparent 55%, rgb(242 184 92 / 0.18) 85%, rgb(200 52 60 / 0.10) 100%);
+  --vignette:
+    radial-gradient(120% 90% at 50% 45%, transparent 48%, rgb(0 0 0 / 0.72) 100%);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  /* ---- 3D type (v3.1) ----------------------------------------------
+     CSS can't run a lighting filter on text, so depth is built from
+     chained 1px drop-shadows: each one copies everything above it, so
+     N steps = an N-px solid extrusion, graded dark toward the back.
+     Order: top bevel catch -> extrusion steps -> contact -> ambient.
+     The SVG lockups use real lighting (build-logos.py bevel_filter). */
+  --depth-emerald:
+    drop-shadow(0 -1px 0 rgb(227 247 232 / 0.55))
+    drop-shadow(0 1px 0 #1d5a3d)
+    drop-shadow(0 1px 0 #19503a)
+    drop-shadow(0 1px 0 #164733)
+    drop-shadow(0 1px 0 #123d2a)
+    drop-shadow(0 1px 0 #0f3324)
+    drop-shadow(0 1px 0 #0b2418)
+    drop-shadow(0 2px 1.5px rgb(0 0 0 / 0.55))
+    drop-shadow(0 16px 22px rgb(0 0 0 / 0.5));
+  --depth-gold:
+    drop-shadow(0 -1px 0 rgb(255 244 214 / 0.6))
+    drop-shadow(0 1px 0 #7a5a28)
+    drop-shadow(0 1px 0 #5e4520)
+    drop-shadow(0 1px 0 #3a2a14)
+    drop-shadow(0 2px 1.5px rgb(0 0 0 / 0.5))
+    drop-shadow(0 10px 16px rgb(0 0 0 / 0.45));
+  --depth-pearl:
+    drop-shadow(0 -1px 0 rgb(255 255 255 / 0.6))
+    drop-shadow(0 1px 0 #6f7c74)
+    drop-shadow(0 1px 0 #4d5852)
+    drop-shadow(0 2px 1.5px rgb(0 0 0 / 0.5))
+    drop-shadow(0 10px 16px rgb(0 0 0 / 0.45));
+  --foil-shadow: var(--depth-emerald); /* 3.0 alias */
+
+  /* foil sheen — a single specular band swept across once on enter */
+  --sheen: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / 0.55) 48%, rgb(255 255 255 / 0.15) 52%, transparent 62%);
+
+  /* ---- v3 typography ------------------------------------------------
+     The brand fonts are variable (wght 400-700, see build-fonts.py and
+     packages/brand-tools/tests/test_fonts.py). Weights per role mirror
+     the outline weights in build-logos.py so web and SVG match. */
+  --font-script: 'Fraunces', Georgia, serif; /* used italic, wght 400 */
+  --weight-display: 560;        /* spaced caps: PERPUSTAKAAN, wordmarks */
+  --weight-hero: 660;           /* hero word: HATI, seal main word */
+  --weight-title: 520;          /* eBook / page titles */
+  --weight-script: 400;         /* italic accents, ribbons */
+  --weight-label: 600;          /* Inter caps labels */
+  --weight-byline: 500;         /* Inter kicker / byline */
+  --tracking-display: 0.06em;   /* foil headlines */
+  --tracking-caps: 0.2em;       /* spaced display caps */
+  --tracking-kicker: 0.32em;    /* "— by @rahimam —" flanked bylines */
+  --tracking-ribbon: 0.04em;
+  --size-hero: clamp(3.5rem, 2rem + 6vw, 8rem);
+  --size-display: clamp(2.25rem, 1.4rem + 3vw, 4.5rem);
+  --size-kicker: 0.8125rem;
+
+  /* ---- ornaments ----------------------------------------------------- */
+  --rule-flank: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
+  --rule-flank-green: linear-gradient(90deg, transparent, var(--green-400) 30%, var(--green-400) 70%, transparent);
+
+  /* ---- v3 components ------------------------------------------------- */
+  --ribbon-bg: linear-gradient(180deg, #3a8a62 0%, var(--green-700) 18%, var(--green-800) 60%, var(--green-900) 100%);
+  --ribbon-tail: linear-gradient(180deg, var(--green-800), var(--green-950));
+  --ribbon-fold: #04100a;
+  --ribbon-fg: var(--gold-light);       /* 5.35:1 on green-800 */
+  --ribbon-edge: var(--gold);
+  --seal-free-bg: var(--green-700);     /* cream label 5.16:1 */
+  --seal-standard-bg: var(--gold);      /* ink label 8.75:1 */
+  --seal-premium-bg: var(--burgundy);   /* cream label 12.40:1 */
+  --seal-rim: var(--foil-gold);
+  --card-v3-bg: linear-gradient(180deg, var(--forest-raised), var(--forest-night));
+  --card-v3-border: var(--forest-edge);
+  --card-v3-shadow:
+    inset 0 1px 0 rgb(167 211 182 / 0.10),     /* top bevel catch */
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),           /* bottom bevel shade */
+    0 0 0 1px rgb(201 168 106 / 0.10),          /* gilt hairline */
+    0 1px 1px rgb(0 0 0 / 0.35),                /* contact */
+    0 6px 12px -2px rgb(0 0 0 / 0.30),          /* key */
+    0 28px 60px -12px rgb(0 0 0 / 0.55);        /* ambient */
+  --card-v3-shadow-hover:
+    inset 0 1px 0 rgb(167 211 182 / 0.14),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    0 0 0 1px rgb(201 168 106 / 0.18),
+    0 2px 2px rgb(0 0 0 / 0.3),
+    0 12px 22px -4px rgb(0 0 0 / 0.32),
+    0 40px 80px -16px rgb(0 0 0 / 0.6);
+  --cta-v3-bg: linear-gradient(180deg, var(--green-400), var(--green-500) 50%, var(--green-600));
+  --cta-v3-fg: var(--forest-night);     /* 5.77:1 on green-500 */
+  --cta-v3-glow: 0 0 0 1px rgb(200 233 134 / 0.35), 0 10px 30px rgb(63 145 103 / 0.45);
+  --cta-v3-edge: var(--green-800);      /* the button's 3px "thickness" */
+  --cta-v3-depth:
+    inset 0 1px 0 rgb(255 255 255 / 0.45),      /* glossy top lip */
+    inset 0 -2px 0 rgb(18 61 42 / 0.35),
+    0 3px 0 var(--cta-v3-edge),                 /* thickness */
+    0 4px 2px rgb(0 0 0 / 0.35),                /* contact */
+    0 12px 28px rgb(63 145 103 / 0.40);         /* green bloom */
+
+  /* ---- motion -------------------------------------------------------- */
+  --ease-glint: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-glint: 2400ms;  /* foil sheen sweep — once on enter, never looped */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 140ms;
+  --dur-base: 240ms;
+  --dur-slow: 400ms;
+
+  /* =====================================================================
+     3.1 "Warmer Grove" extension — three-layer discipline, charts locked,
+     Teman Hati companion surface, read-first guardrails.
+     Layers: 1 primitive (raw hex/spacing/radius above),
+             2 semantic (surface/text/action/chart/state below),
+             3 component (button/card/chat/glass below).
+     Warmer share: green 50 / gold 40 / ruby + cream 10.
+     Green still leads: the ground stays forest-night green-black and
+     the thread renders stay green-led (mean G > R and G > B).
+     ===================================================================== */
+
+  /* ---- Layout scale (semantic) -------------------------------------- */
+  --content-reading: 640px;
+  --content-grid: 1200px;
+  --content-chat: 760px;
+  --tap-min: 44px;
+  --tap-cta-mobile: 56px;
+  --measure-reading: 68ch;
+
+  /* ---- Z-index (semantic) ------------------------------------------- */
+  --z-base: 0;
+  --z-sticky: 30;
+  --z-header: 40;
+  --z-overlay: 50;
+  --z-sheet: 60;
+  --z-toast: 70;
+
+  /* ---- Focus & states (semantic) ----------------------------------- */
+  --focus-ring: 0 0 0 2px var(--forest-night), 0 0 0 4px var(--green-400);
+  --focus-ring-light: 0 0 0 2px var(--cream), 0 0 0 4px var(--green-800);
+  --state-hover-opacity: 0.92;
+  --state-active-lift: -2px;
+  --state-disabled-opacity: 0.45;
+  --status-success: var(--green-600);
+  --status-error: var(--burgundy-light);
+  --status-warning: var(--lantern);
+  --status-info: var(--green-400);
+
+  /* ---- Surface / text / action (semantic, Layer 2) ------------------ */
+  --surface-base: var(--forest-night);
+  --surface-raised: var(--forest-raised);
+  --surface-soft: var(--forest-soft);
+  --surface-light: var(--cream);
+  --surface-paper: var(--paper);
+  --text-primary: var(--text-on-dark);
+  --text-primary-light: var(--text-on-light);
+  --text-muted: var(--text-muted-on-dark);
+  --text-muted-light: var(--text-muted-on-light);
+  --text-accent: var(--gold-light);
+  --text-healing: var(--green-300);
+  --action-primary-bg: var(--cta-v3-bg);
+  --action-primary-fg: var(--cta-v3-fg);
+  --action-secondary-border: var(--gold);
+  --action-secondary-fg: var(--gold-light);
+  --border-default: var(--border-dark);
+  --border-faint: var(--forest-edge);
+  --border-gilt: var(--border-gold);
+  --border-light: var(--border-light);
+
+  /* ---- Charts & data-viz (semantic, LOCKED) ------------------------- */
+  /* Locked 2026-11-08 for quiz / assessment / progress dashboards.
+     Never rename. Pair with shape or direct label; color never carries
+     meaning alone. All hues from the verified palette. */
+  --chart-1: var(--green-500);
+  --chart-2: var(--gold);
+  --chart-3: var(--burgundy-light);
+  --chart-4: var(--lantern);
+  --chart-5: var(--mint-glass);
+  --chart-track: var(--forest-soft);
+  --chart-grid: rgb(230 226 218 / 0.08);
+  --chart-label: var(--text-muted-on-dark);
+
+  /* ---- Glass & overlay (component, Layer 3) ------------------------- */
+  --glass-bg: rgb(13 33 23 / 0.62);
+  --glass-border: rgb(201 168 106 / 0.22);
+  --glass-blur: 18px;
+  --glass-saturate: 140%;
+  --scrim: rgb(7 20 13 / 0.62);
+
+  /* ---- Teman Hati companion chat (component, Layer 3) --------------- */
+  /* Companion uses WebGL particles + tilt + glass. Reading and checkout
+     never use WebGL. See visual-identity.md for fallbacks. */
+  --companion-bg: var(--surface-base);
+  --companion-bubble-assistant: var(--surface-raised);
+  --companion-bubble-assistant-border: var(--border-gilt);
+  --companion-bubble-user: var(--action-primary-bg);
+  --companion-bubble-user-fg: var(--action-primary-fg);
+  --companion-input-bg: var(--surface-soft);
+  --companion-input-border: var(--border-faint);
+  --companion-glow: var(--glow-lantern);
+  --companion-particle: var(--mint-glass);
+  --companion-typing-dot: var(--green-400);
+  --companion-shadow: var(--card-v3-shadow);
+
+  /* ---- Motion & 3D extras (semantic) -------------------------------- */
+  --dur-instant: 80ms;
+  --tilt-max: 6deg;
+  --tilt-perspective: 1200px;
+  --particle-count: 42;
+  --parallax-shift: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-glint: 0ms;
+  }
+}
+
+/* =======================================================================
+   v3 utility classes — opt-in, prefixed `ph-` so they never collide with
+   Tailwind or shadcn. Every class falls back to a flat colour when
+   background-clip:text or gradients are unavailable (print, forced-colors).
+   ======================================================================= */
+
+/* Foil display type. Use only at >= 32px. */
+.ph-foil-emerald,
+.ph-foil-gold,
+.ph-foil-pearl {
+  color: var(--foil-emerald-flat);
+  background-image: var(--foil-emerald);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: var(--depth-emerald);
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: geometricPrecision;
+}
+.ph-foil-gold  { color: var(--foil-gold-flat);  background-image: var(--foil-gold);  filter: var(--depth-gold); }
+.ph-foil-pearl { color: var(--foil-pearl-flat); background-image: var(--foil-pearl); filter: var(--depth-pearl); }
+
+/* Opt-in sheen: one specular sweep on enter. Zero-duration under reduced
+   motion, which leaves the band parked off the text. */
+.ph-foil-emerald.ph-sheen { background-image: var(--sheen), var(--foil-emerald); }
+.ph-foil-gold.ph-sheen    { background-image: var(--sheen), var(--foil-gold); }
+.ph-foil-pearl.ph-sheen   { background-image: var(--sheen), var(--foil-pearl); }
+.ph-sheen {
+  background-size: 250% 100%, 100% 100%;
+  background-position: 120% 0, 0 0;
+  background-repeat: no-repeat;
+  animation: ph-sheen var(--dur-glint) var(--ease-glint) 400ms 1 both;
+}
+@keyframes ph-sheen {
+  from { background-position: 120% 0, 0 0; }
+  to   { background-position: -120% 0, 0 0; }
+}
+
+/* Type roles — weights match the SVG outlines from build-logos.py */
+.ph-caps  { font-family: var(--font-display); font-weight: var(--weight-display);
+            letter-spacing: var(--tracking-caps); text-transform: uppercase; }
+.ph-hero  { font-family: var(--font-display); font-weight: var(--weight-hero);
+            letter-spacing: var(--tracking-display); line-height: 1; }
+.ph-title { font-family: var(--font-display); font-weight: var(--weight-title);
+            letter-spacing: -0.005em; line-height: 1.08; text-wrap: balance; }
+.ph-script { font-family: var(--font-script); font-style: italic; font-weight: var(--weight-script); }
+
+@media (forced-colors: active) {
+  .ph-foil-emerald, .ph-foil-gold, .ph-foil-pearl {
+    -webkit-text-fill-color: currentColor;
+    background: none;
+    filter: none;
+  }
+}
+
+/* Cinematic stage: ground + key glow + vignette + grain, in one class. */
+.ph-stage {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--forest-night);
+  background-image: var(--vignette), var(--glow-emerald), var(--glow-lantern);
+}
+.ph-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: var(--grain);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Flanked kicker: ——— by @rahimam ——— */
+.ph-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  font-family: var(--font-body);
+  font-size: var(--size-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+.ph-kicker::before,
+.ph-kicker::after {
+  content: '';
+  flex: 1 1 3em;
+  height: 1px;
+  background: var(--rule-flank);
+}
+
+/* Ribbon banner — 3D: a lit front band with gold edges, plus two
+   notched tails tucked BEHIND it, each with a dark fold triangle where
+   the ribbon turns back. */
+.ph-ribbon {
+  position: relative;
+  display: inline-block;
+  margin-inline: 1.6em;
+  padding: 0.5em 1.6em 0.55em;
+  background: var(--ribbon-bg);
+  color: var(--ribbon-fg);
+  font-family: var(--font-script);
+  font-style: italic;
+  font-weight: var(--weight-script);
+  letter-spacing: var(--tracking-ribbon);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.35);
+  border-block: 1.5px solid var(--ribbon-edge);
+  box-shadow:
+    inset 0 1px 0 rgb(255 241 201 / 0.35),
+    inset 0 -1px 0 rgb(0 0 0 / 0.35),
+    0 10px 18px -6px rgb(0 0 0 / 0.6);
+}
+.ph-ribbon::before,
+.ph-ribbon::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0.45em;
+  bottom: -0.45em;
+  width: 2.2em;
+  border-block: 1.5px solid var(--gold-deep);
+  filter: drop-shadow(0 6px 6px rgb(0 0 0 / 0.45));
+}
+/* Each tail = notched band + a dark fold triangle in the corner that
+   peeks out under the front band (0.6em x 0.45em). */
+.ph-ribbon::before {
+  left: -1.6em;
+  background:
+    linear-gradient(to bottom left, var(--ribbon-fold) 50%, transparent 50%) right bottom / 0.6em 0.45em no-repeat,
+    var(--ribbon-tail);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 0.7em 50%);
+}
+.ph-ribbon::after {
+  right: -1.6em;
+  background:
+    linear-gradient(to bottom right, var(--ribbon-fold) 50%, transparent 50%) left bottom / 0.6em 0.45em no-repeat,
+    var(--ribbon-tail);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 0.7em) 50%, 100% 100%, 0 100%);
+}
+
+/* Scalloped seal badge. Pair with .is-free / .is-standard / .is-premium. */
+.ph-seal {
+  --seal-bg: var(--seal-free-bg);
+  --seal-fg: var(--cream);
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  aspect-ratio: 1;
+  padding: 1.4rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, var(--seal-bg) 62%, transparent 63%),
+    var(--seal-rim);
+  color: var(--seal-fg);
+  text-align: center;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.8rem;
+  line-height: 1.15;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  /* CSS seal is a round medallion; the scalloped version ships as SVG:
+     docs/brand/assets/seal-*.svg */
+  box-shadow:
+    inset 0 0 0 0.35rem rgb(0 0 0 / 0.18),       /* recessed medallion */
+    inset 0 2px 3px rgb(255 255 255 / 0.35),     /* rim bevel catch */
+    inset 0 -2px 3px rgb(0 0 0 / 0.35),          /* rim bevel shade */
+    0 3px 0 rgb(0 0 0 / 0.25),                   /* coin thickness */
+    0 14px 26px rgb(0 0 0 / 0.5);
+  /* debossed label: shade above, light catch below */
+  text-shadow: 0 -1px 0 rgb(0 0 0 / 0.4), 0 1px 0 rgb(255 255 255 / 0.22);
+}
+.ph-seal.is-standard { --seal-bg: var(--seal-standard-bg); --seal-fg: var(--ink); }
+.ph-seal.is-premium  { --seal-bg: var(--seal-premium-bg);  --seal-fg: var(--cream); }
+
+/* v3 card + CTA */
+.ph-card {
+  background: var(--card-v3-bg);
+  border: 1px solid var(--card-v3-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-v3-shadow);
+  color: var(--text-on-dark);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.ph-card:is(a, button, [tabindex]):hover { transform: translateY(-2px); box-shadow: var(--card-v3-shadow-hover); }
+.ph-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.85em 1.6em;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--cta-v3-bg);
+  color: var(--cta-v3-fg);
+  font: 600 1rem/1 var(--font-body);
+  text-shadow: 0 1px 0 rgb(255 255 255 / 0.3);
+  box-shadow: var(--cta-v3-depth);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.ph-cta:hover { transform: translateY(-1px); box-shadow: var(--cta-v3-depth), 0 0 40px rgb(200 233 134 / 0.25); }
+/* pressed: sinks into its own 3px edge */
+.ph-cta:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.3),
+    inset 0 2px 6px rgb(18 61 42 / 0.45),
+    0 0 0 var(--cta-v3-edge),
+    0 1px 1px rgb(0 0 0 / 0.3);
+}
+.ph-cta:focus-visible { outline: 2px solid var(--green-300); outline-offset: 3px; }
+
+/* Teman Hati glass sheet + tilt card (opt-in, marketing/companion only).
+   Never use for reading body or checkout. */
+.ph-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-v3-shadow);
+  color: var(--text-primary);
+}
+.ph-companion {
+  background: var(--companion-bg);
+  color: var(--text-primary);
+  max-width: var(--content-chat);
+}
+.ph-companion .bubble-assistant {
+  background: var(--companion-bubble-assistant);
+  border: 1px solid var(--companion-bubble-assistant-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+}
+.ph-companion .bubble-user {
+  background: var(--companion-bubble-user);
+  color: var(--companion-bubble-user-fg);
+  border-radius: var(--radius-pill);
+}
+.ph-tilt { transform: perspective(var(--tilt-perspective)) rotateX(0) rotateY(0); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ph-tilt { transition: transform var(--dur-base) var(--ease-out); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-glass, .ph-tilt { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
