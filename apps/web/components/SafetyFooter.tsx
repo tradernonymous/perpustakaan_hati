@@ -1,3 +1,5 @@
+import { NAV } from "@/src/content";
+
 export function SafetyFooter() {
   return (
     <footer className="bg-forest-soft px-5 py-10 pb-28 text-sm text-on-dark md:pb-10">
@@ -12,6 +14,12 @@ export function SafetyFooter() {
           Privasi kamu penting. E-mel dan nombor WhatsApp dilindungi di bawah Akta Perlindungan
           Data Peribadi (PDPA) Malaysia dan tidak dikongsi dengan pihak lain.
         </p>
+        <nav aria-label="Pautan kaki" className="flex flex-wrap gap-x-4">
+          {NAV.map((n) => (
+            <a key={n.href} href={n.href} className="flex min-h-tap items-center text-green-300 underline-offset-4 hover:underline">{n.label}</a>
+          ))}
+          <a href="/pustaka" className="flex min-h-tap items-center text-green-300 underline-offset-4 hover:underline">Pustaka saya</a>
+        </nav>
         <p className="text-on-dark-muted">Perpustakaan Hati oleh @rahimam</p>
       </div>
     </footer>
