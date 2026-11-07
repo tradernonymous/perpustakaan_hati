@@ -39,3 +39,17 @@ describe("store", () => {
     nested.close();
   });
 });
+
+describe("store.list", () => {
+  it("returns every subscriber, newest first", async () => {
+    const { openStore } = await import("@/src/server/store");
+    const s = openStore(":memory:");
+    s.add({ email: "a@x.com", phone: null });
+    s.add({ email: null, phone: "+60123456789" });
+    const rows = s.list();
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => r.email ?? r.phone).sort()).toEqual(["+60123456789", "a@x.com"]);
+    expect(rows[0]).toHaveProperty("created_at");
+    s.close();
+  });
+});
