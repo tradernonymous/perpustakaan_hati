@@ -1,0 +1,28 @@
+[project]
+name = "ebook-builder"
+version = "0.1.0"
+description = "Markdown to print-grade PDF/EPUB builder with per-buyer watermarking for Perpustakaan Hati"
+requires-python = ">=3.12"
+dependencies = [
+    "weasyprint>=62",
+    "markdown-it-py>=3.0",
+    "mdit-py-plugins>=0.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+]
+
+[project.scripts]
+ebook-builder = "ebook_builder.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ebook_builder"]

@@ -204,7 +204,7 @@ flowchart TD
 
 ---
 
-## 📂 Proposed Repository Structure
+## 📂 Repository Structure
 
 ```text
 perpustakaan_hati/
@@ -212,12 +212,16 @@ perpustakaan_hati/
 │   ├── brand/                  # Phase 1: Brand theme, voice guide, tier naming & design tokens
 │   └── roadmap/                # Product specs & Threads funnel playbooks
 ├── content/
-│   └── ebooks/                 # Phase 2: Source manuscripts & worksheets
-│       ├── tier-1-free/        # Lead magnet manuscript & checklists
-│       ├── tier-2-standard/    # Core guide manuscript & chapters
-│       └── tier-3-premium/     # Deep-dive bundle, workbook & conversation scripts
+│   ├── ebooks/                 # Phase 2: Source manuscripts & worksheets
+│   │   ├── tier-1-free/        # Lead magnet manuscript & checklists
+│   │   ├── tier-2-standard/    # Core guide manuscript & chapters
+│   │   └── tier-3-premium/     # Deep-dive bundle, workbook & conversation scripts
+│   └── threads/templates/      # Threads Visual Kit: quote cards & carousels
 ├── packages/
-│   └── ebook-builder/          # Automated PDF/EPUB styling, typesetting & watermarking engine
+│   ├── ebook-builder/          # Phase 2: Automated PDF/EPUB styling, typesetting & watermarking engine
+│   ├── brand-tools/            # Phase 1: Logo/font builders, design-system drift check
+│   ├── ui/                     # Phase 1: Shared Tailwind + shadcn/ui tokens
+│   └── research-admin/         # Phase 2: Threads OAuth admin, pain-point mining, Railway deploy
 ├── apps/
 │   └── web/                    # Phase 3+: Next.js storefront, checkout, quiz & client portal
 └── README.md

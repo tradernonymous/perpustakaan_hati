@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  research-admin:
+    name: research-admin (python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/research-admin
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+      - name: Lint
+        run: uv run ruff check .
+      - name: Test
+        run: uv run pytest -q
+
+  brand-tools:
+    name: brand-tools (python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Test
+        run: uv run --no-project --with pytest --with fonttools --with brotli pytest packages/brand-tools/tests -q
+      - name: Design-system drift check (advisory)
+        run: uv run --no-project python packages/brand-tools/check-lock.py
+
+  ebook-builder:
+    name: ebook-builder (python)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/ebook-builder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+      - name: Lint
+        run: uv run ruff check .
+      - name: Test
+        run: uv run pytest -q
+      - name: Build the free-tier PDF end to end
+        run: uv run ebook-builder build content/ebooks/tier-1-free --tier poket --out dist
+
+  web:
+    name: storefront (node)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Typecheck
+        run: npm run lint
+      - name: Test
+        run: npm test

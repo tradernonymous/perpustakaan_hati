@@ -196,7 +196,7 @@ cython_debug/
 #   be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #   and can be added to the global gitignore or merged into this file.  For a more nuclear
 #   option (not recommended) you can uncomment the following to ignore the entire idea folder.
-# .idea/
+# .idea/ -> ignored, see the Local machine dotfiles block at the end of this file.
 
 # Abstra
 #   Abstra is an AI-powered process automation framework.
@@ -209,7 +209,7 @@ cython_debug/
 #   can be found at https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 #   and can be added to the global gitignore or merged into this file. However, if you prefer, you
 #   could uncomment the following to ignore the entire vscode folder
-# .vscode/
+# .vscode/ -> ignored, see the Local machine dotfiles block at the end of this file.
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
@@ -230,3 +230,28 @@ __marimo__/
 # Brand font build inputs — upstream variable TTFs, downloaded on demand.
 # The subsets in packages/brand-tools/fonts/*.woff2 ARE tracked.
 packages/brand-tools/fonts/source/
+
+# ---------------------------------------------------------------------------
+# Local machine dotfiles.
+#
+# These live in the project root because a personal machine keeps its shell
+# and editor setup here, not because the project needs them. They are never
+# part of the project: committing a .bashrc or an .mcp.json would leak one
+# machine's setup into everyone else's checkout.
+# ---------------------------------------------------------------------------
+/.bash_profile
+/.bashrc
+/.gitconfig
+/.gitmodules
+/.mcp.json
+/.profile
+/.ripgreprc
+/.zprofile
+/.zshrc
+/.idea
+/.vscode
+
+# Editor / agent working files that are per-machine, not per-project.
+/.claude/
+/.freebuff/
+/.superpowers/
