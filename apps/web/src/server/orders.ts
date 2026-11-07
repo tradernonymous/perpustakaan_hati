@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 import path from "node:path";
 import type { ProductId } from "../catalog";
 
-export type Provider = "billplz" | "stripe";
+export type Provider = "billplz" | "stripe" | "demo";
 export type OrderStatus = "pending" | "paid";
 
 export type Order = {

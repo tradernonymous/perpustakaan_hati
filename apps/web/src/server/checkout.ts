@@ -1,6 +1,7 @@
 import type { Env } from "../env";
 import { cartItems, cartTotalSen, isProductId, PRODUCTS, type Cart } from "../catalog";
 import { billplzConfig, createBill } from "./billplz";
+import { demoMode } from "./demo";
 import type { Orders } from "./orders";
 import { createCheckoutSession, stripeConfig } from "./stripe";
 import { EMAIL, MY_MOBILE } from "./validate";
@@ -35,11 +36,20 @@ export type CheckoutResult = { ok: true; url: string; orderId: string } | { ok: 
 export async function startCheckout(v: CheckoutValue, d: CheckoutDeps): Promise<CheckoutResult> {
   const bill = v.method === "fpx" ? billplzConfig(d.env) : null;
   const stripe = v.method === "card" ? stripeConfig(d.env) : null;
-  if (!bill && !stripe) return { ok: false, status: 503, error: "Kaedah bayaran ini belum tersedia. Cuba kaedah lain atau datang semula nanti." };
 
   const items = cartItems(v.cart);
   const amountSen = cartTotalSen(v.cart, d.env);
   const description = items.map((i) => PRODUCTS[i].name).join(" + ");
+
+  // No provider keys for the chosen method: fall back to the demo flow so the
+  // whole path can be tested. Real providers always win, and demo mode is off
+  // unless DEMO_MODE=1.
+  if (!bill && !stripe) {
+    if (!demoMode(d.env)) return { ok: false, status: 503, error: "Kaedah bayaran ini belum tersedia. Cuba kaedah lain atau datang semula nanti." };
+    const order = d.orders.create({ items, amountSen, email: v.email, phone: v.phone, provider: "demo" });
+    return { ok: true, url: `${d.baseUrl}/demo-bayar?order=${order.id}`, orderId: order.id };
+  }
+
   const order = d.orders.create({ items, amountSen, email: v.email, phone: v.phone, provider: bill ? "billplz" : "stripe" });
   const returnUrl = `${d.baseUrl}/terima-kasih?order=${order.id}`;
 

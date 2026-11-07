@@ -39,3 +39,32 @@ The buyer can also fetch fresh links themselves at `/pustaka`.
 - A repeated webhook is a no-op (`status` guard), so delivery never runs twice.
 - Tokens are HMAC-signed with `DOWNLOAD_SECRET` and carry an expiry. Library links use `Referrer-Policy: no-referrer`.
 - The CSP blocks third-party scripts. Payment pages are reached by top-level redirect, which `form-action 'self'` does not affect.
+
+## Demo mode (local testing only)
+
+`DEMO_MODE=1` lets the whole flow run with no provider keys and no product files:
+
+1. Checkout creates a `demo` order and sends the buyer to `/demo-bayar`.
+2. That page shows a "Mod demo, tiada wang sebenar" banner and a fake pay button.
+3. `POST /api/demo/pay` marks the order paid through the same `handlePaid` and `onPaid` path the real webhooks use, so delivery, the library and the download links behave exactly as in production.
+4. If the product PDF is missing, the download route serves a clearly-marked placeholder PDF, still stamped with the buyer's e-mail.
+
+Safety rules, all enforced in code:
+
+- `DEMO_MODE` defaults to off. `/demo-bayar` and `/api/demo/pay` answer 404 while it is off.
+- The demo pay route refuses any order that is not a `demo` order, so it can never touch a real payment.
+- Real providers always win. Demo mode only kicks in when the chosen method has no keys.
+- The fake pay page carries a visible banner. Never set `DEMO_MODE=1` on the live site.
+
+## Swapping in the real things
+
+| Placeholder now | What to do when ready |
+|---|---|
+| `DEMO_MODE=0` (off) | Leave off on the live site. |
+| Cover slot "Kulit buku akan datang" | Put the image in `apps/web/public/products/`, then set `cover` on that tier in `apps/web/src/content.ts` to the path, e.g. `/products/edisi-membangun.png`. |
+| Bab 4 and 5 titled "Tajuk akan diumumkan" | Replace the `title` and `note` for those two entries in `CHAPTERS` in `apps/web/src/content.ts` and set `pending: false`. |
+| Prices RM 29 / RM 79 / RM 50 add-on | Set `PRICE_MEMBANGUN_SEN`, `PRICE_TEMAN_HIDUP_SEN`, `BUMP_TEMAN_HIDUP_SEN` in sen. |
+| Reader quotes marked `[CONTOH]` | Replace with real, anonymised quotes and set `placeholder: false`. |
+| No product PDF | Put `edisi-membangun.pdf` and `teman-hidup.pdf` in `ASSETS_DIR`. The placeholder PDF stops being used the moment the real file is there. |
+
+None of these need a redesign. Each one is a value swap in a file or an env variable.

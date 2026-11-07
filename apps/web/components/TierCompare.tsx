@@ -1,4 +1,5 @@
 import { TIERS, type Tone } from "@/src/content";
+import { ProductCover } from "./ProductCover";
 
 const toneBorder: Record<Tone, string> = {
   green: "border-l-green-500",
@@ -20,6 +21,7 @@ export function TierCompare() {
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={t.seal} alt="" width={72} height={72} className="h-[72px] w-[72px]" />
+            <ProductCover name={t.name} src={t.cover} className="max-w-[180px]" />
             <h3 className="font-display text-2xl text-gold-light">{t.name}</h3>
             <p className="font-display text-3xl text-cream">{t.price}</p>
             <p className="text-sm text-on-dark-muted">{t.size}</p>

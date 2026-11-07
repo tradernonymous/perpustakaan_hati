@@ -1,9 +1,10 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { isProductId, PRODUCTS } from "@/src/catalog";
+import { demoMode } from "@/src/server/demo";
 import { getOrders } from "@/src/server/instance";
 import { verifyToken } from "@/src/server/tokens";
-import { watermarkPdf } from "@/src/server/watermark";
+import { placeholderPdf, watermarkPdf } from "@/src/server/watermark";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,7 +25,18 @@ export async function GET(_req: Request, ctx: { params: Promise<{ token: string 
   try {
     source = await readFile(path.join(assets, PRODUCTS[t.p].file));
   } catch {
-    return text("Fail ini belum sedia. Kami akan hubungi kamu.", 503);
+    // No real file yet. In demo mode we serve a marked placeholder so the
+    // whole flow can be tested; in production the buyer is told to wait.
+    if (!demoMode()) return text("Fail ini belum sedia. Kami akan hubungi kamu.", 503);
+    const ph = await placeholderPdf(PRODUCTS[t.p].name);
+    const stampedPh = await watermarkPdf(ph, `Dilesenkan kepada ${order.email} | Pesanan ${order.id.slice(0, 8)}`);
+    return new Response(Buffer.from(stampedPh), {
+      headers: {
+        "content-type": "application/pdf",
+        "content-disposition": `attachment; filename="placeholder-${PRODUCTS[t.p].file}"`,
+        "cache-control": "no-store",
+      },
+    });
   }
 
   const stamped = await watermarkPdf(source, `Dilesenkan kepada ${order.email} | Pesanan ${order.id.slice(0, 8)}`);
