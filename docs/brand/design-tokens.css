@@ -1,5 +1,7 @@
 /* Perpustakaan Hati — design tokens (Design System 3.1 "Gilded Grove",
-   refined from 3.0 and built on 2.0 "Living Sanctuary" — legacy tokens kept)
+   Warmer Grove extension: green 50 / gold 40 / ruby + cream 10, charts
+   locked, Teman Hati companion surface, three-layer semantic tokens.
+   Refined from 3.0 and built on 2.0 "Living Sanctuary" — legacy tokens kept)
    Source: docs/brand/visual-identity.md
    Usage: import in apps/web/app/globals.css (Phase 3), and by the
    eBook/Threads templates via packages/ui/tokens.css.
@@ -158,7 +160,8 @@
      bylines, ribbon banners, scalloped seals) — but re-keyed so GREEN
      stays the main colour: the dark ground itself is a green-black, the
      hero word is emerald foil, and gold is the frame around it.
-     Colour share target per layout: green 60 / gold 30 / ruby+ink 10.
+     Colour share target per layout: green 50 / gold 40 / ruby+cream 10.
+     Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
   --ph-system-version: '3.1.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
@@ -305,6 +308,107 @@
   --dur-fast: 140ms;
   --dur-base: 240ms;
   --dur-slow: 400ms;
+
+  /* =====================================================================
+     3.1 "Warmer Grove" extension — three-layer discipline, charts locked,
+     Teman Hati companion surface, read-first guardrails.
+     Layers: 1 primitive (raw hex/spacing/radius above),
+             2 semantic (surface/text/action/chart/state below),
+             3 component (button/card/chat/glass below).
+     Warmer share: green 50 / gold 40 / ruby + cream 10.
+     Green still leads: the ground stays forest-night green-black and
+     the thread renders stay green-led (mean G > R and G > B).
+     ===================================================================== */
+
+  /* ---- Layout scale (semantic) -------------------------------------- */
+  --content-reading: 640px;
+  --content-grid: 1200px;
+  --content-chat: 760px;
+  --tap-min: 44px;
+  --tap-cta-mobile: 56px;
+  --measure-reading: 68ch;
+
+  /* ---- Z-index (semantic) ------------------------------------------- */
+  --z-base: 0;
+  --z-sticky: 30;
+  --z-header: 40;
+  --z-overlay: 50;
+  --z-sheet: 60;
+  --z-toast: 70;
+
+  /* ---- Focus & states (semantic) ----------------------------------- */
+  --focus-ring: 0 0 0 2px var(--forest-night), 0 0 0 4px var(--green-400);
+  --focus-ring-light: 0 0 0 2px var(--cream), 0 0 0 4px var(--green-800);
+  --state-hover-opacity: 0.92;
+  --state-active-lift: -2px;
+  --state-disabled-opacity: 0.45;
+  --status-success: var(--green-600);
+  --status-error: var(--burgundy-light);
+  --status-warning: var(--lantern);
+  --status-info: var(--green-400);
+
+  /* ---- Surface / text / action (semantic, Layer 2) ------------------ */
+  --surface-base: var(--forest-night);
+  --surface-raised: var(--forest-raised);
+  --surface-soft: var(--forest-soft);
+  --surface-light: var(--cream);
+  --surface-paper: var(--paper);
+  --text-primary: var(--text-on-dark);
+  --text-primary-light: var(--text-on-light);
+  --text-muted: var(--text-muted-on-dark);
+  --text-muted-light: var(--text-muted-on-light);
+  --text-accent: var(--gold-light);
+  --text-healing: var(--green-300);
+  --action-primary-bg: var(--cta-v3-bg);
+  --action-primary-fg: var(--cta-v3-fg);
+  --action-secondary-border: var(--gold);
+  --action-secondary-fg: var(--gold-light);
+  --border-default: var(--border-dark);
+  --border-faint: var(--forest-edge);
+  --border-gilt: var(--border-gold);
+  --border-light: var(--border-light);
+
+  /* ---- Charts & data-viz (semantic, LOCKED) ------------------------- */
+  /* Locked 2026-11-08 for quiz / assessment / progress dashboards.
+     Never rename. Pair with shape or direct label; color never carries
+     meaning alone. All hues from the verified palette. */
+  --chart-1: var(--green-500);
+  --chart-2: var(--gold);
+  --chart-3: var(--burgundy-light);
+  --chart-4: var(--lantern);
+  --chart-5: var(--mint-glass);
+  --chart-track: var(--forest-soft);
+  --chart-grid: rgb(230 226 218 / 0.08);
+  --chart-label: var(--text-muted-on-dark);
+
+  /* ---- Glass & overlay (component, Layer 3) ------------------------- */
+  --glass-bg: rgb(13 33 23 / 0.62);
+  --glass-border: rgb(201 168 106 / 0.22);
+  --glass-blur: 18px;
+  --glass-saturate: 140%;
+  --scrim: rgb(7 20 13 / 0.62);
+
+  /* ---- Teman Hati companion chat (component, Layer 3) --------------- */
+  /* Companion uses WebGL particles + tilt + glass. Reading and checkout
+     never use WebGL. See visual-identity.md for fallbacks. */
+  --companion-bg: var(--surface-base);
+  --companion-bubble-assistant: var(--surface-raised);
+  --companion-bubble-assistant-border: var(--border-gilt);
+  --companion-bubble-user: var(--action-primary-bg);
+  --companion-bubble-user-fg: var(--action-primary-fg);
+  --companion-input-bg: var(--surface-soft);
+  --companion-input-border: var(--border-faint);
+  --companion-glow: var(--glow-lantern);
+  --companion-particle: var(--mint-glass);
+  --companion-typing-dot: var(--green-400);
+  --companion-shadow: var(--card-v3-shadow);
+
+  /* ---- Motion & 3D extras (semantic) -------------------------------- */
+  --dur-instant: 80ms;
+  --tilt-max: 6deg;
+  --tilt-perspective: 1200px;
+  --particle-count: 42;
+  --parallax-shift: 12px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -528,3 +632,38 @@
     0 1px 1px rgb(0 0 0 / 0.3);
 }
 .ph-cta:focus-visible { outline: 2px solid var(--green-300); outline-offset: 3px; }
+
+/* Teman Hati glass sheet + tilt card (opt-in, marketing/companion only).
+   Never use for reading body or checkout. */
+.ph-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-v3-shadow);
+  color: var(--text-primary);
+}
+.ph-companion {
+  background: var(--companion-bg);
+  color: var(--text-primary);
+  max-width: var(--content-chat);
+}
+.ph-companion .bubble-assistant {
+  background: var(--companion-bubble-assistant);
+  border: 1px solid var(--companion-bubble-assistant-border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+}
+.ph-companion .bubble-user {
+  background: var(--companion-bubble-user);
+  color: var(--companion-bubble-user-fg);
+  border-radius: var(--radius-pill);
+}
+.ph-tilt { transform: perspective(var(--tilt-perspective)) rotateX(0) rotateY(0); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .ph-tilt { transition: transform var(--dur-base) var(--ease-out); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-glass, .ph-tilt { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

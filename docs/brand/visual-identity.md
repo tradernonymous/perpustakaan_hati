@@ -417,7 +417,7 @@ main colour** in three ways:
    is an emerald-foil heart with a thin `heart-ruby` inner line. Ruby is
    never used for text or CTAs.
 
-Colour share per layout: **green 60 / gold 30 / ruby + cream 10.**
+Colour share per layout: **green 50 / gold 40 / ruby + cream 10** (Warmer Grove, 2026-11-08). Green still leads: the ground stays `forest-night` green-black and thread renders stay green-led (mean G > R and G > B). Gold warmth rises through gilt hairlines, rules, and the lantern key glow.
 
 ### New tokens (all in `design-tokens.css`)
 
@@ -534,3 +534,13 @@ specular band across a foil word on enter. The other elements:
   `:active` it sinks into that edge.
 - **Card:** a six-layer bevel, contact and ambient stack, with a hover lift.
 - **Seal:** a rim bevel, a recessed medallion and a debossed label.
+
+### Warmer Grove extension (2026-11-08)
+
+Share moves to green 50 / gold 40 / ruby + cream 10 for a warmer storefront feel. Green stays the lead: `forest-night` remains the ground and the Threads renders stay green-led (mean G > R and G > B). Gold warmth rises via gilt hairlines, rules, and the lantern key glow.
+
+**Charts (locked).** `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-light, `--chart-4` lantern, `--chart-5` mint-glass. Locked 2026-11-08 for quiz, assessment, and progress dashboards. Never rename. Pair every series with a direct label or shape; color never carries meaning alone.
+
+**Teman Hati companion.** First-class surface. Uses WebGL particles (42 particles, `--particle-count`), tilt (`--tilt-perspective: 1200px`, `--tilt-max: 6deg`), glass (`--glass-bg`, `--glass-blur: 18px`), and lantern glow. Assistant bubbles use `--companion-bubble-assistant` with a gold hairline; user bubbles use the green gradient. Reading and checkout never use WebGL. Every WebGL surface needs a static-image fallback and zero motion under `prefers-reduced-motion: reduce`.
+
+**Layout and state.** `--content-reading: 640px`, `--content-grid: 1200px`, `--content-chat: 760px`, `--tap-min: 44px`, `--tap-cta-mobile: 56px`, `--z-sticky: 30` through `--z-toast: 70`, `--focus-ring` and `--focus-ring-light`.

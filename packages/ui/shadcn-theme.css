@@ -1,4 +1,5 @@
-/* Perpustakaan Hati — shadcn/ui base theme (Design System 3.1 "Gilded Grove")
+/* Perpustakaan Hati — shadcn/ui base theme (Design System 3.1 "Gilded Grove",
+ * Warmer Grove extension: charts locked, Teman Hati companion tokens)
  *  Overrides shadcn's neutral-light defaults with the brand sanctuary palette.
  *  Import after Tailwind base in apps/web/app/globals.css (Phase 3).
  *  Source: docs/brand/visual-identity.md
@@ -36,6 +37,19 @@
     --ring: 125 184 149;              /* #7db895 green-400 — 8.63:1 focus ring on ink */
 
     --radius: 0.5rem;                 /* v3: softer, medallion-friendly */
+
+    /* Charts & data-viz (locked 2026-11-08) */
+    --chart-1: 91 155 125;            /* green-500 */
+    --chart-2: 201 168 106;           /* gold */
+    --chart-3: 194 90 88;             /* burgundy-light */
+    --chart-4: 242 184 92;            /* lantern */
+    --chart-5: 157 225 193;           /* mint-glass */
+    --chart-track: 20 44 32;          /* forest-soft */
+
+    /* Teman Hati companion */
+    --companion-bg: 7 20 13;
+    --companion-bubble: 13 33 23;
+    --companion-user: 91 155 125;
 
     /* --- 3D / depth tokens (shadcn components don't read these directly,
            but they keep the source of truth in one place) --- */

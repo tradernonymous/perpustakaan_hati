@@ -1,7 +1,9 @@
 # Design System 3.1 "Gilded Grove"
 
-**Status: current version as of 2026-11-04.** This is the look for Perpustakaan Hati.
+**Status: current version as of 2026-11-08 (Warmer Grove extension).** This is the look for Perpustakaan Hati. Green still leads; warmth rises.
 Version token: `--ph-system-version: '3.1.0'` in `design-tokens.css`.
+
+Warmer share: green 50 / gold 40 / ruby + cream 10. Charts are locked (see `visual-identity.md` and `design-tokens.css` `--chart-1` through `--chart-5`). Teman Hati companion chat is a first-class surface: `--companion-*`, `--glass-*`, `--chart-*`, `.ph-glass`, `.ph-companion`, `.ph-tilt` live in `design-tokens.css` and `ui-kit.md`.
 
 ## What "current" means
 - The system is **not locked**. You can change the palette, type, assets, layout

@@ -47,6 +47,21 @@ const brandColors = {
   },
   lime: { glow: '#c8e986' },
   mint: { glass: '#9de1c1' },
+  // Charts & data-viz (locked 2026-11-08)
+  chart: {
+    1: '#5b9b7d',
+    2: '#c9a86a',
+    3: '#c25a58',
+    4: '#f2b85c',
+    5: '#9de1c1',
+    track: '#142c20',
+  },
+  // Teman Hati companion
+  companion: {
+    bg: '#07140d',
+    assistant: '#0d2117',
+    user: '#5b9b7d',
+  },
 };
 
 const brandShadows = {
@@ -87,6 +102,10 @@ module.exports = {
         flank: '0.32em',
       },
       transitionTimingFunction: { sanctuary: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+      zIndex: { sticky: '30', header: '40', overlay: '50', sheet: '60', toast: '70' },
+      minHeight: { tap: '44px', 'cta-mobile': '56px' },
+      minWidth: { tap: '44px' },
+      maxWidth: { reading: '640px', chat: '760px', grid: '1200px' },
       backgroundImage: {
         // primary CTA fill — the healing green, measured 5.14:1 with ink label
         'green-cta': 'linear-gradient(135deg, #3f9167, #5b9b7d)',
