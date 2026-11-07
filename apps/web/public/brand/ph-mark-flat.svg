@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="Perpustakaan Hati">
+  <!--
+    Perpustakaan Hati — flat brand mark (Design System 3.1 remix).
+    Static counterpart of the animated BrandMark component: solid emerald
+    heart on a soft green glow. No 3D, no animation — for places that need a
+    plain SVG (favicons, og:image fallbacks, print, reduced-motion contexts).
+    Animated version lives in components/BrandMark.tsx (CSS keyframes).
+  -->
+  <defs>
+    <radialGradient id="ph-flat-glow" cx="0.5" cy="0.45" r="0.55">
+      <stop offset="0" stop-color="#3f9167" stop-opacity="0.5"/>
+      <stop offset="0.6" stop-color="#2d7954" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#2d7954" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ph-flat-heart" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e9cea2"/>
+      <stop offset="0.5" stop-color="#5b9b7d"/>
+      <stop offset="1" stop-color="#2d7954"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="34" fill="url(#ph-flat-glow)"/>
+  <path d="M50 84 C31 61 18 47 18 31 C18 16 26 9 35 9 C40.5 9 45 12.6 50 18.6 C55 12.6 60.5 9 66 9 C75 9 82 16 82 31 C82 47 69 61 50 84 Z" fill="url(#ph-flat-heart)"/>
+</svg>

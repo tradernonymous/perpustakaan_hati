@@ -21,4 +21,43 @@
   .btn-ghost {
     @apply inline-flex items-center gap-2 rounded-pill border border-green-500 px-6 py-3 text-base font-semibold text-green-300 transition-colors hover:bg-green-900 hover:text-cream;
   }
+
+  /* ---- Animated brand mark (Design System 3.1 redesign) ------------ */
+  /* One glow pulse on the heart, one slow dashed orbit, staggered twinkle.
+     All motion is CSS-only and honour prefers-reduced-motion via the base
+     layer kill-switch. */
+  .ph-mark-glow {
+    animation: ph-mark-glow var(--dur-ember, 9s) var(--ease-ember, cubic-bezier(0.65, 0, 0.35, 1)) ease-in-out infinite;
+  }
+  .ph-mark-orbit {
+    animation: ph-mark-orbit 28s linear infinite;
+    transform-origin: 50px 50px;
+  }
+  .ph-mark-twinkle {
+    animation: ph-mark-twinkle 3.2s ease-in-out infinite;
+  }
+
+  /* ---- Ember field (hero backdrop) --------------------------------- */
+  .ph-ember {
+    animation: ph-ember var(--dur-ember, 9s) var(--ease-ember, cubic-bezier(0.65, 0, 0.35, 1)) ease-in-out infinite;
+  }
+  .ph-ember-2 { animation-delay: 2.4s; }
+  .ph-ember-3 { animation-delay: 4.8s; }
+
+  @keyframes ph-mark-glow {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 0.9; }
+  }
+  @keyframes ph-mark-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes ph-mark-twinkle {
+    0%, 100% { opacity: 0.15; }
+    50% { opacity: 0.95; }
+  }
+  @keyframes ph-ember {
+    0%, 100% { opacity: 0; transform: translateY(14px); }
+    50% { opacity: 0.8; transform: translateY(-6px); }
+  }
 }
