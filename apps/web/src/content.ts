@@ -12,6 +12,8 @@ export type Tier = {
   subcopy: string;
   includes: string[];
   seal: string;
+  /** Cover image path, or null while the real cover is not ready. */
+  cover: string | null;
 };
 
 export const TIERS: Tier[] = [
@@ -29,6 +31,7 @@ export const TIERS: Tier[] = [
       "3 skrip untuk perbualan yang paling sukar minggu ini",
     ],
     seal: "/brand/seal-edisi-poket.svg",
+    cover: null,
   },
   {
     id: "membangun",
@@ -43,6 +46,7 @@ export const TIERS: Tier[] = [
       "5 contoh skrip untuk bercakap dengan jujur",
     ],
     seal: "/brand/seal-edisi-membangun.svg",
+    cover: null,
   },
   {
     id: "teman-hidup",
@@ -59,18 +63,24 @@ export const TIERS: Tier[] = [
       "12 Kad Refleksi untuk dicetak",
     ],
     seal: "/brand/seal-teman-hidup.svg",
+    cover: null,
   },
 ];
 
-// Only titles confirmed correct. Bab 4 and Bab 5 are held back until the
-// manuscript titles are confirmed (the source spelling looks like a typo).
-export const CHAPTERS = [
-  { no: 1, title: "Kenapa hubungan sakit", note: "Kenapa kita bertindak balas sebelum sempat berfikir, dan cara menenangkan diri dahulu." },
-  { no: 2, title: "Kenali corak attach kamu", note: "Cemas, mengelak atau selamat, dilihat melalui situasi rumah tangga Malaysia." },
-  { no: 3, title: "Red flag & green flag", note: "Bahasa yang sama untuk menamakan apa yang kamu rasa, lengkap dengan ceklis green flag." },
-  { no: 6, title: "Bila dia tidak berubah", note: "Sempadan, menjaga diri, dan cara pergi dengan baik." },
-  { no: 7, title: "Pulih dengan perlahan", note: "Patah hati dan duka, dalam perjalanan 30 hari." },
-] as const;
+// Only titles confirmed correct are shown. Bab 4 and Bab 5 are held back until
+// the manuscript titles are confirmed (the source spelling looks like a typo),
+// so they appear as a pending slot instead of a title.
+export type Chapter = { no: number; title: string; note: string; pending: boolean };
+
+export const CHAPTERS: Chapter[] = [
+  { no: 1, title: "Kenapa hubungan sakit", note: "Kenapa kita bertindak balas sebelum sempat berfikir, dan cara menenangkan diri dahulu.", pending: false },
+  { no: 2, title: "Kenali corak attach kamu", note: "Cemas, mengelak atau selamat, dilihat melalui situasi rumah tangga Malaysia.", pending: false },
+  { no: 3, title: "Red flag & green flag", note: "Bahasa yang sama untuk menamakan apa yang kamu rasa, lengkap dengan ceklis green flag.", pending: false },
+  { no: 4, title: "Tajuk akan diumumkan", note: "Bab ini sedang disiapkan. Tajuknya akan diumumkan apabila muatan akhir disahkan.", pending: true },
+  { no: 5, title: "Tajuk akan diumumkan", note: "Bab ini sedang disiapkan. Tajuknya akan diumumkan apabila muatan akhir disahkan.", pending: true },
+  { no: 6, title: "Bila dia tidak berubah", note: "Sempadan, menjaga diri, dan cara pergi dengan baik.", pending: false },
+  { no: 7, title: "Pulih dengan perlahan", note: "Patah hati dan duka, dalam perjalanan 30 hari.", pending: false },
+];
 
 // PLACEHOLDERS: no real reader quotes exist yet. Replace with real, anonymised
 // quotes (with permission) before launch, then set placeholder to false.

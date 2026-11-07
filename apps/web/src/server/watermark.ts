@@ -15,3 +15,38 @@ export async function watermarkPdf(bytes: Uint8Array, text: string): Promise<Uin
   }
   return doc.save();
 }
+
+/**
+ * Builds a clearly-marked stand-in PDF for a product whose real file is not
+ * ready yet. It is stamped like a real download, so the buyer sees the same
+ * thing they would get from the real book.
+ */
+export async function placeholderPdf(productName: string): Promise<Uint8Array> {
+  const doc = await PDFDocument.create();
+  const font = await doc.embedFont(StandardFonts.Helvetica);
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold);
+  const page = doc.addPage([595, 842]);
+  const { width, height } = page.getSize();
+
+  page.drawRectangle({ x: 0, y: height - 120, width, height: 120, color: rgb(0.06, 0.15, 0.11) });
+  page.drawText(latin1(productName), { x: 48, y: height - 70, size: 26, font: bold, color: rgb(0.85, 0.7, 0.3) });
+  page.drawText("Perpustakaan Hati", { x: 48, y: height - 96, size: 12, font, color: rgb(0.85, 0.85, 0.8) });
+
+  const lines = [
+    "This is a placeholder file.",
+    "The final book is still being prepared.",
+    "Please check back soon for the real PDF.",
+    "",
+    "Placeholder ini hanyalah fail sementara.",
+    "Buku akhir sedang disiapkan.",
+  ];
+  lines.forEach((l, i) => {
+    page.drawText(latin1(l), { x: 48, y: height - 180 - i * 20, size: 13, font, color: rgb(0.15, 0.15, 0.15) });
+  });
+
+  page.drawRectangle({ x: 48, y: 120, width: width - 96, height: 44, borderColor: rgb(0.8, 0.2, 0.2), borderWidth: 2 });
+  page.drawText("PLACEHOLDER - NOT THE REAL BOOK", { x: 62, y: 136, size: 13, font: bold, color: rgb(0.8, 0.2, 0.2) });
+
+  page.drawText("Perpustakaan Hati", { x: 48, y: 60, size: 10, font, color: rgb(0.4, 0.4, 0.4) });
+  return doc.save();
+}
