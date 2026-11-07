@@ -3,9 +3,9 @@ export type ValidateResult =
   | { ok: true; bot: boolean; value: SubscribeValue }
   | { ok: false; error: string };
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Malaysian mobile: 01x-xxxxxxx or 011-xxxxxxxx, with optional 60 / +60 prefix.
-const MY_MOBILE = /^(?:\+?60|0)(1\d{8,9})$/;
+export const MY_MOBILE = /^(?:\+?60|0)(1\d{8,9})$/;
 
 const fail = (error: string): ValidateResult => ({ ok: false, error });
 

@@ -9,6 +9,10 @@ import { StickyCta } from "@/components/StickyCta";
 import { Testimonials } from "@/components/Testimonials";
 import { TierCompare } from "@/components/TierCompare";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 function Section({ id, title, intro, tone = "night", children }: {
   id?: string; title: string; intro?: string; tone?: "night" | "soft"; children: React.ReactNode;
 }) {
