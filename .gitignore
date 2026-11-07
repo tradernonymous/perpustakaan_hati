@@ -146,12 +146,20 @@ rabbitmq-data/
 # ActiveMQ
 activemq-data/
 
+# Node / Next.js (apps/web)
+node_modules/
+.next/
+*.tsbuildinfo
+next-env.d.ts
+
 # SageMath parsed files
 *.sage.py
 
 # Environments
 .env
 .envrc
+.env.*
+!.env.example
 .venv
 env/
 venv/
