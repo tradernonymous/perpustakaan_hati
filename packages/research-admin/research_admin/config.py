@@ -1,9 +1,9 @@
 """Environment-only configuration; secret values never appear in repr."""
 
 import os
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from collections.abc import Mapping
 
 REQUIRED_KEYS = ("THREADS_CLIENT_ID", "THREADS_CLIENT_SECRET", "OPENROUTER_API_KEY")
 DEFAULT_HOSTS = ("127.0.0.1", "localhost", "testserver")

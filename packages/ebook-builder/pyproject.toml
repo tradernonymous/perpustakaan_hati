@@ -1,0 +1,51 @@
+[project]
+name = "ebook-builder"
+version = "0.1.0"
+description = "Markdown to print-grade PDF/EPUB builder with per-buyer watermarking for Perpustakaan Hati"
+requires-python = ">=3.12"
+dependencies = [
+    "weasyprint>=62",
+    "markdown-it-py>=3.0",
+    "mdit-py-plugins>=0.4",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+]
+
+[project.scripts]
+ebook-builder = "ebook_builder.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# pycodestyle errors, pyflakes, import order, pyupgrade, bugbear, pylint.
+# Deliberately not BLE001: catching a broad exception is correct where a
+# third-party library can raise anything, and the message stays sanitized.
+select = ["E", "F", "I", "UP", "B", "PL"]
+
+[tool.ruff.lint.per-file-ignores]
+# The parser is one long dispatch over Markdown constructs; splitting it would
+# hide the flow rather than clarify it.
+"ebook_builder/manuscript.py" = ["PLR0912", "PLR0915"]
+# WeasyPrint is imported inside the function on purpose: it is a heavy native
+# stack and the parser must stay importable without it.
+"ebook_builder/pdf.py" = ["PLC0415"]
+
+[tool.ruff.lint.pylint]
+# The parser dispatches over many Markdown constructs by design.
+max-branches = 20
+max-statements = 100
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ebook_builder"]

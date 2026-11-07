@@ -20,6 +20,37 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+# pycodestyle errors, pyflakes, import order, pyupgrade, bugbear, pylint.
+#
+# Deliberately relaxed where the code is clearer for it:
+#   BLE001  - catching a broad exception is correct where a provider or
+#             framework can raise anything, and the message stays sanitized.
+#   E501    - long lines are kept where a URL or a provider message has to
+#             stay readable as one line.
+#   PLR2004 - an HTTP status code or a permission bit is clearer inline than
+#             as a named constant.
+#   PLW1510 - the keyring helper checks the exit code itself.
+select = ["E", "F", "I", "UP", "B", "PL"]
+ignore = ["BLE001", "E501", "PLR2004", "PLW1510", "PLW0108"]
+
+[tool.ruff.lint.per-file-ignores]
+# The tests read a database and a client side by side, import inside a
+# fixture where it matters, and use bare literals (a port, a permission bit,
+# a TTL) that are clearer inline than as named constants.
+"tests/*" = ["SIM117", "PLC0415"]
+# create_app wires the whole admin together: routes, middleware, auth, the
+# store and the vault. Splitting it would hide the wiring.
+"research_admin/app.py" = ["PLR0915"]
+
+[tool.ruff.lint.pylint]
+max-branches = 20
+max-statements = 100
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
