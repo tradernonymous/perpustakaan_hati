@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { NAV } from "@/src/content";
 
-export function SiteHeader() {
+export function SiteHeader({ base = "" }: { base?: string }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-header border-b border-forest-edge bg-forest-night/90 backdrop-blur">
       <div className="mx-auto flex max-w-grid items-center justify-between gap-4 px-5 py-2">
-        <a href="#atas" className="flex min-h-tap items-center gap-3 font-display text-lg text-gold-light">
+        <a href={`${base}#atas`} className="flex min-h-tap items-center gap-3 font-display text-lg text-gold-light">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/monogram-stamp.svg" alt="" width={32} height={32} className="h-8 w-8" />
           <span>Perpustakaan Hati</span>
@@ -24,11 +24,11 @@ export function SiteHeader() {
 
         <nav aria-label="Utama" className="hidden items-center gap-1 md:flex">
           {NAV.map((n) => (
-            <a key={n.href} href={n.href} className="flex min-h-tap items-center rounded px-3 text-sm text-on-dark hover:text-gold-light">
+            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center rounded px-3 text-sm text-on-dark hover:text-gold-light">
               {n.label}
             </a>
           ))}
-          <a href="#percuma" className="ph-cta ml-2 min-h-tap text-sm">Edisi Poket, percuma</a>
+          <a href={`${base}#percuma`} className="ph-cta ml-2 min-h-tap text-sm">Edisi Poket, percuma</a>
         </nav>
 
         <button
@@ -48,7 +48,7 @@ export function SiteHeader() {
           <ul className="flex flex-col">
             {NAV.map((n) => (
               <li key={n.href}>
-                <a href={n.href} onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-forest-edge text-on-dark">
+                <a href={`${base}${n.href}`} onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-forest-edge text-on-dark">
                   {n.label}
                 </a>
               </li>

@@ -97,6 +97,7 @@ export const STEPS = [
 export const FAQS = [
   { q: "Betul ke Edisi Poket percuma?", a: "Ya, percuma. Kami cuma perlukan e-mel atau nombor WhatsApp supaya boleh hantar bukunya kepada kamu." },
   { q: "Bila saya terima Edisi Poket?", a: "Kami hantar melalui e-mel atau WhatsApp sebaik sahaja bukunya sedia. Kamu tidak perlu buat apa-apa lagi." },
+  { q: "Bagaimana saya bayar dan bila saya terima buku?", a: "Bayar dengan FPX, DuitNow QR atau kad. Sebaik sahaja pembayaran berjaya, pautan muat turun dihantar ke e-mel (dan WhatsApp jika diisi) dalam beberapa saat. Kamu juga boleh muat turun semula di Pustaka Saya." },
   { q: "Adakah buku ini pengganti kaunseling?", a: "Tidak. Ini bahan pendidikan dan renungan diri. Jika kamu perlu bercakap dengan seseorang sekarang, hubungi Talian HEAL 15555 atau Befrienders." },
   { q: "Bagaimana data saya dijaga?", a: "E-mel dan nombor WhatsApp disimpan di bawah PDPA Malaysia, tidak dikongsi dengan pihak lain, dan boleh dipadam atas permintaan." },
   { q: "Apa beza tiga edisi?", a: "Poket ialah permulaan yang ringkas. Membangun ialah panduan penuh dengan situasi sebenar. Teman Hidup menambah buku kerja, skrip dan nota suara." },
