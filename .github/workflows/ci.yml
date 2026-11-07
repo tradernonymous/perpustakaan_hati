@@ -58,7 +58,7 @@ jobs:
       - name: Test
         run: uv run pytest -q
       - name: Build the free-tier PDF end to end
-        run: uv run ebook-builder build content/ebooks/tier-1-free --tier poket --out dist
+        run: uv run ebook-builder build ../../content/ebooks/tier-1-free/manuscript --tier poket --out ../../dist
 
   web:
     name: storefront (node)
