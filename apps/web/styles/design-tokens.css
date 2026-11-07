@@ -409,6 +409,15 @@
   --tilt-perspective: 1200px;
   --particle-count: 42;
   --parallax-shift: 12px;
+
+  /* ---- Ember atmosphere (web redesign) -------------------------------
+     Warm "lantern" glow for the animated hero ember field + brand mark.
+     Decorative only; never body text. */
+  --ember: #f2b85c;
+  --glow-ember:
+    radial-gradient(50% 40% at 50% 40%, rgb(242 184 92 / 0.26), transparent 70%);
+  --dur-ember: 9s;      /* ember field drift */
+  --ease-ember: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
