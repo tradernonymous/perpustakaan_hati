@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked --all-extras --dev
       - name: Lint
-        run: uv run ruff check .
+        run: uvx ruff check .
       - name: Test
         run: uv run pytest -q
 
@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies
         run: uv sync --locked --all-extras --dev
       - name: Lint
-        run: uv run ruff check .
+        run: uvx ruff check .
       - name: Test
         run: uv run pytest -q
       - name: Build the free-tier PDF end to end
