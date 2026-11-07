@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { SECURITY_HEADERS } from "./src/server/security";
 
 const config: NextConfig = {
   output: "standalone",
@@ -8,11 +9,7 @@ const config: NextConfig = {
     return [
       {
         source: "/:path*",
-        headers: [
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
-        ],
+        headers: SECURITY_HEADERS,
       },
     ];
   },

@@ -79,3 +79,25 @@ export const TESTIMONIALS = [
   { quote: "[CONTOH] Ayat pendek tentang satu skrip yang membantu mereka bercakap dengan pasangan.", who: "Pembaca (contoh)", placeholder: true },
   { quote: "[CONTOH] Ayat pendek tentang rasa ditemani ketika sukar tidur malam.", who: "Pembaca (contoh)", placeholder: true },
 ] as const;
+
+export const NAV = [
+  { href: "#percuma", label: "Percuma" },
+  { href: "#edisi", label: "Edisi" },
+  { href: "#bab", label: "Bab" },
+  { href: "#pembaca", label: "Pembaca" },
+  { href: "#soalan", label: "Soalan" },
+] as const;
+
+export const STEPS = [
+  { no: 1, title: "Ambil Edisi Poket", text: "Percuma. Tinggalkan e-mel atau nombor WhatsApp, kami hantar bila sedia." },
+  { no: 2, title: "Baca 60 saat sehari", text: "Kad refleksi dan 7 Hari Reset yang muat dalam masa menunggu bas atau train." },
+  { no: 3, title: "Naik bila bersedia", text: "Edisi Membangun dan Teman Hidup ada bila kamu mahu pergi lebih dalam." },
+] as const;
+
+export const FAQS = [
+  { q: "Betul ke Edisi Poket percuma?", a: "Ya, percuma. Kami cuma perlukan e-mel atau nombor WhatsApp supaya boleh hantar bukunya kepada kamu." },
+  { q: "Bila saya terima Edisi Poket?", a: "Kami hantar melalui e-mel atau WhatsApp sebaik sahaja bukunya sedia. Kamu tidak perlu buat apa-apa lagi." },
+  { q: "Adakah buku ini pengganti kaunseling?", a: "Tidak. Ini bahan pendidikan dan renungan diri. Jika kamu perlu bercakap dengan seseorang sekarang, hubungi Talian HEAL 15555 atau Befrienders." },
+  { q: "Bagaimana data saya dijaga?", a: "E-mel dan nombor WhatsApp disimpan di bawah PDPA Malaysia, tidak dikongsi dengan pihak lain, dan boleh dipadam atas permintaan." },
+  { q: "Apa beza tiga edisi?", a: "Poket ialah permulaan yang ringkas. Membangun ialah panduan penuh dengan situasi sebenar. Teman Hidup menambah buku kerja, skrip dan nota suara." },
+] as const;

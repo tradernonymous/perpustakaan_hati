@@ -1,18 +1,11 @@
-import path from "node:path";
 import { createRateLimiter } from "@/src/server/ratelimit";
-import { openStore, type Store } from "@/src/server/store";
+import { getStore } from "@/src/server/instance";
 import { validateSubscribe } from "@/src/server/validate";
 
 export const runtime = "nodejs";
 
 const MAX_BODY_BYTES = 4096;
 const limiter = createRateLimiter(10, 60_000);
-let store: Store | null = null;
-
-function getStore(): Store {
-  store ??= openStore(path.join(process.env.DATA_DIR ?? "./data", "subscribers.db"));
-  return store;
-}
 
 const json = (body: unknown, status: number) => Response.json(body, { status });
 

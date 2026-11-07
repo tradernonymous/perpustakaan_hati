@@ -9,10 +9,13 @@ const brandColors = {
     night: '#07140d',
     raised: '#0d2117',
     soft: '#142c20',
+    edge: 'rgb(157 225 193 / 0.14)',
     DEFAULT: '#07140d',
   },
   heart: { ruby: '#c8343c', 'ruby-deep': '#7d1a22' }, // emblem only, never text
   lantern: '#f2b85c', // glow cores only
+  // text on dark grounds (design-tokens.css --text-on-dark / --text-muted-on-dark)
+  'on-dark': { DEFAULT: '#e6e2da', muted: '#a49c8d' },
   ink: {
     DEFAULT: '#0a0a0c',
     raised: '#121416',
