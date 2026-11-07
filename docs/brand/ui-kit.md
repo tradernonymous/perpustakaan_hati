@@ -6,7 +6,8 @@ Phase 1 deliverable covering three output surfaces from one token source
 ## 1. Web UI Kit (Next.js + Tailwind + shadcn/ui)
 
 ### Layout
-- Mobile-first, single column, max content width 640px for reading, 1200px for landing grids.
+- Mobile-first, single column, max content width `--content-reading: 640px` for reading, `--content-grid: 1200px` for landing grids, `--content-chat: 760px` for Teman Hati.
+- Warmer share: green 50 / gold 40 / ruby + cream 10. Green still leads; gold warmth rises.
 - Base ground: `forest-night`. Section alternation: `forest-night` → `forest-soft` → `cream` (final CTA band on cream for contrast break).
 - Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `forest-night` label.
 
@@ -68,6 +69,15 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 > **Change from Phase 1:** `--primary` was `terracotta`; it is now the
 > healing green. Terracotta is reserved for conversion accents only —
 > price tags, urgency badges, the final CTA block on a cream band.
+
+### Charts (locked 2026-11-08)
+- `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-light, `--chart-4` lantern, `--chart-5` mint-glass. Never rename.
+- Pair every series with a direct label or shape. Color never carries meaning alone.
+
+### Teman Hati companion chat
+- Surface: `--companion-bg`, bubbles `--companion-bubble-assistant` (forest-raised + gold hairline) and `--companion-bubble-user` (green gradient, forest label). Input: `--companion-input-bg`, focus `--focus-ring`.
+- Glass sheet: `.ph-glass` (`--glass-bg`, `--glass-blur: 18px`). Tilt card: `.ph-tilt` (`--tilt-perspective: 1200px`, `--tilt-max: 6deg`). Particles: `--particle-count: 42`, `--companion-particle: mint-glass`.
+- WebGL loads only on companion and games. Reading and checkout never use WebGL. Static fallback and `prefers-reduced-motion: reduce` zero-motion required.
 
 ## 2. eBook Layout Templates
 

@@ -2,7 +2,8 @@
 
 Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "Karya untuk jiwa yang pernah terluka".
 Mood: a lantern-lit private library at night. Cinematic, foil-stamped, calm. **GREEN LEADS.**
-Colour share per frame: green 60 / gold 30 / ruby + cream 10. Never invent a new colour. Never use neutral black as a ground.
+Colour share per frame: green 50 / gold 40 / ruby + cream 10 (Warmer Grove). Green still leads. Never invent a new colour. Never use neutral black as a ground.
+Charts (locked): `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-light, `--chart-4` lantern, `--chart-5` mint-glass. Pair with label/shape. Teman Hati companion surface uses `--companion-*`, `.ph-glass`, `.ph-tilt`.
 
 ## Fonts
 Use Fraunces for display, Inter for UI and labels, and Source Serif 4 for long reading. Shipped templates load the self-hosted files in `packages/brand-tools/fonts/`; never add Google Fonts runtime links. In Doop, use these family names with `Georgia`/`system-ui` fallbacks when local font files are unavailable.

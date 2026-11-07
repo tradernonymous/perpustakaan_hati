@@ -51,6 +51,8 @@ healing tier, quiet dividers, the pause in a conversation.
 - Green is the *leading* voice: it grounds the page, marks healing moments, and
   carries primary actions. Gold supports green through frames, rules, bylines,
   and restrained premium accents; it never takes over the page.
+- Warmer Grove (2026-11-08): share moves to green 50 / gold 40 / ruby + cream 10.
+  Green still leads. Gold warmth rises, the page must not feel colder or dimmer.
 
 ## Pillars of the ecosystem
 1. *Sanctuary* — private, stigma-free, no judgment.

@@ -1,5 +1,5 @@
 {
-  "docs/brand/DESIGN-SYSTEM.md": "bca6e4be6ed4636ba125efe7b5def1023fcc08fbcf3d5c801bc54dd513155935",
+  "docs/brand/DESIGN-SYSTEM.md": "a023d13225dddadad55eb05bad773f3d19efe44ac9c6c16cd76bfcff84960193",
   "docs/brand/assets/cop-stamp.svg": "e30ffe3f3b3ff46f0835e48d9d2a2d69dd67b48a66a457db3e6e0d01c6b988c9",
   "docs/brand/assets/emblem-book-heart.svg": "b3681b62213aefbb8409a065bb32de348ad206cacd543e43f4661a547d6dc5ed",
   "docs/brand/assets/lockup-cinematic.svg": "9444c41b43a664cf9dc05aa5a1474dae12c180dfc86936e46a9359bf55143e97",
@@ -7,12 +7,12 @@
   "docs/brand/assets/seal-edisi-membangun.svg": "53a741c20969082d4c0f6131f5119bd10e9ec5b7107ee1450deac5c6eeb56bdc",
   "docs/brand/assets/seal-edisi-poket.svg": "a738157556c5afceb35db7e3b4cef0b91c5f980338004a21d10e6f236c47c7ae",
   "docs/brand/assets/seal-teman-hidup.svg": "6b7c09f4f34d4af23db258cb2caaaeb0f74d764f4547ade75620667a72b9b5e8",
-  "docs/brand/design-tokens.css": "c3fafcf5140f22cf0e795d7ce2f1c77b54c188de215eb5289020b90dbd84ae26",
-  "docs/brand/doop-guideline.md": "d9ad70cbb3ea9a3d93d00a4586fd7a5d0526dbe3aa86d0c72746f59e7a532b3a",
+  "docs/brand/design-tokens.css": "1c8caf9d88e167cdb1878ff507a190e12b3e1ad40d765431f94507339282c555",
+  "docs/brand/doop-guideline.md": "dd21cee47063043f4fd1a823b3368b7cfb509f92321a49842628abca700a15e8",
   "packages/brand-tools/fonts/FrauncesDisplay.woff2": "9b2eb34781c59629bad929ed671b6b9a57385ede5d2e97fa1bd1623f29d898a1",
   "packages/brand-tools/fonts/FrauncesDisplayItalic.woff2": "81003a060af22f6806c44e89e0f8147a9f3654cdfe7161be2d95a2ffc257189d",
   "packages/brand-tools/fonts/InterUI.woff2": "11ecf6f358700710c050185e127ce52421e2073af3b4cdfc9080be1f544a68d5",
   "packages/brand-tools/fonts/SourceSerifText.woff2": "81a469d85dab1172283d8d40e27365c2c5e3e15a1fa33de69d546de672ffa36a",
-  "packages/ui/shadcn-theme.css": "f8e440f8df4deb16f76f25c8cac380f0924dfe04dacad0f18829188e76cdf6d3",
-  "packages/ui/tailwind.config.js": "5004720bfef63163e80996ec97fb8f28c8789b599fea4bce7a8f7b27798cb9c2"
+  "packages/ui/shadcn-theme.css": "510ea4d00fd7efc1b4a993ffdb9d5b9e2e920e0c0534a70a3d42de3b89c561a8",
+  "packages/ui/tailwind.config.js": "7063c06c272336aa976cc343dfde0d636c01703a9fc9c64fb22a0ee3755e2788"
 }
