@@ -7,7 +7,7 @@ import sqlite3
 import subprocess
 from contextlib import closing
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from cryptography.fernet import Fernet, InvalidToken
@@ -135,7 +135,7 @@ class Store:
             db.execute("DELETE FROM token")
 
     def save_insights(self, items: list[dict]) -> None:
-        created = datetime.now(timezone.utc).isoformat()
+        created = datetime.now(UTC).isoformat()
         with closing(sqlite3.connect(self.db_path)) as db, db:
             db.executemany(
                 "INSERT OR IGNORE INTO insights(theme, quote, source_url, ebook_idea, created_at) VALUES (?, ?, ?, ?, ?)",

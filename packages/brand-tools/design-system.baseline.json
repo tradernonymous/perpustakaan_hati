@@ -14,5 +14,5 @@
   "packages/brand-tools/fonts/InterUI.woff2": "11ecf6f358700710c050185e127ce52421e2073af3b4cdfc9080be1f544a68d5",
   "packages/brand-tools/fonts/SourceSerifText.woff2": "81a469d85dab1172283d8d40e27365c2c5e3e15a1fa33de69d546de672ffa36a",
   "packages/ui/shadcn-theme.css": "510ea4d00fd7efc1b4a993ffdb9d5b9e2e920e0c0534a70a3d42de3b89c561a8",
-  "packages/ui/tailwind.config.js": "7063c06c272336aa976cc343dfde0d636c01703a9fc9c64fb22a0ee3755e2788"
+  "packages/ui/tailwind.config.js": "23e1e7a6fd4fabfa7d24855878c257989f638f6edccc99653d671ff5e2400c2f"
 }

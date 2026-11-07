@@ -1,7 +1,7 @@
 """Password-protected local admin app for Threads research."""
 
-import html as html_module
 import hmac
+import html as html_module
 import json
 import secrets
 import time
@@ -9,7 +9,7 @@ from urllib.parse import urlsplit
 
 import httpx
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from .config import Settings
 from .research import ResearchError, mine_pain_points

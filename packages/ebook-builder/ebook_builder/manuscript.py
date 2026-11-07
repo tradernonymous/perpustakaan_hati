@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 from markdown_it import MarkdownIt
 
@@ -32,12 +32,16 @@ FENCE_MARKERS = {
     "backmatter": "back-matter",
 }
 
+# Markdown heading levels that mean something specific to the typesetter.
+CHAPTER_LEVEL = 1
+SECTION_LEVEL = 2
+
 
 class ManuscriptError(ValueError):
     """The manuscript is not something we can typeset."""
 
 
-class BlockKind(str, Enum):
+class BlockKind(StrEnum):
     COVER = "cover"
     TITLE_PAGE = "title-page"
     CHAPTER_OPENER = "chapter-opener"
@@ -186,10 +190,10 @@ def parse_markdown(source: str) -> Manuscript:
             flush()
             level = len(stripped) - len(stripped.lstrip("#"))
             heading = stripped[level:].strip()
-            if level == 1:
+            if level == CHAPTER_LEVEL:
                 pending = None
                 blocks.append(Block(kind=BlockKind.CHAPTER_OPENER, title=heading))
-            elif level == 2:
+            elif level == SECTION_LEVEL:
                 mode = ""
                 pending = None
                 if WORKSHEET_SECTION.search(heading):
@@ -197,17 +201,16 @@ def parse_markdown(source: str) -> Manuscript:
                 elif SCRIPT_SECTION.search(heading):
                     mode = "script"
                 blocks.append(Block(kind=BlockKind.BODY, text=_render(f"## {heading}")))
+            elif mode == "worksheet":
+                pending = Block(kind=BlockKind.WORKSHEET, title=heading)
+                blocks.append(pending)
+            elif mode == "script":
+                column = "want" if WANT_COLUMN.search(heading) else "how" if HOW_COLUMN.search(heading) else "other"
+                pending = Block(kind=BlockKind.SCRIPT_ROW, title=heading, meta={"column": column})
+                blocks.append(pending)
             else:
-                if mode == "worksheet":
-                    pending = Block(kind=BlockKind.WORKSHEET, title=heading)
-                    blocks.append(pending)
-                elif mode == "script":
-                    column = "want" if WANT_COLUMN.search(heading) else "how" if HOW_COLUMN.search(heading) else "other"
-                    pending = Block(kind=BlockKind.SCRIPT_ROW, title=heading, meta={"column": column})
-                    blocks.append(pending)
-                else:
-                    pending = None
-                    blocks.append(Block(kind=BlockKind.BODY, text=_render(f"### {heading}")))
+                pending = None
+                blocks.append(Block(kind=BlockKind.BODY, text=_render(f"### {heading}")))
             index += 1
             continue
 

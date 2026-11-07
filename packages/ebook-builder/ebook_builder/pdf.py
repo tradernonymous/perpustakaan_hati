@@ -29,6 +29,8 @@ def render_pdf(
     html_output: Path | None = None,
 ) -> Path:
     """Write the manuscript to a PDF at ``output``."""
+    # Imported here, not at module level: WeasyPrint pulls in a large native
+    # stack, and the parser and typesetter must stay importable without it.
     try:
         from weasyprint import HTML
     except ImportError:  # pragma: no cover - dependency is declared
