@@ -18,7 +18,7 @@ export function SiteHeader({ base = "" }: { base?: string }) {
     <header className="sticky top-0 z-header border-b border-forest-edge bg-forest-night/90 backdrop-blur">
       <div className="mx-auto flex max-w-grid items-center justify-between gap-4 px-5 py-2">
         <a href={`${base}#atas`} className="flex min-h-tap items-center gap-3 font-display text-lg text-gold-light">
-          <BrandMark size={34} className="h-9 w-9 shrink-0" />
+          <BrandMark size={48} className="h-12 w-12 shrink-0" />
           <span>Perpustakaan Hati</span>
         </a>
 

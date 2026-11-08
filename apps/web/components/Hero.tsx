@@ -46,9 +46,23 @@ export function Hero() {
 
       <div className="mx-auto grid max-w-grid items-center gap-10 md:grid-cols-[1.2fr_0.8fr]">
         <div className="flex flex-col items-center gap-6 text-center md:items-start md:text-left">
-          <p className="ph-kicker w-full md:w-auto animate-fade-up" style={{ animationDelay: "60ms" }}>oleh @rahimam</p>
-          <h1 className="ph-hero ph-foil-emerald ph-sheen text-5xl md:text-7xl animate-fade-up" style={{ animationDelay: "180ms" }}>Perpustakaan Hati</h1>
-          <p className="font-display text-2xl italic text-gold-light md:text-3xl animate-fade-up" style={{ animationDelay: "300ms" }}>
+          {/* The original 3D cinematic lockup (emblem + gold PERPUSTAKAAN +
+              extruded emerald HATI). Web variant built by
+              packages/brand-tools/build-web-lockup.py. */}
+          <h1 className="ph-lockup w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "120ms" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/lockup-hero.svg"
+              alt="Perpustakaan Hati"
+              width={1000}
+              height={780}
+              fetchPriority="high"
+              decoding="async"
+              className="h-auto w-full"
+            />
+          </h1>
+          <p className="ph-kicker w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "240ms" }}>oleh @rahimam</p>
+          <p className="ph-script text-2xl text-gold-light md:text-3xl animate-fade-up" style={{ animationDelay: "320ms" }}>
             Karya untuk jiwa yang pernah terluka
           </p>
           <p className="max-w-prose text-base leading-relaxed text-on-dark md:text-lg animate-fade-up" style={{ animationDelay: "420ms" }}>
