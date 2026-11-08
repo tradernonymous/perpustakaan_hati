@@ -10,6 +10,9 @@ import { Reveal } from "@/components/Reveal";
 import { Testimonials } from "@/components/Testimonials";
 import { EbookDeck } from "@/components/EbookDeck";
 import { SectionOrnament } from "@/components/SectionOrnament";
+import { StatsStrip } from "@/components/StatsStrip";
+import { Ticker } from "@/components/Ticker";
+import { LuxCursor } from "@/components/LuxCursor";
 
 import type { Metadata } from "next";
 
@@ -21,7 +24,7 @@ function Section({ id, title, intro, tone = "night", children }: {
   return (
     <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-forest-soft" : "bg-forest-night"} scroll-mt-14 px-5 py-14 md:py-20`}>
       <div className="mx-auto mb-8 max-w-reading text-center">
-        <h2 className="ph-title text-3xl text-gold-light md:text-4xl">{title}</h2>
+        <h2 className="ph-title ph-ink-in text-3xl text-gold-light md:text-4xl">{title}</h2>
         <SectionOrnament className="mt-4" />
         {intro && <p className="mt-3 text-on-dark-muted">{intro}</p>}
       </div>
@@ -37,6 +40,8 @@ export default function Home() {
       <SiteHeader />
       <main id="utama">
       <Hero />
+      <StatsStrip />
+      <Ticker />
       <Section id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
         <HowItWorks />
       </Section>
@@ -58,6 +63,7 @@ export default function Home() {
       </main>
       <SafetyFooter />
       <StickyCta />
+      <LuxCursor />
     </>
   );
 }

@@ -9,12 +9,12 @@ import { useCallback, useEffect, useRef } from "react";
  * the hero page as well as mobile first optimization".
  */
 const GLYPHS = [
-  { char: "❖", x: 8, y: 18, size: 34, delay: "0s" },
-  { char: "✦", x: 82, y: 14, size: 28, delay: "0.8s" },
-  { char: "◆", x: 90, y: 55, size: 22, delay: "1.4s" },
-  { char: "❀", x: 4, y: 68, size: 26, delay: "0.4s" },
-  { char: "✧", x: 70, y: 82, size: 24, delay: "1.9s" },
-  { char: "❖", x: 28, y: 88, size: 20, delay: "2.3s" },
+  { char: "❖", x: 8, y: 18, size: 34, delay: "0s" , depth: 1.3 },
+  { char: "✦", x: 82, y: 14, size: 28, delay: "0.8s" , depth: 0.6 },
+  { char: "◆", x: 90, y: 55, size: 22, delay: "1.4s" , depth: 0.9 },
+  { char: "❀", x: 4, y: 68, size: 26, delay: "0.4s" , depth: 1.1 },
+  { char: "✧", x: 70, y: 82, size: 24, delay: "1.9s" , depth: 0.5 },
+  { char: "❖", x: 28, y: 88, size: 20, delay: "2.3s" , depth: 1.4 },
 ];
 
 export function HeroGlyphs() {
@@ -41,7 +41,7 @@ export function HeroGlyphs() {
         <span
           key={i}
           className="ph-glyph"
-          style={{ left: `${g.x}%`, top: `${g.y}%`, fontSize: g.size, animationDelay: g.delay }}
+          style={{ left: `${g.x}%`, top: `${g.y}%`, fontSize: g.size, animationDelay: g.delay, "--depth": g.depth } as React.CSSProperties}
         >
           {g.char}
         </span>

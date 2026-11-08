@@ -40,7 +40,7 @@ export function BrandMark({ size = 48, className = "" }: Props) {
         className="ph-mark-orbit"
       />
       {/* emblem is 600x420: fit 90 wide, centred, nudged up for optical balance */}
-      <image href="/brand/emblem-book-heart.svg" x="5" y="17" width="90" height="63" preserveAspectRatio="xMidYMid meet" />
+      <image href="/brand/animated/emblem-book-heart.svg" x="5" y="17" width="90" height="63" preserveAspectRatio="xMidYMid meet" />
       <circle cx="84" cy="22" r="2" fill="#f2b85c" className="ph-mark-twinkle" style={{ animationDelay: "0.4s" }} />
       <circle cx="14" cy="34" r="1.6" fill="#7db895" className="ph-mark-twinkle" style={{ animationDelay: "1.6s" }} />
       <circle cx="78" cy="84" r="1.5" fill="#e9cea2" className="ph-mark-twinkle" style={{ animationDelay: "2.4s" }} />

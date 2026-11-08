@@ -1,5 +1,6 @@
 import { HeroBook } from "@/components/HeroBook";
 import { HeroGlyphs } from "@/components/HeroGlyphs";
+import { LogoStage } from "@/components/LogoStage";
 import { ReadingProgress } from "@/components/ReadingProgress";
 
 const CHIPS = ["Percuma untuk bermula", "Bahasa Melayu", "Sesuai dibaca di telefon"];
@@ -49,10 +50,12 @@ export function Hero() {
           {/* The original 3D cinematic lockup (emblem + gold PERPUSTAKAAN +
               extruded emerald HATI). Web variant built by
               packages/brand-tools/build-web-lockup.py. */}
-          <h1 className="ph-lockup w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "120ms" }}>
+          <div className="w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "120ms" }}>
+          <LogoStage>
+          <h1 className="ph-lockup">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/brand/lockup-hero.svg"
+              src="/brand/animated/lockup-hero.svg"
               alt="Perpustakaan Hati"
               width={1000}
               height={780}
@@ -61,6 +64,8 @@ export function Hero() {
               className="h-auto w-full"
             />
           </h1>
+          </LogoStage>
+          </div>
           <p className="ph-kicker w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "240ms" }}>oleh @rahimam</p>
           <p className="ph-script text-2xl text-gold-light md:text-3xl animate-fade-up" style={{ animationDelay: "320ms" }}>
             Karya untuk jiwa yang pernah terluka

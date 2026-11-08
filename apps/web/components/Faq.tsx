@@ -9,7 +9,7 @@ export function Faq() {
   return (
     <div className="mx-auto flex max-w-reading flex-col gap-3">
       {FAQS.map((f) => (
-        <details key={f.q} className="ph-card group p-4">
+        <details key={f.q} className="ph-lux ph-card group p-4">
           <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between gap-4 font-display text-lg text-gold-light">
             {f.q}
             <span aria-hidden="true" className="text-green-400 transition-transform group-open:rotate-45">+</span>
