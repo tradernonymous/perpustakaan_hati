@@ -65,14 +65,16 @@ export function EbookDeck() {
                   aria-roledescription="slide"
                   aria-label={`${i + 1} of ${TIERS.length}`}
                   data-active={i === index}
-                  className="ph-coverflow-card absolute inset-0 overflow-hidden rounded bg-forest-raised"
+                  className={`ph-coverflow-card absolute inset-0 rounded bg-forest-raised ${i === index ? "ph-beam" : "overflow-hidden"}`}
                   style={{
                     transform: `translateX(${i * 100}%) scale(${scale}) rotateY(${ry}deg) translateZ(${z}px)`,
                     opacity,
-                    transition: "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease-out",
+                    filter: dist ? `blur(${(dist * 1.5).toFixed(1)}px)` : "none",
+                    transition: "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease-out, filter 400ms ease-out",
                   }}
                 >
-                  <ProductCover name={t.name} src={t.cover} seal={t.seal} className="h-full w-full rounded-none border-0" />
+                  <span className="ph-spine" aria-hidden="true" />
+                  <ProductCover name={t.name} src={t.cover} seal={t.seal.replace("/brand/", "/brand/animated/")} className="h-full w-full rounded-none border-0" />
                   <span className="ph-ribbon absolute left-1/2 top-4 -translate-x-1/2 whitespace-nowrap text-sm">{t.price}</span>
                   <a
                     href={t.id === "poket" ? "#percuma" : `/beli/${t.id}`}

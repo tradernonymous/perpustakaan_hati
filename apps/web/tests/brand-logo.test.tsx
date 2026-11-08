@@ -17,7 +17,7 @@ const publicBrand = (f: string) => readFileSync(path.join(__dirname, "../public/
 describe("original 3D lockup in the hero", () => {
   it("the h1 is the sanctioned cinematic lockup, named for screen readers", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<h1[^>]*>.*src="\/brand\/lockup-hero.svg".*<\/h1>/s);
+    expect(html).toMatch(/<h1[^>]*>.*src="\/brand\/animated\/lockup-hero.svg".*<\/h1>/s);
     expect(html).toContain('alt="Perpustakaan Hati"');
   });
   it("keeps the byline and tagline as real text below the mark", () => {
@@ -38,19 +38,19 @@ describe("original 3D lockup in the hero", () => {
 describe("original book-heart emblem", () => {
   it("BrandMark wraps the real emblem in the animated glow, orbit and twinkle", () => {
     const html = renderToStaticMarkup(<BrandMark size={48} />);
-    expect(html).toContain("/brand/emblem-book-heart.svg");
+    expect(html).toContain("/brand/animated/emblem-book-heart.svg");
     expect(html).toContain("ph-mark-glow");
     expect(html).toContain("ph-mark-orbit");
   });
   it("header shows the emblem at 48px, the brand minimum for its detail", () => {
     const html = renderToStaticMarkup(<SiteHeader />);
-    expect(html).toContain("/brand/emblem-book-heart.svg");
+    expect(html).toContain("/brand/animated/emblem-book-heart.svg");
     expect(html).toContain('width="48"');
   });
   it("the 3D book cover carries the emblem and the Edisi Poket seal", () => {
     const html = renderToStaticMarkup(<HeroBook name="Edisi Poket" />);
-    expect(html).toContain("/brand/emblem-book-heart.svg");
-    expect(html).toContain("/brand/seal-edisi-poket.svg");
+    expect(html).toContain("/brand/animated/emblem-book-heart.svg");
+    expect(html).toContain("/brand/animated/seal-edisi-poket.svg");
   });
   it("footer signs off with the emblem", () => {
     expect(renderToStaticMarkup(<SafetyFooter />)).toContain("/brand/emblem-book-heart.svg");
@@ -69,7 +69,7 @@ describe("design-system cover, seals and ribbon on the editions", () => {
   it("every deck slide shows its tier seal and a ribbon with the edition name", () => {
     const html = renderToStaticMarkup(<EbookDeck />);
     for (const f of ["seal-edisi-poket.svg", "seal-edisi-membangun.svg", "seal-teman-hidup.svg"]) {
-      expect(html).toContain(`/brand/${f}`);
+      expect(html).toContain(`/brand/animated/${f}`);
     }
     expect(html.match(/ph-ribbon/g)?.length).toBeGreaterThanOrEqual(3);
   });

@@ -25,7 +25,7 @@ export function ProductCover({ name, src, seal, className = "" }: Props) {
       <span className="ph-caps text-[0.6rem] text-gold-light">Perpustakaan Hati</span>
       <span className="font-display text-2xl leading-tight text-cream">{name}</span>
       {seal && (
-        <svg viewBox="0 0 600 600" className="h-16 w-16" aria-hidden="true" focusable="false">
+        <svg viewBox="0 0 600 600" className="ph-coin h-24 w-24" aria-hidden="true" focusable="false">
           <image href={seal} width="600" height="600" />
         </svg>
       )}

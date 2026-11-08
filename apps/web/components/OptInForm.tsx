@@ -42,7 +42,7 @@ export function OptInForm() {
     "min-h-tap w-full rounded border border-forest-edge bg-forest-soft px-3 text-base text-on-dark placeholder:text-on-dark-muted focus:outline-none focus:ring-2 focus:ring-green-400";
 
   return (
-    <form onSubmit={onSubmit} className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8" noValidate={false}>
+    <form onSubmit={onSubmit} className="ph-beam ph-lux ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8" noValidate={false}>
       <div className="flex flex-col gap-1">
         <label htmlFor="optin-email" className="text-sm font-semibold text-gold-light">E-mel</label>
         <input id="optin-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="nama@contoh.com" className={field} />

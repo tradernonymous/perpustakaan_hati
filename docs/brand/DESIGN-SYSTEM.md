@@ -50,7 +50,7 @@ Claude Code also keeps this in `~/.claude/doop-design-systems.md` (entry 5), so 
 "make a Doop frame with the Perpustakaan Hati design system".
 
 ## Changing the system
-1. Edit tokens or build scripts. Rebuild: `build-fonts.py`, `build-logos.py`, then `build-web-lockup.py` (derives the website hero lockup `apps/web/public/brand/lockup-hero.svg` from `lockup-cinematic.svg`). Copy `docs/brand/design-tokens.css` to `apps/web/styles/design-tokens.css` unchanged (a web test checks they match).
+1. Edit tokens or build scripts. Rebuild: `build-fonts.py`, `build-logos.py`, then `build-web-lockup.py` (derives the website hero lockup `apps/web/public/brand/lockup-hero.svg` from `lockup-cinematic.svg`), then `build-animated-logos.py` (animated copies of the emblem, hero lockup and three seals in `apps/web/public/brand/animated/`: the heart draws on, the ruby line traces, HATI lifts out of its extrusion, seal rings turn; CSS inside the SVG, ends on the original artwork, off under reduced motion). `test_animated_logos.py` fails if these are stale. Copy `docs/brand/design-tokens.css` to `apps/web/styles/design-tokens.css` unchanged (a web test checks they match).
 2. Run `check-contrast.py` and the pytest suite. Everything must pass.
 3. Bump the version here and in `design-tokens.css`.
 4. Re-save the Doop guideline from `doop-guideline.md`.
@@ -62,3 +62,22 @@ uv run --no-project python packages/brand-tools/check-contrast.py
 uv run --no-project --with fonttools --with brotli --with pytest pytest packages/brand-tools/tests -q
 uv run --no-project python packages/brand-tools/check-lock.py
 ```
+
+## Motion layer v2 (2026-11-08)
+Logo motion and page motion, all CSS (no animation library). Classes live in
+`design-tokens.css`; every one has a static fallback and stops under
+`prefers-reduced-motion`.
+
+| Class / file | What it does | Origin |
+|---|---|---|
+| `public/brand/animated/*.svg` | heart draws on, ruby traces, glint twinkles; lockup HATI lifts out of its 14px slab + one sheen; seal rings turn | brand (stroke paths in `build-logos.py`) |
+| `.ph-logo-stage` | pointer 3D tilt + counter-shadow + lantern spotlight for the hero lockup | brand |
+| `.ph-coin` | tier seals sway as 3D coins (seals stay >= 96px) | brand |
+| `.ph-beam` | gold light circling a card edge (`@property` angle) | website_sam `.holo-btn` |
+| `.ph-lux` + `LuxCursor` | one page-wide cursor spotlight + light sweep on cards | website_sam `.lux` |
+| `.ph-spine` | gilt spine on coverflow covers; side covers blur | website_sam `.deck-spine` |
+| `.ph-ticker` | masked marquee, pauses on hover/focus | website_sam `.ticker` |
+| `StatsStrip` | count-up numerals (server renders the final number) | website_sam `AnimatedNumber` |
+| `.ph-sticky-cta` | mobile CTA steps aside while the opt-in form is visible | website_sam `StickyBuyBar` |
+| `.ph-page-in` | chapters tip up like pages on scroll | website_sam `reader-page-in` |
+| `.ph-ink-in` | Fraunces `wght` 400 -> 520 "ink in" on scroll (variable axis; subsets keep `wght` live, `SOFT 40 / WONK 1` pinned) | brand fonts |
