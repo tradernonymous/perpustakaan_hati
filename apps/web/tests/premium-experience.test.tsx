@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { HeroBook } from "@/components/HeroBook";
+import { HeroGlyphs } from "@/components/HeroGlyphs";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { TiltCard } from "@/components/TiltCard";
 import { EbookDeck } from "@/components/EbookDeck";
@@ -59,5 +60,23 @@ describe("premium interactive experience", () => {
     expect(html).toContain("ph-progress");
     expect(html).toContain("Kemajuan bacaan");
     expect(html).toContain("aria-label");
+  });
+
+  it("hero has movable glyphs that drift with pointer hover", () => {
+    const html = renderToStaticMarkup(<HeroGlyphs />);
+    expect(html).toContain("ph-glyphs");
+    expect(html).toContain("ph-glyph");
+    expect(html).toContain('aria-hidden="true"');
+  });
+
+  it("hero embeds the glyph field behind the book", () => {
+    const html = renderToStaticMarkup(<Hero />);
+    expect(html).toContain("ph-glyphs");
+  });
+
+  it("hero is mobile-first: stacked actions and scaled book on small screens", () => {
+    const html = renderToStaticMarkup(<Hero />);
+    expect(html).toContain("min-h-cta-mobile");
+    expect(html).toContain("grid");
   });
 });

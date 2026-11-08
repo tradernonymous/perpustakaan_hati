@@ -1,4 +1,5 @@
 import { HeroBook } from "@/components/HeroBook";
+import { HeroGlyphs } from "@/components/HeroGlyphs";
 import { ReadingProgress } from "@/components/ReadingProgress";
 
 const CHIPS = ["Percuma untuk bermula", "Bahasa Melayu", "Sesuai dibaca di telefon"];
@@ -40,6 +41,7 @@ export function Hero() {
           />
         ))}
       </svg>
+      <HeroGlyphs />
       <ReadingProgress />
 
       <div className="mx-auto grid max-w-grid items-center gap-10 md:grid-cols-[1.2fr_0.8fr]">
