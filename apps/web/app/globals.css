@@ -9,7 +9,7 @@
 
 @layer base {
   html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-  body { @apply bg-forest-night font-body text-base leading-[1.65] text-on-dark antialiased; }
+  body { @apply bg-daylight font-body text-base leading-[1.65] text-ink-grove antialiased; }
   :focus-visible { outline: 2px solid var(--green-400, #7db895); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }

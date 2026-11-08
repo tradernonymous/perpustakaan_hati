@@ -11,6 +11,7 @@ import { useState } from "react";
  */
 export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
   const [page, setPage] = useState(0);
+  const [open, setOpen] = useState(false);
   const pages = [
     { title: "Kad Refleksi", text: "Namakan satu red flag dan satu green flag tanpa menghukum diri." },
     { title: "7 Hari Reset", text: "Satu langkah kecil hari ini. Baca 60 saat, kemudian tulis satu ayat." },
@@ -34,16 +35,19 @@ export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
           <p className="ph-book-serial">Baca · Renung · Pulih</p>
           <div className="ph-book-sheen" aria-hidden="true" />
         </div>
-        <div className="ph-book-open" key={page} aria-live="polite">
+        <div className="ph-book-open" key={page} data-open={open} aria-hidden={!open} aria-live="polite">
           <p className="ph-book-page-no">Muka surat {page + 1} / {pages.length}</p>
           <h3>{active.title}</h3>
           <p>{active.text}</p>
         </div>
       </div>
       <div className="ph-book-controls">
-        <button type="button" onClick={() => setPage((v) => (v + pages.length - 1) % pages.length)} aria-label="Muka surat sebelumnya">‹</button>
-        <button type="button" onClick={() => setPage((v) => (v + 1) % pages.length)} aria-label="Buka muka surat seterusnya">Buka muka surat seterusnya</button>
-        <button type="button" onClick={() => setPage((v) => (v + 1) % pages.length)} aria-label="Muka surat seterusnya">›</button>
+        <button type="button" onClick={() => { setOpen(true); setPage((v) => (v + pages.length - 1) % pages.length); }} aria-label="Muka surat sebelumnya">‹</button>
+        <button type="button" onClick={() => { setOpen(true); setPage((v) => (v + 1) % pages.length); }} aria-label="Buka muka surat seterusnya">Buka muka surat seterusnya</button>
+        <button type="button" onClick={() => { setOpen(true); setPage((v) => (v + 1) % pages.length); }} aria-label="Muka surat seterusnya">›</button>
+        {open && (
+          <button type="button" onClick={() => setOpen(false)} aria-label="Kembali ke kulit buku">Kulit buku</button>
+        )}
       </div>
     </div>
   );

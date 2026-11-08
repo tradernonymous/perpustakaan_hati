@@ -15,8 +15,8 @@ export function HowItWorks() {
               {s.no}
             </span>
             <div>
-              <h3 className="font-display text-xl text-gold-light">{s.title}</h3>
-              <p className="mt-1 text-sm text-on-dark">{s.text}</p>
+              <h3 className="font-display text-xl text-green-900">{s.title}</h3>
+              <p className="mt-1 text-sm text-ink-grove">{s.text}</p>
             </div>
           </TiltCard>
         </li>

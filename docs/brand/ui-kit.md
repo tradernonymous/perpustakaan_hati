@@ -8,7 +8,7 @@ Phase 1 deliverable covering three output surfaces from one token source
 ### Layout
 - Mobile-first, single column, max content width `--content-reading: 640px` for reading, `--content-grid: 1200px` for landing grids, `--content-chat: 760px` for Teman Hati.
 - Warmer share: green 50 / gold 40 / ruby + cream 10. Green still leads; gold warmth rises.
-- Base ground: `forest-night`. Section alternation: `forest-night` → `forest-soft` → `cream` (final CTA band on cream for contrast break).
+- Base ground: `daylight` (`<body class="ph-daylight">`). Section alternation: `daylight` → `sage` → `daylight`; the final CTA band closes on `sage`. Book covers, seals and posters stay on `.ph-stage` (`forest-night`) because they are objects, not page grounds. AJE surfaces use `.aje-surface` (black + gold) and never mix with the green system in one band.
 - Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `forest-night` label.
 
 ### Components
@@ -17,14 +17,14 @@ Phase 1 deliverable covering three output surfaces from one token source
 | Button primary | bg `green-cta` gradient `#3f9167→#5b9b7d`, text `ink`, radius 2px, `shadow-depth-1`, uppercase Inter 12px tracking 0.14em |
 | Button secondary | 1px `gold` border, text `gold-light`, bg transparent |
 | Button tier-select | 1px tier-colour border, tier-colour label, `gold` fill on selected |
-| Card | bg `forest-raised`, 1px `border-gold` (`rgb(201 168 106 / 0.18)`), radius 4px, `shadow-depth-1` on hover → `shadow-depth-2` |
+| Card | bg `daylight-raised`, 1px `daylight-edge`, radius 8px, `shadow-depth-1` on hover → `shadow-depth-2` (dark-stage cards keep `forest-raised` + gold hairline) |
 | Featured card | bg `forest-soft`, `shadow-depth-2`, top 1px `green-700` highlight rule |
 | Tier card | left 3px tier-colour rule, title `gold-light` Fraunces, price `cream`, tier shape (circle / hexagon / arch) beside the badge |
 | Chapter preview | bg `cream`, text `ink`, serif body for the reading sample |
 | Trust badge | 1px `gold-deep` border, `gold` text, 11px uppercase |
-| Input | bg `forest-soft`, 1px `forest-edge`, focus 2px `green-400` ring, error 1px `burgundy-light` |
+| Input | bg `daylight-soft`, 1px `daylight-edge`, focus 2px `green-700` ring, error 1px `burgundy-light` |
 | Healing progress | green-to-gold gradient track, travelling glow, text percentage always visible |
-| Footer | bg `forest-soft`, top 1px `gold-deep` rule, `text-muted-on-dark` |
+| Footer | bg `sage`, top 1px `gold-ink-soft` rule, `muted-grove` text |
 
 ### Typography in web
 - H1 `Fraunces` 32–40px, `gold-light`, line-height 1.15

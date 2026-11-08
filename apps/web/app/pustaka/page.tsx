@@ -14,7 +14,7 @@ export default async function Pustaka({ searchParams }: { searchParams: Promise<
   if (!lib) {
     return (
       <PageShell title="Pustaka Saya" intro="Muat turun semula buku yang sudah kamu beli. Kami hantar pautan selamat ke e-mel kamu.">
-        {t && <p className="mb-6 text-center text-burgundy-light">Pautan sudah tamat atau tidak sah. Minta yang baharu di bawah.</p>}
+        {t && <p className="mb-6 text-center text-burgundy">Pautan sudah tamat atau tidak sah. Minta yang baharu di bawah.</p>}
         <LibraryLogin />
       </PageShell>
     );
@@ -27,13 +27,13 @@ export default async function Pustaka({ searchParams }: { searchParams: Promise<
         <ul className="mx-auto flex max-w-reading flex-col gap-3">
           {lib.items.map((i) => (
             <li key={i.name} className="ph-card flex flex-wrap items-center justify-between gap-3 p-4">
-              <span className="font-display text-xl text-gold-light">{i.name}</span>
+              <span className="font-display text-xl text-green-900">{i.name}</span>
               <a href={i.url} className="ph-cta min-h-tap">Muat turun PDF</a>
             </li>
           ))}
         </ul>
       )}
-      <p className="mx-auto mt-6 max-w-reading text-center text-sm text-on-dark-muted">Setiap salinan ditandakan dengan nama pembeli. Mohon jangan kongsi.</p>
+      <p className="mx-auto mt-6 max-w-reading text-center text-sm text-muted-grove">Setiap salinan ditandakan dengan nama pembeli. Mohon jangan kongsi.</p>
     </PageShell>
   );
 }

@@ -1,7 +1,7 @@
 import { HeroBook } from "@/components/HeroBook";
 import { HeroGlyphs } from "@/components/HeroGlyphs";
-import { LogoStage } from "@/components/LogoStage";
 import { ReadingProgress } from "@/components/ReadingProgress";
+import { SectionOrnament } from "@/components/SectionOrnament";
 
 const CHIPS = ["Percuma untuk bermula", "Bahasa Melayu", "Sesuai dibaca di telefon"];
 
@@ -11,66 +11,32 @@ const LESSONS = [
   { title: "7 Hari Reset", text: "Tujuh langkah kecil, satu ayat setiap hari." },
 ];
 
-const EMBERS = [
-  { cx: 140, cy: 220, r: 3, delay: "0s" },
-  { cx: 320, cy: 140, r: 2, delay: "1.2s" },
-  { cx: 520, cy: 300, r: 2.6, delay: "2.4s" },
-  { cx: 760, cy: 110, r: 2, delay: "0.8s" },
-  { cx: 980, cy: 260, r: 3.2, delay: "3.1s" },
-  { cx: 1120, cy: 180, r: 1.8, delay: "1.7s" },
-];
-
+/**
+ * Daylight Grove hero (Design System 3.2). The page ground is warm ivory, so
+ * the extruded emerald lockup (built for the forest stage) gives way to a
+ * typeset lockup: gilt small caps over an emerald Fraunces hero word, with the
+ * book itself still dark — it is an object, not a background.
+ */
 export function Hero() {
   return (
-    <section id="atas" className="ph-stage relative overflow-hidden px-5 pb-16 pt-12 md:pb-24 md:pt-20">
-      <svg
-        className="ph-ember pointer-events-none absolute inset-0 h-full w-full"
-        viewBox="0 0 1200 800"
-        preserveAspectRatio="xMidYMid slice"
-        aria-hidden="true"
-        focusable="false"
-      >
-        {EMBERS.map((e, i) => (
-          <circle
-            key={i}
-            cx={e.cx}
-            cy={e.cy}
-            r={e.r}
-            fill="#f2b85c"
-            className="ph-ember"
-            style={i % 2 === 0 ? { animationDelay: e.delay } : undefined}
-          />
-        ))}
-      </svg>
+    <section id="atas" className="ph-day-stage relative overflow-hidden px-5 pb-16 pt-12 md:pb-24 md:pt-20">
       <HeroGlyphs />
       <ReadingProgress />
 
-      <div className="mx-auto grid max-w-grid items-center gap-10 md:grid-cols-[1.2fr_0.8fr]">
+      <div className="mx-auto grid max-w-grid items-center gap-10 md:grid-cols-[1.15fr_0.85fr]">
         <div className="flex flex-col items-center gap-6 text-center md:items-start md:text-left">
-          {/* The original 3D cinematic lockup (emblem + gold PERPUSTAKAAN +
-              extruded emerald HATI). Web variant built by
-              packages/brand-tools/build-web-lockup.py. */}
-          <div className="w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "120ms" }}>
-          <LogoStage>
-          <h1 className="ph-lockup">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/animated/lockup-hero.svg"
-              alt="Perpustakaan Hati"
-              width={1000}
-              height={780}
-              fetchPriority="high"
-              decoding="async"
-              className="h-auto w-full"
-            />
-          </h1>
-          </LogoStage>
+          <div className="w-full max-w-[560px] animate-fade-up" style={{ animationDelay: "120ms" }}>
+            <h1 className="font-display text-green-900">
+              <span className="ph-caps block text-[clamp(1.4rem,1rem+1.5vw,2.15rem)] text-gold-ink">Perpustakaan</span>
+              <span className="ph-hero mt-1 block text-[clamp(3.9rem,2.4rem+6.6vw,7rem)] leading-[0.94]">HATI</span>
+            </h1>
+            <SectionOrnament className="mt-5 md:mx-0" />
           </div>
-          <p className="ph-kicker w-full max-w-[520px] animate-fade-up" style={{ animationDelay: "240ms" }}>oleh @rahimam</p>
-          <p className="ph-script text-2xl text-gold-light md:text-3xl animate-fade-up" style={{ animationDelay: "320ms" }}>
+          <p className="ph-kicker w-full max-w-[420px] animate-fade-up" style={{ animationDelay: "240ms" }}>oleh @rahimam</p>
+          <p className="ph-script text-2xl text-green-800 md:text-3xl animate-fade-up" style={{ animationDelay: "320ms" }}>
             Karya untuk jiwa yang pernah terluka
           </p>
-          <p className="max-w-prose text-base leading-relaxed text-on-dark md:text-lg animate-fade-up" style={{ animationDelay: "420ms" }}>
+          <p className="max-w-prose text-base leading-relaxed text-ink-grove md:text-lg animate-fade-up" style={{ animationDelay: "420ms" }}>
             Tulisan yang memulihkan, dalam Bahasa Melayu yang dekat di hati. Mulakan dengan satu buku
             kecil yang boleh dibaca sementara menunggu bas atau train.
           </p>
@@ -84,7 +50,7 @@ export function Hero() {
           </div>
           <ul className="flex flex-wrap justify-center gap-2 md:justify-start animate-fade-up" style={{ animationDelay: "660ms" }} aria-label="Kelebihan">
             {CHIPS.map((c) => (
-              <li key={c} className="rounded-pill border border-forest-edge bg-forest-raised px-3 py-1 text-xs text-green-300">
+              <li key={c} className="rounded-pill border border-daylight-edge bg-daylight-raised px-3 py-1 text-xs text-green-800">
                 {c}
               </li>
             ))}
@@ -99,8 +65,8 @@ export function Hero() {
       <ul className="mx-auto mt-12 grid max-w-grid gap-4 sm:grid-cols-3 animate-fade-up" style={{ animationDelay: "720ms" }} aria-label="Cara belajar">
         {LESSONS.map((l) => (
           <li key={l.title} className="ph-glass p-4">
-            <p className="font-display text-lg text-gold-light">{l.title}</p>
-            <p className="mt-1 text-sm text-on-dark">{l.text}</p>
+            <p className="font-display text-lg text-green-900">{l.title}</p>
+            <p className="mt-1 text-sm text-ink-grove">{l.text}</p>
           </li>
         ))}
       </ul>

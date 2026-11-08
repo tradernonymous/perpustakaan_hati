@@ -18,23 +18,23 @@ export default async function DemoBayar({ searchParams }: { searchParams: Promis
   return (
     <PageShell title="Mod demo" intro="Tiada wang sebenar akan diambil.">
       <div className="mx-auto flex max-w-reading flex-col gap-5">
-        <div className="rounded border border-gold-deep bg-forest-raised p-4 text-center" role="status">
-          <p className="font-display text-xl text-gold-light">Mod demo, tiada wang sebenar</p>
-          <p className="mt-1 text-sm text-on-dark-muted">
+        <div className="rounded border border-gold-deep bg-daylight-raised p-4 text-center" role="status">
+          <p className="font-display text-xl text-green-900">Mod demo, tiada wang sebenar</p>
+          <p className="mt-1 text-sm text-muted-grove">
             Halaman ini hanya untuk menguji aliran beli, hantar dan muat turun. Tiada kad, FPX atau DuitNow akan digunakan.
           </p>
         </div>
 
         <div className="ph-card flex flex-col gap-3 p-6">
-          <h2 className="font-display text-2xl text-gold-light">Pesanan {order.id.slice(0, 8)}</h2>
-          <ul className="flex flex-col gap-1 text-sm text-on-dark">
+          <h2 className="font-display text-2xl text-green-900">Pesanan {order.id.slice(0, 8)}</h2>
+          <ul className="flex flex-col gap-1 text-sm text-ink-grove">
             {order.items.map((p) => (
               <li key={p}>{PRODUCTS[p].name}</li>
             ))}
           </ul>
           <p className="font-display text-3xl text-cream">{formatRM(order.amountSen)}</p>
           <DemoPayButton orderId={order.id} />
-          <p className="text-xs text-on-dark-muted">Pautan muat turun akan dihantar ke e-mel {order.email} (dan WhatsApp jika diisi), seperti dalam aliran sebenar.</p>
+          <p className="text-xs text-muted-grove">Pautan muat turun akan dihantar ke e-mel {order.email} (dan WhatsApp jika diisi), seperti dalam aliran sebenar.</p>
         </div>
       </div>
     </PageShell>

@@ -26,14 +26,14 @@ export function OrderStatus({ orderId }: { orderId: string }) {
     <div className="ph-card mx-auto flex max-w-reading flex-col gap-3 p-6 text-center" aria-live="polite">
       {status === "paid" && (
         <>
-          <p className="font-display text-2xl text-gold-light">Pembayaran diterima. Terima kasih.</p>
+          <p className="font-display text-2xl text-green-900">Pembayaran diterima. Terima kasih.</p>
           <p>Pautan muat turun sudah dihantar ke e-mel kamu (dan WhatsApp jika diisi). Semak juga folder spam.</p>
           <a href="/pustaka" className="btn-ghost mx-auto min-h-tap">Buka Pustaka Saya</a>
         </>
       )}
       {status === "pending" && (
         <>
-          <p className="font-display text-2xl text-gold-light">Menunggu pengesahan bank...</p>
+          <p className="font-display text-2xl text-green-900">Menunggu pengesahan bank...</p>
           <p>Biasanya dalam beberapa saat. Jangan tutup halaman ini.</p>
         </>
       )}

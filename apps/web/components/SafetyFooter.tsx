@@ -2,9 +2,9 @@ import { NAV } from "@/src/content";
 
 export function SafetyFooter({ base = "" }: { base?: string }) {
   return (
-    <footer className="bg-forest-soft px-5 py-10 pb-28 text-sm text-on-dark md:pb-10">
+    <footer className="bg-sage px-5 py-10 pb-28 text-sm text-ink-grove md:pb-10">
       <div className="mx-auto flex max-w-reading flex-col gap-4">
-        <p className="font-display text-lg text-gold-light">Jika kamu sedang dalam kesusahan</p>
+        <p className="font-display text-lg text-green-900">Jika kamu sedang dalam kesusahan</p>
         <p>
           Buku dan bahan di sini ialah pendidikan dan renungan diri, bukan pengganti bantuan
           profesional. Jika kamu perlu bercakap dengan seseorang sekarang, hubungi{" "}
@@ -16,15 +16,15 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
         </p>
         <nav aria-label="Pautan kaki" className="flex flex-wrap gap-x-4">
           {NAV.map((n) => (
-            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center text-green-300 underline-offset-4 hover:underline">{n.label}</a>
+            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center text-green-800 underline-offset-4 hover:underline">{n.label}</a>
           ))}
-          <a href="/pustaka" className="flex min-h-tap items-center text-green-300 underline-offset-4 hover:underline">Pustaka saya</a>
+          <a href="/pustaka" className="flex min-h-tap items-center text-green-800 underline-offset-4 hover:underline">Pustaka saya</a>
         </nav>
-        <div className="mt-2 flex items-center gap-4 border-t border-forest-edge pt-6">
+        <div className="mt-2 flex items-center gap-4 border-t border-daylight-edge pt-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/emblem-book-heart.svg" alt="" width={72} height={50} loading="lazy" className="h-[50px] w-[72px] shrink-0" />
-          <p className="text-on-dark-muted">
-            <span className="ph-caps block text-xs text-gold-light">Perpustakaan Hati</span>
+          <p className="text-muted-grove">
+            <span className="ph-caps block text-xs text-green-900">Perpustakaan Hati</span>
             oleh @rahimam
           </p>
         </div>

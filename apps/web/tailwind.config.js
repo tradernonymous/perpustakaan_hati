@@ -26,6 +26,14 @@ const brandColors = {
   terracotta: { DEFAULT: '#da725b', soft: '#e69677' },
   // text on dark grounds (design-tokens.css --text-on-dark / --text-muted-on-dark)
   'on-dark': { DEFAULT: '#e6e2da', muted: '#a49c8d' },
+  // Design System 3.2 "Daylight Grove" — light page layer
+  daylight: { DEFAULT: '#f7f4ea', raised: '#fffdf6', soft: '#eef2e8', edge: '#d2c4a8' },
+  sage: '#e9f0e6',
+  'ink-grove': '#12251b',
+  'muted-grove': '#4f5f53',
+  'gold-ink': { DEFAULT: '#7a5a22', soft: '#96742f' },
+  // AJE branch — black + gold only, never mixed into Perpustakaan Hati
+  aje: { black: '#0a0a0a', raised: '#151515', gold: '#c9a86a', light: '#e9cea2', deep: '#8a6224', cream: '#fdfee6' },
   cream: '#fdfee6',
   paper: '#f4efe6',
   linen: '#eae2d4',

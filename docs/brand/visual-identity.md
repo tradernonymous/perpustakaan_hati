@@ -544,3 +544,39 @@ Share moves to green 50 / gold 40 / ruby + cream 10 for a warmer storefront feel
 **Teman Hati companion.** First-class surface. Uses WebGL particles (42 particles, `--particle-count`), tilt (`--tilt-perspective: 1200px`, `--tilt-max: 6deg`), glass (`--glass-bg`, `--glass-blur: 18px`), and lantern glow. Assistant bubbles use `--companion-bubble-assistant` with a gold hairline; user bubbles use the green gradient. Reading and checkout never use WebGL. Every WebGL surface needs a static-image fallback and zero motion under `prefers-reduced-motion: reduce`.
 
 **Layout and state.** `--content-reading: 640px`, `--content-grid: 1200px`, `--content-chat: 760px`, `--tap-min: 44px`, `--tap-cta-mobile: 56px`, `--z-sticky: 30` through `--z-toast: 70`, `--focus-ring` and `--focus-ring-light`.
+
+### Daylight Grove extension (Design System 3.2, 2026-11-08)
+
+The storefront moved from the night stage to a warm ivory reading room. Green
+still leads, gold became a finer detail, and the dark "Gilded Grove" stage is
+now kept for objects (covers, seals, posters) rather than page grounds.
+
+| Role | Token | Value | Use |
+| --- | --- | --- | --- |
+| page ground | `--daylight` | `#f7f4ea` | the default web canvas |
+| raised card | `--daylight-raised` | `#fffdf6` | cards, panels, inputs |
+| alternating band | `--sage` | `#e9f0e6` | every second section |
+| hairline | `--daylight-edge` | `#d2c4a8` | 1px warm borders |
+| primary text | `--ink-grove` | `#12251b` | headings and body |
+| muted text | `--muted-grove` | `#4f5f53` | subcopy, labels |
+| gold text | `--gold-ink` | `#7a5a22` | small caps, links, numerals |
+| gold detail | `--gold-ink-soft` | `#96742f` | ornaments and rules |
+
+Measured pairs (from `check-contrast.py`): `ink-grove` on `daylight` 14.61:1
+(AAA), `muted-grove` on `daylight` 6.17:1 (AA), `gold-ink` on `daylight`
+5.76:1 (AA), `gold-ink` on `sage` 5.45:1 (AA), `green-800` on `daylight`
+7.39:1 (AAA), `green-900` on `sage` 10.47:1 (AAA), `daylight-edge` on
+`daylight` 1.56:1 (hairline, non-text).
+
+Application is scope-based, not per-component: `<body class="ph-daylight">`
+remaps the semantic tokens (`--surface-*`, `--text-*`, `--card-v3-*`,
+`--glass-*`). The same page can hold `.ph-stage` covers and posters, which keep
+the untouched forest palette — that is why the base primitives were not
+renamed. Never place light-theme gold text on the dark stage, and never place
+`--gold-light` on ivory.
+
+**AJE branch.** Armazas Jaya Enterprise runs black and gold only, with its own
+turtle mark: `aje-turtle-emerald.svg` (green) and `aje-turtle-noir.svg` (gold
+on black). Tokens are `--aje-*`, classes `.aje-surface`, `.aje-kicker`,
+`.aje-card`, `.aje-cta`, `.aje-seal-ring`. The two branches never mix in one
+band; the full rule set and company facts live in [`aje.md`](./aje.md).

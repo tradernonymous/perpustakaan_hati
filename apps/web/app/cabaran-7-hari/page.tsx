@@ -10,9 +10,9 @@ export default function Page() {
       <ol className="mx-auto flex max-w-reading flex-col gap-3">
         {CABARAN_DAYS.map((d) => (
           <li key={d.day} className="ph-card p-4">
-            <p className="font-display text-gold-light">Hari {d.day}</p>
-            <p className="text-on-dark">{d.prompt}</p>
-            <p className="mt-1 text-sm text-on-dark-muted">{d.action}</p>
+            <p className="font-display text-green-900">Hari {d.day}</p>
+            <p className="text-ink-grove">{d.prompt}</p>
+            <p className="mt-1 text-sm text-muted-grove">{d.action}</p>
           </li>
         ))}
       </ol>
