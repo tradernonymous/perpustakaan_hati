@@ -409,15 +409,6 @@
   --tilt-perspective: 1200px;
   --particle-count: 42;
   --parallax-shift: 12px;
-
-  /* ---- Ember atmosphere (web redesign) -------------------------------
-     Warm "lantern" glow for the animated hero ember field + brand mark.
-     Decorative only; never body text. */
-  --ember: #f2b85c;
-  --glow-ember:
-    radial-gradient(50% 40% at 50% 40%, rgb(242 184 92 / 0.26), transparent 70%);
-  --dur-ember: 9s;      /* ember field drift */
-  --ease-ember: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -676,3 +667,240 @@
 @media (prefers-reduced-motion: reduce) {
   .ph-glass, .ph-tilt { backdrop-filter: none; -webkit-backdrop-filter: none; }
 }
+
+/* =======================================================================
+   Premium experience layer — shared by web, PDF cover and poster templates.
+   3D book, coverflow, tilt cards, journey rail and progress. All motion
+   honours prefers-reduced-motion; print keeps flat fallbacks.
+   ======================================================================= */
+
+.ph-section-warm { position: relative; }
+.ph-section-warm::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(201 168 106 / 0.5), transparent);
+  pointer-events: none;
+}
+
+.ph-journey { position: relative; }
+.ph-journey::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; top: 1.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(157 225 193 / 0.35), transparent);
+  pointer-events: none;
+}
+@media (max-width: 767px) { .ph-journey::before { display: none; } }
+
+.ph-progress {
+  position: relative;
+  height: 0.375rem;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--chart-track);
+}
+.ph-progress > span:first-child {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--green-700), var(--green-400), var(--lantern));
+  transition: width var(--dur-base) var(--ease-out);
+}
+.ph-progress-label {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-light);
+}
+
+.ph-tilt-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --tilt-glow-x: 50%;
+  --tilt-glow-y: 50%;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: perspective(var(--tilt-perspective)) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.ph-tilt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--tilt-glow-x) var(--tilt-glow-y), rgb(200 233 134 / 0.14), transparent 55%);
+  pointer-events: none;
+}
+.ph-tilt-card:focus-visible { outline: 2px solid var(--green-400); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .ph-tilt-card { transform: none; transition: none; } }
+
+/* 3D book — unit shared by web hero, ebook cover and poster mockups. */
+.ph-book-scene { position: relative; perspective: 1500px; }
+.ph-book-shadow {
+  position: absolute;
+  left: 12%; right: 12%; bottom: -1.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(0 0 0 / 0.55), transparent);
+  filter: blur(6px);
+}
+.ph-book-3d {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  transform-style: preserve-3d;
+  transform: rotateY(-18deg) rotateX(4deg);
+  animation: ph-book-float 7s ease-in-out infinite;
+}
+.ph-book-spine {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 26px;
+  transform: rotateY(-90deg) translateZ(13px);
+  background: linear-gradient(180deg, var(--green-800), var(--green-950));
+}
+.ph-book-pages {
+  position: absolute;
+  right: 0; top: 3px; bottom: 3px;
+  width: 22px;
+  transform: rotateY(90deg) translateZ(11px);
+  background: repeating-linear-gradient(180deg, var(--paper) 0 2px, var(--linen) 2px 3px);
+}
+.ph-book-cover {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  border-radius: 4px 10px 10px 4px;
+  background:
+    radial-gradient(120% 90% at 50% 20%, rgb(242 184 92 / 0.16), transparent 60%),
+    linear-gradient(160deg, var(--green-900), var(--forest-night) 70%);
+  border: 1px solid rgb(201 168 106 / 0.35);
+  box-shadow: inset 4px 0 12px rgb(0 0 0 / 0.45), 0 30px 60px rgb(0 0 0 / 0.5);
+  transform: translateZ(26px);
+  overflow: hidden;
+  text-align: center;
+}
+.ph-book-emblem { filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.5)); }
+.ph-book-kicker { font-size: 0.65rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--green-300); }
+.ph-book-title { font-family: var(--font-display); font-size: 1.9rem; line-height: 1.05; color: var(--cream); }
+.ph-book-subtitle { font-family: var(--font-script); font-style: italic; color: var(--gold-light); }
+.ph-book-serial { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted-on-dark); }
+.ph-book-sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgb(255 255 255 / 0.22) 48%, transparent 62%);
+  background-size: 250% 100%;
+  animation: ph-book-sheen 5.5s cubic-bezier(0.65, 0, 0.35, 1) 1.2s infinite;
+  pointer-events: none;
+}
+.ph-book-open {
+  position: absolute;
+  inset: 8% 6%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  border-radius: 2px 8px 8px 2px;
+  background: linear-gradient(100deg, var(--linen), var(--paper) 55%, var(--gold-light));
+  color: var(--ink);
+  transform: translateZ(10px);
+  animation: ph-book-page 420ms var(--ease-out) both;
+}
+.ph-book-page-no { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sepia); }
+.ph-book-open h3 { font-family: var(--font-display); font-size: 1.35rem; color: var(--green-900); }
+.ph-book-open p:last-child { font-family: var(--font-reading); font-size: 1rem; line-height: 1.6; }
+.ph-book-controls { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.4rem; flex-wrap: wrap; }
+.ph-book-controls button {
+  min-height: 44px;
+  padding: 0.55rem 0.95rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--forest-edge);
+  background: rgb(13 33 23 / 0.85);
+  color: var(--gold-light);
+  cursor: pointer;
+}
+.ph-book-controls button:hover { border-color: rgb(201 168 106 / 0.6); }
+.ph-book-controls button:focus-visible { outline: 2px solid var(--green-400); outline-offset: 2px; }
+@keyframes ph-book-float {
+  0%, 100% { transform: rotateY(-18deg) rotateX(4deg) translateY(0); }
+  50% { transform: rotateY(-12deg) rotateX(2deg) translateY(-8px); }
+}
+@keyframes ph-book-sheen {
+  0% { background-position: 130% 0; }
+  55%, 100% { background-position: -130% 0; }
+}
+@keyframes ph-book-page {
+  from { opacity: 0; transform: translateZ(10px) rotateY(8deg); }
+  to { opacity: 1; transform: translateZ(10px) rotateY(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-book-3d, .ph-book-sheen, .ph-book-open { animation: none; }
+}
+
+/* Movable glyphs — decorative hero field that drifts toward the pointer
+   and floats gently on its own. Pointer-events none; never text. */
+.ph-glyphs {
+  --glyph-x: 0px;
+  --glyph-y: 0px;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ph-glyph {
+  position: absolute;
+  color: rgb(201 168 106 / 0.55);
+  text-shadow: 0 0 18px rgb(242 184 92 / 0.35);
+  transform: translate(calc(var(--glyph-x) * 0.6), calc(var(--glyph-y) * 0.6));
+  animation: ph-glyph-float 9s ease-in-out infinite;
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+@media (hover: hover) {
+  .ph-glyphs:hover .ph-glyph { color: rgb(233 206 162 / 0.85); }
+}
+@keyframes ph-glyph-float {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-glyph { animation: none; transition: none; }
+}
+
+/* Mobile-first hero tuning — full-width 56px CTAs, scaled book, tighter type. */
+@media (max-width: 639px) {
+  .ph-book-scene { max-width: 290px; }
+  .ph-book-title { font-size: 1.5rem; }
+  .ph-glyph { opacity: 0.7; }
+}
+
+/* Coverflow — active card lifted with a specular sweep. */
+.ph-coverflow-card[data-active="true"] { box-shadow: 0 0 0 1px rgb(201 168 106 / 0.35), 0 34px 80px rgb(0 0 0 / 0.55); }
+.ph-coverflow-card[data-active="true"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 0.12) 50%, transparent 60%);
+  pointer-events: none;
+}
+
+  /* ---- Ember atmosphere (web redesign) -------------------------------
+     Warm "lantern" glow for the animated hero ember field + brand mark.
+     Decorative only; never body text. */
+  --ember: #f2b85c;
+  --glow-ember:
+    radial-gradient(50% 40% at 50% 40%, rgb(242 184 92 / 0.26), transparent 70%);
+  --dur-ember: 9s;      /* ember field drift */
+  --ease-ember: cubic-bezier(0.65, 0, 0.35, 1);

@@ -1,4 +1,14 @@
+import { HeroBook } from "@/components/HeroBook";
+import { HeroGlyphs } from "@/components/HeroGlyphs";
+import { ReadingProgress } from "@/components/ReadingProgress";
+
 const CHIPS = ["Percuma untuk bermula", "Bahasa Melayu", "Sesuai dibaca di telefon"];
+
+const LESSONS = [
+  { title: "Baca 60 saat sehari", text: "Satu kad pendek untuk masa menunggu bas atau train." },
+  { title: "Kad Refleksi", text: "Namakan apa yang kamu rasa, sebelum bertindak balas." },
+  { title: "7 Hari Reset", text: "Tujuh langkah kecil, satu ayat setiap hari." },
+];
 
 const EMBERS = [
   { cx: 140, cy: 220, r: 3, delay: "0s" },
@@ -12,7 +22,6 @@ const EMBERS = [
 export function Hero() {
   return (
     <section id="atas" className="ph-stage relative overflow-hidden px-5 pb-16 pt-12 md:pb-24 md:pt-20">
-      {/* Animated ember field — drifting warm sparks behind the headline. */}
       <svg
         className="ph-ember pointer-events-none absolute inset-0 h-full w-full"
         viewBox="0 0 1200 800"
@@ -32,11 +41,13 @@ export function Hero() {
           />
         ))}
       </svg>
+      <HeroGlyphs />
+      <ReadingProgress />
 
       <div className="mx-auto grid max-w-grid items-center gap-10 md:grid-cols-[1.2fr_0.8fr]">
         <div className="flex flex-col items-center gap-6 text-center md:items-start md:text-left">
           <p className="ph-kicker w-full md:w-auto animate-fade-up" style={{ animationDelay: "60ms" }}>oleh @rahimam</p>
-          <h1 className="ph-hero ph-foil-emerald text-5xl md:text-7xl animate-fade-up" style={{ animationDelay: "180ms" }}>Perpustakaan Hati</h1>
+          <h1 className="ph-hero ph-foil-emerald ph-sheen text-5xl md:text-7xl animate-fade-up" style={{ animationDelay: "180ms" }}>Perpustakaan Hati</h1>
           <p className="font-display text-2xl italic text-gold-light md:text-3xl animate-fade-up" style={{ animationDelay: "300ms" }}>
             Karya untuk jiwa yang pernah terluka
           </p>
@@ -61,16 +72,19 @@ export function Hero() {
           </ul>
         </div>
 
-        <div className="relative mx-auto flex w-full max-w-[280px] justify-center animate-fade-up" style={{ animationDelay: "240ms" }} aria-hidden="true">
-          <div className="absolute inset-0 -z-10 bg-glow-emerald" />
-          <div className="ph-card flex aspect-[3/4] w-full flex-col items-center justify-center gap-4 border-l-[6px] border-l-green-600 p-6 shadow-depth-2">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/emblem-book-heart.svg" alt="" width={112} height={112} className="h-28 w-28" />
-            <p className="font-display text-xl text-gold-light">Edisi Poket</p>
-            <p className="text-center text-xs uppercase tracking-kicker text-on-dark-muted">15 hingga 25 muka surat</p>
-          </div>
+        <div className="animate-fade-up" style={{ animationDelay: "240ms" }}>
+          <HeroBook name="Edisi Poket" />
         </div>
       </div>
+
+      <ul className="mx-auto mt-12 grid max-w-grid gap-4 sm:grid-cols-3 animate-fade-up" style={{ animationDelay: "720ms" }} aria-label="Cara belajar">
+        {LESSONS.map((l) => (
+          <li key={l.title} className="ph-glass p-4">
+            <p className="font-display text-lg text-gold-light">{l.title}</p>
+            <p className="mt-1 text-sm text-on-dark">{l.text}</p>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

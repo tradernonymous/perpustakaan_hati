@@ -5,11 +5,11 @@ import { TIERS } from "@/src/content";
 import { ProductCover } from "./ProductCover";
 
 /**
- * 3D ebook deck — the tiers of Perpustakaan Hati as a carousel.
+ * 3D ebook deck — the tiers of Perpustakaan Hati as a coverflow carousel.
  * The free tier (Edisi Poket) rides along with the paid ones, so visitors can
- * preview the family's shape before committing. Inspired by the ebook deck
- * pattern from the reference site (CSS 3D transforms, arrow keys + touch
- * swipe + dots, aria carousel wiring).
+ * preview the family's shape before committing. The active edition is raised
+ * toward the reader; neighbours fan back and dim. Arrow keys + touch swipe
+ * + dots, with full aria carousel wiring.
  */
 export function EbookDeck() {
   const [index, setIndex] = useState(0);
@@ -41,7 +41,7 @@ export function EbookDeck() {
   const tier = TIERS[index];
 
   return (
-    <div className="mx-auto max-w-grid" role="group" aria-roledescription="carousel" aria-label="Edisi Perpustakaan Hati" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div className="ph-coverflow mx-auto max-w-grid" role="group" aria-roledescription="carousel" aria-label="Edisi Perpustakaan Hati" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       <div className="relative mx-auto max-w-[460px]">
         <div className="relative aspect-[3/4] w-full" style={{ perspective: "1400px" }}>
           <div
@@ -64,7 +64,8 @@ export function EbookDeck() {
                   role="group"
                   aria-roledescription="slide"
                   aria-label={`${i + 1} of ${TIERS.length}`}
-                  className="absolute inset-0 overflow-hidden rounded bg-forest-raised"
+                  data-active={i === index}
+                  className="ph-coverflow-card absolute inset-0 overflow-hidden rounded bg-forest-raised"
                   style={{
                     transform: `translateX(${i * 100}%) scale(${scale}) rotateY(${ry}deg) translateZ(${z}px)`,
                     opacity,

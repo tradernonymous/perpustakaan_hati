@@ -18,7 +18,7 @@ function Section({ id, title, intro, tone = "night", children }: {
   id?: string; title: string; intro?: string; tone?: "night" | "soft"; children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`${tone === "soft" ? "bg-forest-soft" : "bg-forest-night"} scroll-mt-14 px-5 py-14 md:py-20`}>
+    <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-forest-soft" : "bg-forest-night"} scroll-mt-14 px-5 py-14 md:py-20`}>
       <div className="mx-auto mb-8 max-w-reading text-center">
         <h2 className="ph-title text-3xl text-gold-light md:text-4xl">{title}</h2>
         {intro && <p className="mt-3 text-on-dark-muted">{intro}</p>}
