@@ -46,7 +46,7 @@ def _parse_sources(sources: list[dict]) -> list[dict]:
     return material
 
 
-def _extract(content: str) -> dict:
+def _extract(content: str, *, list_key: str = "insights") -> dict:
     if not isinstance(content, str):
         raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
     match = re.search(r"\{.*\}", content, re.DOTALL)
@@ -56,7 +56,7 @@ def _extract(content: str) -> dict:
         payload = json.loads(match.group(0))
     except ValueError:
         raise ResearchError("AI provider returned malformed JSON; retry the research run.") from None
-    if not isinstance(payload, dict) or not isinstance(payload.get("insights"), list):
+    if not isinstance(payload, dict) or not isinstance(payload.get(list_key), list):
         raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
     return payload
 
