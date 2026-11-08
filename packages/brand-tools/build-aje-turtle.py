@@ -55,14 +55,14 @@ CHROME_CANDIDATES = (
 )
 
 
-def geometry() -> tuple[str, float, float, int]:
+def geometry() -> tuple[str, float, float, int, float]:
     d = " ".join(PATH_FILE.read_text(encoding="utf-8").split())
     w, h = MAXX - MINX, MAXY - MINY
     scale = (CANVAS_W - 2 * PAD) / w
     height = round(h * scale + 2 * PAD)
     tx = PAD - MINX * scale
     ty = (height - h * scale) / 2 - MINY * scale
-    return d, tx, ty, height
+    return d, tx, ty, height, scale
 
 
 def ramp(start: str, end: str, steps: int) -> list[str]:
@@ -84,7 +84,7 @@ def build(
     depth: int = 16,
     step: float = 0.62,
 ) -> str:
-    d, tx, ty, height = geometry()
+    d, tx, ty, height, scale = geometry()
     face = "".join(f'<stop offset="{o}" stop-color="{c}"/>' for o, c in face_stops)
     extrusion = "".join(
         f'<use href="#turtle" fill="{c}" transform="translate({i * 0.18:.2f} {i * step:.2f})"/>'
@@ -111,7 +111,7 @@ def build(
     </filter>
     <filter id="cast" x="-20%" y="-20%" width="140%" height="150%"><feGaussianBlur stdDeviation="13"/></filter>
   </defs>
-  <g transform="translate({tx:.2f} {ty:.2f}) scale({(CANVAS_W - 2 * PAD) / (MAXX - MINX):.5f})">
+  <g transform="translate({tx:.2f} {ty:.2f}) scale({scale:.5f})">
     <g filter="url(#cast)" opacity=".5" transform="translate(7 28)"><use href="#turtle" fill="#000000"/></g>
     {extrusion}
     <g filter="url(#bevel)"><use href="#turtle" fill="url(#face)"/></g>
@@ -190,19 +190,16 @@ def export_png(browser: str, svg: Path, width: int, height: int) -> None:
 
 def main() -> None:
     browser = chrome()
+    height = geometry()[3]
     for name, spec in VARIANTS.items():
         svg_text = build(**spec)
-        primary = OUT_DIRS[0] / f"{name}.svg"
-        primary.parent.mkdir(parents=True, exist_ok=True)
-        primary.write_text(svg_text, encoding="utf-8")
-        # Web copy + the other mirror directories.
-        for out in OUT_DIRS[1:]:
+        for out in OUT_DIRS:
             out.mkdir(parents=True, exist_ok=True)
             (out / f"{name}.svg").write_text(svg_text, encoding="utf-8")
+        primary = OUT_DIRS[0] / f"{name}.svg"
         print(f"{primary.relative_to(ROOT)}  ({len(svg_text) // 1024} KB)")
         if not browser:
             continue
-        height = int(svg_text.split('height="', 1)[1].split('"', 1)[0])
         for width in SIZES:
             png_height = round(height * width / CANVAS_W)
             export_png(browser, primary, width, png_height)
