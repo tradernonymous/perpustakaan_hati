@@ -18,7 +18,7 @@ export default async function Beli({ params }: { params: Promise<{ id: string }>
   return (
     <PageShell title={`Beli ${p.name}`} intro={tier.subcopy}>
       <div className="mx-auto mb-8 max-w-reading">
-        <ProductCover name={tier.name} src={tier.cover} className="mx-auto max-w-[220px]" />
+        <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} className="mx-auto max-w-[220px]" />
       </div>
       <CheckoutForm
         product={id}

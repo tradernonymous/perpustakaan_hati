@@ -20,7 +20,14 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
           ))}
           <a href="/pustaka" className="flex min-h-tap items-center text-green-300 underline-offset-4 hover:underline">Pustaka saya</a>
         </nav>
-        <p className="text-on-dark-muted">Perpustakaan Hati oleh @rahimam</p>
+        <div className="mt-2 flex items-center gap-4 border-t border-forest-edge pt-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/emblem-book-heart.svg" alt="" width={72} height={50} loading="lazy" className="h-[50px] w-[72px] shrink-0" />
+          <p className="text-on-dark-muted">
+            <span className="ph-caps block text-xs text-gold-light">Perpustakaan Hati</span>
+            oleh @rahimam
+          </p>
+        </div>
       </div>
     </footer>
   );

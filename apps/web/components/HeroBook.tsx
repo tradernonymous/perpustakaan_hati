@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { BrandMark } from "./BrandMark";
 
 /**
  * First creation: imported by Hero and covered by premium-experience tests.
@@ -25,11 +24,14 @@ export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
         <div className="ph-book-spine" aria-hidden="true" />
         <div className="ph-book-pages" aria-hidden="true" />
         <div className="ph-book-cover">
-          <BrandMark size={92} className="ph-book-emblem" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/emblem-book-heart.svg" alt="" width={150} height={105} className="ph-book-emblem" />
           <p className="ph-book-kicker">Perpustakaan Hati</p>
           <p className="ph-book-title">{name}</p>
           <p className="ph-book-subtitle">Karya untuk jiwa yang pernah terluka</p>
           <p className="ph-book-serial">Baca · Renung · Pulih</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/seal-edisi-poket.svg" alt="" width={64} height={64} className="ph-book-seal" />
           <div className="ph-book-sheen" aria-hidden="true" />
         </div>
         <div className="ph-book-open" key={page} aria-live="polite">

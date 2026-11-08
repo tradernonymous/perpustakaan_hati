@@ -409,6 +409,15 @@
   --tilt-perspective: 1200px;
   --particle-count: 42;
   --parallax-shift: 12px;
+
+  /* ---- Ember atmosphere (web redesign) -------------------------------
+     Warm "lantern" glow for the animated hero ember field + brand mark.
+     Decorative only; never body text. */
+  --ember: #f2b85c;
+  --glow-ember:
+    radial-gradient(50% 40% at 50% 40%, rgb(242 184 92 / 0.26), transparent 70%);
+  --dur-ember: 9s;      /* ember field drift */
+  --ease-ember: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -896,11 +905,42 @@
   pointer-events: none;
 }
 
-  /* ---- Ember atmosphere (web redesign) -------------------------------
-     Warm "lantern" glow for the animated hero ember field + brand mark.
-     Decorative only; never body text. */
-  --ember: #f2b85c;
-  --glow-ember:
-    radial-gradient(50% 40% at 50% 40%, rgb(242 184 92 / 0.26), transparent 70%);
-  --dur-ember: 9s;      /* ember field drift */
-  --ease-ember: cubic-bezier(0.65, 0, 0.35, 1);
+/* =======================================================================
+   Original-mark layer (web refine, 2026-11-08) — uses the sanctioned
+   build-logos.py assets: lockup-cinematic (web variant lockup-hero.svg),
+   emblem-book-heart, tier seals. Shared with the eBook cover / poster
+   templates: .ph-cover-frame is the cover recipe as one class.
+   ======================================================================= */
+
+/* Hero lockup: the 3D lives in the SVG (bevel + 14px extrusion); CSS only
+   adds the ambient cast shadow so it sits on the stage. */
+.ph-lockup { margin: 0; line-height: 0; }
+.ph-lockup img { filter: drop-shadow(0 24px 36px rgb(0 0 0 / 0.45)); }
+
+/* Cover recipe: forest ground + lantern key glow + double gilt frame. */
+.ph-cover-frame {
+  background:
+    radial-gradient(90% 60% at 50% 28%, rgb(242 184 92 / 0.18), transparent 70%),
+    radial-gradient(80% 70% at 50% 45%, rgb(63 145 103 / 0.28), transparent 75%),
+    linear-gradient(170deg, var(--green-950), var(--forest-night) 70%);
+  box-shadow:
+    inset 0 0 0 1px var(--gold),
+    inset 0 0 0 7px var(--forest-night),
+    inset 0 0 0 8px var(--gold-deep),
+    inset 0 0 60px rgb(0 0 0 / 0.55);
+}
+
+/* 3D book: emblem scales with the cover; the tier seal is a corner sticker
+   so it never pushes the title out on a 290px phone cover. */
+.ph-book-emblem { width: 58%; height: auto; }
+.ph-book-seal {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.5));
+}
+
+/* Gilt section ornament (the lockup's flanked diamond rule). */
+.ph-ornament { filter: drop-shadow(0 1px 0 rgb(0 0 0 / 0.4)); }

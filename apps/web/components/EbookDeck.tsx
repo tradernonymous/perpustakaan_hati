@@ -72,7 +72,8 @@ export function EbookDeck() {
                     transition: "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 400ms ease-out",
                   }}
                 >
-                  <ProductCover name={t.name} src={t.cover} className="h-full w-full rounded-none border-0 bg-forest-soft" />
+                  <ProductCover name={t.name} src={t.cover} seal={t.seal} className="h-full w-full rounded-none border-0" />
+                  <span className="ph-ribbon absolute left-1/2 top-4 -translate-x-1/2 whitespace-nowrap text-sm">{t.price}</span>
                   <a
                     href={t.id === "poket" ? "#percuma" : `/beli/${t.id}`}
                     className="ph-cta absolute inset-x-0 bottom-0 my-3 inline-flex min-h-tap items-center justify-center"
@@ -85,37 +86,40 @@ export function EbookDeck() {
           </div>
         </div>
 
-        <div className="absolute inset-x-0 top-0 flex items-start justify-between px-2 pt-2">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            aria-label="Edisi sebelumnya"
-            className="ph-mark-glow rounded-pill border border-forest-edge bg-forest-raised/80 px-3 py-2 text-gold-light backdrop-blur"
-          >
-            ‹
-          </button>
-          <div className="flex gap-2" role="tablist" aria-label="Pilih edisi">
-            {TIERS.map((t, i) => (
-              <button
-                key={t.id}
-                type="button"
-                role="tab"
-                aria-selected={i === index}
-                aria-label={`Edisi ${t.name}`}
-                onClick={() => setIndex(i)}
-                className={`h-2 w-2 rounded-pill ${i === index ? "bg-green-400" : "bg-forest-edge"}`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            aria-label="Edisi seterusnya"
-            className="ph-mark-glow rounded-pill border border-forest-edge bg-forest-raised/80 px-3 py-2 text-gold-light backdrop-blur"
-          >
-            ›
-          </button>
+      </div>
+
+      <div className="mt-5 flex items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => go(-1)}
+          aria-label="Edisi sebelumnya"
+          className="flex min-h-tap min-w-tap items-center justify-center rounded-pill border border-forest-edge bg-forest-raised text-xl text-gold-light transition-colors hover:border-gold-deep"
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        <div className="flex" role="tablist" aria-label="Pilih edisi">
+          {TIERS.map((t, i) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={i === index}
+              aria-label={`Edisi ${t.name}`}
+              onClick={() => setIndex(i)}
+              className="flex min-h-tap min-w-tap items-center justify-center"
+            >
+              <span aria-hidden="true" className={`block h-2 rounded-pill transition-all duration-300 ${i === index ? "w-6 bg-green-400" : "w-2 bg-forest-edge"}`} />
+            </button>
+          ))}
         </div>
+        <button
+          type="button"
+          onClick={() => go(1)}
+          aria-label="Edisi seterusnya"
+          className="flex min-h-tap min-w-tap items-center justify-center rounded-pill border border-forest-edge bg-forest-raised text-xl text-gold-light transition-colors hover:border-gold-deep"
+        >
+          <span aria-hidden="true">›</span>
+        </button>
       </div>
 
       <div className="mt-6 text-center">

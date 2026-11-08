@@ -50,7 +50,7 @@ Claude Code also keeps this in `~/.claude/doop-design-systems.md` (entry 5), so 
 "make a Doop frame with the Perpustakaan Hati design system".
 
 ## Changing the system
-1. Edit tokens or build scripts. Rebuild: `build-fonts.py`, `build-logos.py`.
+1. Edit tokens or build scripts. Rebuild: `build-fonts.py`, `build-logos.py`, then `build-web-lockup.py` (derives the website hero lockup `apps/web/public/brand/lockup-hero.svg` from `lockup-cinematic.svg`). Copy `docs/brand/design-tokens.css` to `apps/web/styles/design-tokens.css` unchanged (a web test checks they match).
 2. Run `check-contrast.py` and the pytest suite. Everything must pass.
 3. Bump the version here and in `design-tokens.css`.
 4. Re-save the Doop guideline from `doop-guideline.md`.
