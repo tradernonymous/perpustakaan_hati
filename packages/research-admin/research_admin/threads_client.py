@@ -141,6 +141,6 @@ class ThreadsClient:
             for reply in self._collection(f"/v1.0/{post['id']}/replies", access_token, 50):
                 sources.append({**reply, "source_type": "reply", "parent_id": post["id"]})
         return {
-            "sources": sources, "posts_sampled": len(posts), "selected_posts": len(selected),
+            "sources": sources, "posts": posts, "selected_posts_data": selected, "posts_sampled": len(posts), "selected_posts": len(selected),
             "limitations": "At most 50 recent owned posts (3 pages), top 5 by likes + replies + reposts + quotes; views break ties. Up to 50 visible direct replies per selected post (3 pages). This is a sample, not all-time virality. Other users' reply-level virality is not available. Missing metrics are not proof of zero engagement.",
         }

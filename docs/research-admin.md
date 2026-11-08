@@ -5,10 +5,10 @@ Local admin backend that connects to Threads (Meta Graph API) with OAuth, sample
 ## What it collects (be honest with your audience)
 
 - Up to **50 recent owned posts** (3 API pages), fields: id, text, permalink, timestamp.
-- Engagement metrics per post (views, likes, replies, reposts, quotes) — top **5 posts by engagement** are selected.
+- Engagement metrics per post (views, likes, replies, reposts, quotes) — top **5 posts by engagement** are selected and those five post records/metrics are kept in each bounded research-run history entry.
 - Up to **50 visible direct replies** per selected post.
 - This is a **sample, not all-time virality**. Threads' API cannot see other users' reply-level engagement, so a wildly viral *comment on someone else's post* will not appear. Every research run labels these limits.
-- The sampled material is sent to the AI provider (OpenRouter) **only after you tick the consent box** on the run form.
+- The sampled material is sent to the AI provider (OpenRouter) **only after you tick the consent box** on the run form. The Threads collection/analyze run requires the server-side `OPENROUTER_API_KEY` to be configured; generating a content set requires its own separate consent.
 
 ## One-time setup (Jack only)
 
@@ -54,7 +54,16 @@ export RESEARCH_ADMIN_PASSWORD="$(secret-tool lookup service perpustakaan-hati-r
 uv run --project packages/research-admin python -m research_admin
 ```
 
-Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **connect Threads**, authorise in the same browser tab, then return and use **Run research**. A successful run displays JSON; return to `/` to view the saved insights table. Run commands from the repository root. `secret-tool` and an unlocked Secret Service keyring are required before connecting Threads.
+Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **connect Threads**, authorise in the same browser tab, then open **Research** and use **Run consented research**. The admin is an evidence-to-content workspace:
+
+1. **Overview** — recent research, source-linked evidence, current sample’s own-post performance, audience signals, drafts needing review, and a four-step workflow.
+2. **Research** — run history, searchable saved insights, original Threads source links, and checkboxes to select evidence for content generation. Running research and generating content have separate explicit AI-consent checkboxes.
+3. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”). These are not demographic profiles; each signal links to source evidence. **Export evidence CSV** at `/audiences/export.csv` for offline planning.
+4. **Content studio** — select up to 20 evidence items to generate three local drafts: a Threads post, an ebook chapter outline, and a design brief. Every draft must cite supplied saved insight IDs.
+5. **Draft library** — copy to clipboard, mark ready for use, or archive. Approval is an internal review state only: this admin does **not** schedule or publish posts.
+6. **Connections & settings** — Threads token status/expiry, what the API sample covers, OpenRouter configuration and privacy boundaries.
+
+A successful browser form run redirects back to the workspace; API clients can continue using JSON. Run commands from the repository root. `secret-tool` and an unlocked Secret Service keyring are required before connecting Threads.
 
 ## Security model
 
@@ -63,7 +72,10 @@ Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **con
 - OAuth `state` is single-use, 10-minute, browser- and session-bound (signed cookie) — a stolen state from another browser fails.
 - All `POST`s require same-origin; foreign or missing `Origin` and unexpected `Host` headers are rejected.
 - Access token: OS keyring only; SQLite keeps just the expiry. Database file is `0600` in `~/.local/state/perpustakaan-hati/research.db`.
-- AI answers are validated: quotes must appear verbatim in the sampled material and source URLs must be sampled permalinks, or the run fails loudly instead of storing invented evidence.
+- AI answers are validated: quotes must appear verbatim in the sampled material and source URLs must be sampled permalinks, or the run fails loudly instead of storing invented evidence. Generated draft IDs must refer to selected saved evidence; unknown citations are discarded and drafts without citations are rejected.
+- Research history retains bounded own-post metrics and only top-level run summaries; audience segments are qualitative keyword groupings of saved themes/quotes, not verified demographics.
+- CSV export neutralizes spreadsheet formula-leading characters. Source URLs and saved text are escaped when rendered.
+- Research and content creation are separate explicit-consent actions. No scheduler or Threads publishing route is implemented; approved drafts must be copied and published manually.
 - Errors returned to the browser never contain tokens or keys.
 
 ## API
@@ -77,6 +89,12 @@ Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **con
 | `GET /auth/status` | `{"connected", "expires_at"}` |
 | `POST /research/run` | Consent-protected research run |
 | `GET /research/insights` | Stored insights JSON |
+| `GET /research/runs` | Saved sample history, themes and the five prioritized owned-post metrics |
+| `GET /audiences` | Evidence-backed qualitative segments |
+| `GET /audiences/export.csv` | Source-linked audience evidence CSV (spreadsheet formula-safe) |
+| `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs |
+| `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`) |
+| `POST /content/drafts/{id}/status` | Mark a draft `draft`, `approved`, or `archived` |
 
 Token refresh: long-lived Threads tokens last ~60 days. When `/auth/status` says disconnected, click **connect Threads** again.
 

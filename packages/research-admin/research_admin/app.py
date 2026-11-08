@@ -1,8 +1,10 @@
 """Password-protected local admin app for Threads research."""
 
+import csv
 import hashlib
 import hmac
 import html as html_module
+import io
 import json
 import secrets
 import time
@@ -12,7 +14,10 @@ import httpx
 from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
+from .audiences import build_audiences
 from .config import Settings
+from .content import generate_drafts
+from .dashboard import DashboardData, render_dashboard
 from .research import ResearchError, mine_pain_points
 from .store import Store, StoreError, build_vault
 from .threads_client import ThreadsClient, ThreadsError
@@ -226,35 +231,31 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
     def home(request: Request):
         if not signed_in(request):
             return error(401, "Sign in first.")
+        view = request.query_params.get("view", "overview")
+        search = request.query_params.get("q", "") if view == "research" else ""
+        selection = request.query_params.get("select", "") if view in ("research", "studio") else ""
+        status = request.query_params.get("status", "") if view == "library" else ""
         token = app.state.store.get_token()
-        insights = app.state.store.list_insights()
         connected = token is not None and token.expires_at > time.time()
         expiry = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(token.expires_at)) if connected else ""
-        connection = f"connected until {expiry}" if connected else "not connected — <a href=/auth/start>connect Threads</a>"
-        def link(item):
-            escaped = html_module.escape(item["source_url"], quote=True)
-            if item["source_url"].startswith(("http://", "https://")):
-                return f"<a href='{escaped}' rel='noreferrer' target='_blank'>source</a>"
-            return f"<span title='unsafe link blocked'>{escaped}</span>"
-
-        rows = "".join(
-            f"<tr><td>{html_module.escape(i['theme'])}</td><td>{html_module.escape(i['quote'])}</td>"
-            f"<td>{link(i)}</td>"
-            f"<td>{html_module.escape(i['ebook_idea'])}</td></tr>"
-            for i in insights)
-        table = f"<table><tr><th>Theme</th><th>Quote</th><th>Source</th><th>Ebook idea</th></tr>{rows}</table>" if rows else ""
-        return HTMLResponse(f"""<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Threads research admin</title></head><body><h1>Threads research</h1>
-<p>Connection: {connection}</p><p>Stored insights: {len(insights)}</p>
-<form method=post action=/research/run><p><label><input type=checkbox name=consent required> I understand sampled posts and public replies are sent to the configured AI provider for analysis.</label></p><p><button>Run research</button></p></form>
-<p>Sample limits: at most 50 recent owned posts (3 pages), top 5 by engagement, up to 50 visible direct replies each. This is a sample, not all-time virality.</p>
-{table}
-<form method=post action=/logout><button>Sign out</button></form></body></html>""")
+        connection = f"Connected · expires {expiry}" if connected else "Not connected"
+        insights = app.state.store.list_insights(query=search)
+        audiences = build_audiences(app.state.store.list_insights())
+        runs = app.state.store.list_research_runs()
+        drafts = app.state.store.list_drafts(status=status)
+        page = render_dashboard(DashboardData(
+            view=view, connection=connection, expiry=expiry, insights=insights, runs=runs,
+            audiences=audiences, drafts=drafts, query=search,
+            selection=selection, status_filter=status,
+            error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
+        ), logout_action="<form method=post action=/logout><button class=signout>Sign out</button></form>")
+        return HTMLResponse(page)
 
     @app.get("/auth/start")
     def auth_start(request: Request):
         if not signed_in(request):
             return error(401, "Sign in first.")
-        missing = settings.missing_threads() + ([] if settings.openrouter_api_key else ["OPENROUTER_API_KEY"])
+        missing = settings.missing_threads()
         if missing:
             return error(503, "not configured", missing=missing)
         state = secrets.token_urlsafe(24)
@@ -307,19 +308,114 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         token = app.state.store.get_token()
         if not token or token.expires_at <= time.time():
             return error(401, "reconnect")
+        if not settings.openrouter_api_key:
+            return error(503, "OPENROUTER_API_KEY is not set. Add it to the server secret store to analyze collected Threads text.")
         try:
             research = ThreadsClient(settings, app.state.http).collect_research(token.access_token)
             insights = mine_pain_points(research["sources"], settings, app.state.http)
             app.state.store.save_insights(insights)
+            run_id = app.state.store.save_research_run(
+                posts_sampled=research["posts_sampled"], selected_posts=research.get("selected_posts", 0),
+                insights=insights, limitations=research["limitations"], posts=research.get("selected_posts_data", []),
+            )
         except (ThreadsError, ResearchError, StoreError) as exc:
-            return error(502, str(exc))
-        return {"insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"]}
+            response = RedirectResponse("/?view=research&notice=" + quote(str(exc)), status_code=303) if "text/html" in request.headers.get("accept", "") else error(502, str(exc))
+            return response
+        result = {"run_id": run_id, "insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"]}
+        if "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse("/?view=research&notice=Research+run+saved", status_code=303)
+        return result
+
+    @app.get("/research/runs")
+    def research_runs(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        return {"runs": app.state.store.list_research_runs()}
 
     @app.get("/research/insights")
     def research_insights(request: Request):
         if not signed_in(request):
             return error(401, "Sign in first.")
         return {"insights": app.state.store.list_insights()}
+
+    @app.get("/audiences")
+    def audiences(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        return {"audiences": build_audiences(app.state.store.list_insights())}
+
+    @app.get("/audiences/export.csv")
+    def audiences_export(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        output = io.StringIO(newline="")
+        writer = csv.writer(output)
+        writer.writerow(("audience_segment", "evidence_count", "themes", "quote", "source_url", "ebook_idea"))
+        for audience in build_audiences(app.state.store.list_insights()):
+            for item in audience["evidence"]:
+                cells = [audience["name"], audience["evidence_count"], ", ".join(audience["themes"]), item["quote"], item["source_url"], item["ebook_idea"]]
+                writer.writerow([("'" + str(value)) if str(value).startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])
+        return Response(output.getvalue(), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": "attachment; filename=threads-audience-evidence.csv"})
+
+    @app.post("/content/generate")
+    async def content_generate(request: Request):
+        is_html = "text/html" in request.headers.get("accept", "")
+        try:
+            form = await request.form()
+            raw_ids = form.getlist("insight_ids")
+            consent = form.get("consent", "")
+        except Exception:
+            try:
+                body = await request.json()
+            except Exception:
+                body = {}
+            raw_ids = body.get("insight_ids", []) if isinstance(body, dict) else []
+            consent = body.get("consent", "") if isinstance(body, dict) else ""
+        if str(consent) != "on":
+            return error(400, "Tick the content-generation consent box before continuing.")
+        if not isinstance(raw_ids, (list, tuple)):
+            raw_ids = [raw_ids]
+        try:
+            ids = list(dict.fromkeys(int(value) for value in raw_ids))
+        except (TypeError, ValueError):
+            ids = []
+        if not ids or len(ids) > 20:
+            return error(400, "Select between 1 and 20 valid saved insights.")
+        selected = app.state.store.get_insights_by_ids(ids)
+        if len(selected) != len(ids):
+            return error(400, "One or more selected insights are no longer available.")
+        try:
+            saved = app.state.store.save_drafts(generate_drafts(selected, settings, app.state.http), ids)
+        except (ResearchError, StoreError) as exc:
+            return RedirectResponse("/?view=studio&notice=" + quote(str(exc)), status_code=303) if is_html else error(502, str(exc))
+        if is_html:
+            return RedirectResponse("/?view=library&notice=Drafts+saved+for+review", status_code=303)
+        return {"drafts": saved}
+
+    @app.post("/content/drafts/{draft_id}/status")
+    async def content_draft_status(request: Request, draft_id: int):
+        try:
+            form = await request.form()
+            status = str(form.get("status", ""))
+        except Exception:
+            try:
+                body = await request.json()
+                status = str(body.get("status", "")) if isinstance(body, dict) else ""
+            except Exception:
+                status = ""
+        if status not in ("draft", "approved", "archived"):
+            return error(400, "Status must be draft, approved, or archived.")
+        if not app.state.store.update_draft_status(draft_id, status):
+            return error(404, "Draft not found.")
+        if "text/html" in request.headers.get("accept", ""):
+            return RedirectResponse("/?view=library&notice=Draft+status+updated", status_code=303)
+        return {"id": draft_id, "status": status}
+
+    @app.get("/content/drafts")
+    def content_drafts(request: Request, status: str = ""):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        return {"drafts": app.state.store.list_drafts(status=status)}
 
     @app.get("/healthz")
     def healthz():
