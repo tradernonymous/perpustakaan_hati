@@ -9,7 +9,7 @@ import time
 from urllib.parse import quote, urlsplit
 
 import httpx
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from .config import Settings
@@ -92,11 +92,13 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     store.init_schema()
     app.state.store = store
 
-    def error(status: int, message: str, **extra) -> JSONResponse:
-        response = JSONResponse({"error": message, **extra}, status_code=status)
+    def sealed(response: Response) -> Response:
         for key, value in SAFE_RESPONSE_HEADERS.items():
             response.headers[key] = value
         return response
+
+    def error(status: int, message: str, **extra) -> Response:
+        return sealed(JSONResponse({"error": message, **extra}, status_code=status))
 
     def safe_origin(request: Request, *, mutation: bool = True) -> bool:
         host = _hostname(request.headers.get("host", ""))
@@ -133,17 +135,11 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
             if not signed_in(request):
                 # A browser that opens the service root should land on the sign-in
                 # form, not on a raw JSON 401 (the issue reported on Railway).
+                denied: Response = error(401, "Sign in first.")
                 if request.method == "GET" and _wants_html(request):
-                    denied = RedirectResponse(f"/login?next={quote(request.url.path, safe='')}", status_code=303)
-                    for key, value in SAFE_RESPONSE_HEADERS.items():
-                        denied.headers[key] = value
-                else:
-                    denied = error(401, "Sign in first.")
+                    denied = sealed(RedirectResponse(f"/login?next={quote(request.url.path, safe='')}", status_code=303))
                 return denied
-        response = await call_next(request)
-        for key, value in SAFE_RESPONSE_HEADERS.items():
-            response.headers[key] = value
-        return response
+        return sealed(await call_next(request))
 
     @app.exception_handler(httpx.HTTPError)
     async def unreachable(request, exc):
@@ -199,7 +195,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if len(recent) >= LOGIN_MAX_FAILURES:
             return error(429, "Too many failed sign-ins. Wait a few minutes and retry.")
         try:
-            data = {k: v for k, v in (await request.form()).items() if isinstance(v, str)}
+            data = parse_form(dict(await request.form()))
         except Exception:
             data = {}
         # CSRF: the double-submit token covers browsers/webviews that omit both
@@ -213,10 +209,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         next_path = _safe_next(str(data.get("next", "/")))
         if not hmac.compare_digest(str(data.get("password", "")).encode("utf-8"), settings.admin_password.encode("utf-8")):
             recent.append(now)
-            response = HTMLResponse(login_html(next_path, cookie_token or secrets.token_urlsafe(24), "Kata laluan salah. Cuba lagi."), status_code=401)
-            for key, value in SAFE_RESPONSE_HEADERS.items():
-                response.headers[key] = value
-            return response
+            return sealed(HTMLResponse(login_html(next_path, cookie_token or secrets.token_urlsafe(24), "Kata laluan salah. Cuba lagi."), status_code=401))
         login_failures.pop(client, None)
         response = RedirectResponse(next_path, status_code=303)
         response.set_cookie(SESSION_COOKIE, _issue_session(settings), httponly=True, secure=settings.secure_cookies, samesite="lax", max_age=SESSION_TTL)
