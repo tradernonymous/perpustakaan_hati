@@ -25,11 +25,11 @@ export function LibraryLogin() {
 
   return (
     <form onSubmit={onSubmit} className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8">
-      <label htmlFor="lib-email" className="text-sm font-semibold text-gold-light">E-mel yang kamu guna semasa membeli</label>
+      <label htmlFor="lib-email" className="text-sm font-semibold text-green-900">E-mel yang kamu guna semasa membeli</label>
       <input id="lib-email" name="email" type="email" required autoComplete="email" inputMode="email" placeholder="nama@contoh.com"
-        className="min-h-tap w-full rounded border border-forest-edge bg-forest-soft px-3 text-base text-on-dark placeholder:text-on-dark-muted focus:outline-none focus:ring-2 focus:ring-green-400" />
+        className="min-h-tap w-full rounded border border-daylight-edge bg-sage px-3 text-base text-ink-grove placeholder:text-muted-grove focus:outline-none focus:ring-2 focus:ring-green-700" />
       <button type="submit" disabled={busy} className="ph-cta min-h-cta-mobile items-center justify-center disabled:opacity-60">{busy ? "Menghantar..." : "Hantar pautan ke e-mel"}</button>
-      <p aria-live="polite" role="status" className={ok ? "text-green-300" : "text-burgundy-light"}>{msg}</p>
+      <p aria-live="polite" role="status" className={ok ? "text-green-800" : "text-burgundy"}>{msg}</p>
     </form>
   );
 }

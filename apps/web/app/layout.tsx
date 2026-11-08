@@ -17,13 +17,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#07140d",
+  themeColor: "#f7f4ea",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ms">
-      <body>{children}</body>
+      <body className="ph-daylight">{children}</body>
     </html>
   );
 }

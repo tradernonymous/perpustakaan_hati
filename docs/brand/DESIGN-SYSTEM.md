@@ -1,9 +1,44 @@
-# Design System 3.1 "Gilded Grove"
+# Design System 3.2 "Daylight Grove"
 
-**Status: current version as of 2026-11-08 (Warmer Grove extension).** This is the look for Perpustakaan Hati. Green still leads; warmth rises.
-Version token: `--ph-system-version: '3.1.0'` in `design-tokens.css`.
+**Status: current version as of 2026-11-08 (Daylight Grove + AJE branch).** This is the look for Perpustakaan Hati. Green still leads; the storefront now lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
+Version token: `--ph-system-version: '3.2.0'` in `design-tokens.css`.
 
-Warmer share: green 50 / gold 40 / ruby + cream 10. Charts are locked (see `visual-identity.md` and `design-tokens.css` `--chart-1` through `--chart-5`). Teman Hati companion chat is a first-class surface: `--companion-*`, `--glass-*`, `--chart-*`, `.ph-glass`, `.ph-companion`, `.ph-tilt` live in `design-tokens.css` and `ui-kit.md`.
+Share per storefront frame: **green 55 / gold 30 / cream + ruby 15**. On the dark stage (covers, posters) the share stays green 50 / gold 40 / ruby + cream 10. Charts are locked (see `visual-identity.md` and `design-tokens.css` `--chart-1` through `--chart-5`). Teman Hati companion chat is a first-class surface: `--companion-*`, `--glass-*`, `--chart-*`, `.ph-glass`, `.ph-companion`, `.ph-tilt` live in `design-tokens.css` and `ui-kit.md`.
+
+## Two branches — pick one per surface
+
+| Branch | Who | Palette | Where |
+|---|---|---|---|
+| **Perpustakaan Hati** | Rahimam's personal, editorial brand | ivory / sage / emerald / gilt | the storefront, eBooks, Threads, counselling |
+| **AJE** | Armazas Jaya Enterprise, Rahimam's company | black / gold only | AJE signage, posters, shop material, stationery |
+
+The branch is decided by **who the work is for**, never by taste. If a layout needs both, split it into separate bands — never put AJE gold on a Perpustakaan Hati green card, or the AJE turtle on a healing surface. AJE's full rules, facts and files: [`aje.md`](./aje.md).
+
+## The Daylight layer (3.2)
+
+| Token | Value | Role |
+|---|---|---|
+| `daylight` | `#f7f4ea` | default light page ground (warm ivory) |
+| `daylight-raised` | `#fffdf6` | light cards and inputs |
+| `sage` | `#e9f0e6` | alternating light section |
+| `daylight-edge` | `#d2c4a8` | warm hairline on light |
+| `ink-grove` | `#12251b` | primary text on light |
+| `muted-grove` | `#4f5f53` | muted text on light |
+| `gold-ink` | `#7a5a22` | gold **text / small caps** on light (AA) |
+| `gold-ink-soft` | `#96742f` | gold hairline / ornament on light |
+
+The theme is applied with `<body class="ph-daylight">`. That scope remaps
+semantic and component tokens only (`--surface-*`, `--text-*`, `--card-v3-*`,
+`--glass-*`), so `.ph-card`, `.ph-glass` and `.ph-kicker` adapt without
+per-component hacks, while `--forest-night` stays intact for the book covers
+and `.ph-stage` posters inside the same page.
+
+**Rules on light**
+1. Green leads: headings and CTAs are green (`green-900` / `green-800` / the `.ph-cta` gradient). Gold is a detail, never the main fill.
+2. Never set `gold-light` or `gold` as text on ivory. Use `gold-ink`; `gold-light` is for the dark stage only.
+3. The cinematic lockup (`lockup-hero.svg`) is for dark grounds. On light, typeset the wordmark: gilt small caps `PERPUSTAKAAN` over a deep-green Fraunces `HATI` — see `components/Hero.tsx`.
+4. Book covers, seals and the 3D book stay dark: they are objects, not backgrounds.
+5. One green CTA per view; gold hairlines and the `.ph-ornament` mark section breaks.
 
 ## What "current" means
 - The system is **not locked**. You can change the palette, type, assets, layout
@@ -25,6 +60,9 @@ Warmer share: green 50 / gold 40 / ruby + cream 10. Charts are locked (see `visu
 | `monogram-stamp.svg` | below 48px, favicon, avatar |
 | `seal-edisi-poket.svg` / `seal-edisi-membangun.svg` / `seal-teman-hidup.svg` | tier seals |
 | `cop-stamp.svg` | buyer watermark on paid pages |
+| `aje/aje-turtle-emerald.svg` | AJE branch: turtle mark, green colourway |
+| `aje/aje-turtle-noir.svg` | AJE branch: turtle mark, gold-on-black colourway |
+| `aje/*.png` | matching transparent PNG exports (1024 / 512 / 256) |
 
 Retired 2.0 ink-and-gold assets (do not bring them back): `wordmark-primary.svg`,
 `wordmark-3d.svg`, `design-system-sheet.html`, `design-system-2-1.png`.
@@ -38,6 +76,7 @@ Retired 2.0 ink-and-gold assets (do not bring them back): `wordmark-primary.svg`
 | Threads quote card templates | `content/threads/templates/quote-card.html` (A), `quote-card-b.html` (B, centred), `quote-card-c.html` (C, gilded ribbon) |
 | Tier names (fixed) | `docs/brand/tier-naming.md` |
 | Doop / AI-designer guideline | `docs/brand/doop-guideline.md` |
+| AJE branch (facts, assets, rules) | `docs/brand/aje.md` |
 | Showcase sheet | `docs/brand/templates/design-system-3-sheet.html` and `preview/design-system-3-1.png` |
 
 ## Using it in Doop (via the MCP)

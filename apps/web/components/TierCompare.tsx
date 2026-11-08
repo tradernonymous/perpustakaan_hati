@@ -22,11 +22,11 @@ export function TierCompare() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={t.seal} alt="" width={72} height={72} className="h-[72px] w-[72px]" />
             <ProductCover name={t.name} src={t.cover} className="max-w-[180px]" />
-            <h3 className="font-display text-2xl text-gold-light">{t.name}</h3>
-            <p className="font-display text-3xl text-cream">{t.price}</p>
-            <p className="text-sm text-on-dark-muted">{t.size}</p>
-            <p className="font-display italic text-on-dark">{t.subcopy}</p>
-            <ul className="flex flex-1 flex-col gap-2 text-sm text-on-dark">
+            <h3 className="font-display text-2xl text-green-900">{t.name}</h3>
+            <p className="font-display text-3xl text-green-900">{t.price}</p>
+            <p className="text-sm text-muted-grove">{t.size}</p>
+            <p className="font-display italic text-ink-grove">{t.subcopy}</p>
+            <ul className="flex flex-1 flex-col gap-2 text-sm text-ink-grove">
               {t.includes.map((i) => (
                 <li key={i} className="flex gap-2"><span aria-hidden="true" className="text-gold">◆</span><span>{i}</span></li>
               ))}

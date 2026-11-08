@@ -306,3 +306,59 @@ def test_launcher_uses_railway_port_and_public_host(tmp_path):
     assert server.call_args.kwargs["host"] == "0.0.0.0"
     assert server.call_args.kwargs["port"] == 8080
     assert server.call_args.kwargs["proxy_headers"] is False
+
+
+def test_browser_visiting_root_is_redirected_to_sign_in(tmp_path):
+    anon = make_app(tmp_path)
+    response = anon.get("/", headers={"Accept": "text/html,application/xhtml+xml"}, follow_redirects=False)
+    assert response.status_code == 303
+    assert response.headers["location"].startswith("/login?next=")
+    assert response.headers["location"].endswith("%2F")
+
+
+def test_login_page_offers_a_csrf_token_and_styled_form(tmp_path):
+    anon = make_app(tmp_path)
+    response = anon.get("/login", follow_redirects=False)
+    assert response.status_code == 200
+    assert 'name=csrf value="' in response.text
+    assert 'name=next' in response.text
+    assert "login_csrf" in response.headers["set-cookie"]
+    assert 'autocomplete=current-password' in response.text
+
+
+def test_csrf_login_works_without_an_origin_header(tmp_path):
+    c = make_app(tmp_path)
+    page = c.get("/login", follow_redirects=False)
+    token = re.search(r'name=csrf value="([^"]+)"', page.text).group(1)
+    c.headers.pop("origin")
+    response = c.post("/login", data={"password": "admin-pass", "csrf": token, "next": "/"}, follow_redirects=False)
+    assert response.status_code == 303
+    assert response.headers["location"] == "/"
+    assert c.get("/auth/status").status_code == 200
+
+
+def test_login_without_origin_or_token_is_rejected(tmp_path):
+    c = make_app(tmp_path)
+    c.headers.pop("origin")
+    assert c.post("/login", data={"password": "admin-pass"}, follow_redirects=False).status_code == 403
+
+
+def test_session_survives_a_restart_with_the_same_password(tmp_path):
+    first = make_app(tmp_path)
+    login(first)
+    cookie = first.cookies.get("research_session")
+    assert cookie and cookie.count(".") == 2
+    # a brand-new process/app object, same settings: no in-memory session store
+    again = make_app(tmp_path)
+    again.cookies.set("research_session", cookie)
+    assert again.get("/auth/status").status_code == 200
+
+
+def test_wrong_password_rerenders_the_form_with_an_error(tmp_path):
+    c = make_app(tmp_path)
+    page = c.get("/login", follow_redirects=False)
+    token = re.search(r'name=csrf value="([^"]+)"', page.text).group(1)
+    response = c.post("/login", data={"password": "nope", "csrf": token}, follow_redirects=False)
+    assert response.status_code == 401
+    assert "Kata laluan salah" in response.text
+    assert response.headers["cache-control"] == "no-store"

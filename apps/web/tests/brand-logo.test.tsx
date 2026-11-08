@@ -14,11 +14,11 @@ import Home from "@/app/page";
 
 const publicBrand = (f: string) => readFileSync(path.join(__dirname, "../public/brand", f), "utf8");
 
-describe("original 3D lockup in the hero", () => {
-  it("the h1 is the sanctioned cinematic lockup, named for screen readers", () => {
+describe("3.2 Daylight Grove hero", () => {
+  it("typesets the wordmark as live text so it holds on the ivory ground", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<h1[^>]*>.*src="\/brand\/animated\/lockup-hero.svg".*<\/h1>/s);
-    expect(html).toContain('alt="Perpustakaan Hati"');
+    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI[\s\S]*<\/h1>/);
+    expect(html).not.toContain("lockup-hero.svg");
   });
   it("keeps the byline and tagline as real text below the mark", () => {
     const html = renderToStaticMarkup(<Hero />);
@@ -26,7 +26,7 @@ describe("original 3D lockup in the hero", () => {
     expect(html).toContain("oleh @rahimam");
     expect(html).toContain("Karya untuk jiwa yang pernah terluka");
   });
-  it("the web lockup is transparent, cropped and derived from the brand asset", () => {
+  it("the cinematic lockup stays in the system for covers and posters", () => {
     const svg = publicBrand("lockup-hero.svg");
     expect(svg).not.toContain('fill="#07140d"');
     expect(svg).toContain('viewBox="300 80 1000 780"');

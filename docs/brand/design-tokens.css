@@ -164,7 +164,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.1.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.2.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -418,6 +418,194 @@
     radial-gradient(50% 40% at 50% 40%, rgb(242 184 92 / 0.26), transparent 70%);
   --dur-ember: 9s;      /* ember field drift */
   --ease-ember: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* =====================================================================
+     DESIGN SYSTEM 3.2 — "DAYLIGHT GROVE" (light layer)
+     The storefront moves onto a warm ivory ground with sage alternation.
+     Green stays the lead (headings, CTAs, markers); gold becomes the
+     luxury detail (hairlines, kickers, rules, numerals). The cinematic
+     forest stage is kept for eBook covers, seals and posters — those are
+     objects, not page grounds.
+     Measured pairs are in check-contrast.py.
+     ===================================================================== */
+  --daylight: #f7f4ea;        /* default light page ground — warm ivory */
+  --daylight-raised: #fffdf6; /* light cards */
+  --daylight-soft: #eef2e8;   /* light overlay / input */
+  --sage: #e9f0e6;            /* alternating light section */
+  --daylight-edge: #d2c4a8;   /* warm hairline on light */
+  --ink-grove: #12251b;       /* primary text on light — deep green-black */
+  --muted-grove: #4f5f53;     /* muted text on light */
+  --gold-ink: #7a5a22;        /* gold text on light — AA */
+  --gold-ink-soft: #96742f;   /* gold hairline / ornament on light */
+  --glow-daylight:
+    radial-gradient(70% 55% at 50% 0%, rgb(201 168 106 / 0.16), transparent 70%),
+    radial-gradient(60% 50% at 85% 20%, rgb(63 145 103 / 0.10), transparent 72%);
+
+  /* ---- AJE — Armazas Jaya Enterprise (Rahimam's company) --------------
+     The second, independent branch of the system. Black + gold only; it
+     never adopts the healing green. Assets: docs/brand/assets/aje/.
+     Use when the work is for AJE, never for Perpustakaan Hati. */
+  --aje-black: #0a0a0a;
+  --aje-black-raised: #151515;
+  --aje-black-soft: #1f1c17;
+  --aje-gold: #c9a86a;
+  --aje-gold-light: #e9cea2;
+  --aje-gold-deep: #8a6224;
+  --aje-cream: #fdfee6;
+  --aje-edge: rgb(201 168 106 / 0.30);
+  --aje-rule: linear-gradient(90deg, transparent, var(--aje-gold) 30%, var(--aje-gold) 70%, transparent);
+  --aje-glow:
+    radial-gradient(60% 50% at 50% 38%, rgb(201 168 106 / 0.16), transparent 70%);
+  --aje-card-bg: linear-gradient(180deg, var(--aje-black-raised), var(--aje-black));
+  --aje-shadow:
+    inset 0 1px 0 rgb(233 206 162 / 0.14),
+    0 0 0 1px rgb(201 168 106 / 0.16),
+    0 1px 1px rgb(0 0 0 / 0.5),
+    0 18px 40px -8px rgb(0 0 0 / 0.6);
+}
+
+/* =======================================================================
+   DAYLIGHT GROVE — theme scope
+   Applied on <body class="ph-daylight">. It remaps the SEMANTIC and
+   COMPONENT layers only; primitives keep their names and values, and the
+   cinematic forest stage still draws with its own tokens (covers, seals,
+   posters). That is why a book cover stays dark inside a light page.
+   ======================================================================= */
+.ph-daylight {
+  --surface-base: var(--daylight);
+  --surface-raised: var(--daylight-raised);
+  --surface-soft: var(--sage);
+  --text-primary: var(--ink-grove);
+  --text-muted: var(--muted-grove);
+  --text-accent: var(--gold-ink);
+  --text-healing: var(--green-800);
+  --border-default: var(--daylight-edge);
+  --border-faint: var(--daylight-edge);
+  --border-gilt: rgb(122 90 34 / 0.28);
+
+  --card-v3-bg: var(--daylight-raised);
+  --card-v3-border: var(--daylight-edge);
+  --card-v3-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 0 0 1px rgb(122 90 34 / 0.08),
+    0 1px 2px rgb(60 45 20 / 0.08),
+    0 14px 30px -14px rgb(60 45 20 / 0.28);
+  --card-v3-shadow-hover:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 0 0 1px rgb(122 90 34 / 0.18),
+    0 2px 3px rgb(60 45 20 / 0.08),
+    0 22px 44px -18px rgb(60 45 20 / 0.34);
+
+  /* the green CTA keeps its shape; on ivory it reads as the one green object */
+  --cta-v3-fg: var(--forest-night);
+
+  --glass-bg: rgb(255 253 246 / 0.78);
+  --glass-border: rgb(122 90 34 / 0.22);
+  --focus-ring: 0 0 0 2px var(--daylight), 0 0 0 4px var(--green-700);
+  --chart-track: var(--sage);
+  --chart-grid: rgb(18 37 27 / 0.10);
+  --chart-label: var(--muted-grove);
+}
+
+/* Daylight adaptations for the component layer. Each one exists because
+   the dark recipe would lose contrast on ivory, not to change the shape. */
+.ph-daylight .ph-card { color: var(--ink-grove); }
+.ph-daylight .ph-kicker { color: var(--gold-ink); }
+.ph-daylight .ph-kicker::before,
+.ph-daylight .ph-kicker::after { background: linear-gradient(90deg, transparent, var(--gold-ink-soft) 30%, var(--gold-ink-soft) 70%, transparent); }
+.ph-daylight .ph-foil-gold,
+.ph-daylight .ph-foil-emerald {
+  background-image: none;
+  -webkit-text-fill-color: currentColor;
+  color: var(--gold-ink);
+  filter: none;
+}
+.ph-daylight .ph-glass {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  color: var(--ink-grove);
+  box-shadow: var(--card-v3-shadow);
+}
+.ph-daylight .ph-ticker {
+  background: var(--daylight-raised);
+  border-block-color: var(--daylight-edge);
+}
+.ph-daylight .ph-ticker-row li { color: var(--green-800); }
+.ph-daylight .ph-lux::after {
+  background:
+    radial-gradient(45% 60% at var(--mx) var(--my), rgb(201 168 106 / 0.22), transparent 70%),
+    linear-gradient(115deg, transparent 40%, rgb(255 255 255 / 0.5) 50%, transparent 60%);
+}
+.ph-daylight .ph-section-warm::before {
+  background: linear-gradient(90deg, transparent, rgb(122 90 34 / 0.35), transparent);
+}
+.ph-daylight .ph-journey::before {
+  background: linear-gradient(90deg, transparent, rgb(45 121 84 / 0.35), transparent);
+}
+.ph-daylight .ph-progress { background: var(--sage); }
+.ph-daylight .ph-progress-label { color: var(--gold-ink); }
+.ph-daylight .btn-ghost { color: var(--green-800); border-color: var(--green-700); }
+.ph-daylight .btn-ghost:hover { background: var(--sage); color: var(--green-900); }
+
+/* Hero ground on light: ivory + one gold key light + a sage wash. No grain
+   and no vignette here — both read as dirt on a light page. */
+.ph-day-stage {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--daylight);
+  background-image: var(--glow-daylight);
+}
+.ph-day-stage::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-ink-soft), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ---- AJE branch classes ---------------------------------------------- */
+.aje-surface {
+  background-color: var(--aje-black);
+  background-image: var(--aje-glow);
+  color: var(--aje-cream);
+}
+.aje-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  font-family: var(--font-body);
+  font-size: var(--size-kicker);
+  letter-spacing: var(--tracking-kicker);
+  text-transform: uppercase;
+  color: var(--aje-gold-light);
+}
+.aje-kicker::before,
+.aje-kicker::after { content: ''; flex: 1 1 3em; height: 1px; background: var(--aje-rule); }
+.aje-card {
+  background: var(--aje-card-bg);
+  border: 1px solid var(--aje-edge);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--aje-shadow);
+  color: var(--aje-cream);
+}
+.aje-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.85em 1.6em;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(180deg, var(--aje-gold-light), var(--aje-gold) 55%, var(--aje-gold-deep));
+  color: var(--aje-black);
+  font: 600 1rem/1 var(--font-body);
+  box-shadow: inset 0 1px 0 rgb(255 249 228 / 0.65), 0 3px 0 #5b3f13, 0 12px 28px rgb(201 168 106 / 0.28);
+}
+.aje-cta:focus-visible { outline: 2px solid var(--aje-gold-light); outline-offset: 3px; }
+.aje-seal-ring {
+  border: 2px solid var(--aje-gold);
+  box-shadow: inset 0 0 0 4px var(--aje-black), inset 0 0 0 5px var(--aje-gold-deep), 0 18px 40px -12px rgb(0 0 0 / 0.6);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -815,18 +1003,28 @@
 }
 .ph-book-open {
   position: absolute;
-  inset: 8% 6%;
+  inset: 0;
+  z-index: 4;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 0.6rem;
-  padding: 1.25rem;
-  border-radius: 2px 8px 8px 2px;
-  background: linear-gradient(100deg, var(--linen), var(--paper) 55%, var(--gold-light));
+  padding: 1.5rem;
+  border-radius: 3px 9px 9px 3px;
+  background:
+    linear-gradient(100deg, var(--linen), var(--paper) 45%, var(--cream) 92%),
+    var(--paper);
   color: var(--ink);
-  transform: translateZ(10px);
+  box-shadow:
+    inset -10px 0 18px rgb(87 58 47 / 0.10),
+    inset 0 0 0 1px rgb(160 123 69 / 0.35),
+    0 18px 36px rgb(0 0 0 / 0.35);
+  transform: translateZ(34px);
   animation: ph-book-page 420ms var(--ease-out) both;
+  transition: opacity 240ms var(--ease-out), visibility 240ms;
 }
+.ph-book-open[data-open="false"] { opacity: 0; visibility: hidden; }
+.ph-book-open[data-open="true"] { opacity: 1; visibility: visible; }
 .ph-book-page-no { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sepia); }
 .ph-book-open h3 { font-family: var(--font-display); font-size: 1.35rem; color: var(--green-900); }
 .ph-book-open p:last-child { font-family: var(--font-reading); font-size: 1rem; line-height: 1.6; }

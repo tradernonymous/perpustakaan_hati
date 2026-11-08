@@ -12,10 +12,10 @@ export function CerminPasangan() {
   if (done) {
     return (
       <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-5">
-        <h3 className="font-display text-xl text-gold-light">Peta Hubungan kamu</h3>
+        <h3 className="font-display text-xl text-green-900">Peta Hubungan kamu</h3>
         <p>Skor: {score} / {QUESTIONS.length * 2}</p>
         <p>Verdict: {verdict === "cermin-clear" ? "Cermin jelas — teruskan perbualan yang jujur." : verdict === "warm-up" ? "Pemanasan — ada ruang untuk lebih dengar." : "Perlu perhatian lembut — cuba satu skrip hari ini."}</p>
-        <p className="text-sm text-on-dark-muted">Screenshot kad ini dan kongsi di Threads dengan #CerminPasangan</p>
+        <p className="text-sm text-muted-grove">Screenshot kad ini dan kongsi di Threads dengan #CerminPasangan</p>
       </div>
     );
   }
@@ -25,8 +25,8 @@ export function CerminPasangan() {
 
   return (
     <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-5">
-      <p className="text-sm text-gold-light">Cermin Pasangan — Soalan {answers.length + 1} / {QUESTIONS.length}</p>
-      <p className="text-on-dark">{q.text}</p>
+      <p className="text-sm text-green-900">Cermin Pasangan — Soalan {answers.length + 1} / {QUESTIONS.length}</p>
+      <p className="text-ink-grove">{q.text}</p>
       <div className="flex flex-col gap-2">
         {q.options.map((o) => (
           <button key={o.label} className="ph-cta min-h-tap justify-start" onClick={() => setAnswers([...answers, o.score])}>

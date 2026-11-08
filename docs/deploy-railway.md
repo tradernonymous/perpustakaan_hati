@@ -70,7 +70,7 @@ only if you use a custom domain or a proxy in front of Railway.
 curl -fsS https://<domain>/healthz
 ```
 
-Expected: `{"ok":true}`. Then confirm `/login` loads and a wrong password is rejected.
+Expected: `{"ok":true}`. Then open `https://<domain>/` in a browser: it must redirect (303) to `/login`, the sign-in form must render, and a correct password must return the dashboard. A JSON `{"error":"Sign in first."}` at `/` means the old build is still running.
 
 ## Security notes
 
@@ -84,6 +84,8 @@ Expected: `{"ok":true}`. Then confirm `/login` loads and a wrong password is rej
 - Do not set `RESEARCH_PUBLIC=0` on Railway: the app would bind loopback and the healthcheck would
   fail.
 - Responses are `no-store`; cookies are `HttpOnly`, `Secure`, `SameSite=Lax`.
+- The signed-in session is a stateless HMAC cookie derived from `RESEARCH_ADMIN_PASSWORD`, so a deploy no longer signs you out. Changing the password invalidates every existing session — that is the intended way to force sign-out everywhere. Changing `RESEARCH_TOKEN_KEY` is unrelated to sign-in.
+- Sign-in accepts either a same-origin `Origin` header or the double-submit `csrf` token from the form, so Safari/webviews that omit `Origin` can still sign in. Cross-site POSTs remain blocked.
 
 ## Troubleshooting
 
@@ -94,6 +96,9 @@ Expected: `{"ok":true}`. Then confirm `/login` loads and a wrong password is rej
 | `400 Threads connection failed; reconnect` | redirect URI mismatch between Meta, `THREADS_REDIRECT_URI`, and the browser URL |
 | `OS keyring unavailable` | `RESEARCH_VAULT=sqlite` was not set |
 | Research history disappears after deploy | volume not mounted at `/data`, or `RESEARCH_DB_PATH` points elsewhere |
+| Opening `/` shows raw `{"error":"Sign in first."}` JSON | build predates the 303-to-`/login` redirect; redeploy |
+| Signed out after every deploy | build predates the stateless signed session cookie; redeploy (sessions then last 8 hours and survive restarts) |
+| `403 Cross-origin or missing-origin requests are blocked` on sign-in | build predates the CSRF double-submit token; redeploy, then submit the form rather than posting manually |
 | App exits on boot with `public mode is misconfigured` | the message lists every missing item: a 12+ character password and/or an HTTPS redirect (generate a domain, or set `THREADS_REDIRECT_URI`) |
 
 ## Local use is unchanged

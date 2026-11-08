@@ -148,6 +148,22 @@ PALETTE = {
     "foil-gold-low": "#9a7638",
     "heart-ruby": "#c8343c",
     "lantern": "#f2b85c",
+    # Design System 3.2 "Daylight Grove" — the light page layer
+    "daylight": "#f7f4ea",
+    "daylight-raised": "#fffdf6",
+    "sage": "#e9f0e6",
+    "daylight-edge": "#d2c4a8",
+    "ink-grove": "#12251b",
+    "muted-grove": "#4f5f53",
+    "gold-ink": "#7a5a22",
+    "gold-ink-soft": "#96742f",
+    # AJE — Armazas Jaya Enterprise branch (black + gold)
+    "aje-black": "#0a0a0a",
+    "aje-black-raised": "#151515",
+    "aje-gold": "#c9a86a",
+    "aje-gold-light": "#e9cea2",
+    "aje-gold-deep": "#8a6224",
+    "aje-cream": "#fdfee6",
 }
 
 # (foreground, background, required ratio, human reason)
@@ -197,6 +213,21 @@ REQUIRED_PAIRS = [
     ("cream", "burgundy", 4.5, "seal badge label on burgundy"),
     ("ink", "gold", 4.5, "seal badge label on gold"),
     ("forest-night", "green-500", 4.5, "forest label on a green CTA"),
+    # ---- Design System 3.2 "Daylight Grove" ---------------------------
+    ("ink-grove", "daylight", 4.5, "body copy on the ivory page ground"),
+    ("muted-grove", "daylight", 4.5, "muted copy on the ivory page ground"),
+    ("gold-ink", "daylight", 4.5, "gold small caps / rules text on ivory"),
+    ("gold-ink", "sage", 4.5, "gold text on the alternated sage band"),
+    ("green-800", "daylight", 4.5, "green body copy on ivory"),
+    ("green-900", "sage", 4.5, "green heading on the sage band"),
+    ("ink-grove", "daylight-raised", 4.5, "card copy on a light card"),
+    ("daylight-edge", "daylight", 1.5, "warm hairline against the ground"),
+    # ---- AJE branch ----------------------------------------------------
+    ("aje-cream", "aje-black", 4.5, "AJE body copy on AJE black"),
+    ("aje-gold-light", "aje-black", 4.5, "AJE headings on AJE black"),
+    ("aje-gold", "aje-black", 3.0, "AJE gold rule / mark on AJE black (graphic)"),
+    ("aje-black", "aje-gold", 4.5, "AJE CTA label on gold"),
+    ("aje-gold-deep", "aje-cream", 4.5, "AJE gold text on AJE cream"),
 ]
 
 # tier colours must remain tellable apart without relying on hue alone

@@ -39,16 +39,16 @@ export function OptInForm() {
   }
 
   const field =
-    "min-h-tap w-full rounded border border-forest-edge bg-forest-soft px-3 text-base text-on-dark placeholder:text-on-dark-muted focus:outline-none focus:ring-2 focus:ring-green-400";
+    "min-h-tap w-full rounded border border-daylight-edge bg-sage px-3 text-base text-ink-grove placeholder:text-muted-grove focus:outline-none focus:ring-2 focus:ring-green-700";
 
   return (
     <form onSubmit={onSubmit} className="ph-beam ph-lux ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8" noValidate={false}>
       <div className="flex flex-col gap-1">
-        <label htmlFor="optin-email" className="text-sm font-semibold text-gold-light">E-mel</label>
+        <label htmlFor="optin-email" className="text-sm font-semibold text-green-900">E-mel</label>
         <input id="optin-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="nama@contoh.com" className={field} />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="optin-phone" className="text-sm font-semibold text-gold-light">Nombor WhatsApp (pilihan jika ada e-mel)</label>
+        <label htmlFor="optin-phone" className="text-sm font-semibold text-green-900">Nombor WhatsApp (pilihan jika ada e-mel)</label>
         <input id="optin-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="012-345 6789" className={field} />
       </div>
 
@@ -58,7 +58,7 @@ export function OptInForm() {
         <input id="optin-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <label className="flex min-h-tap items-start gap-3 text-sm text-on-dark">
+      <label className="flex min-h-tap items-start gap-3 text-sm text-ink-grove">
         <input type="checkbox" name="consent" required className="mt-1 h-5 w-5 accent-green-500" />
         <span>
           Saya setuju e-mel/nombor saya disimpan untuk menghantar Edisi Poket dan kemas kini
@@ -70,7 +70,7 @@ export function OptInForm() {
         {status === "submitting" ? "Menghantar..." : "Dapatkan Edisi Poket"}
       </button>
 
-      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy-light" : "text-green-300"}>
+      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy" : "text-green-800"}>
         {message}
       </p>
     </form>

@@ -1,8 +1,10 @@
-# Perpustakaan Hati — Design System 3.1 "Gilded Grove"
+# Perpustakaan Hati — Design System 3.2 "Daylight Grove"
 
 Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "Karya untuk jiwa yang pernah terluka".
-Mood: a lantern-lit private library at night. Cinematic, foil-stamped, calm. **GREEN LEADS.**
-Colour share per frame: green 50 / gold 40 / ruby + cream 10 (Warmer Grove). Green still leads. Never invent a new colour. Never use neutral black as a ground.
+Mood: a sunlit reading room with a lantern still lit in the corner. Editorial, foil-stamped, calm. **GREEN LEADS.**
+Colour share per frame: **green 55 / gold 30 / cream + ruby 15** on light surfaces; green 50 / gold 40 / ruby + cream 10 on the dark stage (covers, seals, posters). Never invent a new colour. Never use neutral black as a ground outside the AJE branch.
+
+**Surface rule (3.2).** The storefront runs on warm ivory (`--daylight`), alternating with sage (`--sage`). The cinematic forest stage is now reserved for objects: book covers, seals, posters and the 3D book. On light, gold is *detail* (`--gold-ink` for text, `--gold-ink-soft` for hairlines); green carries headings and CTAs. Never put `--gold-light` text on ivory. When a design needs the wordmark on light, typeset it — gilt small caps above a deep-green Fraunces word — instead of using the dark lockup SVG.
 Charts (locked): `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-light, `--chart-4` lantern, `--chart-5` mint-glass. Pair with label/shape. Teman Hati companion surface uses `--companion-*`, `.ph-glass`, `.ph-tilt`.
 
 ## Fonts
@@ -28,7 +30,14 @@ Weights per role: display caps 560, hero word 660, titles 520, italic script 400
  --vignette:radial-gradient(120% 90% at 50% 45%,transparent 48%,rgb(0 0 0/.72) 100%);
  --rule-flank:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);
  --font-display:'Fraunces',Georgia,serif;--font-body:'Inter',system-ui,sans-serif;--font-reading:'Source Serif 4',Georgia,serif;
+ --daylight:#f7f4ea;--daylight-raised:#fffdf6;--daylight-soft:#eef2e8;--sage:#e9f0e6;--daylight-edge:#d2c4a8;--ink-grove:#12251b;--muted-grove:#4f5f53;--gold-ink:#7a5a22;--gold-ink-soft:#96742f;
+ --aje-black:#0a0a0a;--aje-black-raised:#151515;--aje-gold:#c9a86a;--aje-gold-light:#e9cea2;--aje-gold-deep:#8a6224;--aje-cream:#fdfee6;
 }
+.ph-daylight{background:var(--daylight);color:var(--ink-grove)}
+.ph-daylight .ph-card{background:var(--daylight-raised);border:1px solid var(--daylight-edge);color:var(--ink-grove);box-shadow:0 1px 0 rgb(255 255 255/.9) inset,0 1px 3px rgb(60 45 20/.08),0 18px 40px -24px rgb(60 45 20/.35)}
+.ph-daylight .ph-kicker{color:var(--gold-ink)}
+.ph-aje{background:var(--aje-black);color:var(--aje-cream)}
+.ph-aje .ph-kicker{color:var(--aje-gold-light)}
 *{margin:0;box-sizing:border-box}
 .ph-stage{position:relative;background-color:var(--forest-night);background-image:var(--vignette),var(--glow-emerald),var(--glow-lantern)}
 .ph-foil-emerald,.ph-foil-gold{-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-family:var(--font-display)}
@@ -49,6 +58,14 @@ Weights per role: display caps 560, hero word 660, titles 520, italic script 400
 - Seal Edisi Membangun (STANDARD, gold): https://doop.design/a/DS6LWqMaav.svg
 - Seal Teman Hidup (PREMIUM, burgundy): https://doop.design/a/ZwAepEEo6Q.svg
 Seals: 96px minimum, rotate -8deg on covers, `filter:drop-shadow(0 18px 30px rgb(0 0 0/.55))`. Emblem minimum 48px wide.
+
+## AJE branch — Armazas Jaya Enterprise (black + gold)
+A separate design-system branch for Rahimam's company: **black and gold only**, no green, no ivory ground, no Perpustakaan Hati emblem. Use it when the work is for AJE (shop signage, price cards, stationery, the ONE STOP CENTRE seal). Full facts and files: `docs/brand/aje.md`.
+
+- Turtle mark (transparent, 3D): `https://web-production-0cfb9.up.railway.app/brand/aje/aje-turtle-emerald.svg` (green) and `.../aje-turtle-noir.svg` (gold on black). PNG exports sit beside them (`-1024`, `-512`, `-256`).
+- Ground `--aje-black`, gold `--aje-gold` for rules and marks, `--aje-gold-light` for headings, `--aje-cream` for body copy. Minimum mark width 48px; never recolour, skew or add a third colour; never place the turtle inside the PH green system or on ivory.
+- Seal lockup: double gold ring, "ONE STOP CENTRE" arced on top, "AJE" centred, "BELI DISINI, PASTI PUAS HATI !" arced below at 62% size.
+- Do not invent AJE claims, prices or hours. The fixed facts: (PG0543717-U), since 2016, Sat–Thu 8.30 PG–11.45 MLM, Fri 2.15 PTG–11.45 MLM, daily break 6.30–8.20 PTG.
 
 ## Tiers (fixed colours, never rename)
 | Tier | Name | Price | Colour | Subcopy |

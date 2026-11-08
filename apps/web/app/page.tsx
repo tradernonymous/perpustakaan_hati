@@ -18,15 +18,15 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-function Section({ id, title, intro, tone = "night", children }: {
-  id?: string; title: string; intro?: string; tone?: "night" | "soft"; children: React.ReactNode;
+function Section({ id, title, intro, tone = "plain", children }: {
+  id?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-forest-soft" : "bg-forest-night"} scroll-mt-14 px-5 py-14 md:py-20`}>
+    <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-sage" : "bg-daylight"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-20`}>
       <div className="mx-auto mb-8 max-w-reading text-center">
-        <h2 className="ph-title ph-ink-in text-3xl text-gold-light md:text-4xl">{title}</h2>
+        <h2 className="ph-title ph-ink-in text-3xl text-green-900 md:text-4xl">{title}</h2>
         <SectionOrnament className="mt-4" />
-        {intro && <p className="mt-3 text-on-dark-muted">{intro}</p>}
+        {intro && <p className="mt-3 text-muted-grove">{intro}</p>}
       </div>
       <Reveal>{children}</Reveal>
     </section>

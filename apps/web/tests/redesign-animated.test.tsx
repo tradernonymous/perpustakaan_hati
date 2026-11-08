@@ -36,9 +36,9 @@ describe("SiteHeader logo", () => {
 });
 
 describe("Hero motion", () => {
-  it("has an animated ember backdrop and a staggered reveal", () => {
+  it("has a drifting glyph field and a staggered reveal", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-ember");
+    expect(html).toContain("ph-glyphs");
     expect(html).toContain("animate-fade-up");
   });
 });

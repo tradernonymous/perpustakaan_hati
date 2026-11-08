@@ -65,7 +65,7 @@ export function EbookDeck() {
                   aria-roledescription="slide"
                   aria-label={`${i + 1} of ${TIERS.length}`}
                   data-active={i === index}
-                  className={`ph-coverflow-card absolute inset-0 rounded bg-forest-raised ${i === index ? "ph-beam" : "overflow-hidden"}`}
+                  className={`ph-coverflow-card absolute inset-0 rounded bg-daylight-raised ${i === index ? "ph-beam" : "overflow-hidden"}`}
                   style={{
                     transform: `translateX(${i * 100}%) scale(${scale}) rotateY(${ry}deg) translateZ(${z}px)`,
                     opacity,
@@ -95,7 +95,7 @@ export function EbookDeck() {
           type="button"
           onClick={() => go(-1)}
           aria-label="Edisi sebelumnya"
-          className="flex min-h-tap min-w-tap items-center justify-center rounded-pill border border-forest-edge bg-forest-raised text-xl text-gold-light transition-colors hover:border-gold-deep"
+          className="flex min-h-tap min-w-tap items-center justify-center rounded-pill border border-daylight-edge bg-daylight-raised text-xl text-green-900 transition-colors hover:border-gold-deep"
         >
           <span aria-hidden="true">‹</span>
         </button>
@@ -110,7 +110,7 @@ export function EbookDeck() {
               onClick={() => setIndex(i)}
               className="flex min-h-tap min-w-tap items-center justify-center"
             >
-              <span aria-hidden="true" className={`block h-2 rounded-pill transition-all duration-300 ${i === index ? "w-6 bg-green-400" : "w-2 bg-forest-edge"}`} />
+              <span aria-hidden="true" className={`block h-2 rounded-pill transition-all duration-300 ${i === index ? "w-6 bg-green-400" : "w-2 bg-daylight-edge"}`} />
             </button>
           ))}
         </div>
@@ -118,16 +118,16 @@ export function EbookDeck() {
           type="button"
           onClick={() => go(1)}
           aria-label="Edisi seterusnya"
-          className="flex min-h-tap min-w-tap items-center justify-center rounded-pill border border-forest-edge bg-forest-raised text-xl text-gold-light transition-colors hover:border-gold-deep"
+          className="flex min-h-tap min-w-tap items-center justify-center rounded-pill border border-daylight-edge bg-daylight-raised text-xl text-green-900 transition-colors hover:border-gold-deep"
         >
           <span aria-hidden="true">›</span>
         </button>
       </div>
 
       <div className="mt-6 text-center">
-        <h3 className="ph-title text-2xl text-gold-light">{tier.name}</h3>
-        <p className="mt-1 font-display text-3xl text-cream">{tier.price}</p>
-        <p className="mt-2 text-sm text-on-dark-muted">{tier.size}</p>
+        <h3 className="ph-title text-2xl text-green-900">{tier.name}</h3>
+        <p className="mt-1 font-display text-3xl text-green-900">{tier.price}</p>
+        <p className="mt-2 text-sm text-muted-grove">{tier.size}</p>
       </div>
     </div>
   );

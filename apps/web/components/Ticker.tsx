@@ -22,7 +22,7 @@ function Row({ hidden = false }: { hidden?: boolean }) {
       {ITEMS.map((t) => (
         <li key={t}>
           <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true" focusable="false">
-            <path d="M5 0l5 5-5 5-5-5z" fill="#c9a86a" />
+            <path d="M5 0l5 5-5 5-5-5z" fill="#7a5a22" />
           </svg>
           {t}
         </li>
