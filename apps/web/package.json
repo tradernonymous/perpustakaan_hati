@@ -7,9 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "astryx": "node node_modules/@astryxdesign/cli/clients/cli/bin/astryx.mjs"
   },
   "dependencies": {
+    "@astryxdesign/cli": "0.7.12",
+    "@astryxdesign/core": "0.7.12",
+    "@astryxdesign/theme-stone": "0.7.12",
+    "@stylexjs/stylex": "0.19.1",
     "better-sqlite3": "^11.5.0",
     "next": "^16.4.5",
     "pdf-lib": "^1.17.1",

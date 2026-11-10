@@ -1,7 +1,7 @@
-# Design System 3.2 "Daylight Grove"
+# Design System 3.3 "Daylight Grove"
 
-**Status: current version as of 2026-11-08 (Daylight Grove + AJE branch).** This is the look for Perpustakaan Hati. Green still leads; the storefront now lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
-Version token: `--ph-system-version: '3.2.0'` in `design-tokens.css`.
+**Status: current version as of 2026-11-11 (Daylight Grove 3.3: Astryx bridge + opt-in nightlight + AJE branch).** This is the look for Perpustakaan Hati. Green still leads; the storefront now lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
+Version token: `--ph-system-version: '3.3.0'` in `design-tokens.css`.
 
 Share per storefront frame: **green 55 / gold 30 / cream + ruby 15**. On the dark stage (covers, posters) the share stays green 50 / gold 40 / ruby + cream 10. Charts are locked (see `visual-identity.md` and `design-tokens.css` `--chart-1` through `--chart-5`). Teman Hati companion chat is a first-class surface: `--companion-*`, `--glass-*`, `--chart-*`, `.ph-glass`, `.ph-companion`, `.ph-tilt` live in `design-tokens.css` and `ui-kit.md`.
 
@@ -39,6 +39,48 @@ and `.ph-stage` posters inside the same page.
 3. The cinematic lockup (`lockup-hero.svg`) is for dark grounds. On light, typeset the wordmark: gilt small caps `PERPUSTAKAAN` over a deep-green Fraunces `HATI` — see `components/Hero.tsx`.
 4. Book covers, seals and the 3D book stay dark: they are objects, not backgrounds.
 5. One green CTA per view; gold hairlines and the `.ph-ornament` mark section breaks.
+
+## Astryx — where it is allowed (3.3)
+
+Astryx (`@astryxdesign/core` 0.7.12 + `@astryxdesign/theme-stone`, pinned exact) is an
+**accessibility component layer**, never a second design system. It consumes our tokens;
+it never replaces them.
+
+| Rule | Why |
+|---|---|
+| Astryx CSS enters through `src/astryx/AstryxScope.tsx` only | One import point, so the 271 kB chunk can be route-scoped |
+| Never mount the provider in `app/layout.tsx` | That would put Astryx CSS on every storefront page; Next keeps it on the routes that import it |
+| `src/astryx/astryx-brand.css` maps Astryx variables to brand tokens, unlayered | Astryx ships its variables in `@layer astryx-theme`; unlayered rules win regardless of import order |
+| No new hex in the bridge | Every value is `var(--brand-token)` or `color-mix()` of two brand tokens |
+| Adopted: `/admin` only (Banner, Button, Card) | Admin is `noindex`, low-traffic, off the storefront path |
+
+**Deliberately not adopted**, with the reason recorded so a later session does not
+re-litigate it:
+
+- **Forms (`Field`, `TextInput`)** — `TextInput` is controlled and would replace the
+  approved brand styling. The real gap was the ARIA contract, now fixed directly in
+  `OptInForm`, `CheckoutForm` and `LibraryLogin`: `noValidate`, `aria-invalid`,
+  `aria-describedby`, one `role="alert"` per field, focus moved to the first invalid control.
+- **`Chat`** — it is a composer/drawer toolkit, not a bubble renderer; adopting it would
+  replace the Teman Hati bubble styling. The gap (no `role="log"`, no label, no form
+  semantics) is fixed in `TemanHatiChat` instead.
+- **`Collapsible` for the mobile nav** — `SiteHeader` already ships `aria-expanded` +
+  `aria-controls` + Escape-to-close. Swapping it buys nothing and risks the nav. The
+  missing piece was a **skip link**, now added as the first tab stop.
+- **`Accordion`** — Astryx has no such export; `Faq` uses native `<details>`, which is
+  correct and needs no JavaScript.
+- **`ProgressBar`** — `ReadingProgress` already emits `role="progressbar"` with
+  `aria-valuenow`/`aria-valuemax`.
+
+The CLI is available for component contracts: `npm run astryx -- component --list`.
+
+## Nightlight — opt-in dark scope (3.3)
+
+`.ph-nightlight` / `[data-theme="nightlight"]` remaps the semantic layer onto the existing
+dark primitives (`--forest-night`, `--forest-raised`, `--text-on-dark`, `--gold-light`).
+It is **never** applied by `prefers-color-scheme` alone: the storefront ships daylight, and
+flipping the ground for every dark-OS visitor is a brand decision, not a preference default.
+A test enforces both halves of that rule.
 
 ## What "current" means
 - The system is **not locked**. You can change the palette, type, assets, layout

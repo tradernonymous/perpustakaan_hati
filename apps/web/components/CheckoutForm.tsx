@@ -10,11 +10,34 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
   const [withBump, setWithBump] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [fieldError, setFieldError] = useState<{ email?: string; consent?: string }>({});
   const total = priceSen + (withBump && bump ? bump.priceSen : 0);
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  /** One message per field, spoken once: native bubbles are off via noValidate. */
+  function validate(el: HTMLFormElement) {
+    const email = el.elements.namedItem("email") as HTMLInputElement | null;
+    const consent = el.elements.namedItem("consent") as HTMLInputElement | null;
+    const next: { email?: string; consent?: string } = {};
+    const value = email?.value.trim() ?? "";
+    if (!value) next.email = "Masukkan e-mel kamu.";
+    else if (!EMAIL_RE.test(value)) next.email = "E-mel tidak sah. Contoh: nama@contoh.com";
+    if (consent && !consent.checked) next.consent = "Tandakan persetujuan PDPA untuk meneruskan.";
+    return next;
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const f = new FormData(e.currentTarget);
+    const el = e.currentTarget;
+    const found = validate(el);
+    if (found.email || found.consent) {
+      setFieldError(found);
+      (el.elements.namedItem(found.email ? "email" : "consent") as HTMLElement | null)?.focus();
+      return;
+    }
+    setFieldError({});
+    const f = new FormData(el);
     setBusy(true);
     setError("");
     try {
@@ -38,7 +61,7 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
   const field = "min-h-tap w-full rounded border border-daylight-edge bg-sage px-3 text-base text-ink-grove placeholder:text-muted-grove focus:outline-none focus:ring-2 focus:ring-green-700";
 
   return (
-    <form onSubmit={onSubmit} className="ph-card mx-auto flex max-w-reading flex-col gap-5 p-5 md:p-8">
+    <form onSubmit={onSubmit} noValidate className="ph-card mx-auto flex max-w-reading flex-col gap-5 p-5 md:p-8">
       <div className="flex items-baseline justify-between gap-4 border-b border-daylight-edge pb-4">
         <h2 className="font-display text-2xl text-green-900">{name}</h2>
         <p className="text-sm text-muted-grove">Harga ditunjuk di laman: {priceLabel}</p>
@@ -56,7 +79,20 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
 
       <div className="flex flex-col gap-1">
         <label htmlFor="co-email" className="text-sm font-semibold text-green-900">E-mel (buku dihantar ke sini)</label>
-        <input id="co-email" name="email" type="email" required autoComplete="email" inputMode="email" placeholder="nama@contoh.com" className={field} />
+        <input
+          id="co-email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          inputMode="email"
+          placeholder="nama@contoh.com"
+          className={field}
+          aria-invalid={fieldError.email ? "true" : "false"}
+          aria-describedby="co-email-error"
+          onChange={() => setFieldError((prev) => ({ ...prev, email: undefined }))}
+        />
+        <p id="co-email-error" role="alert" className="text-sm text-burgundy">{fieldError.email}</p>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="co-phone" className="text-sm font-semibold text-green-900">Nombor WhatsApp (pilihan, untuk pautan segera)</label>
@@ -76,8 +112,20 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
       </fieldset>
 
       <label className="flex min-h-tap items-start gap-3 text-sm text-ink-grove">
-        <input type="checkbox" name="consent" required className="mt-1 h-5 w-5 accent-green-500" />
-        <span>Saya setuju e-mel/nombor saya digunakan untuk menghantar pesanan ini, mengikut notis privasi PDPA.</span>
+        <input
+          id="co-consent"
+          type="checkbox"
+          name="consent"
+          required
+          className="mt-1 h-5 w-5 accent-green-500"
+          aria-invalid={fieldError.consent ? "true" : "false"}
+          aria-describedby="co-consent-error"
+          onChange={() => setFieldError((prev) => ({ ...prev, consent: undefined }))}
+        />
+        <span>
+          Saya setuju e-mel/nombor saya digunakan untuk menghantar pesanan ini, mengikut notis privasi PDPA.
+          <span id="co-consent-error" role="alert" className="mt-1 block text-burgundy">{fieldError.consent}</span>
+        </span>
       </label>
 
       <div className="flex items-center justify-between border-t border-daylight-edge pt-4">

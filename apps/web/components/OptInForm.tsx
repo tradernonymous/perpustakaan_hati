@@ -4,13 +4,43 @@ import { useState, type FormEvent } from "react";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+type Errors = { email?: string; consent?: string };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function OptInForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const [errors, setErrors] = useState<Errors>({});
+
+  /** Native constraints are off (noValidate) so one message per field is spoken, not two. */
+  function validate(el: HTMLFormElement): Errors {
+    const email = el.elements.namedItem("email") as HTMLInputElement | null;
+    const consent = el.elements.namedItem("consent") as HTMLInputElement | null;
+    const next: Errors = {};
+    const value = email?.value.trim() ?? "";
+    if (!value) next.email = "Masukkan e-mel kamu.";
+    else if (!EMAIL_RE.test(value)) next.email = "E-mel tidak sah. Contoh: nama@contoh.com";
+    if (consent && !consent.checked) next.consent = "Tandakan kotak persetujuan untuk meneruskan.";
+    return next;
+  }
+
+  function clearError(field: keyof Errors) {
+    setErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev));
+  }
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = new FormData(e.currentTarget);
+    const el = e.currentTarget;
+    const found = validate(el);
+    if (found.email || found.consent) {
+      setErrors(found);
+      const target = found.email ? "optin-email" : "optin-consent";
+      (el.elements.namedItem(target === "optin-email" ? "email" : "consent") as HTMLElement | null)?.focus();
+      return;
+    }
+    setErrors({});
+    const form = new FormData(el);
     setStatus("submitting");
     setMessage("");
     try {
@@ -42,10 +72,22 @@ export function OptInForm() {
     "min-h-tap w-full rounded border border-daylight-edge bg-sage px-3 text-base text-ink-grove placeholder:text-muted-grove focus:outline-none focus:ring-2 focus:ring-green-700";
 
   return (
-    <form onSubmit={onSubmit} className="ph-beam ph-lux ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8" noValidate={false}>
+    <form onSubmit={onSubmit} noValidate className="ph-beam ph-lux ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8">
       <div className="flex flex-col gap-1">
         <label htmlFor="optin-email" className="text-sm font-semibold text-green-900">E-mel</label>
-        <input id="optin-email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="nama@contoh.com" className={field} />
+        <input
+          id="optin-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          inputMode="email"
+          placeholder="nama@contoh.com"
+          className={field}
+          aria-invalid={errors.email ? "true" : "false"}
+          aria-describedby="optin-email-error"
+          onChange={() => clearError("email")}
+        />
+        <p id="optin-email-error" role="alert" className="text-sm text-burgundy">{errors.email}</p>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="optin-phone" className="text-sm font-semibold text-green-900">Nombor WhatsApp (pilihan jika ada e-mel)</label>
@@ -59,10 +101,20 @@ export function OptInForm() {
       </div>
 
       <label className="flex min-h-tap items-start gap-3 text-sm text-ink-grove">
-        <input type="checkbox" name="consent" required className="mt-1 h-5 w-5 accent-green-500" />
+        <input
+          id="optin-consent"
+          type="checkbox"
+          name="consent"
+          required
+          className="mt-1 h-5 w-5 accent-green-500"
+          aria-invalid={errors.consent ? "true" : "false"}
+          aria-describedby="optin-consent-error"
+          onChange={() => clearError("consent")}
+        />
         <span>
           Saya setuju e-mel/nombor saya disimpan untuk menghantar Edisi Poket dan kemas kini
           Perpustakaan Hati, mengikut notis privasi PDPA. Saya boleh berhenti bila-bila masa.
+          <span id="optin-consent-error" role="alert" className="mt-1 block text-burgundy">{errors.consent}</span>
         </span>
       </label>
 

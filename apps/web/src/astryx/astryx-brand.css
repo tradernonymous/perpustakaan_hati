@@ -1,0 +1,56 @@
+/*
+ * Astryx ← Perpustakaan Hati brand bridge.
+ *
+ * Astryx consumes our tokens; it never renames or replaces them. Every value
+ * here is a var() pointing at docs/brand/design-tokens.css, so the brand
+ * palette, fonts and radii stay single-sourced. The only derived colours are
+ * color-mix() of two brand tokens — no new hex is introduced.
+ *
+ * Deliberately unlayered: Astryx ships its variables inside `@layer
+ * astryx-theme`, and an unlayered rule outranks a layered one regardless of
+ * import order.
+ */
+[data-astryx-theme="stone"] {
+  /* ground — the daylight storefront */
+  --color-background-body: var(--daylight);
+  --color-background-surface: var(--daylight-raised);
+  --color-background-card: var(--daylight-raised);
+  --color-background-popover: var(--daylight-raised);
+  --color-background-muted: var(--sage);
+  --color-background-inverted: var(--forest-night);
+
+  /* text */
+  --color-text-primary: var(--ink-grove);
+  --color-text-secondary: var(--muted-grove);
+  --color-text-accent: var(--green-700);
+  --color-on-light: var(--ink-grove);
+  --color-on-dark: var(--cream);
+
+  /* lines */
+  --color-border: var(--daylight-edge);
+  --color-border-emphasized: var(--green-700);
+
+  /* the one accent: green leads */
+  --color-accent: var(--green-600);
+  --color-accent-muted: var(--green-100);
+  --color-on-accent: var(--forest-night);
+  --color-icon-accent: var(--green-700);
+  --color-icon-primary: var(--ink-grove);
+  --color-icon-secondary: var(--muted-grove);
+
+  /* status — success is green, errors use the burgundy already in the system */
+  --color-success: var(--green-700);
+  --color-success-muted: var(--green-100);
+  --color-error: var(--burgundy);
+  --color-error-muted: color-mix(in srgb, var(--burgundy) 12%, var(--cream));
+  --color-on-error: var(--cream);
+
+  /* type — Fraunces display, Inter UI, exactly as the system sets them */
+  --font-family-heading: "Fraunces", Georgia, serif;
+  --font-family-body: "Inter", system-ui, sans-serif;
+
+  /* shape */
+  --radius-element: 8px;
+  --radius-container: 12px;
+  --radius-full: 999px;
+}
