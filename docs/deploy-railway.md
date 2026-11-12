@@ -43,6 +43,7 @@ openssl rand -base64 32
 | `THREADS_CLIENT_ID` | Threads App ID from the Meta app |
 | `THREADS_CLIENT_SECRET` | Threads App secret |
 | `OPENROUTER_API_KEY` | OpenRouter key |
+| `OPENROUTER_MODEL` | `qwen/qwen3.7-flash` (the default; a few hundredths of a cent per run) |
 | `RESEARCH_ADMIN_PASSWORD` | at least 12 characters |
 | `RESEARCH_VAULT` | `sqlite` |
 | `RESEARCH_TOKEN_KEY` | the value generated in step 4 |

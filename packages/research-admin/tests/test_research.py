@@ -73,6 +73,33 @@ def test_missing_key_is_actionable():
         mine_pain_points([SOURCE], Settings(), http)
 
 
+@respx.mock
+def test_paid_model_request_omits_the_free_price_cap():
+    def response(request):
+        payload = json.loads(request.content)
+        assert payload["model"] == "qwen/qwen3.7-flash"
+        assert "provider" not in payload
+        assert payload["reasoning"] == {"enabled": False}
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({"insights": [INSIGHT]})}}]})
+    respx.post(URL).mock(side_effect=response)
+    assert call(model="qwen/qwen3.7-flash") == [INSIGHT]
+
+
+@respx.mock
+def test_reasoning_model_that_returns_no_content_is_actionable():
+    """Qwen's thinking mode used the whole budget on reasoning and sent no content."""
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": None, "reasoning": "thinking..."}, "finish_reason": "length"}]})
+    with pytest.raises(ResearchError, match="output budget"):
+        call()
+
+
+@respx.mock
+def test_content_parts_and_a_top_level_array_are_accepted():
+    content = [{"type": "text", "text": json.dumps([INSIGHT])}]
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": content}}]})
+    assert call() == [INSIGHT]
+
+
 @pytest.mark.parametrize("content", [None, [], {}, 17])
 @respx.mock
 def test_non_string_content_is_safe_error(content):

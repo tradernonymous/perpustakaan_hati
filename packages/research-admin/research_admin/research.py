@@ -9,6 +9,10 @@ from .config import Settings
 
 URL = "https://openrouter.ai/api/v1/chat/completions"
 FREE = re.compile(r"^(openrouter/free|[a-z0-9./_-]+:free)$", re.IGNORECASE)
+# Paid models are opt-in by name so a typo cannot quietly run up a bill.
+# Qwen3.7 Flash is cheap and does not spend the answer budget on reasoning.
+PAID_MODELS = {"qwen/qwen3.7-flash"}
+MAX_TOKENS = 4000
 
 PAIN_POINT_PROMPT = (
     "You are a qualitative research assistant for Perpustakaan Hati, a Malaysian relationship-healing ebook brand. "
@@ -29,9 +33,13 @@ def _model(settings: Settings) -> str:
     if not settings.openrouter_api_key:
         raise ResearchError("OPENROUTER_API_KEY is not set. Add it to the environment and retry.")
     model = settings.openrouter_model
-    if not FREE.search(model):
-        raise ResearchError(f"Model '{model}' is not a free OpenRouter model. Use a :free model; paid models are not allowed.")
+    if model not in PAID_MODELS and not FREE.search(model):
+        raise ResearchError(f"Model '{model}' is not allowlisted. Use a free model, or add it to PAID_MODELS if it is worth paying for.")
     return model
+
+
+def _is_free(model: str) -> bool:
+    return bool(FREE.search(model))
 
 
 def _parse_sources(sources: list[dict]) -> list[dict]:
@@ -46,16 +54,44 @@ def _parse_sources(sources: list[dict]) -> list[dict]:
     return material
 
 
-def _extract(content: str, *, list_key: str = "insights") -> dict:
-    if not isinstance(content, str):
+def _content_text(content) -> str:
+    """Provider text, which some backends send as a list of parts."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = [part["text"] for part in content if isinstance(part, dict) and isinstance(part.get("text"), str)]
+        return "".join(parts)
+    return ""
+
+
+def _json_body(text: str):
+    fenced = re.search(r"```(?:json)?\s*(.+?)```", text, re.DOTALL)
+    whole = fenced.group(1).strip() if fenced else text.strip()
+    embedded = re.search(r"\{.*\}", text, re.DOTALL)
+    for candidate in (whole, embedded.group(0) if embedded else ""):
+        if not candidate:
+            continue
+        try:
+            return json.loads(candidate)
+        except ValueError:
+            continue
+    raise ResearchError("AI provider returned malformed JSON; retry the research run.")
+
+
+def _extract(content, *, list_key: str = "insights", finish_reason: str = "") -> dict:
+    text = _content_text(content)
+    if not text.strip():
+        if finish_reason == "length":
+            raise ResearchError(
+                "The AI provider spent its whole output budget before answering, which is what a reasoning model does with no room left for JSON. "
+                "Retry, or set OPENROUTER_MODEL to a model that answers directly."
+            )
         raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
-    match = re.search(r"\{.*\}", content, re.DOTALL)
-    if not match:
-        raise ResearchError("AI provider returned malformed JSON; retry the research run.")
-    try:
-        payload = json.loads(match.group(0))
-    except ValueError:
-        raise ResearchError("AI provider returned malformed JSON; retry the research run.") from None
+    payload = _json_body(text)
+    if isinstance(payload, list):
+        if not payload:
+            raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
+        payload = {list_key: payload}
     if not isinstance(payload, dict) or not isinstance(payload.get(list_key), list):
         raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
     return payload
@@ -84,20 +120,25 @@ def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client
         return []
     model = _model(settings)
     material = _parse_sources(sources)
+    payload = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": PAIN_POINT_PROMPT},
+            {"role": "user", "content": json.dumps(material, ensure_ascii=False)},
+        ],
+        "response_format": {"type": "json_object"},
+        # Without this a thinking model spends the answer budget on reasoning and
+        # returns no content at all, which looked like a format bug.
+        "reasoning": {"enabled": False},
+        "max_tokens": MAX_TOKENS,
+    }
+    if _is_free(model):
+        payload["provider"] = {"max_price": {"prompt": 0, "completion": 0}}
     try:
         response = http.post(
             URL,
             headers={"Authorization": f"Bearer {settings.openrouter_api_key}"},
-            json={
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": PAIN_POINT_PROMPT},
-                    {"role": "user", "content": json.dumps(material, ensure_ascii=False)},
-                ],
-                "response_format": {"type": "json_object"},
-                "provider": {"max_price": {"prompt": 0, "completion": 0}},
-                "max_tokens": 2000,
-            },
+            json=payload,
         )
     except httpx.HTTPError:
         raise ResearchError("Could not reach OpenRouter; check your connection and retry.") from None
@@ -106,12 +147,13 @@ def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client
     if not response.is_success:
         raise ResearchError(f"OpenRouter error (HTTP {response.status_code}); check the API key and retry.")
     try:
-        content = response.json()["choices"][0]["message"]["content"]
+        choice = response.json()["choices"][0]
+        content = choice["message"]["content"]
     except (ValueError, KeyError, IndexError, TypeError):
         raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.") from None
-    payload = _extract(content)
+    extracted = _extract(content, finish_reason=str(choice.get("finish_reason") or ""))
     seen_quotes: set[str] = set()
-    validated = [v for v in (_validate(i, material, seen_quotes) for i in payload["insights"]) if v]
-    if payload["insights"] and not validated:
+    validated = [v for v in (_validate(i, material, seen_quotes) for i in extracted["insights"]) if v]
+    if extracted["insights"] and not validated:
         raise ResearchError("AI analysis failed evidence checks; quotes must be verbatim excerpts from the sampled posts. Retry the research run.")
     return validated
