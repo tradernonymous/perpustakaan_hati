@@ -47,6 +47,10 @@ CHROME = (
     or shutil.which("chrome-headless-shell")
 )
 
+# pdfinfo and pdftotext come from poppler-utils. CI installs them; a machine
+# without them skips the audit rather than failing on a missing binary.
+PDF_TOOLS = bool(shutil.which("pdfinfo") and shutil.which("pdftotext"))
+
 # Capitalised words that must never be shouted, and words that must.
 SHOUTING_ALLOWLIST = {
     "BY",
@@ -437,7 +441,7 @@ def test_titles_use_sentence_case_not_all_caps():
 # --------------------------------------------------------------------------
 
 
-@pytest.mark.skipif(CHROME is None, reason="no headless Chrome available")
+@pytest.mark.skipif(CHROME is None or not PDF_TOOLS, reason="needs headless Chrome and poppler-utils")
 def test_pdf_is_a4_with_the_expected_page_count(tmp_path):
     doc = _document()
     out = render_pocket_pdf(doc, tmp_path / "pocket.pdf")
@@ -453,7 +457,7 @@ def test_pdf_is_a4_with_the_expected_page_count(tmp_path):
     assert "A4" in size
 
 
-@pytest.mark.skipif(CHROME is None, reason="no headless Chrome available")
+@pytest.mark.skipif(CHROME is None or not PDF_TOOLS, reason="needs headless Chrome and poppler-utils")
 def test_pdf_text_is_extractable(tmp_path):
     doc = _document()
     out = render_pocket_pdf(doc, tmp_path / "pocket.pdf")
@@ -464,7 +468,7 @@ def test_pdf_text_is_extractable(tmp_path):
     assert "HEAL 15555" in text
 
 
-@pytest.mark.skipif(CHROME is None, reason="no headless Chrome available")
+@pytest.mark.skipif(CHROME is None or not PDF_TOOLS, reason="needs headless Chrome and poppler-utils")
 def test_the_pdf_carries_the_same_type_as_the_measured_page(tmp_path):
     """The PDF must print the page that was measured.
 
