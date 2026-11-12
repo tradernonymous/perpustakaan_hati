@@ -59,8 +59,8 @@ Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **con
 1. **Overview** — recent research, source-linked evidence, current sample’s own-post performance, audience signals, drafts needing review, and a four-step workflow.
 2. **Research** — status board (connection and expiry, active AI model, last run, library totals), per-run sample-limit controls, run history, searchable saved insights, original Threads source links, and checkboxes to select evidence for content generation. Running research and generating content have separate explicit AI-consent checkboxes.
 3. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”). These are not demographic profiles; each signal links to source evidence. **Export evidence CSV** at `/audiences/export.csv` for offline planning.
-4. **Content studio** — select up to 20 evidence items to generate three local drafts: a Threads post, an ebook chapter outline, and a design brief. Every draft must cite supplied saved insight IDs.
-5. **Draft library** — copy to clipboard, mark ready for use, or archive. Approval is an internal review state only: this admin does **not** schedule or publish posts.
+4. **Content studio** — select up to 20 evidence items to generate three local drafts: a Threads post, an ebook chapter outline, and a design brief. Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
+5. **Draft library** — copy to clipboard, mark ready for use, or archive. Copying a draft includes the reference links shown in it. Approval is an internal review state only: this admin does **not** schedule or publish posts.
 6. **Connections & settings** — Threads token status/expiry, what the API sample covers, OpenRouter configuration and privacy boundaries.
 
 A successful browser form run redirects back to the workspace; API clients can continue using JSON. Run commands from the repository root. `secret-tool` and an unlocked Secret Service keyring are required before connecting Threads.
@@ -92,8 +92,8 @@ A successful browser form run redirects back to the workspace; API clients can c
 | `GET /research/runs` | Saved sample history: limits used, themes, and the prioritized owned-post metrics |
 | `GET /audiences` | Evidence-backed qualitative segments |
 | `GET /audiences/export.csv` | Source-linked audience evidence CSV (spreadsheet formula-safe) |
-| `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs |
-| `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`) |
+| `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs; non-post drafts include `content.references` with the source permalink |
+| `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`), including `content.references` on non-post drafts |
 | `POST /content/drafts/{id}/status` | Mark a draft `draft`, `approved`, or `archived` |
 
 Token refresh: long-lived Threads tokens last ~60 days. When `/auth/status` says disconnected, click **connect Threads** again.

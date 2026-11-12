@@ -9,7 +9,7 @@ from research_admin.content import generate_drafts
 from research_admin.research import ResearchError
 
 URL = "https://openrouter.ai/api/v1/chat/completions"
-INSIGHT = {"id": 7, "theme": "Trust", "quote": "rebuild trust", "ebook_idea": "A guided reflection about boundaries"}
+INSIGHT = {"id": 7, "theme": "Trust", "quote": "rebuild trust", "ebook_idea": "A guided reflection about boundaries", "source_url": "https://www.threads.net/@rahimah/post/ABC123"}
 DRAFTS = {"drafts": [
     {"kind": "threads_post", "title": "A note on trust", "content": {"post": "Trust grows in small, honest moments."}, "source_ids": [7]},
     {"kind": "ebook_outline", "title": "Rebuilding trust", "content": {
@@ -99,3 +99,28 @@ def test_truncated_response_explains_the_output_budget():
     respx.post(URL).respond(200, json={"choices": [{"message": {"content": ""}, "finish_reason": "length"}]})
     with pytest.raises(ResearchError, match="output budget"):
         call()
+
+
+@respx.mock
+def test_outline_and_brief_carry_the_source_post_link_but_the_post_does_not():
+    drafts = json.loads(json.dumps(DRAFTS))
+    for draft in drafts["drafts"]:
+        draft["content"]["references"] = [{"url": "https://model.example/invented"}]
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": json.dumps(drafts)}, "finish_reason": "stop"}]})
+    post, outline, brief = call()
+    assert "references" not in post["content"]
+    for draft in (outline, brief):
+        assert draft["content"]["references"] == [{
+            "insight_id": 7,
+            "theme": "Trust",
+            "url": "https://www.threads.net/@rahimah/post/ABC123",
+        }]
+
+
+@respx.mock
+def test_drafts_without_a_saved_permalink_omit_the_references_block():
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": json.dumps(DRAFTS)}, "finish_reason": "stop"}]})
+    insight = {key: value for key, value in INSIGHT.items() if key != "source_url"}
+    with httpx.Client() as http:
+        drafts = generate_drafts([insight], settings(), http)
+    assert all("references" not in draft["content"] for draft in drafts)

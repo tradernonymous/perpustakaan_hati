@@ -69,6 +69,32 @@ def _validate_drafts(payload: dict, insights: list[dict]) -> list[dict]:
     return drafts
 
 
+def _attach_references(drafts: list[dict], insights: list[dict]) -> list[dict]:
+    """Add the original Threads permalink to every non-post draft.
+
+    A copy of an outline or brief travels into a designer's app without this
+    page, so the evidence link has to travel with the text. It is written here
+    from saved insight rows, never from model output, and the Threads post
+    draft itself is left without references by request.
+    """
+    by_id = {int(item["id"]): item for item in insights}
+    for draft in drafts:
+        content = draft["content"]
+        content.pop("references", None)
+        if draft["kind"] == "threads_post":
+            continue
+        references = []
+        for insight_id in draft["source_ids"]:
+            item = by_id.get(insight_id) or {}
+            url = str(item.get("source_url", "")).strip()
+            if not url.startswith(("https://", "http://")):
+                continue
+            references.append({"insight_id": insight_id, "theme": str(item.get("theme", "")).strip(), "url": url})
+        if references:
+            content["references"] = references
+    return drafts
+
+
 def generate_drafts(insights: list[dict], settings: Settings, http: httpx.Client) -> list[dict]:
     if not insights:
         raise ResearchError("Select at least one saved insight before creating content drafts.")
@@ -90,4 +116,4 @@ def generate_drafts(insights: list[dict], settings: Settings, http: httpx.Client
         content = choice["message"]["content"]
     except (ValueError, KeyError, IndexError, TypeError):
         raise ResearchError("AI provider returned an unexpected content format; retry.") from None
-    return _validate_drafts(_extract(content, list_key="drafts", finish_reason=str(choice.get("finish_reason") or "")), insights)
+    return _attach_references(_validate_drafts(_extract(content, list_key="drafts", finish_reason=str(choice.get("finish_reason") or "")), insights), insights)
