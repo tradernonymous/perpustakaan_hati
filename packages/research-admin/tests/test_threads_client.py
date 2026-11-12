@@ -5,7 +5,14 @@ import pytest
 import respx
 
 from research_admin.config import Settings
-from research_admin.threads_client import ThreadsClient, ThreadsError
+from research_admin.threads_client import (
+    POST_LIMIT_MAX,
+    REPLIES_PER_POST_MAX,
+    TOP_POSTS_MAX,
+    SampleLimits,
+    ThreadsClient,
+    ThreadsError,
+)
 
 GRAPH = "https://graph.threads.com"
 
@@ -95,3 +102,43 @@ def test_malformed_paging_is_safe_error(client, paging):
     respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": [post(1)], "paging": paging})
     with pytest.raises(ThreadsError, match="invalid"):
         client.fetch_my_posts("token")
+
+
+def test_sample_limits_default_and_clamp():
+    assert SampleLimits().normalized().as_dict() == {"post_limit": 50, "top_posts": 5, "replies_per_post": 50}
+    assert SampleLimits.from_form({}).as_dict() == {"post_limit": 50, "top_posts": 5, "replies_per_post": 50}
+    assert SampleLimits.from_form({"post_limit": "9999", "top_posts": "9999", "replies_per_post": "-4"}).as_dict() == {
+        "post_limit": POST_LIMIT_MAX, "top_posts": TOP_POSTS_MAX, "replies_per_post": 1}
+    assert SampleLimits.from_form({"post_limit": "abc", "top_posts": "", "replies_per_post": "none"}).as_dict() == {
+        "post_limit": 50, "top_posts": 5, "replies_per_post": 50}
+    # Prioritized posts can never exceed the number of posts actually fetched.
+    assert SampleLimits.from_form({"post_limit": "3", "top_posts": "10"}).as_dict()["top_posts"] == 3
+
+
+@respx.mock
+def test_research_reports_and_applies_requested_limits(client):
+    def posts(request):
+        assert request.url.params["limit"] == "12"
+        return httpx.Response(200, json={"data": [post(1)]})
+    def replies(request):
+        assert request.url.params["limit"] == "7"
+        return httpx.Response(200, json={"data": [post(3, "How do I rebuild trust?")]})
+    respx.get(GRAPH + "/v1.0/me/threads").mock(side_effect=posts)
+    respx.get(GRAPH + "/v1.0/1/insights").respond(200, json={"data": [{"name": "likes", "values": [{"value": 4}]}]})
+    respx.get(GRAPH + "/v1.0/1/replies").mock(side_effect=replies)
+    result = client.collect_research("token", post_limit=12, top_posts=1, replies_per_post=7)
+    assert result["limits"] == {"post_limit": 12, "top_posts": 1, "replies_per_post": 7}
+    assert "At most 12 recent owned posts" in result["limitations"]
+    assert "Up to 7 visible direct replies" in result["limitations"]
+    assert result["sources"][-1]["source_type"] == "reply"
+
+
+@respx.mock
+def test_excessive_limits_are_clamped_before_collection(client):
+    respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": [post(1)]})
+    respx.get(GRAPH + "/v1.0/1/insights").respond(200, json={"data": []})
+    respx.get(GRAPH + "/v1.0/1/replies").respond(200, json={"data": []})
+    result = client.collect_research("token", post_limit=9999, top_posts=9999, replies_per_post=9999)
+    assert result["limits"] == {"post_limit": POST_LIMIT_MAX, "top_posts": TOP_POSTS_MAX, "replies_per_post": REPLIES_PER_POST_MAX}
+    # The collection helper pages 50 at a time, so the first request asks for 50.
+    assert respx.calls[0].request.url.params["limit"] == "50"

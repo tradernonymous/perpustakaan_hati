@@ -10,6 +10,11 @@ from .config import Settings
 GRAPH = "https://graph.threads.com"
 FIELDS = "id,text,permalink,timestamp"
 METRICS = ("views", "likes", "replies", "reposts", "quotes")
+# Hard ceilings, independent of what the form asks for. Three pages of 50 is
+# the most the collection helper will ever walk.
+POST_LIMIT_MAX = 150
+TOP_POSTS_MAX = 25
+REPLIES_PER_POST_MAX = 100
 
 
 class ThreadsError(RuntimeError):
@@ -20,6 +25,50 @@ class ThreadsError(RuntimeError):
 class TokenResponse:
     access_token: str = field(repr=False)
     expires_in: int
+
+
+def _int(value, default: int) -> int:
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
+        return default
+
+
+@dataclass(frozen=True, slots=True)
+class SampleLimits:
+    """Sample sizes for one run, bounded in one place."""
+
+    post_limit: int = 50
+    top_posts: int = 5
+    replies_per_post: int = 50
+
+    def normalized(self) -> "SampleLimits":
+        posts = min(max(_int(self.post_limit, 50), 1), POST_LIMIT_MAX)
+        return SampleLimits(
+            post_limit=posts,
+            top_posts=min(max(_int(self.top_posts, 5), 1), TOP_POSTS_MAX, posts),
+            replies_per_post=min(max(_int(self.replies_per_post, 50), 1), REPLIES_PER_POST_MAX),
+        )
+
+    @classmethod
+    def from_form(cls, data) -> "SampleLimits":
+        return cls(data.get("post_limit", 50), data.get("top_posts", 5), data.get("replies_per_post", 50)).normalized()
+
+    @classmethod
+    def from_row(cls, row: dict | None) -> "SampleLimits":
+        if not row:
+            return cls()
+        return cls(row.get("post_limit", 50), row.get("top_posts", 5), row.get("replies_per_post", 50)).normalized()
+
+    def as_dict(self) -> dict[str, int]:
+        return {"post_limit": self.post_limit, "top_posts": self.top_posts, "replies_per_post": self.replies_per_post}
+
+    def describe(self) -> str:
+        return (
+            f"At most {self.post_limit} recent owned posts (up to 3 pages of 50), top {self.top_posts} by likes + replies + reposts + quotes; "
+            f"views break ties. Up to {self.replies_per_post} visible direct replies per selected post. This is a sample, not all-time virality. "
+            "Other users' reply-level virality is not available. Missing metrics are not proof of zero engagement."
+        )
 
 
 class ThreadsClient:
@@ -120,8 +169,9 @@ class ThreadsClient:
     def fetch_my_posts(self, access_token: str, limit: int = 50) -> list[dict]:
         return self._collection("/v1.0/me/threads", access_token, min(max(limit, 1), 150))
 
-    def collect_research(self, access_token: str, *, top_posts: int = 5) -> dict:
-        posts = self.fetch_my_posts(access_token)
+    def collect_research(self, access_token: str, *, post_limit: int = 50, top_posts: int = 5, replies_per_post: int = 50) -> dict:
+        limits = SampleLimits(post_limit, top_posts, replies_per_post).normalized()
+        posts = self.fetch_my_posts(access_token, limits.post_limit)
         for post in posts:
             media_id = str(post["id"])
             if not media_id.isdecimal():
@@ -134,13 +184,13 @@ class ThreadsClient:
             post["metrics"] = metrics
             post["engagement_score"] = sum(metrics.get(k, 0) for k in METRICS if k != "views")
             post["source_type"] = "post"
-        selected = sorted(posts, key=lambda p: (p["engagement_score"], p["metrics"].get("views", 0)), reverse=True)[:top_posts]
+        selected = sorted(posts, key=lambda p: (p["engagement_score"], p["metrics"].get("views", 0)), reverse=True)[:limits.top_posts]
         sources = []
         for post in selected:
             sources.append(post)
-            for reply in self._collection(f"/v1.0/{post['id']}/replies", access_token, 50):
+            for reply in self._collection(f"/v1.0/{post['id']}/replies", access_token, limits.replies_per_post):
                 sources.append({**reply, "source_type": "reply", "parent_id": post["id"]})
         return {
-            "sources": sources, "posts": posts, "selected_posts_data": selected, "posts_sampled": len(posts), "selected_posts": len(selected),
-            "limitations": "At most 50 recent owned posts (3 pages), top 5 by likes + replies + reposts + quotes; views break ties. Up to 50 visible direct replies per selected post (3 pages). This is a sample, not all-time virality. Other users' reply-level virality is not available. Missing metrics are not proof of zero engagement.",
+            "sources": sources, "posts": posts, "selected_posts_data": selected, "posts_sampled": len(posts),
+            "selected_posts": len(selected), "limits": limits.as_dict(), "limitations": limits.describe(),
         }

@@ -114,7 +114,9 @@ class Store:
                 CREATE TABLE IF NOT EXISTS research_runs (
                     id INTEGER PRIMARY KEY, created_at TEXT NOT NULL, posts_sampled INTEGER NOT NULL,
                     selected_posts INTEGER NOT NULL, insights_count INTEGER NOT NULL,
-                    themes_json TEXT NOT NULL, limitations TEXT NOT NULL, posts_json TEXT NOT NULL DEFAULT '[]'
+                    themes_json TEXT NOT NULL, limitations TEXT NOT NULL, posts_json TEXT NOT NULL DEFAULT '[]',
+                    post_limit INTEGER NOT NULL DEFAULT 50, top_posts INTEGER NOT NULL DEFAULT 5,
+                    replies_per_post INTEGER NOT NULL DEFAULT 50
                 );
                 CREATE TABLE IF NOT EXISTS content_drafts (
                     id INTEGER PRIMARY KEY, kind TEXT NOT NULL, title TEXT NOT NULL,
@@ -123,8 +125,14 @@ class Store:
                 );
             """)
             columns = {row[1] for row in db.execute("PRAGMA table_info(research_runs)")}
-            if "posts_json" not in columns:
-                db.execute("ALTER TABLE research_runs ADD COLUMN posts_json TEXT NOT NULL DEFAULT '[]'")
+            for column, ddl in (
+                ("posts_json", "ALTER TABLE research_runs ADD COLUMN posts_json TEXT NOT NULL DEFAULT '[]'"),
+                ("post_limit", "ALTER TABLE research_runs ADD COLUMN post_limit INTEGER NOT NULL DEFAULT 50"),
+                ("top_posts", "ALTER TABLE research_runs ADD COLUMN top_posts INTEGER NOT NULL DEFAULT 5"),
+                ("replies_per_post", "ALTER TABLE research_runs ADD COLUMN replies_per_post INTEGER NOT NULL DEFAULT 50"),
+            ):
+                if column not in columns:
+                    db.execute(ddl)
 
     def save_token(self, access_token: str, expires_at: int) -> None:
         self.vault.set(access_token)
@@ -170,11 +178,12 @@ class Store:
                 rows = db.execute("SELECT * FROM insights ORDER BY id DESC LIMIT ?", (limit,))
             return [dict(row) for row in rows]
 
-    def save_research_run(self, *, posts_sampled: int, selected_posts: int, insights: list[dict], limitations: str, posts: list[dict] | None = None) -> int:
+    def save_research_run(self, *, posts_sampled: int, selected_posts: int, insights: list[dict], limitations: str, posts: list[dict] | None = None,  # noqa: PLR0913
+                          post_limit: int = 50, top_posts: int = 5, replies_per_post: int = 50) -> int:
         created = datetime.now(UTC).isoformat()
         themes = sorted({str(item.get("theme", "")).strip() for item in insights if item.get("theme")})
         safe_posts = []
-        for post in (posts or [])[:5]:
+        for post in (posts or [])[:max(1, int(top_posts))]:
             metrics = post.get("metrics", {})
             safe_posts.append({
                 "id": str(post.get("id", ""))[:80], "text": str(post.get("text", ""))[:2000],
@@ -184,8 +193,9 @@ class Store:
             })
         with closing(sqlite3.connect(self.db_path)) as db, db:
             cursor = db.execute(
-                "INSERT INTO research_runs(created_at, posts_sampled, selected_posts, insights_count, themes_json, limitations, posts_json) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (created, posts_sampled, selected_posts, len(insights), json.dumps(themes, ensure_ascii=False), limitations[:2000], json.dumps(safe_posts, ensure_ascii=False)),
+                "INSERT INTO research_runs(created_at, posts_sampled, selected_posts, insights_count, themes_json, limitations, posts_json, post_limit, top_posts, replies_per_post) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (created, posts_sampled, selected_posts, len(insights), json.dumps(themes, ensure_ascii=False), limitations[:2000], json.dumps(safe_posts, ensure_ascii=False),
+                 max(1, int(post_limit)), max(1, int(top_posts)), max(1, int(replies_per_post))),
             )
             return int(cursor.lastrowid)
 

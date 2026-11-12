@@ -157,6 +157,49 @@ def test_research_run_expired_token(tmp_path):
     assert r.status_code == 401 and r.json()["error"] == "reconnect"
 
 
+def test_research_page_shows_sample_controls_and_status_board(client):
+    body = client.get("/?view=research").text
+    assert 'name="post_limit" min="1" max="150" step="1" inputmode="numeric" value="50"' in body
+    assert 'name="top_posts" min="1" max="25" step="1" inputmode="numeric" value="5"' in body
+    assert 'name="replies_per_post" min="1" max="100" step="1" inputmode="numeric" value="50"' in body
+    for panel in ("THREADS CONNECTION", "AI MODEL", "LAST RUN", "LIBRARY", "SAMPLE SETTINGS"):
+        assert panel in body
+    assert "qwen/qwen3.7-flash" in body
+
+
+def test_research_run_uses_and_persists_sample_limits(client):
+    captured = {}
+
+    def fake_collect(token, **kw):
+        captured.update(kw)
+        return {"sources": [], "posts_sampled": 0, "selected_posts": 0, "limitations": "bounded sample", "limits": {}}
+
+    with patch("research_admin.app.ThreadsClient.collect_research", side_effect=fake_collect):
+        response = client.post("/research/run", data={
+            "consent": "on", "post_limit": "30", "top_posts": "7", "replies_per_post": "12"})
+    assert response.status_code == 200
+    assert captured == {"post_limit": 30, "top_posts": 7, "replies_per_post": 12}
+    run = client.get("/research/runs").json()["runs"][0]
+    assert (run["post_limit"], run["top_posts"], run["replies_per_post"]) == (30, 7, 12)
+    page = client.get("/?view=research").text
+    assert 'name="post_limit" min="1" max="150" step="1" inputmode="numeric" value="30"' in page
+    assert "12 replies/post" in page
+
+
+def test_research_run_clamps_oversized_sample_limits(client):
+    captured = {}
+
+    def fake_collect(token, **kw):
+        captured.update(kw)
+        return {"sources": [], "posts_sampled": 0, "selected_posts": 0, "limitations": "bounded sample", "limits": {}}
+
+    with patch("research_admin.app.ThreadsClient.collect_research", side_effect=fake_collect):
+        response = client.post("/research/run", data={
+            "consent": "on", "post_limit": "9999", "top_posts": "9999", "replies_per_post": "9999"})
+    assert response.status_code == 200
+    assert captured == {"post_limit": 150, "top_posts": 25, "replies_per_post": 100}
+
+
 def test_empty_profile_returns_empty_insights(client):
     def fake_collect(token, **kw):
         return {"sources": [], "posts_sampled": 0, "selected_posts": 0, "limitations": "empty profile"}

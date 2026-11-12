@@ -52,6 +52,29 @@ def test_insights_persist_and_repeat_runs_do_not_duplicate(store):
     assert __import__("os").stat(store.db_path).st_mode & 0o777 == 0o600
 
 
+def test_research_run_roundtrip_keeps_sample_limits(store):
+    run_id = store.save_research_run(
+        posts_sampled=12, selected_posts=3, insights=[], limitations="bounded sample",
+        post_limit=12, top_posts=3, replies_per_post=7)
+    saved = store.list_research_runs()[0]
+    assert saved["id"] == run_id
+    assert (saved["post_limit"], saved["top_posts"], saved["replies_per_post"]) == (12, 3, 7)
+
+
+def test_old_runs_table_is_migrated_for_sample_limits(tmp_path):
+    path = str(tmp_path / "old.db")
+    with sqlite3.connect(path) as db:
+        db.execute(
+            "CREATE TABLE research_runs (id INTEGER PRIMARY KEY, created_at TEXT NOT NULL, posts_sampled INTEGER NOT NULL, "
+            "selected_posts INTEGER NOT NULL, insights_count INTEGER NOT NULL, themes_json TEXT NOT NULL, limitations TEXT NOT NULL)")
+    store = Store(path, vault=MemoryVault())
+    store.init_schema()
+    store.save_research_run(posts_sampled=1, selected_posts=1, insights=[], limitations="old database",
+                            post_limit=9, top_posts=2, replies_per_post=4)
+    saved = store.list_research_runs()[0]
+    assert (saved["posts"], saved["post_limit"], saved["top_posts"], saved["replies_per_post"]) == ([], 9, 2, 4)
+
+
 def test_vault_unavailable_is_safe_and_never_stores_plaintext(store):
     with patch.object(store.vault, "set", side_effect=StoreError("keyring unavailable")):
         with pytest.raises(StoreError):

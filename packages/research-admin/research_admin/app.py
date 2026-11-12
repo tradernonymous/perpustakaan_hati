@@ -20,7 +20,7 @@ from .content import generate_drafts
 from .dashboard import DashboardData, render_dashboard
 from .research import ResearchError, mine_pain_points
 from .store import Store, StoreError, build_vault
-from .threads_client import ThreadsClient, ThreadsError
+from .threads_client import SampleLimits, ThreadsClient, ThreadsError
 
 SESSION_COOKIE = "research_session"
 CSRF_COOKIE = "research_csrf"
@@ -260,10 +260,12 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         runs = app.state.store.list_research_runs()
         drafts = app.state.store.list_drafts(status=status)
         csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
+        limits = SampleLimits.from_row(runs[0] if runs else None)
         page = render_dashboard(DashboardData(
             view=view, connection=connection, expiry=expiry, insights=insights, runs=runs,
             audiences=audiences, drafts=drafts, query=search,
-            selection=selection, status_filter=status, csrf=csrf,
+            selection=selection, status_filter=status, csrf=csrf, limits=limits,
+            model=settings.openrouter_model,
             error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
         ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
         response = HTMLResponse(page)
@@ -331,17 +333,20 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if not settings.openrouter_api_key:
             return error(503, "OPENROUTER_API_KEY is not set. Add it to the server secret store to analyze collected Threads text.")
         try:
-            research = ThreadsClient(settings, app.state.http).collect_research(token.access_token)
+            limits = SampleLimits.from_form(data)
+            research = ThreadsClient(settings, app.state.http).collect_research(
+                token.access_token, post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post)
             insights = mine_pain_points(research["sources"], settings, app.state.http)
             app.state.store.save_insights(insights)
             run_id = app.state.store.save_research_run(
                 posts_sampled=research["posts_sampled"], selected_posts=research.get("selected_posts", 0),
                 insights=insights, limitations=research["limitations"], posts=research.get("selected_posts_data", []),
+                post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post,
             )
         except (ThreadsError, ResearchError, StoreError) as exc:
             response = RedirectResponse("/?view=research&notice=" + quote(str(exc)), status_code=303) if "text/html" in request.headers.get("accept", "") else error(502, str(exc))
             return response
-        result = {"run_id": run_id, "insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"]}
+        result = {"run_id": run_id, "insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"], "limits": limits.as_dict()}
         if "text/html" in request.headers.get("accept", ""):
             return RedirectResponse("/?view=research&notice=Research+run+saved", status_code=303)
         return result
