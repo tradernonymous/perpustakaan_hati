@@ -30,7 +30,7 @@ Buku ini untuk kamu yang mahu faham, bukan sekadar untuk belajar.
 
 ---
 
-# Bab Satu — Kenapa Hubungan Sakit
+# Bab Satu: Kenapa Hubungan Sakit
 
 Bab ini tidak tentang tips. Ia tentang satu perkara yang berlaku sebelum
 sebenar perkataan keluar: reaksi.
@@ -86,7 +86,7 @@ tentang satu perkara yang takzim.
 
 ---
 
-# Bab Dua — Kenali Corak Attach Kamu
+# Bab Dua: Kenali Corak Attach Kamu
 
 > Aku bukan sukar degrade. Aku cuma ada cara yang berbeza untuk menjaga diri.
 
@@ -97,7 +97,7 @@ starts to feel unsafe.
 Ada tiga corak yang hampir semua orang ada, dan majoriti orang recognise
 dua, tapi tak tahu yang dua-dua ada dalam diri sendiri.
 
-## Corak Cemas — The Worrier
+## Corak Cemas: The Worrier
 
 Bila rasa selamat, kau orang yang paling best. Kau tanya banyak, kau bagi
 banyak, kau rasa vulnerable bila kau paling dekat.
@@ -111,7 +111,7 @@ berhenti. Cycling dalam kepala, dah tengah pukul dua pagi.
 Corak obsess: kesian, tertipu bila ada orang lain, rasa aku terlalu banyak
 bila orang tanya status.
 
-## Corak Elak — The Disconnector
+## Corak Elak: The Disconnector
 
 Bila rasa selamat, kau best company. Warm, funny, easy to talk to.
 
@@ -126,7 +126,7 @@ besar, kau tak kuat handle.
 Corak obsess: rasa tak berguna bila orang perlukan kau emotionally. Letih
 dengan questions yang kau tak tahu nak jawab.
 
-## Corak Selamat — The Steady One
+## Corak Selamat: The Steady One
 
 Ada orang yang, bila ada masalah, dia tak panik dan tak lari. Dia dengar,
 dia kata aku dengar kau, dia tanya kau nak apa sekarang.
@@ -154,7 +154,7 @@ rasakan, bukan siapa kau.
 
 ---
 
-# Bab Tiga — Red Flag dan Green Flag
+# Bab Tiga: Red Flag dan Green Flag
 
 Sesapa yang pernah baca relationship advice online tahu masalahnya: semua orang
 bercakap tentang red flags, tapi takde siapa bagi bahasa yang sama untuk tempat
@@ -207,7 +207,7 @@ Print this. Letakkan dalam phone.
 
 ---
 
-# Bab Empat — Bila Pertengkaran Jadi Pertapaan
+# Bab Empat: Bila Pertengkaran Jadi Pertapaan
 
 Ada satu yang muncul dalam setiap couple yang berdebat: mereka berdebat tentang
 siapa yang betul, bukan apa yang sebenarnya mereka perlukan.
@@ -216,18 +216,18 @@ Empat horsemen tu, dalam Bahasa kita:
 
 ## The Horsemen
 
-**1. Kritik** — Kau memang tak pernah dengar.
+**1. Kritik**: Kau memang tak pernah dengar.
 
-**2. Contempt** — Kau memang pelik. Eyeball roll, mocking laugh.
+**2. Contempt**: Kau memang pelik. Eyeball roll, mocking laugh.
 
-**3. Defensiveness** — Bukan aku yang mulakan.
+**3. Defensiveness**: Bukan aku yang mulakan.
 
-**4. Stonewalling** — Diam.
+**4. Stonewalling**: Diam.
 
 Yang paling bahaya adalah nombor 2. Kritik attack the issue. Contempt
 attack the person. Once contempt masuk, relationship basically done.
 
-## Cheroot — Realiti dan Rasa
+## Cheroot: Realiti dan Rasa
 
 Bila kau argue dengan pasangan, kau hampir tak pernah argue dengan fakta.
 Kau argue dengan rasa.
@@ -259,12 +259,12 @@ Percayalah, ten minit rehat lebih baik daripada dua jam almonds.
 
 ---
 
-# Bab Lima — Bercakap dengan Jujur
+# Bab Lima: Bercakap dengan Jujur
 
 Bab ni: the scripts. Bukan dialog yang kedengaran nice. Scripts yang actually
 work, sebab they're short, specific, dan tak ask for mind-reading.
 
-## Script 1 — Aku Perlukan Masa
+## Script 1: Aku Perlukan Masa
 
 **Nak kata:**
 > Aku perlukan masa untuk fikir.
@@ -277,7 +277,7 @@ work, sebab they're short, specific, dan tak ask for mind-reading.
 **Bila guna:** bila kau tahu kau akan cakap something you would regret if you
 cari tahu sekarang.
 
-## Script 2 — Kau Tak Dengar Aku
+## Script 2: Kau Tak Dengar Aku
 
 **Nak kata:**
 > Kau tak dengar aku.
@@ -289,7 +289,7 @@ cari tahu sekarang.
 
 **Bila guna:** bila kau rasa mereka respond to the wrong thing.
 
-## Script 3 — Aku Tak Tahu Apa Jadi Dengan Kita
+## Script 3: Aku Tak Tahu Apa Jadi Dengan Kita
 
 **Nak kata:**
 > Aku tak tahu apa jadi dengan kita.
@@ -300,7 +300,7 @@ cari tahu sekarang.
 
 **Bila guna:** bila masalah bukan masalah. Ia distance.
 
-## Script 4 — Aku Tak Boleh Teruskan
+## Script 4: Aku Tak Boleh Teruskan
 
 **Nak kata:**
 > Aku nak habis.
@@ -309,7 +309,7 @@ cari tahu sekarang.
 > Aku dah cuba. Aku rasa kau pun dah cuba. Aku tak kata ni untuk menyakitkan
 > kau, aku kata ni sebab aku exhausted. Aku perlukan kita berhenti.
 
-## Script 5 — Aku Letakkan Pendingek
+## Script 5: Aku Letakkan Pendingek
 
 **Nak kata:**
 > Aku irritated dengan kau.
@@ -320,7 +320,7 @@ cari tahu sekarang.
 
 ---
 
-# Bab Enam — Bila Dia Tidak Berubah
+# Bab Enam: Bila Dia Tidak Berubah
 
 Bab ni mungkin yang paling berat untuk tulis. Tapi ia juga yang paling
 important, sebab hampir semua orang yang jumpa aku sudah tahu dalam hati
@@ -369,7 +369,7 @@ Ini the part yang nobody talk about: how to leave well.
 
 ---
 
-# Bab Tujuh — Pulih dengan Perlahan
+# Bab Tujuh: Pulih dengan Perlahan
 
 Ini bukan bab yang aku suka tulis, sebab aku tak boleh tuliskan yang sebenarnya
 terjadi. Setiap orang pulih dengan rate dia sendiri.

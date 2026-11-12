@@ -24,5 +24,5 @@ export function generateWorkbook(input: WorkbookInput): Workbook {
     { heading: "Latihan untuk corak kamu", body: STYLE_BODY[input.style] },
     { heading: "Skrip yang sesuai", body: "Gunakan skrip Bincang Hati ke Hati yang paling dekat dengan situasi kamu sekarang." },
   ];
-  return { title: `Workbook ${label} — ${input.style}`, sections };
+  return { title: `Workbook ${label}, ${input.style}`, sections };
 }

@@ -9,9 +9,9 @@
 | Premium bundle | **Teman Hidup** | RM 79–149 | Standard + 30-day *Buku Kerja* + *Skrip Bincang Hati ke Hati* + Rahimam audio voice notes. | Burgundy |
 
 ## Subcopy (locked)
-- **Edisi Poket** — "Ringkas, menyentuh, mudah dibawa." / "Teman hati sementara menunggu bas atau train."
-- **Edisi Membangun** — "Panduan yang paling jujur dan paling mudah diikuti."
-- **Teman Hidup** — "Bacaan, kerja, dan skrip — teman hidup." / "Untuk jiwa yang ingin pulih."
+- **Edisi Poket**: "Ringkas, menyentuh, mudah dibawa." / "Teman hati sementara menunggu bas atau train."
+- **Edisi Membangun**: "Panduan yang paling jujur dan paling mudah diikuti."
+- **Teman Hidup**: "Bacaan, kerja, dan skrip, teman hidup." / "Untuk jiwa yang ingin pulih."
 
 ## Naming logic
 - Each tier name is a **verb-stage in the healing journey**, not a product format: Poket (carry) → Membangun (build) → Hidup (live with).

@@ -120,6 +120,37 @@ Notes:
 E-mails and WhatsApp numbers are personal data under PDPA. The form records explicit consent, the
 list is not shared, and nothing is emailed yet. Delete rows on request.
 
+## Offer the Edisi Poket PDF ("Cuma Kawan Pejabat")
+
+The pocket edition built from Rahimam's Threads post lives at
+`docs/brand/preview/ebook-edisi-poket-cuma-kawan-pejabat.pdf` in the repo. It is a
+free tier-1 product: no checkout, no order, no watermark.
+
+Rebuild it after any copy change:
+
+```
+cd packages/ebook-builder
+uv run --project . python -m ebook_builder.pocket_cli \
+  ../../content/ebooks/edisi-poket-cuma-kawan-pejabat/manuscript.md \
+  --out ../../docs/brand/preview/ebook-edisi-poket-cuma-kawan-pejabat.pdf
+```
+
+The build measures every page in headless Chrome, scales each page's type so the
+sheet reads as composed, and fails if any text block ends on a single word. Chrome
+is required, because WeasyPrint does not clip the cover's foil gradient to the
+glyphs.
+
+To offer it for download:
+
+1. Copy the PDF into the web service's assets directory on the Railway volume
+   (`ASSETS_DIR`, alongside `edisi-membangun.pdf` and `teman-hidup.pdf`). The
+   free tier has no `ProductId` today, so it needs a free download route that
+   serves this file directly rather than through `/muat-turun/[token]`, which
+   requires a paid order.
+2. Point the "Edisi Poket, percuma" block on the landing page at that route.
+3. Keep the tier seal and the "Edisi Poket" name on the cover, as
+   `docs/brand/tier-naming.md` fixes them.
+
 ## Notes
 
 - Security headers (CSP, HSTS, nosniff, referrer policy, permissions policy) live in

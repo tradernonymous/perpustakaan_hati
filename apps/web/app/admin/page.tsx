@@ -4,7 +4,7 @@ import { isAdminRequest } from "@/src/server/auth";
 import { getThreadsStore } from "@/src/server/instance";
 import { AdminPanel } from "./AdminPanel";
 
-export const metadata: Metadata = { title: "Admin — Perpustakaan Hati", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Admin, Perpustakaan Hati", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
 
 /**

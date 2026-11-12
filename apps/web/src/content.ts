@@ -54,7 +54,7 @@ export const TIERS: Tier[] = [
     price: "RM 79–149",
     size: "Buku, buku kerja, skrip dan suara",
     tone: "burgundy",
-    subcopy: "Bacaan, kerja, dan skrip — teman hidup.",
+    subcopy: "Bacaan, kerja, dan skrip, teman hidup.",
     includes: [
       "Semua dalam Edisi Membangun",
       "Buku Kerja 30 Hari",

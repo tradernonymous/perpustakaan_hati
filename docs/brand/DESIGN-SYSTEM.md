@@ -94,6 +94,45 @@ A test enforces both halves of that rule.
 - The sanctioned-asset list, the required-token list and the retired-asset names
   below are **guidance for humans and agents**, not a gate.
 
+## Copy rules
+These rules govern every piece of copy the brand publishes: eBooks, Threads
+cards, the storefront, emails and page titles.
+
+1. **Never use the em dash (—) in copy.** Not in a heading, a sentence, a
+   label, a chart row or a page title. Set a clause apart with a colon, a
+   comma, a full stop, or a second line. Em dashes read as imported English
+   punctuation, and the Malay copy in this brand does not use them.
+
+   ```
+   Wrong:  "Bacaan, kerja, dan skrip — teman hidup."
+   Right:  "Bacaan, kerja, dan skrip, teman hidup."
+   Wrong:  "KAD REFLEKSI — tiga soalan untuk malam ini"
+   Right:  "KAD REFLEKSI: tiga soalan untuk malam ini"
+   ```
+
+   A hyphen is fine for a compound ("paling-penting", "sebab-kerja"). The
+   byline reads `by @rahimam`, flanked by the rule that `.ph-kicker` draws
+   itself, not by dashes.
+
+   This rule covers reader-facing text only. Code comments, CSS comments and
+   SVG source comments are not copy and are not affected.
+
+2. **Malay sentence case for body copy.** Capitalise the first word of a
+   sentence, the first word of a title, and proper nouns (`Perpustakaan
+   Hati`, `Threads`, `Edisi Poket`). Do not capitalise every word of a title.
+
+3. **Tier names are fixed.** `Edisi Poket`, `Edisi Membangun`, `Teman Hidup`.
+   Their subcopy is locked in `docs/brand/tier-naming.md`.
+
+4. **No invented numbers.** Every figure carries its source on the page.
+   A chart without a source line does not ship.
+
+5. **No pitch in the free tier.** The closing page of a pocket edition carries
+   the helplines and nothing else.
+
+`packages/brand-tools/tests/test_copy_rules.py` fails the build when the em
+dash reappears in published copy.
+
 ## Sanctioned assets (`docs/brand/assets/`)
 | File | Use |
 |---|---|

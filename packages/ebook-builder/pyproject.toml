@@ -37,6 +37,12 @@ select = ["E", "F", "I", "UP", "B", "PL"]
 # WeasyPrint is imported inside the function on purpose: it is a heavy native
 # stack and the parser must stay importable without it.
 "ebook_builder/pdf.py" = ["PLC0415"]
+# The pocket edition carries the brand's stylesheet as a template string, so
+# the CSS sits at its own natural line length. The parser dispatches over
+# manuscript markers by design, as the parser above does.
+"ebook_builder/pocket.py" = ["E501", "PLR0912", "PLR0915", "PLR2004", "PLW2901"]
+# The tests assert on literal thresholds and marker counts.
+"tests/test_pocket.py" = ["PLC0415", "PLR2004"]
 
 [tool.ruff.lint.pylint]
 # The parser dispatches over many Markdown constructs by design.

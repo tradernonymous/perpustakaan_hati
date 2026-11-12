@@ -10,7 +10,7 @@ export function KadJujurHati() {
 
   return (
     <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-5">
-      <p className="text-sm text-green-900">Kad Jujur Hati — tarik kad, baca, dan kongsi di Threads dengan #JujurHati</p>
+      <p className="text-sm text-green-900">Kad Jujur Hati: tarik kad, baca, dan kongsi di Threads dengan #JujurHati</p>
       <article className="rounded border border-gold p-4">
         <h3 className="font-display text-xl text-green-900">{card.title}</h3>
         <p className="mt-2 text-ink-grove">{card.prompt}</p>

@@ -31,7 +31,7 @@ function page(config: FacebookConfig | null, status: number, title: string, body
   });
   if (config) headers.append("Set-Cookie", clearedStateCookie(config));
 
-  const html = `<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title} — Perpustakaan Hati</title><style>
+  const html = `<!doctype html><html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${title}, Perpustakaan Hati</title><style>
 *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f7f4ea;color:#12251b;font:16px/1.6 system-ui,sans-serif;padding:24px}
 main{width:min(560px,100%);border:1px solid #d2c4a8;border-radius:16px;padding:32px;background:#fffdf6;box-shadow:0 24px 60px rgb(60 45 20/.18)}
 h1{margin:0 0 12px;font:600 26px/1.25 Georgia,serif;color:#123d2a}p{margin:0 0 10px;color:#4f5f53}

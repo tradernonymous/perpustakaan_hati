@@ -18,7 +18,7 @@ describe("tier ladder matches docs/brand/tier-naming.md", () => {
   it("uses the locked subcopy", () => {
     expect(TIERS[0].subcopy).toBe("Ringkas, menyentuh, mudah dibawa.");
     expect(TIERS[1].subcopy).toBe("Panduan yang paling jujur dan paling mudah diikuti.");
-    expect(TIERS[2].subcopy).toBe("Bacaan, kerja, dan skrip — teman hidup.");
+    expect(TIERS[2].subcopy).toBe("Bacaan, kerja, dan skrip, teman hidup.");
   });
   it("never uses retired tier names", () => {
     const all = JSON.stringify(TIERS);

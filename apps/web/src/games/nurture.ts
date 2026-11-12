@@ -18,7 +18,7 @@ export const NURTURE_DAYS: NurtureDay[] = [
   },
   {
     day: 4,
-    subject: "7 Hari Reset — Hari 1",
+    subject: "7 Hari Reset, Hari 1",
     body: "Hari pertama reset: tulis satu perkara kecil yang boleh kamu buat hari ini untuk diri sendiri.",
   },
   {
@@ -33,7 +33,7 @@ export const NURTURE_DAYS: NurtureDay[] = [
   },
   {
     day: 7,
-    subject: "Teman Hidup — pemium bundle",
+    subject: "Teman Hidup, bundle premium",
     body: "Teman Hidup ialah continuity: buku kerja 30 hari, skrip, nota suara, dan kad refleksi. Untuk kamu yang mahu ditemani setiap hari.",
   },
 ];
