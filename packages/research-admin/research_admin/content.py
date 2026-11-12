@@ -5,11 +5,31 @@ import json
 import httpx
 
 from .config import Settings
-from .research import URL, ResearchError, _extract, _model
+from .research import URL, ResearchError, _completion_payload, _extract, _http_failure, _model
 
-CONTENT_PROMPT = """You are an editorial assistant for Perpustakaan Hati, a Malaysian relationship-healing ebook brand. Create grounded content ideas from supplied, evidence-linked research insights. Do not state psychological diagnoses, promise outcomes, or invent audience quotes or statistics. Preserve an empathetic, non-judgmental voice in Bahasa Melayu or casual Malaysian English, matching the evidence. Return JSON only: {\"drafts\":[{\"kind\":\"threads_post\"|\"ebook_outline\"|\"design_brief\",\"title\":string,\"content\":object,\"source_ids\":[integer]}]}. Produce 1 short Threads post (include a gentle reflective question, no hashtags unless useful), 1 practical ebook chapter outline, and 1 visual/design brief. Every draft must cite one or more supplied insight IDs in source_ids. For ebook_outline, content should contain a short premise, intended reader need, and 3-5 chapter objects with title and one-sentence outcome. For threads_post, content has one post string. For design_brief, content has concept, format, visual_direction, and copy. Never output anything other than the requested JSON."""
+CONTENT_PROMPT = """You are an editorial assistant for Perpustakaan Hati, a Malaysian relationship-healing ebook brand. Create grounded content ideas from supplied, evidence-linked research insights. Do not state psychological diagnoses, promise outcomes, or invent audience quotes or statistics. Preserve an empathetic, non-judgmental voice in Bahasa Melayu or casual Malaysian English, matching the evidence. Return JSON only: {\"drafts\":[{\"kind\":\"threads_post\"|\"ebook_outline\"|\"design_brief\",\"title\":string,\"content\":object,\"source_ids\":[integer]}]}. Produce 1 short Threads post (include a gentle reflective question, no hashtags unless useful), 1 practical ebook chapter outline, and 1 visual/design brief. Every draft must cite one or more supplied insight IDs in source_ids. For ebook_outline, content must be an object with a short premise, intended_reader_need, and 3-5 chapter objects with title and one-sentence outcome. For threads_post, content must be an object {"post": string}, never a bare string. For design_brief, content must be an object with concept, format, visual_direction, and copy. source_ids must always be a JSON array of integers. Never output anything other than the requested JSON."""
 
 ALLOWED_KINDS = {"threads_post", "ebook_outline", "design_brief"}
+
+
+def _normalise_content(kind: str, content):
+    """Accept the shapes a model actually returns for `content`.
+
+    Models routinely answer a Threads post as a bare string rather than the
+    {"post": ...} object the prompt asks for; that is still a usable draft, so
+    it is normalised instead of discarded as a missing kind.
+    """
+    if kind == "threads_post":
+        if isinstance(content, str):
+            content = {"post": content.strip()}
+        if not isinstance(content, dict):
+            return None
+        if not str(content.get("post", "")).strip():
+            for alternative in ("text", "body", "caption"):
+                if str(content.get(alternative, "")).strip():
+                    content = {**content, "post": str(content[alternative]).strip()}
+                    break
+    return content
 
 
 def _validate_drafts(payload: dict, insights: list[dict]) -> list[dict]:
@@ -19,9 +39,12 @@ def _validate_drafts(payload: dict, insights: list[dict]) -> list[dict]:
         if not isinstance(raw, dict) or raw.get("kind") not in ALLOWED_KINDS:
             continue
         title = " ".join(str(raw.get("title", "")).split())[:160]
-        content = raw.get("content")
+        content = _normalise_content(raw["kind"], raw.get("content"))
+        source_ids = raw.get("source_ids", [])
+        if isinstance(source_ids, (int, str)):
+            source_ids = [source_ids]
         try:
-            cited = sorted({int(value) for value in raw.get("source_ids", []) if int(value) in by_id})
+            cited = sorted({int(value) for value in source_ids if int(value) in by_id})
         except (TypeError, ValueError):
             cited = []
         if not title or not isinstance(content, dict) or not cited:
@@ -51,21 +74,20 @@ def generate_drafts(insights: list[dict], settings: Settings, http: httpx.Client
         raise ResearchError("Select at least one saved insight before creating content drafts.")
     model = _model(settings)
     material = [{"id": int(item["id"]), "theme": item["theme"], "quote": item["quote"], "ebook_idea": item["ebook_idea"]} for item in insights]
+    payload = _completion_payload(model, CONTENT_PROMPT, json.dumps(material, ensure_ascii=False))
     try:
         response = http.post(
             URL,
             headers={"Authorization": f"Bearer {settings.openrouter_api_key}"},
-            json={"model": model, "messages": [{"role": "system", "content": CONTENT_PROMPT}, {"role": "user", "content": json.dumps(material, ensure_ascii=False)}],
-                  "response_format": {"type": "json_object"}, "provider": {"max_price": {"prompt": 0, "completion": 0}}, "max_tokens": 2200},
+            json=payload,
         )
     except httpx.HTTPError:
         raise ResearchError("Could not reach OpenRouter; check your connection and retry.") from None
-    if response.status_code == 429:
-        raise ResearchError("OpenRouter free tier rate limit reached; retry later.")
     if not response.is_success:
-        raise ResearchError(f"OpenRouter error (HTTP {response.status_code}); check the API key and retry.")
+        raise _http_failure(response.status_code)
     try:
-        content = response.json()["choices"][0]["message"]["content"]
+        choice = response.json()["choices"][0]
+        content = choice["message"]["content"]
     except (ValueError, KeyError, IndexError, TypeError):
         raise ResearchError("AI provider returned an unexpected content format; retry.") from None
-    return _validate_drafts(_extract(content, list_key="drafts"), insights)
+    return _validate_drafts(_extract(content, list_key="drafts", finish_reason=str(choice.get("finish_reason") or "")), insights)

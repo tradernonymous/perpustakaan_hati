@@ -42,6 +42,36 @@ def _is_free(model: str) -> bool:
     return bool(FREE.search(model))
 
 
+def _completion_payload(model: str, system: str, user: str, *, max_tokens: int = MAX_TOKENS) -> dict:
+    """One request shape for both research and drafts.
+
+    Paid models reject the zero-price provider cap with a 404 "no endpoints"
+    error, so that cap is only sent for free models. Reasoning stays off so a
+    thinking model cannot spend the whole budget before answering JSON.
+    """
+    payload = {
+        "model": model,
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
+        "response_format": {"type": "json_object"},
+        "reasoning": {"enabled": False},
+        "max_tokens": max_tokens,
+    }
+    if _is_free(model):
+        payload["provider"] = {"max_price": {"prompt": 0, "completion": 0}}
+    return payload
+
+
+def _http_failure(status_code: int) -> "ResearchError":
+    if status_code == 429:
+        return ResearchError("OpenRouter rate limit reached; retry later.")
+    if status_code == 404:
+        return ResearchError(
+            "OpenRouter found no endpoint for the configured model (HTTP 404). "
+            "Check OPENROUTER_MODEL, and that a provider still serves it, then retry."
+        )
+    return ResearchError(f"OpenRouter error (HTTP {status_code}); check the API key and retry.")
+
+
 def _parse_sources(sources: list[dict]) -> list[dict]:
     material = []
     for item in sources:
@@ -120,20 +150,7 @@ def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client
         return []
     model = _model(settings)
     material = _parse_sources(sources)
-    payload = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": PAIN_POINT_PROMPT},
-            {"role": "user", "content": json.dumps(material, ensure_ascii=False)},
-        ],
-        "response_format": {"type": "json_object"},
-        # Without this a thinking model spends the answer budget on reasoning and
-        # returns no content at all, which looked like a format bug.
-        "reasoning": {"enabled": False},
-        "max_tokens": MAX_TOKENS,
-    }
-    if _is_free(model):
-        payload["provider"] = {"max_price": {"prompt": 0, "completion": 0}}
+    payload = _completion_payload(model, PAIN_POINT_PROMPT, json.dumps(material, ensure_ascii=False))
     try:
         response = http.post(
             URL,
@@ -142,10 +159,8 @@ def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client
         )
     except httpx.HTTPError:
         raise ResearchError("Could not reach OpenRouter; check your connection and retry.") from None
-    if response.status_code == 429:
-        raise ResearchError("OpenRouter free tier rate limit reached; retry later.")
     if not response.is_success:
-        raise ResearchError(f"OpenRouter error (HTTP {response.status_code}); check the API key and retry.")
+        raise _http_failure(response.status_code)
     try:
         choice = response.json()["choices"][0]
         content = choice["message"]["content"]
