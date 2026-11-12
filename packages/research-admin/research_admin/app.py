@@ -8,7 +8,7 @@ import io
 import json
 import secrets
 import time
-from urllib.parse import quote, urlsplit
+from urllib.parse import parse_qs, quote, urlsplit
 
 import httpx
 from fastapi import FastAPI, Request, Response
@@ -23,6 +23,7 @@ from .store import Store, StoreError, build_vault
 from .threads_client import ThreadsClient, ThreadsError
 
 SESSION_COOKIE = "research_session"
+CSRF_COOKIE = "research_csrf"
 STATE_TTL = 600
 SESSION_TTL = 8 * 3600
 LOGIN_MAX_FAILURES = 5
@@ -123,6 +124,21 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     def signed_in(request: Request) -> bool:
         return _valid_session(request.cookies.get(SESSION_COOKIE, ""), settings)
 
+    async def csrf_token_ok(request: Request) -> bool:
+        """Double-submit token for browsers/webviews that omit Origin on a same-site form POST.
+
+        Reads the body (not the form) so the downstream handler still gets it.
+        """
+        content_type = request.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+        if content_type != "application/x-www-form-urlencoded":
+            return False
+        cookie_token = request.cookies.get(CSRF_COOKIE, "")
+        if not cookie_token:
+            return False
+        body = (await request.body()).decode("utf-8", "replace")
+        submitted = (parse_qs(body).get("csrf") or [""])[0]
+        return bool(submitted) and hmac.compare_digest(submitted, cookie_token)
+
     @app.middleware("http")
     async def security(request: Request, call_next):
         if request.url.path == "/healthz":
@@ -132,7 +148,7 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         # /login validates its own CSRF (double-submit cookie or same-origin
         # Origin), so browsers and webviews that omit both headers can still
         # sign in. Every other mutation keeps the strict origin check.
-        if request.method == "POST" and request.url.path != "/login" and not safe_origin(request):
+        if request.method == "POST" and request.url.path != "/login" and not (safe_origin(request) or await csrf_token_ok(request)):
             return error(403, "Cross-origin or missing-origin requests are blocked.")
         if request.url.path not in ("/login", "/auth/callback"):
             if not settings.admin_password:
@@ -243,13 +259,17 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         audiences = build_audiences(app.state.store.list_insights())
         runs = app.state.store.list_research_runs()
         drafts = app.state.store.list_drafts(status=status)
+        csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
         page = render_dashboard(DashboardData(
             view=view, connection=connection, expiry=expiry, insights=insights, runs=runs,
             audiences=audiences, drafts=drafts, query=search,
-            selection=selection, status_filter=status,
+            selection=selection, status_filter=status, csrf=csrf,
             error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
-        ), logout_action="<form method=post action=/logout><button class=signout>Sign out</button></form>")
-        return HTMLResponse(page)
+        ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
+        response = HTMLResponse(page)
+        if not request.cookies.get(CSRF_COOKIE):
+            response.set_cookie(CSRF_COOKIE, csrf, httponly=True, secure=settings.secure_cookies, samesite="lax", max_age=SESSION_TTL)
+        return response
 
     @app.get("/auth/start")
     def auth_start(request: Request):

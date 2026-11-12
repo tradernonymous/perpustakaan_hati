@@ -195,6 +195,17 @@ def test_missing_origin_rejected(client):
     assert response.status_code == 403
 
 
+def test_csrf_token_lets_a_same_site_form_post_without_origin(client):
+    page = client.get("/?view=research")
+    token = re.search(r'name="csrf" value="([^"]+)"', page.text).group(1)
+    assert "research_csrf" in page.headers["set-cookie"]
+    client.headers.pop("origin")
+    empty = {"sources": [], "posts_sampled": 0, "selected_posts": 0, "limitations": "empty profile"}
+    with patch("research_admin.app.ThreadsClient.collect_research", return_value=empty):
+        assert client.post("/research/run", data={"consent": "on", "csrf": token}).status_code == 200
+    assert client.post("/research/run", data={"consent": "on", "csrf": "forged"}).status_code == 403
+
+
 def test_bad_host_rejected(client):
     response = client.get("/auth/status", headers={"Host": "attacker.example"})
     assert response.status_code == 400
