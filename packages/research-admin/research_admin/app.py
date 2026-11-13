@@ -16,8 +16,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 from .audiences import build_audiences
 from .config import Settings
-from .content import generate_drafts
+from .content import DRAFT_KINDS, DRAFT_LANGUAGES, DRAFT_TONES, generate_drafts
 from .dashboard import DashboardData, render_dashboard
+from .jobs import JobCancelled
 from .research import ResearchError, mine_pain_points
 from .store import Store, StoreError, build_vault
 from .threads_client import SampleLimits, ThreadsClient, ThreadsError
@@ -96,6 +97,7 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     login_failures: dict[str, list[float]] = {}
     store = Store(settings.db_path, vault=vault_factory() if vault_factory else build_vault(settings))
     store.init_schema()
+    store.recover_interrupted_jobs()
     app.state.store = store
 
     def sealed(response: Response) -> Response:
@@ -165,6 +167,84 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     @app.exception_handler(httpx.HTTPError)
     async def unreachable(request, exc):
         return error(502, "Threads or OpenRouter unreachable; check your connection and retry.")
+
+    def _clean_focus(value) -> str:
+        return " ".join(str(value or "").split())[:500]
+
+    def _cancel_check(job_id: int | None) -> None:
+        if job_id is not None and store.job_cancel_requested(job_id):
+            raise JobCancelled("Job cancelled.")
+
+    def _perform_research(params: dict, job_id: int | None = None) -> dict:
+        limits = SampleLimits(
+            params.get("post_limit", 50), params.get("top_posts", 5), params.get("replies_per_post", 50)
+        ).normalized()
+        token = store.get_token()
+        if not token or token.expires_at <= time.time():
+            raise ThreadsError("Threads token expired or revoked; reconnect your account.")
+        if not settings.openrouter_api_key:
+            raise ResearchError("OPENROUTER_API_KEY is not set. Add it to the server secret store to analyze collected Threads text.")
+        _cancel_check(job_id)
+        research = ThreadsClient(settings, app.state.http).collect_research(
+            token.access_token, post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post)
+        _cancel_check(job_id)
+        insights = mine_pain_points(research["sources"], settings, app.state.http, focus=params.get("focus", ""))
+        _cancel_check(job_id)
+        store.save_insights(insights)
+        run_id = store.save_research_run(
+            posts_sampled=research["posts_sampled"], selected_posts=research.get("selected_posts", 0),
+            insights=insights, limitations=research["limitations"], posts=research.get("selected_posts_data", []),
+            post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post,
+            focus=params.get("focus", ""),
+        )
+        return {"run_id": run_id, "insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"], "limits": limits.as_dict(), "focus": params.get("focus", "")}
+
+    def _perform_drafts(params: dict, job_id: int | None = None) -> dict:
+        ids = list(dict.fromkeys(int(value) for value in params.get("insight_ids", [])))[:20]
+        if not ids:
+            raise ResearchError("Select between 1 and 20 valid saved insights.")
+        selected = store.get_insights_by_ids(ids)
+        if len(selected) != len(ids):
+            raise ResearchError("One or more selected insights are no longer available.")
+        _cancel_check(job_id)
+        saved = store.save_drafts(
+            generate_drafts(
+                selected, settings, app.state.http,
+                kinds=params.get("kinds"), tone=params.get("tone", "empathetic"), language=params.get("language", "match evidence"),
+            ),
+            ids,
+        )
+        return {"drafts": saved}
+
+    def run_job(job: dict) -> bool:
+        job_id = int(job["id"])
+        try:
+            if job["kind"] == "research":
+                result = _perform_research(job["params"], job_id)
+            elif job["kind"] == "drafts":
+                result = _perform_drafts(job["params"], job_id)
+            else:
+                raise StoreError("Unknown job kind.")
+        except JobCancelled:
+            store.mark_job_cancelled(job_id)
+            return False
+        except (ThreadsError, ResearchError, StoreError) as exc:
+            store.fail_job(job_id, str(exc))
+            return False
+        except Exception:  # noqa: BLE001 - a crash must surface as a failed job, not kill the worker
+            store.fail_job(job_id, "Unexpected job failure; retry, and check the service log if it repeats.")
+            return False
+        store.finish_job(job_id, result)
+        return True
+
+    def process_next_job() -> bool:
+        job = store.claim_job()
+        if not job:
+            return False
+        run_job(job)
+        return True
+
+    app.state.process_next_job = process_next_job
 
     def login_html(next_path: str, csrf: str, message: str = "") -> str:
         note = f"<p class=err role=alert>{html_module.escape(message)}</p>" if message else ""
@@ -261,10 +341,13 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         drafts = app.state.store.list_drafts(status=status)
         csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
         limits = SampleLimits.from_row(runs[0] if runs else None)
+        focus = runs[0].get("focus", "") if runs else ""
         page = render_dashboard(DashboardData(
             view=view, connection=connection, expiry=expiry, insights=insights, runs=runs,
             audiences=audiences, drafts=drafts, query=search,
             selection=selection, status_filter=status, csrf=csrf, limits=limits,
+            jobs=store.list_jobs(),
+            focus=focus,
             model=settings.openrouter_model,
             error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
         ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
@@ -332,23 +415,15 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             return error(401, "reconnect")
         if not settings.openrouter_api_key:
             return error(503, "OPENROUTER_API_KEY is not set. Add it to the server secret store to analyze collected Threads text.")
-        try:
-            limits = SampleLimits.from_form(data)
-            research = ThreadsClient(settings, app.state.http).collect_research(
-                token.access_token, post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post)
-            insights = mine_pain_points(research["sources"], settings, app.state.http)
-            app.state.store.save_insights(insights)
-            run_id = app.state.store.save_research_run(
-                posts_sampled=research["posts_sampled"], selected_posts=research.get("selected_posts", 0),
-                insights=insights, limitations=research["limitations"], posts=research.get("selected_posts_data", []),
-                post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post,
-            )
-        except (ThreadsError, ResearchError, StoreError) as exc:
-            response = RedirectResponse("/?view=research&notice=" + quote(str(exc)), status_code=303) if "text/html" in request.headers.get("accept", "") else error(502, str(exc))
-            return response
-        result = {"run_id": run_id, "insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"], "limits": limits.as_dict()}
+        limits = SampleLimits.from_form(data)
+        params = {**limits.as_dict(), "focus": _clean_focus(data.get("focus"))}
         if "text/html" in request.headers.get("accept", ""):
-            return RedirectResponse("/?view=research&notice=Research+run+saved", status_code=303)
+            job = app.state.store.create_job("research", params)
+            return RedirectResponse(f"/?view=research&notice=Research+queued+(job+%23{job['id']})", status_code=303)
+        try:
+            result = _perform_research(params)
+        except (ThreadsError, ResearchError, StoreError) as exc:
+            return error(502, str(exc))
         return result
 
     @app.get("/research/runs")
@@ -389,6 +464,9 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             form = await request.form()
             raw_ids = form.getlist("insight_ids")
             consent = form.get("consent", "")
+            kinds_raw = form.getlist("kinds")
+            tone = form.get("tone", "empathetic")
+            language = form.get("language", "match evidence")
         except Exception:
             try:
                 body = await request.json()
@@ -396,10 +474,15 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
                 body = {}
             raw_ids = body.get("insight_ids", []) if isinstance(body, dict) else []
             consent = body.get("consent", "") if isinstance(body, dict) else ""
+            kinds_raw = body.get("kinds", []) if isinstance(body, dict) else []
+            tone = body.get("tone", "empathetic") if isinstance(body, dict) else "empathetic"
+            language = body.get("language", "match evidence") if isinstance(body, dict) else "match evidence"
         if str(consent) != "on":
             return error(400, "Tick the content-generation consent box before continuing.")
         if not isinstance(raw_ids, (list, tuple)):
             raw_ids = [raw_ids]
+        if not isinstance(kinds_raw, (list, tuple)):
+            kinds_raw = [kinds_raw]
         try:
             ids = list(dict.fromkeys(int(value) for value in raw_ids))
         except (TypeError, ValueError):
@@ -409,13 +492,20 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         selected = app.state.store.get_insights_by_ids(ids)
         if len(selected) != len(ids):
             return error(400, "One or more selected insights are no longer available.")
-        try:
-            saved = app.state.store.save_drafts(generate_drafts(selected, settings, app.state.http), ids)
-        except (ResearchError, StoreError) as exc:
-            return RedirectResponse("/?view=studio&notice=" + quote(str(exc)), status_code=303) if is_html else error(502, str(exc))
+        params = {
+            "insight_ids": ids,
+            "kinds": [kind for kind in DRAFT_KINDS if kind in kinds_raw] or list(DRAFT_KINDS),
+            "tone": tone if tone in DRAFT_TONES else DRAFT_TONES[0],
+            "language": language if language in DRAFT_LANGUAGES else DRAFT_LANGUAGES[0],
+        }
         if is_html:
-            return RedirectResponse("/?view=library&notice=Drafts+saved+for+review", status_code=303)
-        return {"drafts": saved}
+            job = app.state.store.create_job("drafts", params)
+            return RedirectResponse(f"/?view=studio&notice=Drafts+queued+(job+%23{job['id']})", status_code=303)
+        try:
+            result = _perform_drafts(params)
+        except (ResearchError, StoreError) as exc:
+            return error(502, str(exc))
+        return result
 
     @app.post("/content/drafts/{draft_id}/status")
     async def content_draft_status(request: Request, draft_id: int):
@@ -441,6 +531,29 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if not signed_in(request):
             return error(401, "Sign in first.")
         return {"drafts": app.state.store.list_drafts(status=status)}
+
+    @app.get("/queue")
+    def queue_status(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        return {"jobs": app.state.store.list_jobs()}
+
+    @app.post("/queue/clear")
+    def queue_clear(request: Request):
+        cleared = app.state.store.clear_queued_jobs()
+        return RedirectResponse(f"/?view=research&notice=Cleared+{cleared}+queued+job{'' if cleared == 1 else 's'}", status_code=303)
+
+    @app.post("/queue/{job_id}/cancel")
+    def queue_cancel(request: Request, job_id: int):
+        app.state.store.cancel_job(job_id)
+        return RedirectResponse("/?view=research&notice=Cancel+requested", status_code=303)
+
+    @app.post("/queue/{job_id}/retry")
+    def queue_retry(request: Request, job_id: int):
+        job = app.state.store.retry_job(job_id)
+        if not job:
+            return error(400, "Only failed or cancelled jobs can be retried.")
+        return RedirectResponse(f"/?view=research&notice=Job+%23{job['id']}+queued", status_code=303)
 
     @app.get("/healthz")
     def healthz():

@@ -124,3 +124,70 @@ def test_drafts_without_a_saved_permalink_omit_the_references_block():
     with httpx.Client() as http:
         drafts = generate_drafts([insight], settings(), http)
     assert all("references" not in draft["content"] for draft in drafts)
+
+
+@respx.mock
+def test_openai_model_draft_request_uses_max_completion_tokens_and_attribution():
+    """OpenAI models reject max_tokens; OpenRouter also asks for app attribution."""
+    def respond(request):
+        payload = json.loads(request.content)
+        assert payload["model"] == "openai/gpt-6-luna"
+        assert payload["max_completion_tokens"] >= 3000
+        assert "max_tokens" not in payload
+        assert request.headers["HTTP-Referer"].startswith("https://")
+        assert request.headers["X-Title"]
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(DRAFTS)}}]})
+    respx.post(URL).mock(side_effect=respond)
+    assert len(call(model="openai/gpt-6-luna")) == 3
+
+
+@respx.mock
+def test_qwen_draft_request_still_uses_max_tokens_with_attribution():
+    def respond(request):
+        payload = json.loads(request.content)
+        assert payload["max_tokens"] >= 3000
+        assert "max_completion_tokens" not in payload
+        assert request.headers["X-Title"]
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(DRAFTS)}}]})
+    respx.post(URL).mock(side_effect=respond)
+    assert len(call()) == 3
+
+
+@respx.mock
+def test_prompt_only_requests_the_selected_draft_kinds_tone_and_language():
+    def respond(request):
+        system = json.loads(request.content)["messages"][0]["content"]
+        suffix = system.split("Generate only these draft kinds:", 1)[1]
+        assert "threads_post, ebook_outline." in suffix
+        assert "Tone: reflective." in suffix
+        assert "Language: English." in suffix
+        assert "design_brief" not in suffix
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(
+            {"drafts": [d for d in DRAFTS["drafts"] if d["kind"] != "design_brief"]})}}]})
+    respx.post(URL).mock(side_effect=respond)
+    with httpx.Client() as http:
+        drafts = generate_drafts([INSIGHT], settings(), http, kinds=["threads_post", "ebook_outline"], tone="reflective", language="English")
+    assert [draft["kind"] for draft in drafts] == ["threads_post", "ebook_outline"]
+
+
+@respx.mock
+def test_subset_run_rejects_a_response_missing_one_selected_kind():
+    """Extra kinds are dropped, but a selected kind that never arrives is an error."""
+    partial = {"drafts": [d for d in DRAFTS["drafts"] if d["kind"] == "threads_post"]}
+    respx.post(URL).respond(200, json={"choices": [{"message": {"content": json.dumps(partial)}, "finish_reason": "stop"}]})
+    with httpx.Client() as http:
+        with pytest.raises(ResearchError, match="did not include every selected kind"):
+            generate_drafts([INSIGHT], settings(), http, kinds=["threads_post", "ebook_outline"])
+
+
+@respx.mock
+def test_unknown_tone_and_language_fall_back_to_the_defaults():
+    def respond(request):
+        system = json.loads(request.content)["messages"][0]["content"]
+        assert "Tone: empathetic." in system
+        assert "Language: match evidence (match the dominant language of the supplied evidence)." in system
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(DRAFTS)}}]})
+    respx.post(URL).mock(side_effect=respond)
+    with httpx.Client() as http:
+        drafts = generate_drafts([INSIGHT], settings(), http, kinds=None, tone="shakespearean", language="Klingon")
+    assert len(drafts) == 3

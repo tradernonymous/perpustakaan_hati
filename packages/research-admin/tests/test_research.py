@@ -117,3 +117,49 @@ def test_quote_must_belong_to_its_cited_source(unlinked):
     respx.post(URL).respond(200, json={"choices": [{"message": {"content": json.dumps({"insights": [wrong]})}}]})
     with pytest.raises(ResearchError, match="evidence"):
         call([first, second])
+
+
+@respx.mock
+def test_focus_is_appended_to_the_prompt_and_bounded():
+    def response(request):
+        prompt = json.loads(request.content)["messages"][0]["content"]
+        assert "Focus for this run: healers after a breakup" in prompt
+        assert "must-not-share" not in request.content.decode()
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({"insights": [INSIGHT]})}}]})
+    respx.post(URL).mock(side_effect=response)
+    with httpx.Client() as http:
+        insights = mine_pain_points([SOURCE], Settings(openrouter_api_key="k"), http, focus="  healers   after a breakup  ")
+    assert insights == [INSIGHT]
+
+
+@respx.mock
+def test_blank_focus_leaves_the_prompt_untouched():
+    def response(request):
+        prompt = json.loads(request.content)["messages"][0]["content"]
+        assert "Focus for this run" not in prompt
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({"insights": [INSIGHT]})}}]})
+    respx.post(URL).mock(side_effect=response)
+    with httpx.Client() as http:
+        assert mine_pain_points([SOURCE], Settings(openrouter_api_key="k"), http, focus="   ") == [INSIGHT]
+
+
+@respx.mock
+def test_openai_model_uses_max_completion_tokens_and_sends_attribution():
+    def response(request):
+        payload = json.loads(request.content)
+        assert payload["max_completion_tokens"] >= 3000
+        assert "max_tokens" not in payload
+        assert request.headers["HTTP-Referer"].startswith("https://")
+        assert request.headers["X-Title"]
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({"insights": [INSIGHT]})}}]})
+    respx.post(URL).mock(side_effect=response)
+    assert call(model="openai/gpt-6-luna") == [INSIGHT]
+
+
+@respx.mock
+def test_paid_model_attribution_headers_are_sent_too():
+    def response(request):
+        assert request.headers["X-Title"]
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({"insights": [INSIGHT]})}}]})
+    respx.post(URL).mock(side_effect=response)
+    assert call(model="qwen/qwen3.7-flash") == [INSIGHT]

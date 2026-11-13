@@ -116,12 +116,18 @@ class Store:
                     selected_posts INTEGER NOT NULL, insights_count INTEGER NOT NULL,
                     themes_json TEXT NOT NULL, limitations TEXT NOT NULL, posts_json TEXT NOT NULL DEFAULT '[]',
                     post_limit INTEGER NOT NULL DEFAULT 50, top_posts INTEGER NOT NULL DEFAULT 5,
-                    replies_per_post INTEGER NOT NULL DEFAULT 50
+                    replies_per_post INTEGER NOT NULL DEFAULT 50, focus TEXT NOT NULL DEFAULT ''
                 );
                 CREATE TABLE IF NOT EXISTS content_drafts (
                     id INTEGER PRIMARY KEY, kind TEXT NOT NULL, title TEXT NOT NULL,
                     content_json TEXT NOT NULL, source_ids_json TEXT NOT NULL,
                     status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS jobs (
+                    id INTEGER PRIMARY KEY, kind TEXT NOT NULL, status TEXT NOT NULL,
+                    params_json TEXT NOT NULL, result_json TEXT NOT NULL DEFAULT '{}',
+                    error TEXT NOT NULL DEFAULT '', cancel_requested INTEGER NOT NULL DEFAULT 0,
+                    created_at TEXT NOT NULL, started_at TEXT, finished_at TEXT
                 );
             """)
             columns = {row[1] for row in db.execute("PRAGMA table_info(research_runs)")}
@@ -130,6 +136,7 @@ class Store:
                 ("post_limit", "ALTER TABLE research_runs ADD COLUMN post_limit INTEGER NOT NULL DEFAULT 50"),
                 ("top_posts", "ALTER TABLE research_runs ADD COLUMN top_posts INTEGER NOT NULL DEFAULT 5"),
                 ("replies_per_post", "ALTER TABLE research_runs ADD COLUMN replies_per_post INTEGER NOT NULL DEFAULT 50"),
+                ("focus", "ALTER TABLE research_runs ADD COLUMN focus TEXT NOT NULL DEFAULT ''"),
             ):
                 if column not in columns:
                     db.execute(ddl)
@@ -179,9 +186,10 @@ class Store:
             return [dict(row) for row in rows]
 
     def save_research_run(self, *, posts_sampled: int, selected_posts: int, insights: list[dict], limitations: str, posts: list[dict] | None = None,  # noqa: PLR0913
-                          post_limit: int = 50, top_posts: int = 5, replies_per_post: int = 50) -> int:
+                          post_limit: int = 50, top_posts: int = 5, replies_per_post: int = 50, focus: str = "") -> int:
         created = datetime.now(UTC).isoformat()
         themes = sorted({str(item.get("theme", "")).strip() for item in insights if item.get("theme")})
+        focus = " ".join(str(focus or "").split())[:500]
         safe_posts = []
         for post in (posts or [])[:max(1, int(top_posts))]:
             metrics = post.get("metrics", {})
@@ -193,9 +201,9 @@ class Store:
             })
         with closing(sqlite3.connect(self.db_path)) as db, db:
             cursor = db.execute(
-                "INSERT INTO research_runs(created_at, posts_sampled, selected_posts, insights_count, themes_json, limitations, posts_json, post_limit, top_posts, replies_per_post) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO research_runs(created_at, posts_sampled, selected_posts, insights_count, themes_json, limitations, posts_json, post_limit, top_posts, replies_per_post, focus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (created, posts_sampled, selected_posts, len(insights), json.dumps(themes, ensure_ascii=False), limitations[:2000], json.dumps(safe_posts, ensure_ascii=False),
-                 max(1, int(post_limit)), max(1, int(top_posts)), max(1, int(replies_per_post))),
+                 max(1, int(post_limit)), max(1, int(top_posts)), max(1, int(replies_per_post)), focus),
             )
             return int(cursor.lastrowid)
 
@@ -256,3 +264,106 @@ class Store:
         with closing(sqlite3.connect(self.db_path)) as db, db:
             cursor = db.execute("UPDATE content_drafts SET status = ? WHERE id = ?", (status, draft_id))
             return cursor.rowcount == 1
+
+    # -- job queue ---------------------------------------------------------
+
+    @staticmethod
+    def _job_row(row) -> dict:
+        item = dict(row)
+        item["params"] = json.loads(item.pop("params_json"))
+        item["result"] = json.loads(item.pop("result_json"))
+        item["cancel_requested"] = bool(item["cancel_requested"])
+        return item
+
+    def _job(self, job_id: int) -> dict | None:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            row = db.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+        return self._job_row(row) if row else None
+
+    def create_job(self, kind: str, params: dict) -> dict:
+        if kind not in ("research", "drafts"):
+            raise StoreError("Unknown job kind.")
+        created = datetime.now(UTC).isoformat()
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute(
+                "INSERT INTO jobs(kind, status, params_json, created_at) VALUES (?, 'queued', ?, ?)",
+                (kind, json.dumps(params, ensure_ascii=False), created),
+            )
+            job_id = int(cursor.lastrowid)
+        return self._job(job_id)
+
+    def list_jobs(self, limit: int = 20) -> list[dict]:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            rows = db.execute("SELECT * FROM jobs ORDER BY id DESC LIMIT ?", (min(max(int(limit), 1), 200),)).fetchall()
+        return [self._job_row(row) for row in rows]
+
+    def claim_job(self) -> dict | None:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.row_factory = sqlite3.Row
+            row = db.execute("SELECT * FROM jobs WHERE status = 'queued' ORDER BY id LIMIT 1").fetchone()
+            if not row:
+                return None
+            started = datetime.now(UTC).isoformat()
+            db.execute("UPDATE jobs SET status = 'running', started_at = ?, cancel_requested = 0 WHERE id = ?", (started, row["id"]))
+            job_id = int(row["id"])
+        return self._job(job_id)
+
+    def finish_job(self, job_id: int, result: dict) -> None:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.execute(
+                "UPDATE jobs SET status = 'done', result_json = ?, finished_at = ?, cancel_requested = 0 WHERE id = ? AND status = 'running'",
+                (json.dumps(result, ensure_ascii=False)[:20000], datetime.now(UTC).isoformat(), job_id),
+            )
+
+    def fail_job(self, job_id: int, message: str) -> None:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.execute(
+                "UPDATE jobs SET status = 'failed', error = ?, finished_at = ?, cancel_requested = 0 WHERE id = ? AND status = 'running'",
+                (str(message)[:2000], datetime.now(UTC).isoformat(), job_id),
+            )
+
+    def cancel_job(self, job_id: int) -> bool:
+        """Queued jobs stop immediately; a running job is asked to stop between stages."""
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute(
+                "UPDATE jobs SET status = 'cancelled', finished_at = ? WHERE id = ? AND status = 'queued'",
+                (datetime.now(UTC).isoformat(), job_id),
+            )
+            if cursor.rowcount:
+                return True
+            cursor = db.execute("UPDATE jobs SET cancel_requested = 1 WHERE id = ? AND status = 'running'", (job_id,))
+            return cursor.rowcount == 1
+
+    def mark_job_cancelled(self, job_id: int) -> None:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.execute(
+                "UPDATE jobs SET status = 'cancelled', finished_at = ?, cancel_requested = 0 WHERE id = ? AND status = 'running'",
+                (datetime.now(UTC).isoformat(), job_id),
+            )
+
+    def job_cancel_requested(self, job_id: int) -> bool:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            row = db.execute("SELECT cancel_requested FROM jobs WHERE id = ?", (job_id,)).fetchone()
+        return bool(row and row[0])
+
+    def retry_job(self, job_id: int) -> dict | None:
+        job = self._job(job_id)
+        if not job or job["kind"] not in ("research", "drafts") or job["status"] not in ("failed", "cancelled"):
+            return None
+        return self.create_job(job["kind"], job["params"])
+
+    def clear_queued_jobs(self) -> int:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute("UPDATE jobs SET status = 'cancelled', finished_at = ? WHERE status = 'queued'", (datetime.now(UTC).isoformat(),))
+            return cursor.rowcount
+
+    def recover_interrupted_jobs(self) -> int:
+        """A process restart loses the worker; running jobs cannot be resumed."""
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute(
+                "UPDATE jobs SET status = 'failed', error = 'Interrupted by a restart. Retry the job.', finished_at = ? WHERE status = 'running'",
+                (datetime.now(UTC).isoformat(),),
+            )
+            return cursor.rowcount

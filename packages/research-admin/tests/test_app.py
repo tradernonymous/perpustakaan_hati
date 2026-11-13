@@ -10,6 +10,7 @@ from fastapi.testclient import TestClient
 
 from research_admin.app import create_app
 from research_admin.config import Settings
+from research_admin.threads_client import ThreadsError
 
 GRAPH = "https://graph.threads.com"
 OPENROUTER = "https://openrouter.ai/api/v1/chat/completions"
@@ -164,7 +165,20 @@ def test_research_page_shows_sample_controls_and_status_board(client):
     assert 'name="replies_per_post" min="1" max="100" step="1" inputmode="numeric" value="50"' in body
     for panel in ("THREADS CONNECTION", "AI MODEL", "LAST RUN", "LIBRARY", "SAMPLE SETTINGS"):
         assert panel in body
-    assert "qwen/qwen3.7-flash" in body
+    assert "openai/gpt-6-luna" in body
+    # research focus control and draft-kind controls
+    assert 'name="focus"' in body
+    assert 'name="kinds" value="threads_post"' in body
+    assert 'name="tone"' in body and 'name="language"' in body
+
+
+def test_queue_panel_appears_when_jobs_are_stored(client):
+    client.app.state.store.create_job("research", {"post_limit": 50, "top_posts": 5, "replies_per_post": 50, "focus": ""})
+    body = client.get("/?view=research").text
+    assert "JOB QUEUE" in body
+    assert "Clear queue" in body
+    assert "Cancel" in body
+    assert "data-queue-active" in body
 
 
 def test_research_run_uses_and_persists_sample_limits(client):
@@ -416,3 +430,77 @@ def test_wrong_password_rerenders_the_form_with_an_error(tmp_path):
     assert response.status_code == 401
     assert "Kata laluan salah" in response.text
     assert response.headers["cache-control"] == "no-store"
+
+
+HTML = {"Accept": "text/html"}
+
+
+@respx.mock
+def test_html_research_run_is_queued_and_processes(client):
+    respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": [
+        {"id": "1", "text": "How do I rebuild trust?", "permalink": "https://www.threads.com/@sample/post/1", "timestamp": "2026-11-05T12:00:00+0000"}]})
+    respx.get(GRAPH + "/v1.0/1/insights").respond(200, json={"data": [{"name": "likes", "values": [{"value": 3}]}]})
+    respx.get(GRAPH + "/v1.0/1/replies").respond(200, json={"data": []})
+    respx.post(OPENROUTER).respond(200, json={"choices": [{"message": {"content": json.dumps({"insights": [
+        {"theme": "Trust", "quote": "rebuild trust", "source_url": "https://www.threads.com/@sample/post/1", "ebook_idea": "Reflection on boundaries"}]})}}]})
+    response = client.post("/research/run", data={"consent": "on", "focus": "  Healers after a breakup  "}, headers=HTML, follow_redirects=False)
+    assert response.status_code == 303
+    assert "Research+queued" in response.headers["location"]
+    jobs = client.get("/queue").json()["jobs"]
+    assert jobs[0]["status"] == "queued" and jobs[0]["kind"] == "research"
+    assert jobs[0]["params"]["focus"] == "Healers after a breakup"
+    page = client.get("/?view=research", headers=HTML).text
+    assert "JOB QUEUE" in page and "Clear queue" in page
+    assert client.app.state.process_next_job() is True
+    run = client.get("/research/runs").json()["runs"][0]
+    assert run["focus"] == "Healers after a breakup"
+    assert client.get("/queue").json()["jobs"][0]["status"] == "done"
+
+
+def test_queued_job_fails_with_reason_and_can_be_retried(client):
+    job = client.app.state.store.create_job("research", {"post_limit": 50, "top_posts": 5, "replies_per_post": 50, "focus": ""})
+    with patch("research_admin.app.ThreadsClient.collect_research", side_effect=ThreadsError("Threads rate limit reached. Retry later.")):
+        client.app.state.process_next_job()
+    jobs = client.get("/queue").json()["jobs"]
+    assert jobs[0]["status"] == "failed" and jobs[0]["error"] == "Threads rate limit reached. Retry later."
+    retried = client.post(f"/queue/{job['id']}/retry", follow_redirects=False)
+    assert retried.status_code == 303
+    assert len([j for j in client.get("/queue").json()["jobs"] if j["status"] == "queued"]) == 1
+
+
+def test_crashed_job_fails_without_killing_the_queue(client):
+    client.app.state.store.create_job("research", {"post_limit": 50, "top_posts": 5, "replies_per_post": 50, "focus": ""})
+    with patch("research_admin.app.ThreadsClient.collect_research", side_effect=RuntimeError("database is locked")):
+        client.app.state.process_next_job()
+    job = client.get("/queue").json()["jobs"][0]
+    assert job["status"] == "failed"
+    assert "Unexpected job failure" in job["error"] and "locked" not in job["error"]
+
+
+def test_cancel_and_clear_queue_controls(client):
+    first = client.app.state.store.create_job("drafts", {"insight_ids": [1], "kinds": ["threads_post"], "tone": "direct", "language": "English"})
+    second = client.app.state.store.create_job("drafts", {"insight_ids": [1], "kinds": ["threads_post"], "tone": "direct", "language": "English"})
+    response = client.post(f"/queue/{second['id']}/cancel", follow_redirects=False)
+    assert response.status_code == 303
+    statuses = {job["id"]: job["status"] for job in client.get("/queue").json()["jobs"]}
+    assert statuses[second["id"]] == "cancelled" and statuses[first["id"]] == "queued"
+    page = client.get("/?view=research", headers=HTML).text
+    assert "Retry" in page  # cancelled job offers retry
+    cleared = client.post("/queue/clear", follow_redirects=False)
+    assert cleared.status_code == 303
+    statuses = {job["id"]: job["status"] for job in client.get("/queue").json()["jobs"]}
+    assert statuses[first["id"]] == "cancelled"
+
+
+def test_html_draft_generation_is_queued_with_selected_kinds(client, tmp_path):
+    client.app.state.store.save_insights([{
+        "theme": "Trust", "quote": "rebuild trust",
+        "source_url": "https://www.threads.com/@sample/post/1", "ebook_idea": "Reflection on boundaries"}])
+    response = client.post("/content/generate", data={
+        "consent": "on", "insight_ids": "1", "kinds": ["threads_post", "ebook_outline"],
+        "tone": "reflective", "language": "English"}, headers=HTML, follow_redirects=False)
+    assert response.status_code == 303 and "Drafts+queued" in response.headers["location"]
+    job = client.get("/queue").json()["jobs"][0]
+    assert job["kind"] == "drafts"
+    assert job["params"]["kinds"] == ["threads_post", "ebook_outline"]
+    assert job["params"]["tone"] == "reflective" and job["params"]["language"] == "English"

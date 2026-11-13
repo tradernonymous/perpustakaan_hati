@@ -26,7 +26,7 @@ def test_from_env_missing_secret_raises_with_key_names():
 
 def test_unconfigured_startup_and_default_model():
     s = Settings.from_env({}, strict=False)
-    assert s.openrouter_model == "qwen/qwen3.7-flash"
+    assert s.openrouter_model == "openai/gpt-6-luna"
     assert "THREADS_CLIENT_ID" in s.missing_threads()
     assert not s.admin_password
 

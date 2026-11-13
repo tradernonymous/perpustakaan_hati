@@ -26,7 +26,7 @@ class Settings:
     admin_password: str = field(default="", repr=False)
     redirect_uri: str = "http://127.0.0.1:8787/auth/callback"
     db_path: str = field(default_factory=default_db_path)
-    openrouter_model: str = "qwen/qwen3.7-flash"
+    openrouter_model: str = "openai/gpt-6-luna"
     allowed_hosts: tuple[str, ...] = DEFAULT_HOSTS
     secure_cookies: bool = False
     public_mode: bool = False
@@ -73,7 +73,7 @@ class Settings:
             admin_password=password,
             redirect_uri=redirect_uri,
             db_path=environ.get("RESEARCH_DB_PATH", default_db_path()),
-            openrouter_model=environ.get("OPENROUTER_MODEL", "qwen/qwen3.7-flash"),
+            openrouter_model=environ.get("OPENROUTER_MODEL", "openai/gpt-6-luna"),
             allowed_hosts=hosts or DEFAULT_HOSTS,
             secure_cookies=public_mode or environ.get("RESEARCH_SECURE_COOKIES", "").strip().lower() in TRUE_VALUES,
             public_mode=public_mode,

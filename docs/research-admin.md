@@ -13,7 +13,7 @@ Local admin backend that connects to Threads (Meta Graph API) with OAuth, sample
 ## One-time setup (Jack only)
 
 1. **Meta app** — <https://developers.facebook.com/apps> → Create app → *Threads* use case. Note the **Threads App ID** (= client id) and **App secret**. Request `threads_basic`, `threads_read_replies`, `threads_manage_insights`. Add Rahimam as an app tester and accept the invitation while the app is in development mode. The server defaults to `http://127.0.0.1:8787/auth/callback`; the URI registered with Meta must match `THREADS_REDIRECT_URI` exactly. **Meta may require an HTTPS redirect**: if HTTP loopback is rejected, set up a loopback-only HTTPS reverse proxy and set `THREADS_REDIRECT_URI` to that local HTTPS callback. This live OAuth setup has not yet been verified; do not expose the admin publicly or weaken TLS checks.
-2. **OpenRouter key** — <https://openrouter.ai/keys> → create key. The default model is `qwen/qwen3.7-flash`, a cheap paid model that answers directly: thinking models used to spend the whole token budget on reasoning and return no JSON. Reasoning is switched off in the request, and free models (`openrouter/free` or any `...:free`) still get `provider.max_price` 0 enforced. Any other paid model is rejected before a network call unless you add it to `PAID_MODELS` in `research_admin/research.py`.
+2. **OpenRouter key** — <https://openrouter.ai/keys> → create key. The default model is `openai/gpt-6-luna`, a cheap paid model that answers JSON directly: thinking models used to spend the whole token budget on reasoning and return no JSON. Reasoning is switched off in the request, OpenAI-prefixed models send `max_completion_tokens` instead of `max_tokens`, every OpenRouter call carries `HTTP-Referer`/`X-Title` attribution headers, and free models (`openrouter/free` or any `...:free`) still get `provider.max_price` 0 enforced. Any other paid model is rejected before a network call unless you add it to `PAID_MODELS` in `research_admin/research.py`.
 3. **Store the four configuration values in the keyring** (never paste their values into commands or chat). Each command prompts for its value; the values themselves do not go into shell history.
 
 ```bash
@@ -57,11 +57,21 @@ uv run --project packages/research-admin python -m research_admin
 Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **connect Threads**, authorise in the same browser tab, then open **Research** and use **Run consented research**. The admin is an evidence-to-content workspace:
 
 1. **Overview** — recent research, source-linked evidence, current sample’s own-post performance, audience signals, drafts needing review, and a four-step workflow.
-2. **Research** — status board (connection and expiry, active AI model, last run, library totals), per-run sample-limit controls, run history, searchable saved insights, original Threads source links, and checkboxes to select evidence for content generation. Running research and generating content have separate explicit AI-consent checkboxes.
+2. **Research** — status board (connection and expiry, active AI model, last run, library totals), per-run sample-limit controls, an optional **Research focus** field (up to 500 characters; it steers only the next run, is appended to the analysis prompt, is stored on the run, and is never published), run history (which shows the focus used), searchable saved insights, original Threads source links, and checkboxes to select evidence for content generation. Running research and generating content have separate explicit AI-consent checkboxes.
 3. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”). These are not demographic profiles; each signal links to source evidence. **Export evidence CSV** at `/audiences/export.csv` for offline planning.
-4. **Content studio** — select up to 20 evidence items to generate three local drafts: a Threads post, an ebook chapter outline, and a design brief. Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
+4. **Content studio** — select up to 20 evidence items, choose which **draft kinds** to generate (Threads post, ebook chapter outline, design brief — any subset), a **tone** (empathetic, direct, reflective, practical) and a **language** (match the evidence, Bahasa Melayu, English). Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
 5. **Draft library** — copy to clipboard, mark ready for use, or archive. Copying a draft includes the reference links shown in it. Approval is an internal review state only: this admin does **not** schedule or publish posts.
 6. **Connections & settings** — Threads token status/expiry, what the API sample covers, OpenRouter configuration and privacy boundaries.
+
+### Background job queue
+
+Browser form submissions (**Run consented research**, **Create grounded drafts**, **Generate selected drafts**) enqueue a job instead of blocking the page; a worker thread inside the app runs jobs one at a time. The **Job queue** panel lists recent jobs with their status and a one-line summary, refreshes itself while anything is queued or running, and offers:
+
+- **Cancel** — a queued job stops immediately; a running job is asked to stop and exits between collection, analysis, and save stages, so no partial insights are stored.
+- **Retry** — re-queues a failed or cancelled job with the same parameters.
+- **Clear queue** — cancels every queued job at once (running jobs are untouched).
+
+Failed jobs keep their reason (provider errors are shown as-is; unexpected crashes are reported as "Unexpected job failure; retry, and check the service log if it repeats." so internal details never reach the page). If the service restarts while a job is running, startup marks that job failed with "Interrupted by a restart. Retry the job." — jobs are never resumed mid-run. JSON API callers are unaffected: `POST /research/run` and `POST /content/generate` with a non-HTML `Accept` header still run synchronously and return the result directly.
 
 A successful browser form run redirects back to the workspace; API clients can continue using JSON. Run commands from the repository root. `secret-tool` and an unlocked Secret Service keyring are required before connecting Threads.
 
@@ -87,14 +97,18 @@ A successful browser form run redirects back to the workspace; API clients can c
 | `GET /auth/start` | Begin Threads OAuth (307) |
 | `GET /auth/callback` | Finish OAuth, store token |
 | `GET /auth/status` | `{"connected", "expires_at"}` |
-| `POST /research/run` | Consent-protected research run |
+| `POST /research/run` | Consent-protected research run; accepts optional `focus` (≤500 chars). HTML form submissions are queued (303 back to the page), JSON runs stay synchronous |
 | `GET /research/insights` | Stored insights JSON |
-| `GET /research/runs` | Saved sample history: limits used, themes, and the prioritized owned-post metrics |
+| `GET /research/runs` | Saved sample history: limits used, themes, focus used, and the prioritized owned-post metrics |
 | `GET /audiences` | Evidence-backed qualitative segments |
 | `GET /audiences/export.csv` | Source-linked audience evidence CSV (spreadsheet formula-safe) |
-| `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs; non-post drafts include `content.references` with the source permalink |
+| `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs, optional `kinds` (subset), `tone`, `language`; non-post drafts include `content.references` with the source permalink. HTML submissions are queued, JSON stays synchronous |
 | `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`), including `content.references` on non-post drafts |
 | `POST /content/drafts/{id}/status` | Mark a draft `draft`, `approved`, or `archived` |
+| `GET /queue` | Recent background jobs: kind, status, params, result, error |
+| `POST /queue/clear` | Cancel every queued job |
+| `POST /queue/{id}/cancel` | Cancel a queued job, or request a running job to stop |
+| `POST /queue/{id}/retry` | Re-queue a failed or cancelled job (400 otherwise) |
 
 Token refresh: long-lived Threads tokens last ~60 days. When `/auth/status` says disconnected, click **connect Threads** again.
 

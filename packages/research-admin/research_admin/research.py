@@ -10,9 +10,12 @@ from .config import Settings
 URL = "https://openrouter.ai/api/v1/chat/completions"
 FREE = re.compile(r"^(openrouter/free|[a-z0-9./_-]+:free)$", re.IGNORECASE)
 # Paid models are opt-in by name so a typo cannot quietly run up a bill.
-# Qwen3.7 Flash is cheap and does not spend the answer budget on reasoning.
-PAID_MODELS = {"qwen/qwen3.7-flash"}
+# GPT-6 Luna is cheap, fast, and answers JSON directly without spending the
+# budget on reasoning; Qwen3.7 Flash remains an allowed paid fallback.
+PAID_MODELS = {"qwen/qwen3.7-flash", "openai/gpt-6-luna"}
 MAX_TOKENS = 4000
+# OpenRouter asks for lightweight app attribution when routing requests.
+HEADERS = {"HTTP-Referer": "https://perpustakaanhati-production.up.railway.app", "X-Title": "Perpustakaan Hati Research"}
 
 PAIN_POINT_PROMPT = (
     "You are a qualitative research assistant for Perpustakaan Hati, a Malaysian relationship-healing ebook brand. "
@@ -48,17 +51,22 @@ def _completion_payload(model: str, system: str, user: str, *, max_tokens: int =
     Paid models reject the zero-price provider cap with a 404 "no endpoints"
     error, so that cap is only sent for free models. Reasoning stays off so a
     thinking model cannot spend the whole budget before answering JSON.
+    OpenAI models take max_completion_tokens; other providers use max_tokens.
     """
     payload = {
         "model": model,
         "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
         "response_format": {"type": "json_object"},
         "reasoning": {"enabled": False},
-        "max_tokens": max_tokens,
+        "max_completion_tokens" if model.startswith("openai/") else "max_tokens": max_tokens,
     }
     if _is_free(model):
         payload["provider"] = {"max_price": {"prompt": 0, "completion": 0}}
     return payload
+
+
+def _request_headers(settings: Settings) -> dict[str, str]:
+    return {"Authorization": f"Bearer {settings.openrouter_api_key}", **HEADERS}
 
 
 def _http_failure(status_code: int) -> "ResearchError":
@@ -145,16 +153,24 @@ def _validate(insight: dict, material: list[dict], seen_quotes: set[str]) -> dic
     return {"theme": theme, "quote": quote, "source_url": source_url, "ebook_idea": ebook_idea}
 
 
-def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client) -> list[dict]:
+def _focus_instruction(focus: str) -> str:
+    """Bounded, whitespace-normalised user focus for the next run."""
+    return " ".join(str(focus or "").split())[:500]
+
+
+def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client, *, focus: str = "") -> list[dict]:
     if not sources:
         return []
     model = _model(settings)
     material = _parse_sources(sources)
-    payload = _completion_payload(model, PAIN_POINT_PROMPT, json.dumps(material, ensure_ascii=False))
+    prompt = PAIN_POINT_PROMPT
+    if _focus_instruction(focus):
+        prompt += f"\nFocus for this run: {_focus_instruction(focus)}"
+    payload = _completion_payload(model, prompt, json.dumps(material, ensure_ascii=False))
     try:
         response = http.post(
             URL,
-            headers={"Authorization": f"Bearer {settings.openrouter_api_key}"},
+            headers=_request_headers(settings),
             json=payload,
         )
     except httpx.HTTPError:
