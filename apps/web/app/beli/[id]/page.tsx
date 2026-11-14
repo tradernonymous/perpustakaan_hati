@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { PageShell } from "@/components/PageShell";
@@ -17,6 +18,11 @@ export default async function Beli({ params }: { params: Promise<{ id: string }>
   const teman = TIERS.find((t) => t.id === "teman-hidup")!;
   return (
     <PageShell title={`Beli ${p.name}`} intro={tier.subcopy}>
+      <div className="mx-auto mb-6 max-w-reading">
+        <Link href="/#edisi" className="text-sm text-green-800 underline underline-offset-4 hover:text-green-900">
+          ← Kembali ke semua edisi
+        </Link>
+      </div>
       <div className="mx-auto mb-8 max-w-reading">
         <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} className="mx-auto max-w-[220px]" />
       </div>

@@ -10,7 +10,20 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title,
   description,
-  openGraph: { title, description, locale: "ms_MY", type: "website", siteName: "Perpustakaan Hati" },
+  openGraph: {
+    title,
+    description,
+    locale: "ms_MY",
+    type: "website",
+    siteName: "Perpustakaan Hati",
+    images: [{ url: "/brand/emblem-book-heart.svg", width: 600, height: 420, alt: "Perpustakaan Hati oleh @rahimam" }],
+  },
+  twitter: {
+    card: "summary",
+    title,
+    description,
+    images: ["/brand/emblem-book-heart.svg"],
+  },
   icons: { icon: "/brand/monogram-stamp.svg" },
 };
 
