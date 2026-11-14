@@ -33,7 +33,7 @@ healing tier, quiet dividers, the pause in a conversation.
   - "Setiap perjalanan ada hikmah"
   - "Untuk jiwa yang ingin pulih"
   - "Teman hati sementara menunggu bas atau train" (Edisi Poket)
-- Kicker/label voice: `— by @rahimam —`, `RAHIMAM SIGNATURE`, `Koleksi Karya, Kisah & Inspirasi`.
+- Kicker/label voice: `by @rahimam` (lowercase handle, rainbow-ring `@`), `RAHIMAM SIGNATURE`, `Koleksi Karya, Kisah & Inspirasi`.
 
 ## Tier ladder (healing journey)
 1. **Edisi Poket** (Free) — pocket diagnosis + fast relief, 15–25 pages.

@@ -263,6 +263,9 @@
   /* ---- ornaments ----------------------------------------------------- */
   --rule-flank: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold) 70%, transparent);
   --rule-flank-green: linear-gradient(90deg, transparent, var(--green-400) 30%, var(--green-400) 70%, transparent);
+  /* author handle: the "@" sits in a conic rainbow ring (brand reference) */
+  --rainbow-ring: conic-gradient(from 200deg,
+    #ff2d2d, #ff9500, #ffd60a, #34c759, #32ade6, #5856d6, #af52de, #ff2d95, #ff2d2d);
 
   /* ---- v3 components ------------------------------------------------- */
   --ribbon-bg: linear-gradient(180deg, #3a8a62 0%, var(--green-700) 18%, var(--green-800) 60%, var(--green-900) 100%);
@@ -671,6 +674,11 @@
     background: none;
     filter: none;
   }
+  .ph-at {
+    background: Canvas;
+    border: 2px solid CanvasText;
+    color: CanvasText;
+  }
 }
 
 /* Cinematic stage: ground + key glow + vignette + grain, in one class. */
@@ -690,7 +698,8 @@
   pointer-events: none;
 }
 
-/* Flanked kicker: ——— by @rahimam ——— */
+/* Flanked kicker: rule + label. The byline handle itself is .ph-handle:
+   lowercase "rahimam" with the "@" set in a rainbow-ring badge. */
 .ph-kicker {
   display: flex;
   align-items: center;
@@ -707,6 +716,33 @@
   flex: 1 1 3em;
   height: 1px;
   background: var(--rule-flank);
+}
+
+/* Author handle: lowercase "rahimam" with the "@" drawn as a rainbow-ring
+   badge — a dark disc inside a conic rainbow ring. Scoped to the handle
+   only; every other kicker label keeps the uppercase gold .ph-kicker style. */
+.ph-handle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  text-transform: lowercase;
+  letter-spacing: 0.14em;
+}
+.ph-at {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 1.9em;
+  block-size: 1.9em;
+  border-radius: 50%;
+  background-color: var(--forest-night);
+  background-image:
+    radial-gradient(circle closest-side, var(--forest-night) 76%, transparent 77%),
+    var(--rainbow-ring);
+  color: #fff;
+  font-size: 0.8em;
+  font-weight: var(--weight-label);
+  letter-spacing: 0;
+  line-height: 1;
 }
 
 /* Ribbon banner — 3D: a lit front band with gold edges, plus two
