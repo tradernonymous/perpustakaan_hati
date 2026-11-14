@@ -123,6 +123,10 @@ class Store:
                     content_json TEXT NOT NULL, source_ids_json TEXT NOT NULL,
                     status TEXT NOT NULL DEFAULT 'draft', created_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS audience (
+                    id INTEGER PRIMARY KEY CHECK(id=1), followers_json TEXT NOT NULL,
+                    following_json TEXT NOT NULL, imported_at TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS jobs (
                     id INTEGER PRIMARY KEY, kind TEXT NOT NULL, status TEXT NOT NULL,
                     params_json TEXT NOT NULL, result_json TEXT NOT NULL DEFAULT '{}',
@@ -263,6 +267,36 @@ class Store:
             return False
         with closing(sqlite3.connect(self.db_path)) as db, db:
             cursor = db.execute("UPDATE content_drafts SET status = ? WHERE id = ?", (status, draft_id))
+            return cursor.rowcount == 1
+
+    # -- follower import ---------------------------------------------------
+
+    def save_audience(self, followers: list[dict], following: list[dict]) -> str:
+        imported = datetime.now(UTC).isoformat()
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.execute(
+                "INSERT INTO audience(id, followers_json, following_json, imported_at) VALUES (1, ?, ?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET followers_json = excluded.followers_json, "
+                "following_json = excluded.following_json, imported_at = excluded.imported_at",
+                (json.dumps(followers, ensure_ascii=False), json.dumps(following, ensure_ascii=False), imported),
+            )
+        return imported
+
+    def get_audience(self) -> dict | None:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            row = db.execute("SELECT * FROM audience WHERE id = 1").fetchone()
+        if not row:
+            return None
+        return {
+            "followers": json.loads(row["followers_json"]),
+            "following": json.loads(row["following_json"]),
+            "imported_at": row["imported_at"],
+        }
+
+    def clear_audience(self) -> bool:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute("DELETE FROM audience WHERE id = 1")
             return cursor.rowcount == 1
 
     # -- job queue ---------------------------------------------------------

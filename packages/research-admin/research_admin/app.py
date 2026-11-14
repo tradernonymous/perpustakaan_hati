@@ -18,6 +18,16 @@ from .audiences import build_audiences
 from .config import Settings
 from .content import DRAFT_KINDS, DRAFT_LANGUAGES, DRAFT_TONES, generate_drafts
 from .dashboard import DashboardData, render_dashboard
+from .followers import (
+    AUDIENCE_LIST_LABELS,
+    AUDIENCE_LISTS,
+    MAX_ENTRIES,
+    AudienceError,
+    analyze_audience,
+    filter_people,
+    parse_export,
+    since_date,
+)
 from .jobs import JobCancelled
 from .research import ResearchError, mine_pain_points
 from .store import Store, StoreError, build_vault
@@ -29,11 +39,52 @@ STATE_TTL = 600
 SESSION_TTL = 8 * 3600
 LOGIN_MAX_FAILURES = 5
 LOGIN_WINDOW = 300
+MAX_IMPORT_BYTES = 20 * 1024 * 1024  # both export files combined
 SAFE_RESPONSE_HEADERS = {"Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer", "X-Frame-Options": "deny"}
 
 
 def parse_form(data: dict) -> dict:
     return {k: v for k, v in data.items() if isinstance(v, str)}
+
+
+class UploadRejected(AudienceError):
+    """Import rejected before parsing, with the HTTP status to answer with."""
+
+    def __init__(self, message: str, status: int = 400):
+        super().__init__(message)
+        self.status = status
+
+
+async def read_import(request: Request) -> dict:
+    """Read both upload files from the request, or raise UploadRejected."""
+    try:
+        declared = int(request.headers.get("content-length") or 0)
+    except ValueError:
+        declared = 0
+    if declared > MAX_IMPORT_BYTES:
+        raise UploadRejected("Export files are too large; 20 MB combined limit.", 413)
+    try:
+        form = await request.form()
+    except Exception as exc:  # noqa: BLE001 - a malformed multipart body must answer with a message
+        raise UploadRejected("The upload could not be read; try again with the two JSON files.") from exc
+    uploads = {}
+    for field_name, label in (("followers", "followers.json"), ("following", "following.json")):
+        item = form.get(field_name)
+        if item is None or isinstance(item, str) or not getattr(item, "filename", ""):
+            raise UploadRejected(f"Upload both files: {label} is missing.")
+        raw = await item.read()
+        if len(raw) > MAX_IMPORT_BYTES:
+            raise UploadRejected("Export files are too large; 20 MB combined limit.", 413)
+        uploads[field_name] = (label, raw)
+    if uploads["followers"][1] == uploads["following"][1]:
+        raise UploadRejected("Both files are identical. Upload followers.json and following.json, not the same file twice.")
+    try:
+        return {
+            key: parse_export(json.loads(raw.decode("utf-8-sig", "replace")), label=label)
+            for key, (label, raw) in uploads.items()
+        }
+    except json.JSONDecodeError as exc:
+        raise UploadRejected("One of the files is not valid JSON. Upload followers.json and following.json as they come from the export.") from exc
 
 
 def _hostname(value: str) -> str:
@@ -170,6 +221,16 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
 
     def _clean_focus(value) -> str:
         return " ".join(str(value or "").split())[:500]
+
+    def audience_analysis() -> dict | None:
+        stored = store.get_audience()
+        if not stored:
+            return None
+        analysis = analyze_audience(stored["followers"], stored["following"])
+        analysis["imported_at"] = stored["imported_at"]
+        return analysis
+
+    app.state.audience_analysis = audience_analysis
 
     def _cancel_check(job_id: int | None) -> None:
         if job_id is not None and store.job_cancel_requested(job_id):
@@ -331,6 +392,8 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         search = request.query_params.get("q", "") if view == "research" else ""
         selection = request.query_params.get("select", "") if view in ("research", "studio") else ""
         status = request.query_params.get("status", "") if view == "library" else ""
+        follow_list = request.query_params.get("list", "") if view == "followers" else ""
+        follow_query = request.query_params.get("q", "") if view == "followers" else ""
         token = app.state.store.get_token()
         connected = token is not None and token.expires_at > time.time()
         expiry = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(token.expires_at)) if connected else ""
@@ -339,6 +402,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         audiences = build_audiences(app.state.store.list_insights())
         runs = app.state.store.list_research_runs()
         drafts = app.state.store.list_drafts(status=status)
+        audience = audience_analysis()
         csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
         limits = SampleLimits.from_row(runs[0] if runs else None)
         focus = runs[0].get("focus", "") if runs else ""
@@ -348,6 +412,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             selection=selection, status_filter=status, csrf=csrf, limits=limits,
             jobs=store.list_jobs(),
             focus=focus,
+            audience=audience, follow_list=follow_list, follow_query=follow_query,
             model=settings.openrouter_model,
             error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
         ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
@@ -456,6 +521,81 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
                 cells = [audience["name"], audience["evidence_count"], ", ".join(audience["themes"]), item["quote"], item["source_url"], item["ebook_idea"]]
                 writer.writerow([("'" + str(value)) if str(value).startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])
         return Response(output.getvalue(), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": "attachment; filename=threads-audience-evidence.csv"})
+
+    def follow_redirect(notice: str) -> RedirectResponse:
+        return RedirectResponse(f"/?view=followers&notice={quote(notice)}", status_code=303)
+
+    @app.get("/followers")
+    def followers_index(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        analysis = audience_analysis()
+        if not analysis:
+            return {"audience": None}
+        query = request.query_params.get("q", "")
+        return {
+            "audience": {
+                "counts": analysis["counts"],
+                "imported_at": analysis["imported_at"],
+                "query": query,
+                "lists": {
+                    key: {
+                        "label": AUDIENCE_LIST_LABELS[key],
+                        "total": len(analysis[key]),
+                        "people": filter_people(analysis, key, query, limit=500)[0],
+                    }
+                    for key in AUDIENCE_LISTS
+                },
+            }
+        }
+
+    @app.get("/followers/export.csv")
+    def followers_export(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        analysis = audience_analysis()
+        if not analysis:
+            return error(404, "No follower import yet. Upload followers.json and following.json first.")
+        wanted = request.query_params.get("list", "")
+        keys = [wanted] if wanted in AUDIENCE_LISTS else list(AUDIENCE_LISTS)
+        query = request.query_params.get("q", "")
+        output = io.StringIO(newline="")
+        writer = csv.writer(output)
+        writer.writerow(("list", "username", "profile_url", "since"))
+        for key in keys:
+            people, _total = filter_people(analysis, key, query, limit=MAX_ENTRIES)
+            for person in people:
+                cells = (AUDIENCE_LIST_LABELS[key], person["username"], person["href"], since_date(person["since"]))
+                writer.writerow([("'" + str(value)) if str(value).startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])
+        return Response(output.getvalue(), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": "attachment; filename=threads-followers.csv"})
+
+    @app.post("/followers/import")
+    async def followers_import(request: Request):
+        is_html = "text/html" in request.headers.get("accept", "")
+
+        def fail(message: str, status: int = 400) -> Response:
+            # The browser form gets its error back as a dashboard notice, not a dead-end JSON page.
+            return follow_redirect(message) if is_html else error(status, message)
+
+        try:
+            parsed = await read_import(request)
+        except UploadRejected as exc:
+            return fail(str(exc), exc.status)
+        except AudienceError as exc:
+            return fail(str(exc))
+        imported_at = app.state.store.save_audience(parsed["followers"], parsed["following"])
+        if is_html:
+            return follow_redirect(
+                f"Imported {len(parsed['followers']):,} followers and {len(parsed['following']):,} following · {imported_at[:10]}"
+            )
+        return {"imported_at": imported_at, "followers": len(parsed["followers"]), "following": len(parsed["following"])}
+
+    @app.post("/followers/clear")
+    async def followers_clear(request: Request):
+        cleared = app.state.store.clear_audience()
+        if "text/html" in request.headers.get("accept", ""):
+            return follow_redirect("Follower import cleared" if cleared else "No follower import to clear")
+        return {"cleared": cleared}
 
     @app.post("/content/generate")
     async def content_generate(request: Request):

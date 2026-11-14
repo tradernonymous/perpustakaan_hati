@@ -58,10 +58,22 @@ Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **con
 
 1. **Overview** — recent research, source-linked evidence, current sample’s own-post performance, audience signals, drafts needing review, and a four-step workflow.
 2. **Research** — status board (connection and expiry, active AI model, last run, library totals), per-run sample-limit controls, an optional **Research focus** field (up to 500 characters; it steers only the next run, is appended to the analysis prompt, is stored on the run, and is never published), run history (which shows the focus used), searchable saved insights, original Threads source links, and checkboxes to select evidence for content generation. Running research and generating content have separate explicit AI-consent checkboxes.
-3. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”). These are not demographic profiles; each signal links to source evidence. **Export evidence CSV** at `/audiences/export.csv` for offline planning.
-4. **Content studio** — select up to 20 evidence items, choose which **draft kinds** to generate (Threads post, ebook chapter outline, design brief — any subset), a **tone** (empathetic, direct, reflective, practical) and a **language** (match the evidence, Bahasa Melayu, English). Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
-5. **Draft library** — copy to clipboard, mark ready for use, or archive. Copying a draft includes the reference links shown in it. Approval is an internal review state only: this admin does **not** schedule or publish posts.
-6. **Connections & settings** — Threads token status/expiry, what the API sample covers, OpenRouter configuration and privacy boundaries.
+3. **Followers** — follow-back insight from Rahimam's own Threads data export (see below).
+4. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”). These are not demographic profiles; each signal links to source evidence. **Export evidence CSV** at `/audiences/export.csv` for offline planning.
+5. **Content studio** — select up to 20 evidence items, choose which **draft kinds** to generate (Threads post, ebook chapter outline, design brief — any subset), a **tone** (empathetic, direct, reflective, practical) and a **language** (match the evidence, Bahasa Melayu, English). Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
+6. **Draft library** — copy to clipboard, mark ready for use, or archive. Copying a draft includes the reference links shown in it. Approval is an internal review state only: this admin does **not** schedule or publish posts.
+7. **Connections & settings** — Threads token status/expiry, what the API sample covers, OpenRouter configuration and privacy boundaries.
+
+### Followers & follow-back
+
+The Threads Graph API exposes a profile's own posts, replies and insights but **no follower or following list**, so this view works from the two JSON files in Instagram's *Download your data* export — the same source the [Threads-Follower](https://github.com/Xiang511/Threads-Follower) tool uses (comparison approach credited to that project).
+
+- In **Accounts Center → Your information and permissions → Download your information → Threads**, download in **JSON**, then upload `followers.json` and `following.json` on the Followers page (one file each; 20 MB combined server-side limit, 50,000 accounts per file).
+- Headline stats: followers, following, mutuals, and the percentage of accounts Rahimam follows that do **not** follow back.
+- Three searchable lists, each with a CSV export: **Not following back** (with the date you started following them, from the export timestamp), **Fans** (follow Rahimam that she doesn't follow), and **Mutuals**. Server-side list search is bounded to 200 rows per page; the CSV carries the full filtered list.
+- The import is stored in the local SQLite database and survives restarts; **Clear import** removes it. Uploading the identical file twice is rejected.
+- **Research tie-in:** each saved insight's source permalink contains an author, so every insight card (Research, Overview, Studio) and audience-evidence block now carries a relationship badge once an import exists — **Mutual**, **Follows Rahimam**, **Doesn't follow back**, or **Not connected**. The Followers view counts how many saved insights come from accounts already in the audience.
+- The uploaded exports are **only** compared locally: they are never sent to the AI provider, and badges render nothing before the first import.
 
 ### Background job queue
 
@@ -85,6 +97,7 @@ A successful browser form run redirects back to the workspace; API clients can c
 - AI answers are validated: quotes must appear verbatim in the sampled material and source URLs must be sampled permalinks, or the run fails loudly instead of storing invented evidence. Generated draft IDs must refer to selected saved evidence; unknown citations are discarded and drafts without citations are rejected.
 - Research history retains bounded own-post metrics and only top-level run summaries; audience segments are qualitative keyword groupings of saved themes/quotes, not verified demographics.
 - CSV export neutralizes spreadsheet formula-leading characters. Source URLs and saved text are escaped when rendered.
+- Uploaded follower exports are parsed server-side, stored in the local database only, and never forwarded to the AI provider.
 - Research and content creation are separate explicit-consent actions. No scheduler or Threads publishing route is implemented; approved drafts must be copied and published manually.
 - Errors returned to the browser never contain tokens or keys.
 
@@ -102,6 +115,10 @@ A successful browser form run redirects back to the workspace; API clients can c
 | `GET /research/runs` | Saved sample history: limits used, themes, focus used, and the prioritized owned-post metrics |
 | `GET /audiences` | Evidence-backed qualitative segments |
 | `GET /audiences/export.csv` | Source-linked audience evidence CSV (spreadsheet formula-safe) |
+| `POST /followers/import` | Multipart upload of `followers.json` + `following.json` from the Threads data export; rejects identical files, bad JSON, >20 MB combined, and >50,000 accounts per file. HTML submissions redirect back with a notice, JSON returns counts |
+| `GET /followers` | Imported audience: counts, `imported_at`, and up to 500 people per list, filtered by `?q=` |
+| `GET /followers/export.csv` | Follow-back CSV, formula-safe; optional `?list=not_following_back\|fans\|mutuals` and `?q=` filters |
+| `POST /followers/clear` | Remove the stored follower import |
 | `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs, optional `kinds` (subset), `tone`, `language`; non-post drafts include `content.references` with the source permalink. HTML submissions are queued, JSON stays synchronous |
 | `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`), including `content.references` on non-post drafts |
 | `POST /content/drafts/{id}/status` | Mark a draft `draft`, `approved`, or `archived` |
