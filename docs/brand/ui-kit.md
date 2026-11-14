@@ -90,7 +90,7 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 ### Master layouts
 | Layout | Description |
 |---|---|
-| `cover` | Full-bleed `ink`, gold wordmark, tier-colour bar, `— by @rahimam —`, title Fraunces 28pt `gold-light` |
+| `cover` | Full-bleed `ink`, gold wordmark, tier-colour bar, `by @rahimam` handle (lowercase, rainbow-ring `@`), title Fraunces 28pt `gold-light` |
 | `title-page` | Cream, centered wordmark, tagline, tier badge |
 | `chapter-opener` | Ink page, oversized chapter numeral in `gold` outline, chapter title Fraunces 24pt, one-line epigraph in `gold-light` italic |
 | `body` | Cream page, serif body, drop cap in `sepia`, first-line indent 5mm, no hyphenation |
@@ -122,7 +122,7 @@ all built on Design System 3.1 "Gilded Grove":
 
 Shared rules for all three:
 - Ground `forest-night`, one key glow (lantern-dominant on B, emerald-dominant on C), vignette.
-- Kicker: `by @rahimam` flanked by gold rules via `.ph-kicker`.
+- Kicker: `by @rahimam` flanked by gold rules via `.ph-kicker`. The handle is lowercase with the `@` in a rainbow-ring badge: `.ph-handle` + `.ph-at`.
 - Quote: Fraunces 72–76px, `gold-light`, line-height ~1.23, `cream` for the emphasised phrase.
 - Tagline: Source Serif 4 italic 28–30px, `green-300`.
 - Wordmark: `PERPUSTAKAAN` foil-gold above `HATI` foil-emerald (38/76px on B, 34/72px on C, 104px single line on A).

@@ -78,7 +78,7 @@ Do not use "Edisi Dompet" or "Edisi Pulih" publicly. Colour never carries the ti
 ## Layout recipes
 - **Hero / header:** `.ph-stage` ground; emblem 340px centred; PERPUSTAKAAN as `.ph-foil-gold` (62px), HATI as `.ph-foil-emerald` (150px); `.ph-kicker` "by @rahimam"; italic Fraunces tagline in green-300. Or use the cinematic lockup image directly.
 - **eBook cover 1200x1800:** `.ph-stage` + double gilt frame (inset 56px 2px gold-deep, inset 16px 1px gold 35%); emblem, foil wordmark, `.ph-kicker` "Koleksi Ebook", title Fraunces 520 88px cream with `text-wrap:balance`, `.ph-ribbon` tier name, subtitle Source Serif italic green-300, tier seal bottom-right, kicker "by @rahimam" bottom centre.
-- **Threads quote card 1080x1350:** `.ph-stage`, emblem 180px top-left, `— @rahimam —` kicker, quote Fraunces gold-light, footer PERPUSTAKAAN HATI foil-gold + tier badge outline in tier colour.
+- **Threads quote card 1080x1350:** `.ph-stage`, emblem 180px top-left, `.ph-kicker` handle `@rahimam` (lowercase, rainbow-ring `@`), quote Fraunces gold-light, footer PERPUSTAKAAN HATI foil-gold + tier badge outline in tier colour.
 - **Cards / CTA:** `.ph-card` on forest-night; one green `.ph-cta` per view; a pressed CTA sinks 3px.
 
 ## Rules (brand guidance — the system is not locked, so these can evolve)
@@ -88,7 +88,7 @@ Do not use "Edisi Dompet" or "Edisi Pulih" publicly. Colour never carries the ti
 4. Green text on dark: green-400 (8.22:1) or green-300. Green text on cream/paper: green-700+ only (never green-500/400).
 5. Ruby lives inside the heart emblem only. Never for text, buttons, or backgrounds.
 6. Gold = frame, rules, bylines, ribbons' edges. Never a full-bleed fill larger than a seal.
-7. Bylines are always flanked: `— by @rahimam —` via `.ph-kicker`.
+7. Bylines are always flanked: `by @rahimam` via `.ph-kicker`, with the handle marked up as `.ph-handle` (lowercase, rainbow-ring `@` via `.ph-at`).
 8. Icons: simple line icons in gold-light or green-400. No emoji, no stock photos of people. Imagery: warm lantern, books, desk, dawn mountains; graded warm, no cool or blue cast.
 9. Motion: one foil sheen on enter, never looped; none under reduced-motion.
 10. Language: Bahasa Malaysia first. Tone: gentle, honest, never clinical, never shaming ("jiwa yang pernah terluka", not "rosak").

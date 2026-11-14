@@ -277,8 +277,8 @@ The flat outlined wordmark remains the primary mark. 3D is a campaign asset.
 - Progress always carries a text percentage or label — never colour alone.
 
 ## Logo & watermark stamp
-- Wordmark: `PERPUSTAKAAN HATI` — Fraunces, uppercase, `letter-spacing: 0.18em`, gold `#c9a86a` on ink. Second line `— by @rahimam —` in Inter uppercase 0.25em tracking, `gold-light`.
-- Sub-brand rule: `— by @rahimam —` in gold, 1px `gold-deep` rules above and below.
+- Wordmark: `PERPUSTAKAAN HATI` — Fraunces, uppercase, `letter-spacing: 0.18em`, gold `#c9a86a` on ink. Second line `by @rahimam` in Inter, `gold-light`: lowercase handle, `@` set as the rainbow-ring badge (`.ph-handle` + `.ph-at`).
+- Sub-brand rule: `by @rahimam` in gold, 1px `gold-deep` rules above and below.
 - `Cop Perpustakaan Hati` watermark stamp: diagonal, 10–12% opacity, `gold-light`, bottom-right of every paid page, plus buyer name/email in 7pt (Phase 2 watermarking engine).
 - Safe area: wordmark padding ≥ 1.5× cap-height. Minimum width 120px digital / 18mm print.
 - Avatar/photography guideline: Rahimam photography warm-graded, cream/gold wardrobe tones, avoid cool/blue cast.
@@ -403,7 +403,8 @@ extend: {
 
 v3 takes its cues from the 2026 reference boards: cinematic, lantern-lit
 scenes, metallic serif type, an open book with a heart rising from it,
-flanked `— by @rahimam —` bylines, ribbon banners and scalloped seals.
+flanked `by @rahimam` bylines (lowercase handle, rainbow-ring `@`), ribbon
+banners and scalloped seals.
 The boards are black-and-gold with a red heart. **v3 keeps green as the
 main colour** in three ways:
 
@@ -457,6 +458,7 @@ One class does it: `.ph-stage` = `forest-night` + `glow-emerald` +
 | `.ph-foil-emerald` / `.ph-foil-gold` / `.ph-foil-pearl` | metallic display text | the gold serif titles |
 | `.ph-stage` | cinematic ground | the lantern-lit library scenes |
 | `.ph-kicker` | flanked label `——— by @rahimam ———` | every reference byline |
+| `.ph-handle` + `.ph-at` | lowercase `rahimam` with a rainbow-ring `@` badge | the author handle |
 | `.ph-ribbon` | emerald ribbon, gold edges, notched ends | "Handbag Edition" banner |
 | `.ph-seal` (+ `.is-standard`, `.is-premium`) | round tier medallion | "Edisi Mini Portable" seal |
 | `.ph-card` | forest card with gold hairline | — |

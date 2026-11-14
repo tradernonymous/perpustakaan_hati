@@ -112,7 +112,9 @@ cards, the storefront, emails and page titles.
 
    A hyphen is fine for a compound ("paling-penting", "sebab-kerja"). The
    byline reads `by @rahimam`, flanked by the rule that `.ph-kicker` draws
-   itself, not by dashes.
+   itself, not by dashes. The handle is lowercase, and its `@` is set as the
+   rainbow-ring badge (`.ph-handle` + `.ph-at`). Every other kicker label
+   stays uppercase gold.
 
    This rule covers reader-facing text only. Code comments, CSS comments and
    SVG source comments are not copy and are not affected.
