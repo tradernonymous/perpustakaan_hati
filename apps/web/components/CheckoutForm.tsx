@@ -137,7 +137,10 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
         {busy ? "Membuka pembayaran..." : `Bayar ${rm(total)}`}
       </button>
       <p aria-live="polite" role="status" className="text-burgundy">{error}</p>
-      <p className="text-xs text-muted-grove">Kami hantar pautan muat turun melalui e-mel (dan WhatsApp jika diisi) sebaik pembayaran berjaya.</p>
+      <div className="space-y-1 rounded border border-daylight-edge bg-sage/50 p-3 text-xs text-muted-grove">
+        <p>Penghantaran segera ke e-mel kamu (dan WhatsApp jika diisi) sebaik pembayaran disahkan.</p>
+        <p>Data diurus mengikut PDPA Malaysia dan tidak dikongsi dengan pihak ketiga. Selepas bayar, buku juga boleh dicapai melalui /pustaka.</p>
+      </div>
     </form>
   );
 }

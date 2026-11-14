@@ -100,7 +100,7 @@ export function OptInForm() {
         <input id="optin-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <label className="flex min-h-tap items-start gap-3 text-sm text-ink-grove">
+      <label className="flex min-h-tap cursor-pointer items-start gap-3 text-sm text-ink-grove">
         <input
           id="optin-consent"
           type="checkbox"
@@ -119,12 +119,23 @@ export function OptInForm() {
       </label>
 
       <button type="submit" disabled={status === "submitting" || status === "success"} className="ph-cta min-h-cta-mobile items-center justify-center disabled:opacity-60">
-        {status === "submitting" ? "Menghantar..." : "Dapatkan Edisi Poket"}
+        {status === "submitting" ? "Menghantar..." : status === "success" ? "Sudah didaftarkan" : "Dapatkan Edisi Poket"}
       </button>
 
-      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy" : "text-green-800"}>
+      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy" : "font-medium text-green-800"}>
         {message}
       </p>
+
+      {status === "success" && (
+        <div className="rounded border border-daylight-edge bg-sage p-4 text-sm text-ink-grove">
+          <p className="font-semibold text-green-900">Sementara menunggu Edisi Poket tiba, cuba ruang interaktif ini:</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <a href="/kad-jujur-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Kad Jujur Hati</a>
+            <a href="/cermin-pasangan" className="btn-ghost min-h-tap px-4 py-2 text-xs">Cermin Pasangan</a>
+            <a href="/teman-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Teman Hati AI</a>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

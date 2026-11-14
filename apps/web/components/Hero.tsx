@@ -1,3 +1,4 @@
+import { AuthorByline } from "@/components/AuthorByline";
 import { HeroBook } from "@/components/HeroBook";
 import { HeroGlyphs } from "@/components/HeroGlyphs";
 import { ReadingProgress } from "@/components/ReadingProgress";
@@ -19,7 +20,7 @@ const LESSONS = [
  */
 export function Hero() {
   return (
-    <section id="atas" className="ph-day-stage relative overflow-hidden px-5 pb-16 pt-12 md:pb-24 md:pt-20">
+    <section id="atas" className="ph-day-stage relative overflow-hidden px-5 pb-16 pt-10 md:pb-24 md:pt-16">
       <HeroGlyphs />
       <ReadingProgress />
 
@@ -32,7 +33,9 @@ export function Hero() {
             </h1>
             <SectionOrnament className="mt-5 md:mx-0" />
           </div>
-          <p className="ph-kicker w-full max-w-[420px] animate-fade-up" style={{ animationDelay: "240ms" }}>oleh @rahimam</p>
+          <p className="ph-kicker w-full max-w-[420px] animate-fade-up" style={{ animationDelay: "240ms" }}>
+            <AuthorByline />
+          </p>
           <p className="ph-script text-2xl text-green-800 md:text-3xl animate-fade-up" style={{ animationDelay: "320ms" }}>
             Karya untuk jiwa yang pernah terluka
           </p>

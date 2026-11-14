@@ -7,11 +7,18 @@ const toneBorder: Record<Tone, string> = {
   burgundy: "border-l-burgundy-light",
 };
 
+const exactLaunchPrice: Record<string, string | null> = {
+  poket: null,
+  membangun: "Harga pelancaran: RM 29.00",
+  "teman-hidup": "Harga pelancaran: RM 79.00",
+};
+
 export function TierCompare() {
   return (
     <div className="mx-auto grid max-w-grid gap-5 md:grid-cols-3">
       {TIERS.map((t) => {
         const free = t.id === "poket";
+        const launch = exactLaunchPrice[t.id];
         return (
           <article key={t.id} className={`ph-card relative flex flex-col gap-4 border-l-[3px] p-5 ${toneBorder[t.tone]} ${t.id === "membangun" ? "ring-1 ring-gold-deep" : ""}`}>
             {t.id === "membangun" && (
@@ -23,12 +30,15 @@ export function TierCompare() {
             <img src={t.seal} alt="" width={72} height={72} className="h-[72px] w-[72px]" />
             <ProductCover name={t.name} src={t.cover} className="max-w-[180px]" />
             <h3 className="font-display text-2xl text-green-900">{t.name}</h3>
-            <p className="font-display text-3xl text-green-900">{t.price}</p>
+            <div>
+              <p className="font-display text-3xl text-green-900">{t.price}</p>
+              {launch && <p className="mt-0.5 text-xs font-semibold text-gold-ink">{launch}</p>}
+            </div>
             <p className="text-sm text-muted-grove">{t.size}</p>
             <p className="font-display italic text-ink-grove">{t.subcopy}</p>
             <ul className="flex flex-1 flex-col gap-2 text-sm text-ink-grove">
               {t.includes.map((i) => (
-                <li key={i} className="flex gap-2"><span aria-hidden="true" className="text-gold">◆</span><span>{i}</span></li>
+                <li key={i} className="flex gap-2"><span aria-hidden="true" className="text-gold-ink">◆</span><span>{i}</span></li>
               ))}
             </ul>
             <a href={free ? "#percuma" : `/beli/${t.id}`} className={free ? "ph-cta min-h-cta-mobile justify-center" : "btn-ghost min-h-cta-mobile justify-center"}>

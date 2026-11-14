@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 
 /**
- * Mobile sticky CTA (ported from website_sam StickyBuyBar): it steps aside
- * while the opt-in form (#percuma) is on screen, so it never covers the form
- * it points to, and slides back once the form leaves view.
+ * Mobile sticky CTA: steps aside while the opt-in form (#percuma) is on screen,
+ * and respects bottom safe-area insets in mobile in-app webviews (Threads / iOS).
  */
 export function StickyCta() {
   const [hidden, setHidden] = useState(false);
@@ -23,7 +22,7 @@ export function StickyCta() {
       data-sticky-cta
       data-hidden={hidden}
       aria-hidden={hidden || undefined}
-      className="ph-sticky-cta fixed inset-x-0 bottom-0 z-40 border-t border-daylight-edge bg-daylight/95 p-3 backdrop-blur md:hidden"
+      className="ph-sticky-cta fixed inset-x-0 bottom-0 z-sticky border-t border-daylight-edge bg-daylight/95 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden"
     >
       <a href="#percuma" tabIndex={hidden ? -1 : undefined} className="ph-cta flex min-h-cta-mobile w-full items-center justify-center">
         Dapatkan Edisi Poket, percuma

@@ -9,6 +9,8 @@ import { StickyCta } from "@/components/StickyCta";
 import { Reveal } from "@/components/Reveal";
 import { Testimonials } from "@/components/Testimonials";
 import { EbookDeck } from "@/components/EbookDeck";
+import { TierCompare } from "@/components/TierCompare";
+import { EcosystemHub } from "@/components/EcosystemHub";
 import { SectionOrnament } from "@/components/SectionOrnament";
 import { StatsStrip } from "@/components/StatsStrip";
 import { Ticker } from "@/components/Ticker";
@@ -36,30 +38,38 @@ function Section({ id, title, intro, tone = "plain", children }: {
 export default function Home() {
   return (
     <>
-      <a href="#utama" className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-toast focus:rounded focus:bg-cream focus:px-3 focus:py-2 focus:text-ink">Langkau ke kandungan</a>
       <SiteHeader />
       <main id="utama">
-      <Hero />
-      <StatsStrip />
-      <Ticker />
-      <Section id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
-        <HowItWorks />
-      </Section>
-      <Section id="percuma" title="Edisi Poket, percuma" intro="Tinggalkan e-mel atau nombor WhatsApp. Kami hantar apabila bukunya sedia.">
-        <OptInForm />
-      </Section>
-      <Section id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
-        <EbookDeck />
-      </Section>
-      <Section id="bab" title="Intai beberapa bab">
-        <ChapterPreview />
-      </Section>
-      <Section id="pembaca" tone="soft" title="Suara pembaca">
-        <Testimonials />
-      </Section>
-      <Section id="soalan" title="Soalan lazim">
-        <Faq />
-      </Section>
+        <Hero />
+        <StatsStrip />
+        <Ticker />
+        <Section id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
+          <HowItWorks />
+        </Section>
+        <Section id="percuma" title="Edisi Poket, percuma" intro="Tinggalkan e-mel atau nombor WhatsApp. Kami hantar apabila bukunya sedia.">
+          <OptInForm />
+        </Section>
+        <Section id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
+          <div className="flex flex-col gap-12">
+            <EbookDeck />
+            <div>
+              <h3 className="mb-6 text-center font-display text-2xl text-green-900">Bandingkan semua edisi</h3>
+              <TierCompare />
+            </div>
+          </div>
+        </Section>
+        <Section id="bab" title="Intai beberapa bab">
+          <ChapterPreview />
+        </Section>
+        <Section id="interaktif" tone="soft" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
+          <EcosystemHub />
+        </Section>
+        <Section id="pembaca" title="Suara pembaca">
+          <Testimonials />
+        </Section>
+        <Section id="soalan" tone="soft" title="Soalan lazim">
+          <Faq />
+        </Section>
       </main>
       <SafetyFooter />
       <StickyCta />

@@ -3,11 +3,9 @@
 import { useState } from "react";
 
 /**
- * First creation: imported by Hero and covered by premium-experience tests.
- * Affected API: HeroBook accepts an optional display name; no data changes.
- * Data schemas: none; page content is a local display array.
- * User instruction: "just build it and please give me you best advanced,
- * futuristic, 3d, premium and educational design system and website design".
+ * 3D interactive preview book in the Hero section.
+ * Fixes screen-reader layering (aria-hidden on covered faces) and eliminates
+ * duplicate next-page controls.
  */
 export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
   const [page, setPage] = useState(0);
@@ -18,15 +16,16 @@ export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
     { title: "Skrip untuk hari ini", text: "“Saya perlukan jeda 10 minit, kemudian kita sambung dengan tenang.”" },
   ];
   const active = pages[page];
+
   return (
-    <div className="ph-book-scene" aria-label={`Buku interaktif ${name}`}>
+    <div className="ph-book-scene mx-auto max-w-[340px]" aria-label={`Buku interaktif ${name}`}>
       <div className="ph-book-shadow" aria-hidden="true" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/brand/animated/seal-edisi-poket.svg" alt="" width={96} height={96} className="ph-book-seal ph-coin" />
       <div className="ph-book-3d" data-page={page}>
         <div className="ph-book-spine" aria-hidden="true" />
         <div className="ph-book-pages" aria-hidden="true" />
-        <div className="ph-book-cover">
+        <div className="ph-book-cover" aria-hidden={open}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/animated/emblem-book-heart.svg" alt="" width={150} height={105} className="ph-book-emblem" />
           <p className="ph-book-kicker">Perpustakaan Hati</p>
@@ -42,12 +41,43 @@ export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
         </div>
       </div>
       <div className="ph-book-controls">
-        <button type="button" onClick={() => { setOpen(true); setPage((v) => (v + pages.length - 1) % pages.length); }} aria-label="Muka surat sebelumnya">‹</button>
-        <button type="button" onClick={() => { setOpen(true); setPage((v) => (v + 1) % pages.length); }} aria-label="Buka muka surat seterusnya">Buka muka surat seterusnya</button>
-        <button type="button" onClick={() => { setOpen(true); setPage((v) => (v + 1) % pages.length); }} aria-label="Muka surat seterusnya">›</button>
-        {open && (
-          <button type="button" onClick={() => setOpen(false)} aria-label="Kembali ke kulit buku">Kulit buku</button>
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            setPage((v) => (v + pages.length - 1) % pages.length);
+          }}
+          aria-label="Muka surat sebelumnya"
+        >
+          ‹
+        </button>
+        {!open ? (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-label="Buka muka surat seterusnya"
+          >
+            Buka muka surat seterusnya
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Kembali ke kulit buku"
+          >
+            Kulit buku
+          </button>
         )}
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            setPage((v) => (v + 1) % pages.length);
+          }}
+          aria-label="Muka surat seterusnya"
+        >
+          ›
+        </button>
       </div>
     </div>
   );
