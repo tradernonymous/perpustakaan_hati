@@ -21,9 +21,14 @@ from .dashboard import DashboardData, render_dashboard
 from .followers import (
     AUDIENCE_LIST_LABELS,
     AUDIENCE_LISTS,
+    GRAPH_COMMUNITY_LABELS,
+    GRAPH_COMMUNITY_LISTS,
     MAX_ENTRIES,
     AudienceError,
     analyze_audience,
+    analyze_graph_community,
+    extract_engagers,
+    filter_graph_people,
     filter_people,
     parse_export,
     since_date,
@@ -31,7 +36,7 @@ from .followers import (
 from .jobs import JobCancelled
 from .research import ResearchError, mine_pain_points
 from .store import Store, StoreError, build_vault
-from .threads_client import SampleLimits, ThreadsClient, ThreadsError
+from .threads_client import POST_TEXT_MAX, SampleLimits, ThreadsClient, ThreadsError
 
 SESSION_COOKIE = "research_session"
 CSRF_COOKIE = "research_csrf"
@@ -230,11 +235,54 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         analysis["imported_at"] = stored["imported_at"]
         return analysis
 
+    def graph_audience_analysis() -> dict | None:
+        stored = store.get_graph_audience()
+        if not stored:
+            return None
+        return analyze_graph_community(stored, store.list_insights())
+
     app.state.audience_analysis = audience_analysis
+    app.state.graph_audience_analysis = graph_audience_analysis
 
     def _cancel_check(job_id: int | None) -> None:
         if job_id is not None and store.job_cancel_requested(job_id):
             raise JobCancelled("Job cancelled.")
+
+    def _perform_graph_sync(params: dict, job_id: int | None = None) -> dict:
+        token = store.get_token()
+        if not token or token.expires_at <= time.time():
+            raise ThreadsError("Threads token expired or revoked; reconnect your account.")
+        _cancel_check(job_id)
+        synced = ThreadsClient(settings, app.state.http).sync_graph_audience(
+            token.access_token,
+            post_limit=params.get("post_limit", 25),
+            replies_per_post=params.get("replies_per_post", 50),
+        )
+        _cancel_check(job_id)
+        existing_graph = store.get_graph_audience() or {}
+        engagers = extract_engagers(
+            synced.get("replies", []),
+            store.list_insights(),
+            owner_username=synced["profile"].get("username", ""),
+            existing=existing_graph.get("engagers", []),
+        )
+        synced_at = store.save_graph_audience(
+            profile=synced["profile"],
+            followers_count=synced["followers_count"],
+            metrics=synced["metrics"],
+            demographics=synced["demographics"],
+            engagers=engagers,
+        )
+        analysis = graph_audience_analysis()
+        return {
+            "synced_at": synced_at,
+            "followers_count": synced["followers_count"],
+            "followers_delta": analysis["counts"]["followers_delta"] if analysis else None,
+            "profile": synced["profile"],
+            "metrics": synced["metrics"],
+            "demographics": synced["demographics"],
+            "active_repliers": len(engagers),
+        }
 
     def _perform_research(params: dict, job_id: int | None = None) -> dict:
         limits = SampleLimits(
@@ -246,7 +294,8 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         if not settings.openrouter_api_key:
             raise ResearchError("OPENROUTER_API_KEY is not set. Add it to the server secret store to analyze collected Threads text.")
         _cancel_check(job_id)
-        research = ThreadsClient(settings, app.state.http).collect_research(
+        client = ThreadsClient(settings, app.state.http)
+        research = client.collect_research(
             token.access_token, post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post)
         _cancel_check(job_id)
         insights = mine_pain_points(research["sources"], settings, app.state.http, focus=params.get("focus", ""))
@@ -258,6 +307,43 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
             post_limit=limits.post_limit, top_posts=limits.top_posts, replies_per_post=limits.replies_per_post,
             focus=params.get("focus", ""),
         )
+        # Synchronize discovered community repliers from the sampled Graph posts/replies into Followers
+        existing_graph = store.get_graph_audience() or {}
+        owner = str((existing_graph.get("profile") or {}).get("username", ""))
+        engagers = extract_engagers(
+            research.get("sources", []),
+            store.list_insights(),
+            owner_username=owner,
+            existing=existing_graph.get("engagers", []),
+        )
+        profile_data = None
+        followers_count = None
+        user_metrics = None
+        demographics = None
+        if str(params.get("sync_graph", "")).lower() in ("on", "true", "1"):
+            try:
+                profile_data = client.fetch_profile(token.access_token)
+                u_insights = client.fetch_user_insights(token.access_token)
+                followers_count = u_insights["followers_count"]
+                user_metrics = u_insights["metrics"]
+                demographics = u_insights["demographics"]
+                if profile_data.get("username"):
+                    engagers = extract_engagers(
+                        research.get("sources", []),
+                        store.list_insights(),
+                        owner_username=profile_data["username"],
+                        existing=existing_graph.get("engagers", []),
+                    )
+            except Exception:  # noqa: BLE001
+                pass
+        if engagers or existing_graph or followers_count is not None:
+            store.save_graph_audience(
+                profile=profile_data,
+                followers_count=followers_count,
+                metrics=user_metrics,
+                demographics=demographics,
+                engagers=engagers,
+            )
         return {"run_id": run_id, "insights": insights, "limitations": research["limitations"], "posts_sampled": research["posts_sampled"], "limits": limits.as_dict(), "focus": params.get("focus", "")}
 
     def _perform_drafts(params: dict, job_id: int | None = None) -> dict:
@@ -284,6 +370,8 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
                 result = _perform_research(job["params"], job_id)
             elif job["kind"] == "drafts":
                 result = _perform_drafts(job["params"], job_id)
+            elif job["kind"] == "graph_sync":
+                result = _perform_graph_sync(job["params"], job_id)
             else:
                 raise StoreError("Unknown job kind.")
         except JobCancelled:
@@ -393,16 +481,19 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         selection = request.query_params.get("select", "") if view in ("research", "studio") else ""
         status = request.query_params.get("status", "") if view == "library" else ""
         follow_list = request.query_params.get("list", "") if view == "followers" else ""
+        graph_list = request.query_params.get("glist", "") if view == "followers" else ""
         follow_query = request.query_params.get("q", "") if view == "followers" else ""
         token = app.state.store.get_token()
         connected = token is not None and token.expires_at > time.time()
         expiry = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(token.expires_at)) if connected else ""
         connection = f"Connected · expires {expiry}" if connected else "Not connected"
         insights = app.state.store.list_insights(query=search)
-        audiences = build_audiences(app.state.store.list_insights())
+        all_drafts = app.state.store.list_drafts()
+        audiences = build_audiences(app.state.store.list_insights(), all_drafts)
         runs = app.state.store.list_research_runs()
-        drafts = app.state.store.list_drafts(status=status)
+        drafts = app.state.store.list_drafts(status=status) if status else all_drafts
         audience = audience_analysis()
+        graph_audience = graph_audience_analysis()
         csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
         limits = SampleLimits.from_row(runs[0] if runs else None)
         focus = runs[0].get("focus", "") if runs else ""
@@ -412,7 +503,8 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             selection=selection, status_filter=status, csrf=csrf, limits=limits,
             jobs=store.list_jobs(),
             focus=focus,
-            audience=audience, follow_list=follow_list, follow_query=follow_query,
+            audience=audience, graph_audience=graph_audience,
+            follow_list=follow_list, graph_list=graph_list, follow_query=follow_query,
             model=settings.openrouter_model,
             error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
         ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
@@ -430,7 +522,11 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             return error(503, "not configured", missing=missing)
         state = secrets.token_urlsafe(24)
         pending_states[state] = time.time() + STATE_TTL
-        response = RedirectResponse(ThreadsClient(settings, app.state.http).authorize_url(state), status_code=307)
+        include_publish = request.query_params.get("scope") == "publish"
+        response = RedirectResponse(
+            ThreadsClient(settings, app.state.http).authorize_url(state, include_publish=include_publish),
+            status_code=307,
+        )
         response.set_cookie("oauth_browser", _signed(state + request.cookies.get(SESSION_COOKIE, ""), app.state.session_key), httponly=True, secure=settings.secure_cookies, samesite="lax", max_age=STATE_TTL)
         return response
 
@@ -454,6 +550,27 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         response = RedirectResponse("/", status_code=303)
         response.delete_cookie("oauth_browser")
         return response
+
+    @app.post("/auth/refresh")
+    def auth_refresh(request: Request):
+        is_html = "text/html" in request.headers.get("accept", "")
+        token = app.state.store.get_token()
+        if not token or token.expires_at <= time.time():
+            if is_html:
+                return RedirectResponse("/?view=settings&notice=Threads+token+expired;+reconnect+Threads", status_code=303)
+            return error(401, "reconnect")
+        now = int(time.time())
+        try:
+            refreshed = ThreadsClient(settings, app.state.http).refresh_token(token.access_token)
+            expires_at = now + refreshed.expires_in
+            app.state.store.save_token(refreshed.access_token, expires_at)
+        except (ThreadsError, StoreError) as exc:
+            if is_html:
+                return RedirectResponse(f"/?view=settings&notice={quote(str(exc))}", status_code=303)
+            return error(502, str(exc))
+        if is_html:
+            return RedirectResponse("/?view=settings&notice=Threads+token+refreshed+for+60+days", status_code=303)
+        return {"connected": True, "expires_at": expires_at}
 
     @app.get("/auth/status")
     def auth_status(request: Request):
@@ -482,6 +599,8 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             return error(503, "OPENROUTER_API_KEY is not set. Add it to the server secret store to analyze collected Threads text.")
         limits = SampleLimits.from_form(data)
         params = {**limits.as_dict(), "focus": _clean_focus(data.get("focus"))}
+        if str(data.get("sync_graph", "")).lower() in ("on", "true", "1"):
+            params["sync_graph"] = "on"
         if "text/html" in request.headers.get("accept", ""):
             job = app.state.store.create_job("research", params)
             return RedirectResponse(f"/?view=research&notice=Research+queued+(job+%23{job['id']})", status_code=303)
@@ -507,7 +626,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
     def audiences(request: Request):
         if not signed_in(request):
             return error(401, "Sign in first.")
-        return {"audiences": build_audiences(app.state.store.list_insights())}
+        return {"audiences": build_audiences(app.state.store.list_insights(), app.state.store.list_drafts())}
 
     @app.get("/audiences/export.csv")
     def audiences_export(request: Request):
@@ -516,7 +635,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         output = io.StringIO(newline="")
         writer = csv.writer(output)
         writer.writerow(("audience_segment", "evidence_count", "themes", "quote", "source_url", "ebook_idea"))
-        for audience in build_audiences(app.state.store.list_insights()):
+        for audience in build_audiences(app.state.store.list_insights(), app.state.store.list_drafts()):
             for item in audience["evidence"]:
                 cells = [audience["name"], audience["evidence_count"], ", ".join(audience["themes"]), item["quote"], item["source_url"], item["ebook_idea"]]
                 writer.writerow([("'" + str(value)) if str(value).startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])
@@ -530,11 +649,13 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if not signed_in(request):
             return error(401, "Sign in first.")
         analysis = audience_analysis()
-        if not analysis:
+        graph = graph_audience_analysis()
+        if not analysis and not graph:
             return {"audience": None}
         query = request.query_params.get("q", "")
-        return {
-            "audience": {
+        audience_payload = None
+        if analysis:
+            audience_payload = {
                 "counts": analysis["counts"],
                 "imported_at": analysis["imported_at"],
                 "query": query,
@@ -547,7 +668,84 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
                     for key in AUDIENCE_LISTS
                 },
             }
+        if not graph:
+            return {"audience": audience_payload}
+        graph_payload = {
+            "counts": graph["counts"],
+            "profile": graph["profile"],
+            "metrics": graph["metrics"],
+            "demographics": graph["demographics"],
+            "synced_at": graph["synced_at"],
+            "query": query,
+            "lists": {
+                key: {
+                    "label": GRAPH_COMMUNITY_LABELS[key],
+                    "total": len(graph[key]),
+                    "people": filter_graph_people(graph, key, query, limit=500)[0],
+                }
+                for key in GRAPH_COMMUNITY_LISTS
+            },
         }
+        return {"audience": audience_payload, "graph": graph_payload}
+
+    @app.post("/followers/sync")
+    async def followers_sync(request: Request):
+        is_html = "text/html" in request.headers.get("accept", "")
+        token = app.state.store.get_token()
+        if not token or token.expires_at <= time.time():
+            return follow_redirect("Connect Threads first before syncing from the Graph API.") if is_html else error(401, "reconnect")
+        try:
+            data = dict(await request.form())
+        except Exception:
+            try:
+                body = await request.body()
+                data = json.loads(body) if body else {}
+            except Exception:
+                data = {}
+        params = {
+            "post_limit": min(max(int(data.get("post_limit", 25) or 25), 1), 50),
+            "replies_per_post": min(max(int(data.get("replies_per_post", 50) or 50), 1), 100),
+        }
+        if str(data.get("queue", "")).lower() in ("on", "true", "1"):
+            job = app.state.store.create_job("graph_sync", params)
+            return follow_redirect(f"Graph sync queued (job #{job['id']})")
+        try:
+            result = _perform_graph_sync(params)
+        except (ThreadsError, StoreError) as exc:
+            return follow_redirect(str(exc)) if is_html else error(502, str(exc))
+        if is_html:
+            return follow_redirect(
+                f"Synced {result['followers_count']:,} followers and {result['active_repliers']} active community repliers from Threads Graph"
+            )
+        return result
+
+    @app.get("/followers/graph.csv")
+    def followers_graph_export(request: Request):
+        if not signed_in(request):
+            return error(401, "Sign in first.")
+        graph = graph_audience_analysis()
+        if not graph:
+            return error(404, "No Threads Graph audience synced yet. Run research or click Sync from Threads Graph first.")
+        wanted = request.query_params.get("glist", "")
+        keys = [wanted] if wanted in GRAPH_COMMUNITY_LISTS else ["all_engagers"]
+        query = request.query_params.get("q", "")
+        output = io.StringIO(newline="")
+        writer = csv.writer(output)
+        writer.writerow(("username", "profile_url", "replies_count", "insights_count", "themes", "last_seen", "sample_quote"))
+        for key in keys:
+            people, _total = filter_graph_people(graph, key, query, limit=MAX_ENTRIES)
+            for person in people:
+                cells = (
+                    person["username"],
+                    person["href"],
+                    person["replies_count"],
+                    len(person.get("insight_ids", [])),
+                    ", ".join(person.get("themes", [])),
+                    person.get("last_seen", ""),
+                    person.get("sample_quote", ""),
+                )
+                writer.writerow([("'" + str(value)) if str(value).startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])
+        return Response(output.getvalue(), media_type="text/csv; charset=utf-8", headers={"Content-Disposition": "attachment; filename=threads-graph-community.csv"})
 
     @app.get("/followers/export.csv")
     def followers_export(request: Request):
@@ -592,7 +790,9 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
 
     @app.post("/followers/clear")
     async def followers_clear(request: Request):
-        cleared = app.state.store.clear_audience()
+        cleared_import = app.state.store.clear_audience()
+        cleared_graph = app.state.store.clear_graph_audience()
+        cleared = bool(cleared_import or cleared_graph)
         if "text/html" in request.headers.get("accept", ""):
             return follow_redirect("Follower import cleared" if cleared else "No follower import to clear")
         return {"cleared": cleared}
@@ -665,6 +865,77 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if "text/html" in request.headers.get("accept", ""):
             return RedirectResponse("/?view=library&notice=Draft+status+updated", status_code=303)
         return {"id": draft_id, "status": status}
+
+    @app.post("/content/drafts/{draft_id}/edit")
+    async def content_draft_edit(request: Request, draft_id: int):
+        is_html = "text/html" in request.headers.get("accept", "")
+        draft = app.state.store.get_draft(draft_id)
+        if not draft:
+            return error(404, "Draft not found.")
+        try:
+            data = dict(await request.form())
+        except Exception:
+            try:
+                body = await request.json()
+                data = body if isinstance(body, dict) else {}
+            except Exception:
+                data = {}
+        title = " ".join(str(data.get("title", draft["title"])).split())[:160]
+        if not title:
+            return error(400, "Draft title cannot be empty.")
+        content = dict(draft["content"])
+        if draft["kind"] == "threads_post":
+            post_text = str(data.get("post", content.get("post", ""))).strip()
+            if not post_text:
+                return error(400, "Post text cannot be empty.")
+            if len(post_text) > POST_TEXT_MAX:
+                return error(400, f"Threads posts are limited to {POST_TEXT_MAX} characters.")
+            content["post"] = post_text
+        elif draft["kind"] == "ebook_outline":
+            if "premise" in data:
+                content["premise"] = str(data.get("premise", "")).strip()[:1000]
+            if "intended_reader_need" in data:
+                content["intended_reader_need"] = str(data.get("intended_reader_need", "")).strip()[:1000]
+        elif draft["kind"] == "design_brief":
+            for field_name in ("concept", "format", "visual_direction", "copy"):
+                if field_name in data:
+                    content[field_name] = str(data.get(field_name, "")).strip()[:2000]
+        app.state.store.update_draft_content(draft_id, title=title, content=content)
+        if is_html:
+            return RedirectResponse("/?view=library&notice=Draft+updated", status_code=303)
+        return {"id": draft_id, "title": title, "content": content}
+
+    @app.post("/content/drafts/{draft_id}/publish")
+    async def content_draft_publish(request: Request, draft_id: int):
+        is_html = "text/html" in request.headers.get("accept", "")
+        draft = app.state.store.get_draft(draft_id)
+        if not draft:
+            return error(404, "Draft not found.")
+        content = dict(draft["content"])
+        err_msg = (
+            "Only Threads post drafts can be published to Threads." if draft["kind"] != "threads_post"
+            else "Approve the draft before publishing to Threads." if draft["status"] != "approved"
+            else "This draft has already been published to Threads." if content.get("published")
+            else ""
+        )
+        if err_msg:
+            return error(400, err_msg)
+        token = app.state.store.get_token()
+        if not token or token.expires_at <= time.time():
+            return RedirectResponse("/?view=library&notice=Connect+Threads+before+publishing", status_code=303) if is_html else error(401, "reconnect")
+        post_text = str(content.get("post", "")).strip()
+        try:
+            published = ThreadsClient(settings, app.state.http).publish_post(token.access_token, post_text)
+        except ThreadsError as exc:
+            return RedirectResponse(f"/?view=library&notice={quote(str(exc))}", status_code=303) if is_html else error(502, str(exc))
+        pub_meta = {
+            "id": published["id"],
+            "url": published.get("permalink", ""),
+            "published_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        content["published"] = pub_meta
+        app.state.store.update_draft_content(draft_id, title=draft["title"], content=content)
+        return RedirectResponse("/?view=library&notice=Published+to+Threads", status_code=303) if is_html else {"id": draft_id, "published": pub_meta}
 
     @app.get("/content/drafts")
     def content_drafts(request: Request, status: str = ""):

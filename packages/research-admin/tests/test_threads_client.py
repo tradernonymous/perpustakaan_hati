@@ -142,3 +142,93 @@ def test_excessive_limits_are_clamped_before_collection(client):
     assert result["limits"] == {"post_limit": POST_LIMIT_MAX, "top_posts": TOP_POSTS_MAX, "replies_per_post": REPLIES_PER_POST_MAX}
     # The collection helper pages 50 at a time, so the first request asks for 50.
     assert respx.calls[0].request.url.params["limit"] == "50"
+
+
+def test_authorization_can_opt_in_to_publish_scope(client):
+    url = urlsplit(client.authorize_url("state-2", include_publish=True))
+    query = parse_qs(url.query)
+    assert set(query["scope"][0].split(",")) == {
+        "threads_basic", "threads_read_replies", "threads_manage_insights", "threads_content_publish"
+    }
+
+
+@respx.mock
+def test_refresh_token_returns_renewed_long_lived_token(client):
+    respx.get(GRAPH + "/refresh_access_token").respond(
+        200, json={"access_token": "refreshed-secret", "token_type": "bearer", "expires_in": 5183944}
+    )
+    token = client.refresh_token("old-token")
+    assert token.access_token == "refreshed-secret"
+    assert token.expires_in == 5183944
+    assert respx.calls[0].request.url.params["grant_type"] == "th_refresh_token"
+    assert respx.calls[0].request.url.params["access_token"] == "old-token"
+
+
+@respx.mock
+def test_fetch_profile_and_user_insights_from_graph(client):
+    respx.get(GRAPH + "/v1.0/me").respond(200, json={
+        "id": "99", "username": "@rahimam", "name": "Rahimam",
+        "threads_biography": "Perpustakaan Hati", "threads_profile_picture_url": "https://cdn.threads.net/pic.jpg",
+    })
+    respx.get(GRAPH + "/v1.0/me/threads_insights").mock(side_effect=lambda req: httpx.Response(200, json={
+        "data": (
+            [
+                {"name": "followers_count", "total_value": {"value": 10540}},
+                {"name": "views", "values": [{"value": 1200}, {"value": 800}]},
+                {"name": "likes", "total_value": {"value": 430}},
+                {"name": "replies", "total_value": {"value": 95}},
+                {"name": "reposts", "total_value": {"value": 40}},
+                {"name": "quotes", "total_value": {"value": 18}},
+            ]
+            if "followers_count" in req.url.params.get("metric", "")
+            else [{
+                "name": "follower_demographics",
+                "total_value": {
+                    "breakdowns": [{
+                        "dimension_keys": [req.url.params.get("breakdown", "country")],
+                        "results": [
+                            {"dimension_values": ["MY"], "value": 8200},
+                            {"dimension_values": ["SG"], "value": 1400},
+                        ],
+                    }]
+                },
+            }]
+        )
+    }))
+    profile = client.fetch_profile("token")
+    assert profile["username"] == "rahimam"
+    assert profile["name"] == "Rahimam"
+    insights = client.fetch_user_insights("token")
+    assert insights["followers_count"] == 10540
+    assert insights["metrics"] == {"views": 2000, "likes": 430, "replies": 95, "reposts": 40, "quotes": 18}
+    assert insights["demographics"]["country"][0] == {"key": "MY", "value": 8200}
+
+
+@respx.mock
+def test_fetch_user_insights_tolerates_unavailable_demographics(client):
+    def respond(req):
+        if req.url.params.get("metric") == "follower_demographics":
+            return httpx.Response(400, json={"error": {"message": " Requires 100 followers", "code": 100}})
+        return httpx.Response(200, json={"data": [{"name": "followers_count", "total_value": {"value": 42}}]})
+
+    respx.get(GRAPH + "/v1.0/me/threads_insights").mock(side_effect=respond)
+    insights = client.fetch_user_insights("token")
+    assert insights["followers_count"] == 42
+    assert insights["demographics"] == {}
+
+
+@respx.mock
+def test_publish_post_executes_two_step_container_flow(client):
+    respx.post(GRAPH + "/v1.0/me/threads").respond(200, json={"id": "container-1"})
+    respx.post(GRAPH + "/v1.0/me/threads_publish").respond(200, json={"id": "post-99"})
+    respx.get(GRAPH + "/v1.0/post-99").respond(200, json={"id": "post-99", "permalink": "https://www.threads.com/@rahimam/post/XYZ"})
+    published = client.publish_post("token", "Trust grows in small moments.")
+    assert published == {"id": "post-99", "permalink": "https://www.threads.com/@rahimam/post/XYZ"}
+
+
+def test_publish_post_validates_empty_and_overlong_text(client):
+    with pytest.raises(ThreadsError, match="empty"):
+        client.publish_post("token", "   ")
+    with pytest.raises(ThreadsError, match="500 characters"):
+        client.publish_post("token", "x" * 501)
+

@@ -5,8 +5,18 @@ from dataclasses import dataclass, field
 from urllib.parse import quote
 
 from .content import DRAFT_KINDS, DRAFT_LANGUAGES, DRAFT_TONES
-from .followers import AUDIENCE_LIST_LABELS, AUDIENCE_LISTS, TAG_LABELS, AudienceIndex, filter_people, since_date
-from .threads_client import POST_LIMIT_MAX, REPLIES_PER_POST_MAX, TOP_POSTS_MAX, SampleLimits
+from .followers import (
+    AUDIENCE_LIST_LABELS,
+    AUDIENCE_LISTS,
+    GRAPH_COMMUNITY_LABELS,
+    GRAPH_COMMUNITY_LISTS,
+    TAG_LABELS,
+    AudienceIndex,
+    filter_graph_people,
+    filter_people,
+    since_date,
+)
+from .threads_client import POST_LIMIT_MAX, POST_TEXT_MAX, REPLIES_PER_POST_MAX, TOP_POSTS_MAX, SampleLimits
 
 
 @dataclass(slots=True)
@@ -30,7 +40,9 @@ class DashboardData:
     jobs: list[dict] = field(default_factory=list)
     focus: str = ""
     audience: dict | None = None
+    graph_audience: dict | None = None
     follow_list: str = ""
+    graph_list: str = ""
     follow_query: str = ""
 
 
@@ -73,6 +85,8 @@ def _job_summary(job: dict) -> str:
         if focus:
             text += f' · Focus: {focus[:80]}'
         return text
+    if job["kind"] == "graph_sync":
+        return f'Sync profile, follower count, demographics & up to {params.get("post_limit", 25)} recent posts'
     kinds = params.get("kinds", list(DRAFT_KINDS))
     return f'{len(kinds)} draft kind{"" if len(kinds) == 1 else "s"} · {params.get("tone", "empathetic")} · {params.get("language", "match evidence")}'
 
@@ -81,7 +95,7 @@ def _queue_panel(jobs: list[dict], csrf: str) -> str:
     if not jobs:
         return ""
     active = any(job.get("status") in ("queued", "running") for job in jobs)
-    labels = {"research": "Research run", "drafts": "Draft generation"}
+    labels = {"research": "Research run", "drafts": "Draft generation", "graph_sync": "Threads Graph sync"}
     statuses = {"queued": "Queued", "running": "Running", "done": "Done", "failed": "Failed", "cancelled": "Cancelled"}
     token = f'<input type="hidden" name="csrf" value="{_e(csrf)}">'
     rows = []
@@ -150,13 +164,125 @@ def _import_form(csrf_input: str) -> str:
 
 
 
-def _insight_card(item: dict, *, selectable: bool = False, selected: bool = False, follow: str = "") -> str:
+def _insight_card(item: dict, *, selectable: bool = False, selected: bool = False, follow: str = "", engager: dict | None = None) -> str:
     checkbox = f'<label class="select"><input type="checkbox" name="insight_ids" value="{int(item["id"])}"{" checked" if selected else ""}> Use this evidence</label>' if selectable else ""
+    engager_chip = ""
+    if isinstance(engager, dict) and int(engager.get("replies_count", 0)) >= 2:
+        engager_chip = f'<span class="follow-chip follower">Active replier · {int(engager["replies_count"])} replies</span>'
     return f'''<article class="evidence card" id="insight-{int(item["id"])}">
       <div class="card-top"><span class="tag">{_e(item["theme"])}</span><time>{_e(item.get("created_at", "")[:10])}</time></div>
       <blockquote>“{_e(item["quote"])}”</blockquote><p class="idea"><b>Product angle</b> · {_e(item["ebook_idea"])}</p>
-      <div class="card-bottom">{_source(item)}<span class="follow-wrap">{_follow_chip(follow)}{checkbox}</span></div>
+      <div class="card-bottom">{_source(item)}<span class="follow-wrap">{engager_chip}{_follow_chip(follow)}{checkbox}</span></div>
     </article>'''
+
+
+def _demographics_grid(demographics: dict) -> str:
+    if not isinstance(demographics, dict) or not demographics:
+        return ""
+    titles = {"country": "Top countries", "city": "Top cities", "age": "Age distribution", "gender": "Gender split"}
+    cards = []
+    for key in ("country", "city", "age", "gender"):
+        rows = demographics.get(key)
+        if not isinstance(rows, list) or not rows:
+            continue
+        total = max(1, sum(int(r.get("value", 0)) for r in rows if isinstance(r, dict)))
+        items_html = []
+        for row in rows[:5]:
+            if not isinstance(row, dict):
+                continue
+            label = _e(str(row.get("key", "")))
+            val = int(row.get("value", 0))
+            pct = round(100 * val / total, 1)
+            items_html.append(
+                f'<div class="demo-row"><div class="demo-meta"><b>{label}</b><span>{val:,} ({pct}%)</span></div>'
+                f'<div class="demo-bar"><i style="width:{min(100.0, max(4.0, pct))}%"></i></div></div>'
+            )
+        if items_html:
+            cards.append(f'<article class="card board-card"><p class="eyebrow">{_e(titles[key].upper())}</p>{"".join(items_html)}</article>')
+    if not cards:
+        return ""
+    return f'<div class="board">{"".join(cards)}</div>'
+
+
+def _graph_community_row(person: dict, follow_index: AudienceIndex) -> str:
+    username = _e(str(person.get("username", "")))
+    href = str(person.get("href", ""))
+    link = (
+        f'<a class="source" href="{_e(href)}" target="_blank" rel="noreferrer">@{username} ↗</a>'
+        if href.startswith(("http://", "https://")) else f"@{username}"
+    )
+    replies = int(person.get("replies_count", 1) or 1)
+    insight_ids = [int(i) for i in person.get("insight_ids", []) if str(i).isdigit()]
+    last_seen = str(person.get("last_seen", "")).strip()
+    meta_parts = [f"{replies} repl{'y' if replies == 1 else 'ies'}"]
+    if insight_ids:
+        meta_parts.append(f"{len(insight_ids)} saved insight{'' if len(insight_ids) == 1 else 's'}")
+    if last_seen:
+        meta_parts.append(f"Last active {_e(last_seen)}")
+    sample = str(person.get("sample_quote", "")).strip()
+    quote_line = f'<p class="muted">“{_e(sample[:130])}”</p>' if sample else ""
+    themes = "".join(f'<span class="follow-chip">{_e(t)}</span>' for t in person.get("themes", [])[:3])
+    follow_tag = follow_index.tag(href)
+    follow_badge = _follow_chip(follow_tag) if follow_tag and follow_tag != "none" else ""
+    actions = f'<a class="text-link" href="/?view=research&amp;q={quote(str(person.get("username", "")), safe="")}">Search replies →</a>'
+    if insight_ids:
+        sel = ",".join(str(i) for i in insight_ids[:10])
+        actions += f' · <a class="text-link" href="/?view=studio&amp;select={sel}">Draft in Studio →</a>'
+    return (
+        f'<div class="run-row follow-row"><div>{link}<span>{" · ".join(meta_parts)}</span></div>'
+        f'<div>{quote_line}<div class="follow-wrap">{follow_badge}{themes}{actions}</div></div></div>'
+    )
+
+
+def _graph_followers_section(data: DashboardData, follow_index: AudienceIndex, csrf_input: str, *, connected: bool = False) -> str:
+    graph = data.graph_audience
+    glist = data.graph_list
+    query = data.follow_query
+    sync_btn = (
+        f'<form method="post" action="/followers/sync">{csrf_input}'
+        f'<button class="button small" {"" if connected else "disabled"}>Sync from Threads Graph ↻</button></form>'
+    )
+    if not graph:
+        return (
+            '<section class="panel"><div class="section-head"><div><p class="eyebrow">THREADS GRAPH API · AUTOMATIC SYNC</p>'
+            '<h2>Live follower telemetry &amp; active community</h2></div>'
+            f'{sync_btn}</div>'
+            '<p class="help">Pull live <b>followers_count</b>, <b>follower_demographics</b> (country, city, age, gender), '
+            'and an automatic <b>Active Community Roster</b> from your Threads replies directly via the Graph API — no manual JSON download needed. '
+            'Running a Research job also updates your active community automatically.</p></section>'
+        )
+    counts = graph["counts"]
+    delta = counts.get("followers_delta")
+    delta_label = f"+{delta:,} since previous sync" if isinstance(delta, int) and delta > 0 else (f"{delta:,} since previous sync" if isinstance(delta, int) and delta < 0 else "Synced from /v1.0/me/threads_insights")
+    profile = graph.get("profile") or {}
+    handle = f'@{_e(profile["username"])}' if profile.get("username") else "Connected profile"
+    metrics = graph.get("metrics") or {}
+    reach = int(metrics.get("views", 0))
+    likes = int(metrics.get("likes", 0))
+    gkey = glist if glist in GRAPH_COMMUNITY_LISTS else GRAPH_COMMUNITY_LISTS[0]
+    exported_q = quote(query, safe="")
+    pills = "".join(
+        f'<a class="{"selected" if key == gkey else ""}" href="/?view=followers&amp;glist={key}{f"&amp;q={exported_q}" if exported_q else ""}">'
+        f'{_e(GRAPH_COMMUNITY_LABELS[key])} · {len(graph.get(key, []))}</a>'
+        for key in GRAPH_COMMUNITY_LISTS
+    )
+    people, shown_total = filter_graph_people(graph, gkey, query, limit=100)
+    rows = "".join(_graph_community_row(p, follow_index) for p in people) or '<div class="empty">No community replies recorded for this filter yet. Run research or click Sync from Threads Graph.</div>'
+    more_note = f'<p class="help">Showing {len(people)} of {shown_total} active community accounts.</p>' if shown_total > len(people) else ""
+    synced_stamp = _e(str(graph.get("synced_at", ""))[:16].replace("T", " "))
+    return (
+        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">LIVE THREADS GRAPH · {_e(handle.upper())}</p>'
+        f'<h2>Graph followers &amp; active community</h2><p class="help">Last synced {synced_stamp or "just now"} · automatic from Threads Graph API</p></div>'
+        f'<div class="actions"><a class="button ghost small" href="/followers/graph.csv?glist={_e(gkey)}{f"&amp;q={exported_q}" if exported_q else ""}">Export Graph CSV</a>{sync_btn}</div></div>'
+        f'<div class="stats">'
+        f'<article class="stat card"><span>Graph followers</span><b>{counts["followers_count"]:,}</b><small>{_e(delta_label)}</small></article>'
+        f'<article class="stat card"><span>Active repliers</span><b>{counts["active_repliers"]:,}</b><small>Discovered automatically from thread replies</small></article>'
+        f'<article class="stat card"><span>Insight contributors</span><b>{counts["insight_contributors"]:,}</b><small>Community members cited in saved evidence</small></article>'
+        f'<article class="stat card"><span>Account engagement</span><b>{reach:,}</b><small>Views · {likes:,} likes across insights window</small></article>'
+        f'</div>'
+        f'{_demographics_grid(graph.get("demographics") or {})}'
+        f'<div class="filter-pills">{pills}</div>{rows}{more_note}</section>'
+    )
 
 
 def _draft_references(content: dict) -> str:
@@ -185,24 +311,80 @@ def _draft_content(draft: dict) -> str:
     return f'<p><b>Concept:</b> {_e(content.get("concept", ""))}</p><p><b>Format:</b> {_e(content.get("format", ""))}</p><p><b>Visual direction:</b> {_e(content.get("visual_direction", ""))}</p><div class="draft-copy">{_e(content.get("copy", ""))}</div>{_draft_references(content)}'
 
 
-def _draft_card(draft: dict, csrf: str = "") -> str:
+def _draft_edit_drawer(draft: dict, token: str) -> str:
+    content = draft["content"]
+    did = int(draft["id"])
+    title_input = f'<label class="limit-field"><span>Title</span><input name="title" maxlength="160" value="{_e(draft["title"])}" required></label>'
+    if draft["kind"] == "threads_post":
+        post_text = str(content.get("post", ""))
+        fields = f'<label class="focus-field"><span>Threads post ({len(post_text)} / {POST_TEXT_MAX} chars)</span><textarea name="post" maxlength="{POST_TEXT_MAX}" required>{_e(post_text)}</textarea></label>'
+    elif draft["kind"] == "ebook_outline":
+        fields = (
+            f'<label class="limit-field"><span>Premise</span><input name="premise" value="{_e(content.get("premise", ""))}"></label>'
+            f'<label class="limit-field"><span>Intended reader need</span><input name="intended_reader_need" value="{_e(content.get("intended_reader_need", ""))}"></label>'
+        )
+    else:
+        fields = (
+            f'<label class="limit-field"><span>Concept</span><input name="concept" value="{_e(content.get("concept", ""))}"></label>'
+            f'<label class="focus-field"><span>Copy</span><textarea name="copy">{_e(content.get("copy", ""))}</textarea></label>'
+        )
+    return (
+        f'<details class="edit-drawer"><summary class="text-link">Edit draft</summary>'
+        f'<form class="edit-form" method="post" action="/content/drafts/{did}/edit">{token}{title_input}{fields}'
+        f'<button class="button small" type="submit">Save changes</button></form></details>'
+    )
+
+
+def _draft_card(draft: dict, csrf: str = "", *, connected: bool = False) -> str:
     labels = {"threads_post": "Threads post", "ebook_outline": "eBook outline", "design_brief": "Design brief"}
     statuses = {"draft": "Needs review", "approved": "Approved", "archived": "Archived"}
     token = f'<input type="hidden" name="csrf" value="{_e(csrf)}">'
     source_ids = draft.get("source_ids", [])
     evidence = ", ".join(f'<a href="/?view=research&amp;q={int(i)}#insight-{int(i)}">#{int(i)}</a>' for i in source_ids if str(i).isdigit())
+    content = draft["content"]
+    published = content.get("published") if isinstance(content, dict) else None
+    char_badge = ""
+    if draft["kind"] == "threads_post":
+        length = len(str(content.get("post", "")))
+        char_badge = f'<span class="follow-chip">{length} / {POST_TEXT_MAX} chars</span>'
+    pub_badge = ""
+    if isinstance(published, dict):
+        pub_url = str(published.get("url", ""))
+        pub_badge = (
+            f'<a class="status approved" href="{_e(pub_url)}" target="_blank" rel="noreferrer">Published on Threads ↗</a>'
+            if pub_url.startswith(("http://", "https://"))
+            else '<span class="status approved">Published on Threads</span>'
+        )
     actions = ""
     if draft["status"] != "approved":
         actions += f'<form method="post" action="/content/drafts/{int(draft["id"])}/status">{token}<input type="hidden" name="status" value="approved"><button class="button small">Approve for use</button></form>'
+    if draft["kind"] == "threads_post" and draft["status"] == "approved" and not published:
+        actions += f'<form method="post" action="/content/drafts/{int(draft["id"])}/publish">{token}<button class="button small" {"" if connected else "disabled"}>Publish to Threads ↗</button></form>'
     if draft["status"] != "archived":
         actions += f'<form method="post" action="/content/drafts/{int(draft["id"])}/status">{token}<input type="hidden" name="status" value="archived"><button class="button ghost small">Archive</button></form>'
     actions += f'<button class="button ghost small" type="button" data-copy="draft-{int(draft["id"])}">Copy text</button>'
     return f'''<article class="draft card">
-      <div class="card-top"><span class="tag">{_e(labels.get(draft["kind"], draft["kind"]))}</span><span class="status {draft["status"]}">{_e(statuses.get(draft["status"], draft["status"]))}</span></div>
+      <div class="card-top"><span class="tag">{_e(labels.get(draft["kind"], draft["kind"]))}</span><span class="follow-wrap">{char_badge}{pub_badge}<span class="status {draft["status"]}">{_e(statuses.get(draft["status"], draft["status"]))}</span></span></div>
       <h3>{_e(draft["title"])}</h3><div id="draft-{int(draft["id"])}" class="draft-body">{_draft_content(draft)}</div>
       <p class="muted small-copy">Grounded in insight {evidence or "—"} · {_e(draft.get("created_at", "")[:10])}</p>
       <div class="actions">{actions}</div>
+      {_draft_edit_drawer(draft, token)}
     </article>'''
+
+
+def _theme_filter_pills(insights: list[dict], query: str) -> str:
+    theme_counts: dict[str, int] = {}
+    for item in insights:
+        t = str(item.get("theme", "")).strip()
+        if t:
+            theme_counts[t] = theme_counts.get(t, 0) + 1
+    top_themes = sorted(theme_counts.items(), key=lambda x: (-x[1], x[0]))[:8]
+    if not top_themes:
+        return ""
+    return '<div class="filter-pills"><a class="' + ("selected" if not query else "") + '" href="/?view=research">All</a>' + "".join(
+        f'<a class="{"selected" if query.casefold() == t.casefold() else ""}" href="/?view=research&amp;q={quote(t, safe="")}">{_e(t)} · {cnt}</a>'
+        for t, cnt in top_themes
+    ) + "</div>"
 
 
 def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
@@ -214,7 +396,8 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
     model = data.model
     csrf_input = f'<input type="hidden" name="csrf" value="{_e(csrf)}">'
     threads_configured = data.threads_configured
-    follow_index = AudienceIndex(data.audience)
+    is_connected = connection.startswith("Connected")
+    follow_index = AudienceIndex(data.audience, data.graph_audience)
     views = {"overview", "research", "followers", "audiences", "studio", "library", "settings"}
     view = view if view in views else "overview"
     labels = {"overview": "Overview", "research": "Research", "followers": "Followers", "audiences": "Audiences", "studio": "Studio", "library": "Draft library", "settings": "Connections & settings"}
@@ -224,7 +407,7 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
     total_runs = len(runs)
     total_drafts = len(drafts)
     topic_text = " · ".join(latest["themes"][:4]) if latest else "No research run yet"
-    status_class = "connected" if connection.startswith("Connected") else "disconnected"
+    status_class = "connected" if is_connected else "disconnected"
     nav_error = f'<div class="notice error">{_e(error)}</div>' if error else ""
     error = ""
     notice = ""
@@ -236,23 +419,37 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
         for p in top_posts if str(p.get("permalink", "")).startswith(("https://", "http://"))
     ) or '<tr><td colspan="6" class="muted">No post metrics saved yet. Run research to capture a bounded sample.</td></tr>'
 
+    graph_summary = ""
+    if data.graph_audience:
+        gc = data.graph_audience["counts"]
+        graph_summary = f' · <a class="text-link" href="/?view=followers">{gc["followers_count"]:,} Graph followers &amp; {gc["active_repliers"]} active repliers</a>'
+
     if view == "overview":
         run_note = f"Last run: {_e(latest['created_at'][:16].replace('T', ' '))} · {_e(latest['posts_sampled'])} posts sampled · {_e(latest['insights_count'])} evidence points" if latest else "Your first run will create a traceable research baseline."
-        top_audiences = "".join(f'<a class="segment-row" href="/?view=audiences"><span>{_e(a["name"])}</span><b>{a["evidence_count"]}</b></a>' for a in audiences[:4]) or '<p class="muted">Run research to find recurring themes.</p>'
-        latest_drafts = "".join(_draft_card(d, csrf) for d in drafts[:2]) or '<div class="empty">Turn a few saved insights into a post, ebook outline, or design brief.</div>'
-        recent_evidence = "".join(_insight_card(item, follow=follow_index.tag(item.get("source_url"))) for item in insights[:3]) or '<div class="empty">No evidence saved yet. Start with a bounded sample of the authorized Threads account.</div>'
-        connect_link = '<a class="button" href="/auth/start">connect Threads →</a>' if not connection.startswith("Connected") else '<a class="text-link" href="/?view=settings">Manage connection →</a>'
+        top_audiences = "".join(
+            f'<a class="segment-row" href="/?view=audiences"><span>{_e(a["name"])}'
+            f'{(" · <small class=muted>" + str(a.get("draft_count", 0)) + " drafts</small>") if a.get("draft_count") else " · <small class=muted>Underserved</small>"}'
+            f'</span><b>{a["evidence_count"]}</b></a>'
+            for a in audiences[:4]
+        ) or '<p class="muted">Run research to find recurring themes.</p>'
+        latest_drafts = "".join(_draft_card(d, csrf, connected=is_connected) for d in drafts[:2]) or '<div class="empty">Turn a few saved insights into a post, ebook outline, or design brief.</div>'
+        recent_evidence = "".join(_insight_card(item, follow=follow_index.tag(item.get("source_url")), engager=follow_index.engager(item.get("source_url"))) for item in insights[:3]) or '<div class="empty">No evidence saved yet. Start with a bounded sample of the authorized Threads account.</div>'
+        connect_link = (
+            '<a class="button" href="/auth/start">connect Threads →</a>'
+            if not is_connected
+            else f'<div class="actions"><a class="text-link" href="/?view=settings">Manage connection →</a><form method="post" action="/followers/sync">{csrf_input}<button class="button ghost small">Sync Threads Graph ↻</button></form></div>'
+        )
         content = f'''<div class="welcome"><div><p class="eyebrow">PERPUSTAKAAN HATI · THREADS RESEARCH WORKSPACE</p><h1>From conversation<br>to something helpful.</h1><p class="lead">A careful path from Rahimam’s Threads sample to audience needs, grounded ideas, and reviewed content.</p></div><a class="button" href="/?view=research">Start with research <span>→</span></a></div>
           <div class="stats"><article class="stat card"><span>Evidence points</span><b>{total_evidence}</b><small>Saved, source-linked insights</small></article><article class="stat card"><span>Working segments</span><b>{len(audiences)}</b><small>Inferred from sampled language, not demographics</small></article><article class="stat card"><span>Drafts in library</span><b>{total_drafts}</b><small>Approval never auto-publishes</small></article><article class="stat card"><span>Research runs</span><b>{total_runs}</b><small>{run_note}</small></article></div>
           <div class="workflow card"><div class="section-head"><div><p class="eyebrow">YOUR WORKFLOW</p><h2>Evidence before ideas</h2></div><span class="step-count">4 steps</span></div><div class="steps"><a href="/?view=research"><i>01</i><b>Collect</b><small>Sample posts & public replies</small></a><span class="step-arrow">→</span><a href="/?view=audiences"><i>02</i><b>Understand</b><small>Group evidence by recurring need</small></a><span class="step-arrow">→</span><a href="/?view=studio"><i>03</i><b>Create</b><small>Draft posts, ebooks, design briefs</small></a><span class="step-arrow">→</span><a href="/?view=library"><i>04</i><b>Review</b><small>Approve, archive or copy</small></a></div></div>
-          <div class="two-col"><section class="panel"><div class="section-head"><div><p class="eyebrow">AUDIENCE SIGNALS</p><h2>Emerging needs</h2></div><a class="text-link" href="/?view=audiences">All segments →</a></div>{top_audiences}</section><section class="panel"><div class="section-head"><div><p class="eyebrow">THREADS CONNECTION</p><h2>Research account</h2></div><span class="status {status_class}">{_e(connection)}</span></div><p class="muted">{_e(expiry) if expiry else "Connect the authorized Threads account to sample your own posts and visible replies."}</p>{connect_link}<p class="small-copy">{_e(topic_text)} · Sampled data from own-account research only.</p></section></div>
+          <div class="two-col"><section class="panel"><div class="section-head"><div><p class="eyebrow">AUDIENCE SIGNALS</p><h2>Emerging needs</h2></div><a class="text-link" href="/?view=audiences">All segments →</a></div>{top_audiences}</section><section class="panel"><div class="section-head"><div><p class="eyebrow">THREADS CONNECTION</p><h2>Research account</h2></div><span class="status {status_class}">{_e(connection)}</span></div><p class="muted">{_e(expiry) if expiry else "Connect the authorized Threads account to sample your own posts and visible replies."}</p>{connect_link}<p class="small-copy">{_e(topic_text)} · Sampled data from own-account research only{graph_summary}.</p></section></div>
           <section class="panel"><div class="section-head"><div><p class="eyebrow">EVIDENCE · LATEST SAVED INSIGHTS</p><h2>Source-linked findings</h2></div><a class="text-link" href="/?view=research">Search all evidence →</a></div><div class="evidence-grid">{recent_evidence}</div></section>
           <section class="panel"><div class="section-head"><div><p class="eyebrow">POST PERFORMANCE · LATEST SAMPLE</p><h2>Top posts by engagement</h2></div><span class="tag">Owned posts only</span></div><div class="table-wrap"><table class="metrics"><thead><tr><th>Post</th><th>Views</th><th>Likes</th><th>Replies</th><th>Reposts</th><th>Engagement</th></tr></thead><tbody>{post_rows}</tbody></table></div></section>
           <section class="panel"><div class="section-head"><div><p class="eyebrow">RECENT WORK</p><h2>Drafts to review</h2></div><a class="text-link" href="/?view=library">Open library →</a></div><div class="draft-grid">{latest_drafts}</div></section>'''
     elif view == "research":
         limits = (data.limits or SampleLimits()).normalized()
         selected_ids = {str(value) for value in selection.split(",") if value.isdigit()}
-        cards = "".join(_insight_card(item, selectable=True, selected=str(item["id"]) in selected_ids, follow=follow_index.tag(item.get("source_url"))) for item in insights) or '<div class="empty">No evidence saved yet. Connect Threads, then run the consented sample.</div>'
+        cards = "".join(_insight_card(item, selectable=True, selected=str(item["id"]) in selected_ids, follow=follow_index.tag(item.get("source_url")), engager=follow_index.engager(item.get("source_url"))) for item in insights) or '<div class="empty">No evidence saved yet. Connect Threads, then run the consented sample.</div>'
         limit_fields = "".join((
             _limit_field("post_limit", "Owned posts to fetch", limits.post_limit, 1, POST_LIMIT_MAX, "Newest first, up to 3 pages of 50."),
             _limit_field("top_posts", "Posts to prioritize", limits.top_posts, 1, TOP_POSTS_MAX, "Highest likes + replies + reposts + quotes."),
@@ -275,17 +472,27 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
             f'<label class="focus-field"><span>Research focus · optional</span>'
             f'<textarea name="focus" maxlength="500" placeholder="e.g. Pay special attention to readers healing after a breakup, or on feeling unheard.">{_e(data.focus)}</textarea>'
             f'<small>Steers the next run only. Sent with the sample to the AI provider, never published.</small></label>'
+            f'<label class="check" style="margin-top:8px"><input type="checkbox" name="sync_graph" value="on" checked> Also sync live follower count &amp; demographics from Threads Graph</label>'
         )
+        theme_pills = _theme_filter_pills(insights, query)
+        quick_select = (
+            '<div class="actions" style="margin-bottom:12px">'
+            '<button class="button ghost small" type="button" data-select-all="true">Select all visible</button>'
+            '<button class="button ghost small" type="button" data-select-all="false">Clear selection</button>'
+            '<button class="button ghost small" type="button" data-open-studio="true">Open selected in Studio →</button>'
+            '</div>'
+        ) if insights else ""
         content = f'''<div class="page-head"><div><p class="eyebrow">01 · COLLECT & INSPECT</p><h1>Research desk</h1><p class="lead">Sample your own recent Threads posts and visible public replies, then inspect every insight against its source.</p></div><span class="status {status_class}">{_e(connection)}</span></div>
         {board}
         <form class="run-card card" method="post" action="/research/run">{csrf_input}<div><p class="eyebrow">SAMPLE SETTINGS</p><h2>How much to read per run</h2><p class="help">Applies to the next run. The server clamps every value to {POST_LIMIT_MAX} posts, {TOP_POSTS_MAX} prioritized posts, and {REPLIES_PER_POST_MAX} replies per post before calling Threads.</p></div><div class="limits-grid">{limit_fields}</div>{focus_field}<div class="run-actions"><label class="consent"><input type="checkbox" name="consent" required><span>I understand that sampled posts and public replies will be sent to the configured AI provider for analysis.</span></label><button class="button" {"" if threads_configured and configured else "disabled"}>Run consented research <span>→</span></button></div></form>
         {_queue_panel(data.jobs, csrf)}
-        <section class="panel"><div class="section-head"><div><p class="eyebrow">EVIDENCE IN LIBRARY</p><h2>{total_evidence} saved insight{'' if total_evidence == 1 else 's'}</h2></div><form class="search" method="get"><input type="hidden" name="view" value="research"><input name="q" value="{_e(query)}" placeholder="Search themes, quotes, ideas"><button class="button ghost small">Search</button></form></div><form method="post" action="/content/generate">{csrf_input}<div class="evidence-grid">{cards}</div>{_draft_controls()}<div class="selection-bar"><label><input type="checkbox" name="consent" required> I consent to send selected saved insights to the configured AI provider to generate drafts.</label><button class="button" {"" if insights and configured else "disabled"}>Create grounded drafts <span>→</span></button></div></form></section>
+        <section class="panel"><div class="section-head"><div><p class="eyebrow">EVIDENCE IN LIBRARY</p><h2>{total_evidence} saved insight{'' if total_evidence == 1 else 's'}</h2></div><form class="search" method="get"><input type="hidden" name="view" value="research"><input name="q" value="{_e(query)}" placeholder="Search themes, quotes, ideas"><button class="button ghost small">Search</button></form></div>{theme_pills}{quick_select}<form method="post" action="/content/generate">{csrf_input}<div class="evidence-grid">{cards}</div>{_draft_controls()}<div class="selection-bar"><label><input type="checkbox" name="consent" required> I consent to send selected saved insights to the configured AI provider to generate drafts.</label><button class="button" {"" if insights and configured else "disabled"}>Create grounded drafts <span>→</span></button></div></form></section>
         <section class="panel"><div class="section-head"><div><p class="eyebrow">RUN LOG</p><h2>Research history</h2></div></div>{history}</section>'''
     elif view == "followers":
         analysis = data.audience
         list_key = data.follow_list if data.follow_list in AUDIENCE_LISTS else AUDIENCE_LISTS[0]
         follow_q = data.follow_query
+        graph_section = _graph_followers_section(data, follow_index, csrf_input, connected=is_connected)
         download_help = (
             '<p class="help">Instagram does not expose follower lists through the Threads API, so this view reads the files from '
             '<b>Accounts Center → Your information and permissions → Download your information → Threads → JSON</b>. '
@@ -293,7 +500,8 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
             '<p class="help">Comparison approach credited to <a class="text-link" href="https://github.com/Xiang511/Threads-Follower" target="_blank" rel="noreferrer">Threads-Follower</a>.</p>'
         )
         if not analysis:
-            content = f'''<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1><p class="lead">Who follows Rahimam back, who she follows without a follow-back, and which saved insights come from people already in her audience.</p></div><span class="status {status_class}">{_e(connection)}</span></div>
+            content = f'''<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1><p class="lead">Live follower count, demographics &amp; active community from the Threads Graph API, plus optional follow-back diffing from your data export.</p></div><span class="status {status_class}">{_e(connection)}</span></div>
+            {graph_section}
             <section class="panel"><div class="section-head"><div><p class="eyebrow">NOT IMPORTED YET</p><h2>Upload the two export files</h2></div></div>{_import_form(csrf_input)}{download_help}</section>'''
         else:
             counts = analysis["counts"]
@@ -324,24 +532,44 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
                 f'<input type="hidden" name="list" value="{_e(list_key)}">'
                 f'<input name="q" value="{_e(follow_q)}" placeholder="Search usernames"><button class="button ghost small">Search</button></form>'
             )
-            content = f'''<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1><p class="lead">Compared from the Threads data export. Each saved insight now shows whether its source author follows Rahimam back.</p></div><div class="actions"><a class="button ghost small" href="/followers/export.csv?list={_e(list_key)}{f"&amp;q={exported}" if exported else ""}">Export CSV</a></div></div>
+            content = f'''<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1><p class="lead">Compared from the Threads data export and synchronized with the Threads Graph API. Each saved insight shows whether its source author follows Rahimam back.</p></div><div class="actions"><a class="button ghost small" href="/followers/export.csv?list={_e(list_key)}{f"&amp;q={exported}" if exported else ""}">Export CSV</a></div></div>
+            {graph_section}
             <div class="stats"><article class="stat card"><span>Followers</span><b>{counts["followers"]}</b><small>Accounts following Rahimam</small></article><article class="stat card"><span>Following</span><b>{counts["following"]}</b><small>Accounts Rahimam follows</small></article><article class="stat card"><span>Mutuals</span><b>{counts["mutuals"]}</b><small>You follow each other</small></article><article class="stat card"><span>Not following back</span><b>{counts["percent_not_following_back"]}%</b><small>{counts["not_following_back"]} of who she follows</small></article></div>
             {tie_in}
             <section class="panel"><div class="section-head"><div><p class="eyebrow">LISTS</p><h2>{_e(AUDIENCE_LIST_LABELS[list_key])}</h2></div>{search_form}</div><div class="filter-pills">{pills}</div>{rows}{page_note}</section>
             <section class="panel"><div class="section-head"><div><p class="eyebrow">REFRESH</p><h2>Re-import or clear</h2></div><form method="post" action="/followers/clear">{csrf_input}<button class="button ghost small">Clear import</button></form></div>{_import_form(csrf_input)}{download_help}</section>'''
     elif view == "audiences":
-        audience_cards = "".join(f'''<article class="audience card"><div class="card-top"><span class="tag">WORKING SEGMENT</span><b class="count">{a["evidence_count"]}<small> signals</small></b></div><h2>{_e(a["name"])}</h2><p class="muted">{_e(a["basis"])}</p><div class="chips">{"".join(f'<span>{_e(t)}</span>' for t in a["themes"][:6])}</div><h3>Evidence</h3><div class="audience-evidence">{"".join(f'<blockquote>“{_e(e["quote"])}”<br>{_source(e)}</blockquote>' for e in a["evidence"][:3])}</div><h3>Potential product angles</h3><ul>{"".join(f'<li>{_e(x)}</li>' for x in a["ebook_angles"][:4]) or '<li>Collect more evidence before proposing a product.</li>'}</ul><a class="text-link" href="/?view=studio&amp;select={",".join(str(value) for value in a["source_ids"])}">Create content from this segment →</a></article>''' for a in audiences) or '<div class="empty">Audience segments appear when saved evidence is available. These are qualitative working hypotheses, not demographic claims.</div>'
+        audience_cards = "".join(
+            f'''<article class="audience card"><div class="card-top"><span class="tag">WORKING SEGMENT</span>'''
+            f'''<span class="follow-wrap"><span class="follow-chip {"following_only" if a.get("needs_drafts") else "mutual"}">{_e("Underserved · 0 drafts" if a.get("needs_drafts") else f'{a.get("draft_count", 0)} draft{"" if a.get("draft_count", 0) == 1 else "s"}')}</span><b class="count">{a["evidence_count"]}<small> signals</small></b></span></div>'''
+            f'''<h2>{_e(a["name"])}</h2><p class="muted">{_e(a["basis"])}</p>'''
+            f'''<div class="chips">{"".join(f'<span>{_e(t)}</span>' for t in a["themes"][:6])}</div>'''
+            f'''{('<p class="small-copy"><b>Community voices:</b> ' + ", ".join(f'<a class="text-link" href="/?view=research&amp;q={quote(v, safe="")}">@{_e(v)}</a>' for v in a.get("voices", [])[:5]) + "</p>") if a.get("voices") else ""}'''
+            f'''<h3>Evidence</h3><div class="audience-evidence">{"".join(f'<blockquote>“{_e(e["quote"])}”<br>{_source(e)}</blockquote>' for e in a["evidence"][:3])}</div>'''
+            f'''<h3>Potential product angles</h3><ul>{"".join(f'<li>{_e(x)}</li>' for x in a["ebook_angles"][:4]) or '<li>Collect more evidence before proposing a product.</li>'}</ul>'''
+            f'''<div class="actions"><a class="text-link" href="/?view=studio&amp;select={",".join(str(value) for value in a["source_ids"])}">Create content from this segment →</a></div></article>'''
+            for a in audiences
+        ) or '<div class="empty">Audience segments appear when saved evidence is available. These are qualitative working hypotheses, not demographic claims.</div>'
         content = f'''<div class="page-head"><div><p class="eyebrow">02 · UNDERSTAND</p><h1>Audience signals</h1><p class="lead">Evidence-led working segments from sampled language. Each claim links back to source insights; no demographic inference is made.</p></div><div class="actions"><span class="tag">{source_count} evidence points</span><a class="button ghost small" href="/audiences/export.csv">Export evidence CSV</a></div></div><div class="audience-grid">{audience_cards}</div>'''
     elif view == "studio":
         selected = {value for value in selection.split(",") if value.isdigit()}
         options = "".join(f'<option value="{int(i["id"])}"{" selected" if str(i["id"]) in selected else ""}>#{int(i["id"])} · {_e(i["theme"])} — {_e(i["quote"][:90])}</option>' for i in insights)
-        source_preview = "".join(_insight_card(i, follow=follow_index.tag(i.get("source_url"))) for i in insights[:4]) or '<div class="empty">Run research before drafting so every idea can cite evidence.</div>'
-        content = f'''<div class="page-head"><div><p class="eyebrow">03 · CREATE</p><h1>Content studio</h1><p class="lead">Choose research evidence; get a small, grounded set of content directions for a human to edit.</p></div><span class="tag">Draft only · no auto-publishing</span></div><div class="studio-layout"><form class="studio-form card" method="post" action="/content/generate">{csrf_input}<label class="field-label" for="source_ids">Evidence to use</label><input type="hidden" name="selected_ids" value="{_e(query)}"><select id="source_ids" name="insight_ids" multiple size="10" required>{options}</select><p class="help">Select multiple insights on desktop with Ctrl/Cmd-click. Segment-linked evidence is preselected. Drafts retain the chosen IDs as citations.</p>{_draft_controls()}<label class="consent"><input type="checkbox" name="consent" required><span>I consent to send selected saved insights to the configured AI provider to generate draft content.</span></label><button class="button" {"" if insights and configured else "disabled"}>Generate selected drafts <span>→</span></button><p class="help">Drafts run in the queue below; non-post drafts carry the source Threads links.</p></form><section><h2 class="subhead">Available evidence</h2><div class="stack">{source_preview}</div></section></div>{_queue_panel(data.jobs, csrf)}'''
+        preview_list = [i for i in insights if str(i["id"]) in selected] or insights[:4]
+        source_preview = "".join(_insight_card(i, follow=follow_index.tag(i.get("source_url")), engager=follow_index.engager(i.get("source_url"))) for i in preview_list[:6]) or '<div class="empty">Run research before drafting so every idea can cite evidence.</div>'
+        segment_shortcuts = ""
+        if audiences:
+            segment_shortcuts = '<div class="filter-pills">' + "".join(
+                f'<a href="/?view=studio&amp;select={",".join(str(v) for v in a["source_ids"][:20])}">{_e(a["name"])} · {a["evidence_count"]}</a>'
+                for a in audiences[:5]
+            ) + "</div>"
+        content = f'''<div class="page-head"><div><p class="eyebrow">03 · CREATE</p><h1>Content studio</h1><p class="lead">Choose research evidence; get a small, grounded set of content directions for a human to edit.</p></div><span class="tag">Draft only · no auto-publishing</span></div><div class="studio-layout"><form class="studio-form card" method="post" action="/content/generate">{csrf_input}<label class="field-label" for="source_ids">Evidence to use</label>{segment_shortcuts}<input type="hidden" name="selected_ids" value="{_e(query)}"><select id="source_ids" name="insight_ids" multiple size="10" required>{options}</select><p class="help">Select multiple insights on desktop with Ctrl/Cmd-click. Segment-linked evidence is preselected. Drafts retain the chosen IDs as citations.</p>{_draft_controls()}<label class="consent"><input type="checkbox" name="consent" required><span>I consent to send selected saved insights to the configured AI provider to generate draft content.</span></label><button class="button" {"" if insights and configured else "disabled"}>Generate selected drafts <span>→</span></button><p class="help">Drafts run in the queue below; non-post drafts carry the source Threads links.</p></form><section><h2 class="subhead">Available evidence</h2><div class="stack">{source_preview}</div></section></div>{_queue_panel(data.jobs, csrf)}'''
     elif view == "library":
-        draft_cards = "".join(_draft_card(d, csrf) for d in drafts) or '<div class="empty">No drafts yet. Select evidence in Research or open the Content Studio.</div>'
-        content = f'''<div class="page-head"><div><p class="eyebrow">04 · REVIEW & REUSE</p><h1>Draft library</h1><p class="lead">Review, copy for manual use, approve as ready, or archive. “Approved” is not a publish action.</p></div><a class="button" href="/?view=studio">New evidence-led drafts →</a></div><div class="filter-pills"><a class="{"selected" if not status_filter else ""}" href="/?view=library">All</a><a class="{"selected" if status_filter == "draft" else ""}" href="/?view=library&amp;status=draft">Needs review</a><a class="{"selected" if status_filter == "approved" else ""}" href="/?view=library&amp;status=approved">Approved</a><a class="{"selected" if status_filter == "archived" else ""}" href="/?view=library&amp;status=archived">Archived</a></div><div class="draft-grid">{draft_cards}</div>'''
+        draft_cards = "".join(_draft_card(d, csrf, connected=is_connected) for d in drafts) or '<div class="empty">No drafts yet. Select evidence in Research or open the Content Studio.</div>'
+        content = f'''<div class="page-head"><div><p class="eyebrow">04 · REVIEW & REUSE</p><h1>Draft library</h1><p class="lead">Review, edit inline, copy for manual use, approve as ready, or publish approved Threads posts directly via the Threads API.</p></div><a class="button" href="/?view=studio">New evidence-led drafts →</a></div><div class="filter-pills"><a class="{"selected" if not status_filter else ""}" href="/?view=library">All</a><a class="{"selected" if status_filter == "draft" else ""}" href="/?view=library&amp;status=draft">Needs review</a><a class="{"selected" if status_filter == "approved" else ""}" href="/?view=library&amp;status=approved">Approved</a><a class="{"selected" if status_filter == "archived" else ""}" href="/?view=library&amp;status=archived">Archived</a></div><div class="draft-grid">{draft_cards}</div>'''
     else:
-        content = f'''<div class="page-head"><div><p class="eyebrow">WORKSPACE SETTINGS</p><h1>Connections & settings</h1><p class="lead">Private data access, sample coverage, and AI provider setup.</p></div></div><div class="settings-grid"><article class="card settings-card"><p class="eyebrow">THREADS · OFFICIAL API</p><h2>{_e(connection)}</h2><p>{_e(expiry) if expiry else "Connect the authorized Threads profile used by this admin."}</p><p class="help">Reads this account’s own posts, engagement metrics, and visible direct replies. It does not search every public post or inspect other people’s reply engagement.</p><a class="button" href="/auth/start">{"Reconnect Threads" if connection.startswith("Connected") else "Connect Threads"}</a></article><article class="card settings-card"><p class="eyebrow">AI PROVIDER</p><h2>{"Ready for explicit-consent workflows" if configured else "API key not configured"}</h2><p>Model <code>{_e(model or "not set")}</code>; reasoning is disabled and every quote is checked against the sampled text. Research text is sent only after the separate consent checkbox is submitted.</p><p class="help">Set <code>OPENROUTER_API_KEY</code> in the server’s secret store. Never put it in browser code or paste it into chat.</p></article><article class="card settings-card"><p class="eyebrow">DATA & SAFETY</p><h2>Local research memory</h2><p>{total_evidence} evidence points · {total_runs} recorded runs · {total_drafts} drafts</p><p class="help">Sources remain clickable, quotes are evidence-checked, drafts retain source IDs. Approval means reviewed for use only; this admin does not publish or schedule posts.</p></article></div>'''
+        refresh_btn = f'<form method="post" action="/auth/refresh" style="display:inline">{csrf_input}<button class="button ghost small">Refresh 60-day token</button></form>' if is_connected else ""
+        publish_connect = '<a class="button ghost small" href="/auth/start?scope=publish">Connect with Publish scope</a>'
+        content = f'''<div class="page-head"><div><p class="eyebrow">WORKSPACE SETTINGS</p><h1>Connections & settings</h1><p class="lead">Private data access, sample coverage, token renewal, and AI provider setup.</p></div></div><div class="settings-grid"><article class="card settings-card"><p class="eyebrow">THREADS · OFFICIAL API</p><h2>{_e(connection)}</h2><p>{_e(expiry) if expiry else "Connect the authorized Threads profile used by this admin."}</p><p class="help">Reads this account’s own posts, engagement metrics, follower count, demographics, and visible direct replies. Connect with Publish scope to enable 1-click publishing of approved Threads drafts.</p><div class="actions"><a class="button" href="/auth/start">{"Reconnect Threads" if is_connected else "Connect Threads"}</a>{publish_connect}{refresh_btn}</div></article><article class="card settings-card"><p class="eyebrow">AI PROVIDER</p><h2>{"Ready for explicit-consent workflows" if configured else "API key not configured"}</h2><p>Model <code>{_e(model or "not set")}</code>; reasoning is disabled and every quote is checked against the sampled text. Research text is sent only after the separate consent checkbox is submitted.</p><p class="help">Set <code>OPENROUTER_API_KEY</code> in the server’s secret store. Never put it in browser code or paste it into chat.</p></article><article class="card settings-card"><p class="eyebrow">DATA & SAFETY</p><h2>Local research memory</h2><p>{total_evidence} evidence points · {total_runs} recorded runs · {total_drafts} drafts</p><p class="help">Sources remain clickable, quotes are evidence-checked, drafts retain source IDs. Approval means reviewed for use; only approved Threads post drafts can be published.</p></article></div>'''
 
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><title>Threads research · {_e(labels[view])} · Perpustakaan Hati</title>
 <style>
@@ -353,6 +581,13 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 .follow-wrap{{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}}
 .follow-row p{{margin:0}}
 .follow-row .follow-chip{{margin:0}}
+.demo-row{{display:grid;gap:4px;margin-top:8px;font-size:11px}}
+.demo-meta{{display:flex;justify-content:space-between;gap:8px}}
+.demo-bar{{height:6px;background:var(--sage);border-radius:999px;overflow:hidden}}
+.demo-bar i{{display:block;height:100%;background:var(--green);border-radius:999px}}
+.edit-drawer{{margin-top:12px;border-top:1px solid #eee9de;padding-top:10px}}
+.edit-drawer summary{{cursor:pointer;list-style:none}}
+.edit-form{{display:grid;gap:10px;margin-top:10px}}
 .import-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;align-items:end}}
 .file-field{{display:grid;gap:6px;font-size:12px;font-weight:650}}
 .file-field input{{min-height:42px;border:1px dashed var(--line);border-radius:8px;background:#f4f6f1;color:var(--muted);padding:9px 10px;width:100%;font-size:12px;font-weight:400}}
@@ -360,4 +595,4 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 @media(max-width:950px){{.shell{{grid-template-columns:205px minmax(0,1fr)}}aside{{padding-inline:12px}}main{{padding-inline:25px}}.stats,.board{{grid-template-columns:repeat(2,minmax(0,1fr))}}.steps{{grid-template-columns:1fr 1fr;gap:5px}}.step-arrow{{display:none}}.steps>a{{border:1px solid #eee9de;border-radius:9px;padding:10px}}.two-col{{grid-template-columns:1fr}}}}
 @media(max-width:680px){{.shell{{display:block;padding-bottom:64px}}aside{{position:fixed;z-index:10;top:auto;bottom:0;width:100%;height:auto;padding:7px 8px calc(7px + env(safe-area-inset-bottom));display:block;border-top:1px solid #49614f}}.brand,.nav-label{{display:none}}.side-bottom{{margin:0;padding:0;border:0;display:block;position:fixed;right:12px;bottom:70px;background:#12251b;border-radius:10px;padding:10px 14px;box-shadow:0 8px 28px rgb(0 0 0/.22)}}.side-bottom>a{{display:none}}nav{{display:flex;justify-content:space-around;gap:2px}}.nav-link{{flex:1;justify-content:center;flex-direction:column;gap:3px;padding:6px 2px;font-size:9px}}.nav-mark{{height:6px;width:6px}}main{{padding:19px 15px 36px}}.topline{{margin-bottom:20px}}.welcome,.page-head{{display:block}}.welcome .button,.page-head>.button{{margin-top:17px}}.welcome{{padding:14px 0 22px}}h1{{font-size:37px}}.stats{{gap:8px}}.stat{{padding:13px}}.stat>b{{font-size:28px}}.stat small{{font-size:10px}}.workflow,.panel{{padding:16px;margin:12px 0}}.steps{{gap:6px}}.steps b{{font-size:14px}}.steps small{{font-size:10px}}.draft-grid,.audience-grid,.evidence-grid,.settings-grid,.studio-layout,.board,.limits-grid{{grid-template-columns:1fr}}.run-bar,.selection-bar,.run-actions{{align-items:stretch;flex-direction:column}}.run-bar .button,.selection-bar .button,.run-card .button{{width:100%}}.section-head{{align-items:flex-start;flex-direction:column}}.search{{width:100%}}.search input{{min-width:0;flex:1}}.run-row{{grid-template-columns:1fr;gap:5px}}.status{{display:inline-flex;margin-top:5px}}.filter-pills{{gap:5px}}}}
 </style></head><body><div class="shell"><aside><div class="brand"><div class="brand-mark">PH</div><div><b>Perpustakaan Hati</b><small>Research studio</small></div></div><div><p class="nav-label">WORKSPACE</p><nav>{nav}</nav></div><div class="side-bottom">Research is a sample, not a census.<br><a href="/?view=settings">Privacy & connections →</a>{logout_action}</div></aside><main><div class="topline"><span class="crumb">Workspace <span class="muted">/</span> { _e(labels[view]) }</span><span class="account"><i class="dot {status_class}"></i> Rahimam’s Threads account</span></div>{notice}{nav_error}{content}</main></div>
-<script>document.addEventListener('click',async e=>{{const b=e.target.closest('[data-copy]');if(!b)return;const el=document.getElementById(b.dataset.copy);if(!el)return;const text=el.innerText;try{{await navigator.clipboard.writeText(text);b.textContent='Copied';setTimeout(()=>b.textContent='Copy text',1400)}}catch{{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='Copied'}}}});</script><script>const q=document.querySelector('[data-queue-active]');if(q)setTimeout(function(){{if(!document.activeElement||document.activeElement===document.body)location.reload()}},8000);</script></body></html>'''
+<script>document.addEventListener('click',async e=>{{const b=e.target.closest('[data-copy]');if(b){{const el=document.getElementById(b.dataset.copy);if(!el)return;const text=el.innerText;try{{await navigator.clipboard.writeText(text);b.textContent='Copied';setTimeout(()=>b.textContent='Copy text',1400)}}catch{{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='Copied'}}return}}const sa=e.target.closest('[data-select-all]');if(sa){{const v=sa.dataset.selectAll==='true';document.querySelectorAll('input[name="insight_ids"]').forEach(c=>{{c.checked=v}});return}}const os=e.target.closest('[data-open-studio]');if(os){{const ids=[...document.querySelectorAll('input[name="insight_ids"]:checked')].map(c=>c.value);location.href='/?view=studio'+(ids.length?'&select='+ids.join(','):'');return}}}});</script><script>const q=document.querySelector('[data-queue-active]');if(q)setTimeout(function(){{if(!document.activeElement||document.activeElement===document.body)location.reload()}},8000);</script></body></html>'''

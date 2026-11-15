@@ -127,6 +127,16 @@ class Store:
                     id INTEGER PRIMARY KEY CHECK(id=1), followers_json TEXT NOT NULL,
                     following_json TEXT NOT NULL, imported_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS graph_audience (
+                    id INTEGER PRIMARY KEY CHECK(id=1),
+                    profile_json TEXT NOT NULL DEFAULT '{}',
+                    followers_count INTEGER NOT NULL DEFAULT 0,
+                    previous_followers_count INTEGER,
+                    metrics_json TEXT NOT NULL DEFAULT '{}',
+                    demographics_json TEXT NOT NULL DEFAULT '{}',
+                    engagers_json TEXT NOT NULL DEFAULT '[]',
+                    synced_at TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS jobs (
                     id INTEGER PRIMARY KEY, kind TEXT NOT NULL, status TEXT NOT NULL,
                     params_json TEXT NOT NULL, result_json TEXT NOT NULL DEFAULT '{}',
@@ -269,7 +279,97 @@ class Store:
             cursor = db.execute("UPDATE content_drafts SET status = ? WHERE id = ?", (status, draft_id))
             return cursor.rowcount == 1
 
-    # -- follower import ---------------------------------------------------
+    def get_draft(self, draft_id: int) -> dict | None:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            row = db.execute("SELECT * FROM content_drafts WHERE id = ?", (int(draft_id),)).fetchone()
+        if not row:
+            return None
+        item = dict(row)
+        item["content"] = json.loads(item.pop("content_json"))
+        item["source_ids"] = json.loads(item.pop("source_ids_json"))
+        return item
+
+    def update_draft_content(self, draft_id: int, *, title: str | None = None, content: dict | None = None) -> bool:
+        existing = self.get_draft(draft_id)
+        if not existing:
+            return False
+        new_title = " ".join(str(title if title is not None else existing["title"]).split())[:160]
+        if not new_title:
+            return False
+        new_content = content if isinstance(content, dict) else existing["content"]
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute(
+                "UPDATE content_drafts SET title = ?, content_json = ? WHERE id = ?",
+                (new_title, json.dumps(new_content, ensure_ascii=False), int(draft_id)),
+            )
+            return cursor.rowcount == 1
+
+    # -- follower import & graph audience ----------------------------------
+
+    def save_graph_audience(
+        self,
+        *,
+        profile: dict | None = None,
+        followers_count: int | None = None,
+        metrics: dict | None = None,
+        demographics: dict | None = None,
+        engagers: list[dict] | None = None,
+    ) -> str:
+        synced_at = datetime.now(UTC).isoformat()
+        current = self.get_graph_audience() or {}
+        next_profile = profile if isinstance(profile, dict) else current.get("profile", {})
+        old_followers = current.get("followers_count")
+        prev_followers = current.get("previous_followers_count")
+        if followers_count is not None:
+            next_followers = max(0, int(followers_count))
+            if old_followers is not None and int(old_followers) > 0 and int(old_followers) != next_followers:
+                prev_followers = int(old_followers)
+        else:
+            next_followers = max(0, int(old_followers or 0))
+        next_metrics = metrics if isinstance(metrics, dict) else current.get("metrics", {})
+        next_demographics = demographics if isinstance(demographics, dict) and demographics else current.get("demographics", {})
+        next_engagers = engagers if isinstance(engagers, list) else current.get("engagers", [])
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            db.execute(
+                "INSERT INTO graph_audience(id, profile_json, followers_count, previous_followers_count, metrics_json, demographics_json, engagers_json, synced_at) "
+                "VALUES (1, ?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET profile_json = excluded.profile_json, "
+                "followers_count = excluded.followers_count, previous_followers_count = excluded.previous_followers_count, "
+                "metrics_json = excluded.metrics_json, demographics_json = excluded.demographics_json, "
+                "engagers_json = excluded.engagers_json, synced_at = excluded.synced_at",
+                (
+                    json.dumps(next_profile, ensure_ascii=False),
+                    next_followers,
+                    prev_followers,
+                    json.dumps(next_metrics, ensure_ascii=False),
+                    json.dumps(next_demographics, ensure_ascii=False),
+                    json.dumps(next_engagers, ensure_ascii=False),
+                    synced_at,
+                ),
+            )
+        return synced_at
+
+    def get_graph_audience(self) -> dict | None:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            row = db.execute("SELECT * FROM graph_audience WHERE id = 1").fetchone()
+        if not row:
+            return None
+        return {
+            "profile": json.loads(row["profile_json"]),
+            "followers_count": int(row["followers_count"]),
+            "previous_followers_count": int(row["previous_followers_count"]) if row["previous_followers_count"] is not None else None,
+            "metrics": json.loads(row["metrics_json"]),
+            "demographics": json.loads(row["demographics_json"]),
+            "engagers": json.loads(row["engagers_json"]),
+            "synced_at": row["synced_at"],
+        }
+
+    def clear_graph_audience(self) -> bool:
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            cursor = db.execute("DELETE FROM graph_audience WHERE id = 1")
+            return cursor.rowcount == 1
 
     def save_audience(self, followers: list[dict], following: list[dict]) -> str:
         imported = datetime.now(UTC).isoformat()
@@ -316,7 +416,7 @@ class Store:
         return self._job_row(row) if row else None
 
     def create_job(self, kind: str, params: dict) -> dict:
-        if kind not in ("research", "drafts"):
+        if kind not in ("research", "drafts", "graph_sync"):
             raise StoreError("Unknown job kind.")
         created = datetime.now(UTC).isoformat()
         with closing(sqlite3.connect(self.db_path)) as db, db:
@@ -384,7 +484,7 @@ class Store:
 
     def retry_job(self, job_id: int) -> dict | None:
         job = self._job(job_id)
-        if not job or job["kind"] not in ("research", "drafts") or job["status"] not in ("failed", "cancelled"):
+        if not job or job["kind"] not in ("research", "drafts", "graph_sync") or job["status"] not in ("failed", "cancelled"):
             return None
         return self.create_job(job["kind"], job["params"])
 

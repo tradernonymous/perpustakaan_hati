@@ -8,13 +8,19 @@ import httpx
 from .config import Settings
 
 GRAPH = "https://graph.threads.com"
-FIELDS = "id,text,permalink,timestamp"
+FIELDS = "id,text,username,permalink,timestamp"
+PROFILE_FIELDS = "id,username,name,threads_profile_picture_url,threads_biography"
 METRICS = ("views", "likes", "replies", "reposts", "quotes")
+USER_METRICS = ("followers_count", "views", "likes", "replies", "reposts", "quotes")
+DEMOGRAPHIC_BREAKDOWNS = ("country", "city", "age", "gender")
+READ_SCOPES = "threads_basic,threads_read_replies,threads_manage_insights"
+PUBLISH_SCOPES = "threads_basic,threads_read_replies,threads_manage_insights,threads_content_publish"
 # Hard ceilings, independent of what the form asks for. Three pages of 50 is
 # the most the collection helper will ever walk.
 POST_LIMIT_MAX = 150
 TOP_POSTS_MAX = 25
 REPLIES_PER_POST_MAX = 100
+POST_TEXT_MAX = 500
 
 
 class ThreadsError(RuntimeError):
@@ -76,11 +82,11 @@ class ThreadsClient:
         self.settings = settings
         self.http = http
 
-    def authorize_url(self, state: str) -> str:
+    def authorize_url(self, state: str, *, include_publish: bool = False) -> str:
         return "https://threads.com/oauth/authorize?" + urlencode({
             "client_id": self.settings.threads_client_id,
             "redirect_uri": self.settings.redirect_uri,
-            "scope": "threads_basic,threads_read_replies,threads_manage_insights",
+            "scope": PUBLISH_SCOPES if include_publish else READ_SCOPES,
             "response_type": "code", "state": state,
         })
 
@@ -126,6 +132,151 @@ class ThreadsClient:
             return TokenResponse(long["access_token"], expires)
         except (KeyError, ValueError, TypeError):
             raise ThreadsError("Threads returned an invalid token response; reconnect.") from None
+
+    def refresh_token(self, access_token: str) -> TokenResponse:
+        payload = self._request("GET", "/refresh_access_token", params={
+            "grant_type": "th_refresh_token",
+            "access_token": access_token,
+        })
+        try:
+            refreshed = payload["access_token"]
+            if not isinstance(refreshed, str) or not refreshed:
+                raise ValueError
+            expires = int(payload.get("expires_in", 5184000))
+            if expires <= 0:
+                raise ValueError
+            return TokenResponse(refreshed, expires)
+        except (KeyError, ValueError, TypeError):
+            raise ThreadsError("Threads returned an invalid token refresh response; reconnect.") from None
+
+    def fetch_profile(self, access_token: str) -> dict:
+        payload = self._request("GET", "/v1.0/me", access_token, params={"fields": PROFILE_FIELDS})
+        return {
+            "id": str(payload.get("id", "")).strip()[:80],
+            "username": str(payload.get("username", "")).strip().lstrip("@")[:60],
+            "name": str(payload.get("name", "")).strip()[:120],
+            "biography": str(payload.get("threads_biography", "")).strip()[:500],
+            "profile_picture_url": str(payload.get("threads_profile_picture_url", "")).strip()[:500],
+        }
+
+    @staticmethod
+    def _extract_metric_value(item: dict) -> int:
+        total = item.get("total_value")
+        if isinstance(total, dict) and str(total.get("value", "")).lstrip("-").isdigit():
+            return max(0, int(total["value"]))
+        values = item.get("values")
+        if isinstance(values, list):
+            return max(0, sum(
+                int(entry["value"])
+                for entry in values
+                if isinstance(entry, dict) and str(entry.get("value", "")).lstrip("-").isdigit()
+            ))
+        return 0
+
+    @staticmethod
+    def _extract_breakdown(payload: dict) -> list[dict]:
+        data = payload.get("data")
+        if not isinstance(data, list):
+            return []
+        rows: list[dict] = []
+        for item in data:
+            if not isinstance(item, dict) or item.get("name") != "follower_demographics":
+                continue
+            total = item.get("total_value")
+            if not isinstance(total, dict):
+                continue
+            for group in total.get("breakdowns", []):
+                if not isinstance(group, dict):
+                    continue
+                for res in group.get("results", []):
+                    if not isinstance(res, dict):
+                        continue
+                    dims = res.get("dimension_values")
+                    key = str(dims[0]).strip()[:80] if isinstance(dims, list) and dims else ""
+                    val = res.get("value", 0)
+                    if key and str(val).lstrip("-").isdigit() and int(val) > 0:
+                        rows.append({"key": key, "value": int(val)})
+        rows.sort(key=lambda r: (-r["value"], r["key"]))
+        return rows[:25]
+
+    def fetch_user_insights(self, access_token: str, *, include_demographics: bool = True) -> dict:
+        payload = self._request("GET", "/v1.0/me/threads_insights", access_token, params={"metric": ",".join(USER_METRICS)})
+        data = payload.get("data")
+        if not isinstance(data, list):
+            raise ThreadsError("Threads returned invalid user insights.")
+        followers_count = 0
+        metrics = {key: 0 for key in METRICS}
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name", ""))
+            val = self._extract_metric_value(item)
+            if name == "followers_count":
+                followers_count = val
+            elif name in metrics:
+                metrics[name] = val
+        demographics: dict[str, list[dict]] = {}
+        if include_demographics:
+            for breakdown in DEMOGRAPHIC_BREAKDOWNS:
+                try:
+                    demo_payload = self._request(
+                        "GET", "/v1.0/me/threads_insights", access_token,
+                        params={"metric": "follower_demographics", "breakdown": breakdown},
+                    )
+                except ThreadsError as exc:
+                    msg = str(exc).lower()
+                    if "expired" in msg or "revoked" in msg or "rate limit" in msg:
+                        raise
+                    continue
+                rows = self._extract_breakdown(demo_payload)
+                if rows:
+                    demographics[breakdown] = rows
+        return {"followers_count": followers_count, "metrics": metrics, "demographics": demographics}
+
+    def sync_graph_audience(self, access_token: str, *, post_limit: int = 25, replies_per_post: int = 50) -> dict:
+        profile = self.fetch_profile(access_token)
+        insights = self.fetch_user_insights(access_token, include_demographics=True)
+        posts = self.fetch_my_posts(access_token, min(max(int(post_limit), 1), 50))
+        replies = []
+        for post in posts[:10]:
+            media_id = str(post.get("id", ""))
+            if not media_id.isdecimal():
+                continue
+            for reply in self._collection(f"/v1.0/{media_id}/replies", access_token, min(max(int(replies_per_post), 1), 100)):
+                replies.append({**reply, "source_type": "reply", "parent_id": media_id, "parent_permalink": post.get("permalink", "")})
+        return {
+            "profile": profile,
+            "followers_count": insights["followers_count"],
+            "metrics": insights["metrics"],
+            "demographics": insights["demographics"],
+            "posts_sampled": len(posts),
+            "replies": replies,
+        }
+
+    def publish_post(self, access_token: str, text: str, *, reply_to_id: str = "") -> dict:
+        clean_text = str(text or "").strip()
+        if not clean_text:
+            raise ThreadsError("Post text cannot be empty.")
+        if len(clean_text) > POST_TEXT_MAX:
+            raise ThreadsError(f"Threads posts are limited to {POST_TEXT_MAX} characters (got {len(clean_text)}).")
+        form = {"media_type": "TEXT", "text": clean_text}
+        if str(reply_to_id or "").strip():
+            form["reply_to_id"] = str(reply_to_id).strip()
+        container = self._request("POST", "/v1.0/me/threads", access_token, data=form)
+        creation_id = str(container.get("id", "")).strip()
+        if not creation_id:
+            raise ThreadsError("Threads did not return a media container ID.")
+        published = self._request("POST", "/v1.0/me/threads_publish", access_token, data={"creation_id": creation_id})
+        media_id = str(published.get("id", "")).strip()
+        if not media_id:
+            raise ThreadsError("Threads did not return a published post ID.")
+        permalink = ""
+        try:
+            meta = self._request("GET", f"/v1.0/{media_id}", access_token, params={"fields": "id,permalink"})
+            permalink = str(meta.get("permalink", "")).strip()
+        except ThreadsError:
+            permalink = ""
+        return {"id": media_id, "permalink": permalink}
 
     def _collection(self, path: str, token: str, limit: int) -> list[dict]:
         items = []
