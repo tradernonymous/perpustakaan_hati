@@ -283,6 +283,11 @@ def test_followers_view_empty_state_explains_the_upload(client):
     assert "NOT IMPORTED YET" in body
     assert "Accounts Center" in body
     assert "Xiang511/Threads-Follower" in body
+    # Unfollow filter bar is always visible at the top even before JSON import
+    assert "Filter following:" in body
+    assert "Not following back" in body
+    assert "Ghost (0 replies)" in body
+    assert "Unfollow later" in body
 
 
 def test_list_search_and_pills_keep_the_selection(client):

@@ -437,6 +437,26 @@ class Store:
             rows = db.execute("SELECT username_key, status FROM unfollow_queue").fetchall()
         return {str(row["username_key"]): str(row["status"]) for row in rows}
 
+    def list_unfollow_queue(self) -> list[dict]:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            rows = db.execute("SELECT username, status, updated_at FROM unfollow_queue ORDER BY updated_at DESC, username_key ASC").fetchall()
+        return [
+            {
+                "username": str(row["username"]),
+                "href": f"https://www.threads.com/@{row['username']}",
+                "profile_url": f"https://www.threads.com/@{row['username']}",
+                "since": 0,
+                "follows_back": False,
+                "days_followed": None,
+                "tenure_bucket": "unknown",
+                "unfollow_status": str(row["status"]),
+                "replies_count": 0,
+                "insight_count": 0,
+            }
+            for row in rows
+        ]
+
     # -- job queue ---------------------------------------------------------
 
     @staticmethod
