@@ -16,13 +16,15 @@ export const metadata: Metadata = {
     locale: "ms_MY",
     type: "website",
     siteName: "Perpustakaan Hati",
-    images: [{ url: "/brand/emblem-book-heart.svg", width: 600, height: 420, alt: "Perpustakaan Hati oleh @rahimam" }],
+    images: [
+      { url: "/brand/og-image.png", width: 1200, height: 630, alt: "Perpustakaan Hati oleh @rahimam" },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title,
     description,
-    images: ["/brand/emblem-book-heart.svg"],
+    images: ["/brand/og-image.png"],
   },
   icons: { icon: "/brand/monogram-stamp.svg" },
 };

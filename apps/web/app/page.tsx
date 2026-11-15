@@ -15,6 +15,7 @@ import { SectionOrnament } from "@/components/SectionOrnament";
 import { StatsStrip } from "@/components/StatsStrip";
 import { Ticker } from "@/components/Ticker";
 import { LuxCursor } from "@/components/LuxCursor";
+import { OrganizationSchema } from "@/components/OrganizationSchema";
 
 import type { Metadata } from "next";
 
@@ -39,6 +40,7 @@ export default function Home() {
   return (
     <>
       <SiteHeader />
+      <OrganizationSchema />
       <main id="utama">
         <Hero />
         <StatsStrip />

@@ -1062,7 +1062,7 @@
 .ph-book-open[data-open="false"] { opacity: 0; visibility: hidden; }
 .ph-book-open[data-open="true"] { opacity: 1; visibility: visible; }
 .ph-book-page-no { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sepia); }
-.ph-book-open h3 { font-family: var(--font-display); font-size: 1.35rem; color: var(--green-900); }
+.ph-book-open .ph-book-page-title { font-family: var(--font-display); font-size: 1.35rem; color: var(--green-900); }
 .ph-book-open p:last-child { font-family: var(--font-reading); font-size: 1rem; line-height: 1.6; }
 .ph-book-controls { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.4rem; flex-wrap: wrap; }
 .ph-book-controls button {
