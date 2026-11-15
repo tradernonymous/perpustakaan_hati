@@ -8,6 +8,10 @@ leads with **green**.
 Facts recorded from the company's own artwork (AJE "Waktu Urusniaga" poster,
 Doop canvas `ONRYXHDlUj`, and the round seal):
 
+The poster itself is the source of the facts below. It is kept with the other
+AJE artwork, in `docs/brand/assets/aje/aje-waktu-urusniaga-a3.png`, because it
+is the company's own artwork and not a Perpustakaan Hati asset.
+
 | Field | Value |
 |---|---|
 | Legal name | Armazas Jaya Enterprise (AJE) |
