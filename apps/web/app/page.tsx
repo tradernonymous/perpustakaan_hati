@@ -11,6 +11,7 @@ import { Testimonials } from "@/components/Testimonials";
 import { EbookDeck } from "@/components/EbookDeck";
 import { TierCompare } from "@/components/TierCompare";
 import { EcosystemHub } from "@/components/EcosystemHub";
+import { PlateGallery } from "@/components/PlateGallery";
 import { SectionOrnament } from "@/components/SectionOrnament";
 import { StatsStrip } from "@/components/StatsStrip";
 import { Ticker } from "@/components/Ticker";
@@ -21,12 +22,13 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
-function Section({ id, title, intro, tone = "plain", children }: {
-  id?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
+function Section({ id, index, title, intro, tone = "plain", children }: {
+  id?: string; index?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
 }) {
   return (
     <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-sage" : "bg-daylight"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-20`}>
       <div className="mx-auto mb-8 max-w-reading text-center">
+        {index && <span className="ph-sec-index">{index}</span>}
         <h2 className="ph-title ph-ink-in text-3xl text-green-900 md:text-4xl">{title}</h2>
         <SectionOrnament className="mt-4" />
         {intro && <p className="mt-3 text-muted-grove">{intro}</p>}
@@ -45,13 +47,13 @@ export default function Home() {
         <Hero />
         <StatsStrip />
         <Ticker />
-        <Section id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
+        <Section index="01" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
           <HowItWorks />
         </Section>
-        <Section id="percuma" title="Edisi Poket, percuma" intro="Tinggalkan e-mel atau nombor WhatsApp. Kami hantar apabila bukunya sedia.">
+        <Section index="02" id="percuma" title="Edisi Poket, percuma" intro="Tinggalkan e-mel atau nombor WhatsApp. Kami hantar apabila bukunya sedia.">
           <OptInForm />
         </Section>
-        <Section id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
+        <Section index="03" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
           <div className="flex flex-col gap-12">
             <EbookDeck />
             <div>
@@ -60,16 +62,19 @@ export default function Home() {
             </div>
           </div>
         </Section>
-        <Section id="bab" title="Intai beberapa bab">
+        <Section index="04" id="bab" title="Intai beberapa bab" intro="Bab-bab pertama, seperti mana ia ditulis.">
           <ChapterPreview />
         </Section>
-        <Section id="interaktif" tone="soft" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
+        <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
+          <PlateGallery />
+        </Section>
+        <Section index="06" id="interaktif" tone="soft" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
           <EcosystemHub />
         </Section>
-        <Section id="pembaca" title="Suara pembaca">
+        <Section index="07" id="pembaca" title="Suara pembaca">
           <Testimonials />
         </Section>
-        <Section id="soalan" tone="soft" title="Soalan lazim">
+        <Section index="08" id="soalan" tone="soft" title="Soalan lazim">
           <Faq />
         </Section>
       </main>

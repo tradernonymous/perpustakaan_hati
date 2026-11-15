@@ -1,8 +1,10 @@
 import { AuthorByline } from "@/components/AuthorByline";
 import { HeroBook } from "@/components/HeroBook";
 import { HeroGlyphs } from "@/components/HeroGlyphs";
+import { Illustration } from "@/components/Illustration";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { SectionOrnament } from "@/components/SectionOrnament";
+import { ILLUSTRATIONS } from "@/src/illustrations";
 
 const CHIPS = ["Percuma untuk bermula", "Bahasa Melayu", "Sesuai dibaca di telefon"];
 
@@ -13,18 +15,25 @@ const LESSONS = [
 ];
 
 /**
- * Daylight Grove hero (Design System 3.2). The page ground is warm ivory, so
- * the extruded emerald lockup (built for the forest stage) gives way to a
- * typeset lockup: gilt small caps over an emerald Fraunces hero word, with the
- * book itself still dark — it is an object, not a background.
+ * Daylight Grove hero (Design System 3.2), Editorial Grove composition
+ * (3.4). The page ground is warm ivory, so the extruded emerald lockup
+ * (built for the forest stage) gives way to a typeset lockup: gilt small
+ * caps over an emerald Fraunces hero word.
+ *
+ * In 3.4 the hero is an illustrated plate instead of a type column beside
+ * a small 3D book. The book overlaps the plate's lower edge so the two
+ * read as one composed object, and the plate is the largest contentful
+ * paint, so it loads eagerly while everything else on the page waits.
  */
 export function Hero() {
+  const plate = ILLUSTRATIONS[0];
+
   return (
     <section id="atas" className="ph-day-stage relative overflow-hidden px-5 pb-16 pt-10 md:pb-24 md:pt-16">
       <HeroGlyphs />
       <ReadingProgress />
 
-      <div className="mx-auto grid max-w-grid items-center gap-10 md:grid-cols-[1.15fr_0.85fr]">
+      <div className="ph-hero-grid mx-auto max-w-grid">
         <div className="flex flex-col items-center gap-6 text-center md:items-start md:text-left">
           <div className="w-full max-w-[560px] animate-fade-up" style={{ animationDelay: "120ms" }}>
             <h1 className="font-display text-green-900">
@@ -61,7 +70,18 @@ export function Hero() {
         </div>
 
         <div className="animate-fade-up" style={{ animationDelay: "240ms" }}>
-          <HeroBook name="Edisi Poket" />
+          <figure className="m-0">
+            <div className="ph-art">
+              <Illustration illustration={plate} sizes="(min-width: 1024px) 40rem, 100vw" priority />
+              <span className="ph-art-veil" aria-hidden="true" />
+            </div>
+            {/* The book overlaps the plate's lower edge and hangs below it,
+                so the caption has to come after both of them. */}
+            <div className="ph-book-overlap">
+              <HeroBook name="Edisi Poket" />
+            </div>
+            <figcaption className="ph-art-cap">{plate.caption}</figcaption>
+          </figure>
         </div>
       </div>
 

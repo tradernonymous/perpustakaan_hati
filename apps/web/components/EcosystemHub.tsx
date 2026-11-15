@@ -6,22 +6,28 @@ type EcosystemItem = {
   title: string;
   description: string;
   cta: string;
+  /** Bento size on wide screens. */
+  size?: "half" | "wide";
+  /** The dark feature card, so the grid has one anchor. */
+  feature?: boolean;
 };
 
 const ITEMS: EcosystemItem[] = [
-  {
-    href: "/kad-jujur-hati",
-    tag: "Permainan Threads",
-    title: "Kad Jujur Hati",
-    description: "Tarik kad Red Flag, Green Flag atau Luka Hati, tanda Bingo kamu, dan kongsi ke Threads.",
-    cta: "Tarik kad sekarang",
-  },
   {
     href: "/cermin-pasangan",
     tag: "Kuiz 5 Soalan",
     title: "Cermin Pasangan",
     description: "Ukur cara kamu bertindak balas dalam hubungan dan buka kad Peta Hubungan untuk pasangan.",
     cta: "Mula kuiz 2 minit",
+    size: "wide",
+    feature: true,
+  },
+  {
+    href: "/kad-jujur-hati",
+    tag: "Permainan Threads",
+    title: "Kad Jujur Hati",
+    description: "Tarik kad Red Flag, Green Flag atau Luka Hati, tanda Bingo kamu, dan kongsi ke Threads.",
+    cta: "Tarik kad sekarang",
   },
   {
     href: "/teman-hati",
@@ -36,12 +42,13 @@ const ITEMS: EcosystemItem[] = [
     title: "7 Hari Cabaran Pulih Hati",
     description: "Satu soalan refleksi setiap hari selama seminggu bersama komuniti #CabaranPulihHati.",
     cta: "Lihat jadual 7 hari",
+    size: "half",
   },
   {
     href: "/hadiah-hati",
     tag: "Ganjaran Komuniti",
     title: "Hadiah Hati",
-    description: "Sertai cabutan mingguan Teman Hidup atau sesi 1-on-1 dan tuntut voucher RM15.",
+    description: "Sertai cabutan mingguan Teman Hidup atau sesi 1-on-1 dan menuntut voucher RM15.",
     cta: "Semak ganjaran",
   },
   {
@@ -57,6 +64,7 @@ const ITEMS: EcosystemItem[] = [
     title: "Booking Kaunseling",
     description: "Tempah sesi kejelasan emosi 1-on-1 atau pengantaraan pasangan dengan panel berlesen.",
     cta: "Lihat pilihan sesi",
+    size: "half",
   },
   {
     href: "/kelab",
@@ -67,30 +75,41 @@ const ITEMS: EcosystemItem[] = [
   },
 ];
 
+/**
+ * The interactive space, as a bento grid (Design System 3.4).
+ *
+ * An asymmetric grid gives the eight routes a shape instead of a uniform
+ * four-by-two block: one dark feature card anchors the grid, and the
+ * rest vary in width. Every route stays reachable and the DOM order
+ * still matches the reading order, because the grid only changes size.
+ */
 export function EcosystemHub() {
   return (
-    <div className="mx-auto grid max-w-grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {ITEMS.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className="ph-lux ph-card flex h-full flex-col justify-between gap-4 p-5 text-left"
-        >
-          <div className="flex flex-col gap-2">
-            <span className="w-fit rounded-pill border border-daylight-edge bg-sage px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-kicker text-green-800">
-              {item.tag}
+    <div className="ph-bento mx-auto max-w-grid">
+      {ITEMS.map((item) => {
+        const size = item.size === "wide" ? "ph-bento-wide" : item.size === "half" ? "ph-bento-half" : "";
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`ph-lux ph-card flex h-full flex-col justify-between gap-4 p-5 text-left ${size} ${
+              item.feature ? "ph-bento-feature" : ""
+            }`}
+          >
+            <div className="flex flex-col gap-2">
+              <span className="ph-bento-tag">{item.tag}</span>
+              <h3 className="font-display text-xl">{item.title}</h3>
+              <p className="text-sm leading-relaxed text-ink-grove">{item.description}</p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-800">
+              <span>{item.cta}</span>
+              <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </span>
-            <h3 className="font-display text-xl text-green-900">{item.title}</h3>
-            <p className="text-sm leading-relaxed text-ink-grove">{item.description}</p>
-          </div>
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-800">
-            <span>{item.cta}</span>
-            <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-              <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </Link>
-      ))}
+          </Link>
+        );
+      })}
     </div>
   );
 }

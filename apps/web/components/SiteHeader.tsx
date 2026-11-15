@@ -17,7 +17,7 @@ export function SiteHeader({ base = "" }: { base?: string }) {
   const homeHref = base ? "/" : "#atas";
 
   return (
-    <header className="sticky top-0 z-header border-b border-daylight-edge bg-daylight/90 backdrop-blur">
+    <header className="ph-header sticky top-0 z-header border-b border-daylight-edge">
       {/* First tab stop on every page: jumps the sticky header entirely. */}
       <a
         href={`${base}#utama`}

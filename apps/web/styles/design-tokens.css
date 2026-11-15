@@ -164,7 +164,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.3.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.4.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -1114,9 +1114,15 @@
 @media (hover: hover) {
   .ph-glyphs:hover .ph-glyph { color: rgb(233 206 162 / 0.85); }
 }
+/* The float rides a registered custom property, not margin-top: animating
+   a margin relayouts the glyph on every frame, which is exactly the kind
+   of work a phone should never do for a decoration. Browsers without
+   @property support still get the two end positions, still without any
+   layout. */
+@property --glyph-float { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @keyframes ph-glyph-float {
-  0%, 100% { margin-top: 0; }
-  50% { margin-top: -14px; }
+  0%, 100% { --glyph-float: 0px; }
+  50% { --glyph-float: -14px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .ph-glyph { animation: none; transition: none; }
@@ -1305,7 +1311,7 @@
 .ph-sticky-cta[data-hidden="true"] { transform: translateY(110%); opacity: 0; pointer-events: none; }
 
 /* Glyph field: each glyph moves by its own depth (website_sam HeroField). */
-.ph-glyph { transform: translate(calc(var(--glyph-x) * var(--depth, 0.6)), calc(var(--glyph-y) * var(--depth, 0.6))); }
+.ph-glyph { transform: translate(calc(var(--glyph-x) * var(--depth, 0.6)), calc(var(--glyph-y) * var(--depth, 0.6) + var(--glyph-float, 0px))); }
 
 /* Variable-font "ink in": section titles gain weight (Fraunces wght
    400 -> 520) and tighten as they scroll in; chapters tip up like pages
@@ -1379,4 +1385,274 @@
 .ph-nightlight .ph-kicker,
 [data-theme="nightlight"] .ph-kicker {
   color: var(--gold-light);
+}
+
+/* =======================================================================
+   DESIGN SYSTEM 3.4 — "EDITORIAL GROVE"
+   The storefront stops being a stack of centred card rows and starts
+   reading like an illustrated book: a bento hero with a real painting
+   behind the type, a horizontal gallery of the edition's plates, chapter
+   cards that carry art instead of a rule, and a bento ecosystem grid.
+
+   Rules for this layer:
+     * CSS only. No animation library, no WebGL, no new runtime dependency.
+     * Nothing that scrolls on a phone may use backdrop-filter, a
+       continuously repainting gradient, or a layout-triggering animation.
+     * Every new surface has a static fallback and stops under
+       prefers-reduced-motion.
+   ======================================================================= */
+
+  /* ---- Editorial layer (3.4) ---------------------------------------- */
+  --ph-art-edge: rgb(122 90 34 / 0.16);
+  --ph-art-edge-strong: rgb(122 90 34 / 0.34);
+  --ph-art-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 0 0 1px var(--ph-art-edge),
+    0 18px 40px -22px rgb(18 37 27 / 0.42);
+  --ph-art-shadow-lift:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 0 0 1px var(--ph-art-edge-strong),
+    0 28px 60px -26px rgb(18 37 27 / 0.5);
+  --ph-hairline: linear-gradient(90deg, transparent, var(--gold-ink-soft) 22%, var(--gold-ink-soft) 78%, transparent);
+  --ph-veil: linear-gradient(180deg, rgb(247 244 234 / 0) 0%, rgb(247 244 234 / 0.82) 58%, var(--daylight) 100%);
+  --ph-veil-sage: linear-gradient(180deg, rgb(233 240 230 / 0) 0%, rgb(233 240 230 / 0.82) 58%, var(--sage) 100%);
+
+.ph-hairline { height: 1px; background: var(--ph-hairline); }
+
+/* Sticky header. The blur is a CSS class, not a Tailwind utility, so the
+   phone guard below can turn it off: backdrop-filter on a sticky bar
+   repaints the blurred region on every scroll frame. */
+.ph-header {
+  background: rgb(247 244 234 / 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* ---- Bento hero (3.4) ------------------------------------------------ */
+.ph-hero-grid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: center;
+}
+@media (min-width: 1024px) {
+  .ph-hero-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 3.5rem;
+  }
+}
+
+/* Art panel: a framed painting with a caption strip. The image is the
+   page's only photography, so it carries the editorial weight. */
+.ph-art {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-lg);
+  background: var(--daylight-raised);
+  box-shadow: var(--ph-art-shadow);
+  transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
+}
+/* <picture> is inline by default, so the image inside it would not fill
+   the frame. Every framed image in the app goes through these three
+   rules: the picture is the box, the img fills it. */
+.ph-art picture,
+.ph-gallery-fig picture,
+.ph-chapter-art picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ph-art img,
+.ph-gallery-fig img,
+.ph-chapter-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* The caption sits BELOW the frame, not over it: the 3D book overlaps
+   the plate's lower edge, and an overlay caption would be covered. */
+.ph-art-cap {
+  margin: 0.75rem 0 0;
+  font-family: var(--font-reading);
+  font-size: 0.9rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--muted-grove);
+}
+.ph-art-veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(7 20 13 / 0.16) 0%, transparent 34%);
+}
+.ph-art:hover { box-shadow: var(--ph-art-shadow-lift); }
+
+/* The 3D book overlaps the art panel's lower edge on wide screens, so
+   the hero reads as one composed object instead of two widgets. */
+.ph-book-overlap {
+  margin-top: -3.5rem;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+@media (min-width: 1024px) {
+  .ph-book-overlap { margin-top: -4.5rem; margin-bottom: 1.5rem; margin-left: 6%; }
+}
+
+/* Section index number: a small gold numeral that gives each band a
+   chapter number, the way the book itself is numbered. */
+.ph-sec-index {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--weight-hero);
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  color: var(--gold-ink-soft);
+  margin-bottom: 0.4rem;
+}
+
+/* ---- Chapter cards (3.4) -------------------------------------------- */
+.ph-chapter-grid {
+  display: grid;
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .ph-chapter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+}
+.ph-chapter-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.25rem 1.35rem 1.4rem;
+  border-radius: var(--radius-lg);
+  background: var(--daylight-raised);
+  border: 1px solid var(--ph-art-edge);
+  box-shadow: var(--ph-art-shadow);
+}
+.ph-chapter-card[data-pending="true"] { background: transparent; box-shadow: none; border-style: dashed; }
+.ph-chapter-num {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: var(--weight-label);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--gold-ink);
+}
+.ph-chapter-art {
+  margin: 0.35rem 0 0.2rem;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: var(--daylight-soft);
+}
+
+/* ---- Plate gallery (3.4) -------------------------------------------- */
+/* The scroller lives inside the section's own padding rather than
+   bleeding past it: negative margins here would beat the Tailwind
+   max-w utility (unlayered CSS wins over a layered one) and let the
+   row run wider than the grid. */
+.ph-gallery {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 78%;
+  gap: 0.9rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+.ph-gallery > figure { scroll-snap-align: start; margin: 0; }
+.ph-gallery-fig {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  aspect-ratio: 4 / 3;
+  background: var(--daylight-raised);
+  box-shadow: var(--ph-art-shadow);
+  transition: box-shadow var(--dur-base) var(--ease-out);
+}
+.ph-gallery-fig:hover { box-shadow: var(--ph-art-shadow-lift); }
+.ph-gallery figcaption {
+  margin-top: 0.6rem;
+  font-family: var(--font-reading);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted-grove);
+}
+@media (min-width: 768px) {
+  .ph-gallery {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+    gap: 1.25rem;
+  }
+}
+
+/* ---- Bento ecosystem (3.4) ------------------------------------------ */
+.ph-bento {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+.ph-bento > * { grid-column: span 12; }
+@media (min-width: 640px) {
+  .ph-bento > * { grid-column: span 6; }
+  .ph-bento > .ph-bento-wide { grid-column: span 12; }
+}
+@media (min-width: 1024px) {
+  .ph-bento > * { grid-column: span 4; }
+  .ph-bento > .ph-bento-half { grid-column: span 6; }
+  .ph-bento > .ph-bento-wide { grid-column: span 8; }
+}
+.ph-bento-feature {
+  background: linear-gradient(158deg, var(--green-900), var(--forest-night) 78%);
+  border-color: var(--forest-edge);
+  color: var(--text-on-dark);
+  box-shadow: var(--card-v3-shadow);
+}
+.ph-bento-feature h3 { color: var(--gold-light); }
+.ph-bento-feature p { color: var(--text-on-dark); opacity: 0.9; }
+.ph-bento-feature .ph-bento-tag { color: var(--green-300); border-color: var(--forest-edge); }
+.ph-bento-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  border: 1px solid var(--ph-art-edge);
+  border-radius: var(--radius-pill);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.68rem;
+  font-weight: var(--weight-label);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--green-800);
+}
+.ph-bento h3 { color: var(--green-900); }
+
+/* ---- Mobile performance guards (3.4) --------------------------------
+   These three effects are the most expensive things the old page did on
+   a phone, and none of them carries meaning that a static frame cannot:
+     1. the gold beam spins a conic gradient forever, repainting a large
+        card every frame;
+     2. the hero glyphs float by animating margin-top, which triggers
+        layout on every frame for six elements;
+     3. the sticky header blurs what is behind it on every scroll.
+   Below 768px they become still frames. */
+@media (max-width: 767px) {
+  .ph-beam::before { animation: none; }
+  .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--daylight); }
+  /* A live blur filter on two off-screen covers is a GPU cost on every
+     frame of the carousel animation. The depth still reads from the
+     scale, the rotation and the opacity. */
+  .ph-coverflow-card { filter: none !important; }
+  /* The sheen is a background-position animation, so it repaints the
+     whole cover every frame. It is decoration, so a phone can do
+     without it. */
+  .ph-book-sheen { animation: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-beam::before { animation: none; }
 }

@@ -1,18 +1,35 @@
 import { CHAPTERS } from "@/src/content";
+import { ILLUSTRATIONS } from "@/src/illustrations";
+import { Illustration } from "@/components/Illustration";
 
+/**
+ * The chapter preview, as a card grid (Design System 3.4).
+ *
+ * The confirmed chapters carry a plate from the edition's art so the grid
+ * reads like a book rather than a list. The held-back chapters stay
+ * visibly pending: dashed card, no art, and the same "Tajuk akan
+ * diumumkan" wording the old list used.
+ */
 export function ChapterPreview() {
   return (
-    <div className="mx-auto max-w-reading rounded bg-cream px-5 py-8 text-ink md:px-10">
-      <ol className="flex flex-col gap-6 font-reading">
-        {CHAPTERS.map((c) => (
-          <li key={c.no} className={`ph-page-in leading-[1.7] ${c.pending ? "opacity-60" : ""}`}>
-            <p className="font-body text-xs font-semibold uppercase tracking-[0.18em] text-gold-deep">Bab {c.no}</p>
-            <h3 className={`font-display text-2xl ${c.pending ? "italic text-green-800/70" : "text-green-900"}`}>{c.title}</h3>
-            <p className="text-[17px]">{c.note}</p>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-6 font-body text-sm text-green-800">Antara bab dalam Edisi Membangun.</p>
+    <div className="ph-chapter-grid mx-auto max-w-grid">
+      {CHAPTERS.map((c, i) => {
+        const art = c.pending ? undefined : ILLUSTRATIONS[i % ILLUSTRATIONS.length];
+        return (
+          <article key={c.no} className="ph-chapter-card ph-page-in" data-pending={c.pending ? "true" : "false"}>
+            <p className="ph-chapter-num">Bab {c.no}</p>
+            {art && (
+              <div className="ph-chapter-art">
+                <Illustration illustration={art} sizes="(min-width: 768px) 21rem, 92vw" />
+              </div>
+            )}
+            <h3 className={`ph-title text-xl ${c.pending ? "italic text-green-800/70" : "text-green-900"}`}>
+              {c.title}
+            </h3>
+            <p className="text-[15px] leading-relaxed text-ink-grove">{c.note}</p>
+          </article>
+        );
+      })}
     </div>
   );
 }
