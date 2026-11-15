@@ -140,6 +140,12 @@ class Reflection:
 
 
 @dataclass
+class Cards:
+    label: str = ""
+    items: list[tuple[str, str]] = field(default_factory=list)
+
+
+@dataclass
 class Page:
     kind: str = "content"
     numeral: str = ""
@@ -159,6 +165,7 @@ class Page:
     steps: list[Steps] = field(default_factory=list)
     sayings: list[tuple[str, str]] = field(default_factory=list)
     reflection: list[str] = field(default_factory=list)
+    cards: list[Cards] = field(default_factory=list)
     pull_quotes: list[str] = field(default_factory=list)
 
 
@@ -169,6 +176,9 @@ class PocketDoc:
     subtitle: str = ""
     tagline: str = ""
     pages: list[Page] = field(default_factory=list)
+    # Art resolves beside the manuscript that names it, so every book
+    # carries its own assets folder instead of borrowing another's.
+    assets: Path = BOOK_ASSETS
 
 
 # --------------------------------------------------------------------------
@@ -320,8 +330,39 @@ def _parse_reflection(raw: str) -> list[str]:
     return prompts
 
 
-def parse_pocket(source: str) -> PocketDoc:
-    """Parse a pocket manuscript into typed pages."""
+def _parse_cards(raw: str) -> Cards:
+    """Tip cards: a label line, then ``title | text`` list rows.
+
+    The card is a disclosure in the rendered page, so the manuscript
+    keeps the same one-line shape as the sayings: the title leads, the
+    body follows the pipe.
+    """
+    cards = Cards()
+    items: list[tuple[str, str]] = []
+    for raw_line in raw.strip().splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.lower().startswith("label:"):
+            cards.label = line.partition(":")[2].strip()
+            continue
+        line = re.sub(r"^[-*]\s+", "", line)
+        title, separator, text = line.rpartition("|")
+        if not separator:
+            raise PocketError(f"Card {line!r} has no '| text' part.")
+        items.append((title.strip(), text.strip()))
+    if not items:
+        raise PocketError("A cards block needs at least one card.")
+    cards.items = items
+    return cards
+
+
+def parse_pocket(source: str, assets: Path | None = None) -> PocketDoc:
+    """Parse a pocket manuscript into typed pages.
+
+    ``assets`` is the folder art and icons are read from; it defaults to
+    the shared book folder so an inline manuscript still builds.
+    """
     if not isinstance(source, str):
         raise PocketError("Manuscript must be text.")
     lines = source.replace("\r\n", "\n").split("\n")
@@ -332,6 +373,7 @@ def parse_pocket(source: str) -> PocketDoc:
         tier=str(meta.get("tier", "")),
         subtitle=str(meta.get("subtitle", "")),
         tagline=str(meta.get("tagline", "")),
+        assets=Path(assets) if assets is not None else BOOK_ASSETS,
     )
 
     index = 0
@@ -385,6 +427,10 @@ def parse_pocket(source: str) -> PocketDoc:
                 if current is None:
                     raise PocketError("A reflection block must sit inside a page.")
                 current.reflection = _parse_reflection(inner)
+            elif marker == "cards":
+                if current is None:
+                    raise PocketError("A cards block must sit inside a page.")
+                current.cards.append(_parse_cards(inner))
             else:
                 raise PocketError(f"Unknown manuscript marker '::: {marker}'.")
 
@@ -453,22 +499,22 @@ def _thread_block(text: str) -> str:
     </blockquote>"""
 
 
-def _art_block(name: str, variant: str = "panel") -> str:
+def _art_block(name: str, variant: str = "panel", *, assets: Path = BOOK_ASSETS) -> str:
     """One generated illustration, feathered into the page ground.
 
     The art ships on its own dark-green field which is close to, but not
     exactly, the page's vignetted ground. A mask fades every edge to
     transparent so the rectangle dissolves instead of showing a seam.
     """
-    source = BOOK_ASSETS / name
+    source = assets / name
     if not source.is_file():
-        raise PocketError(f"Art file {name!r} is missing from {BOOK_ASSETS}.")
+        raise PocketError(f"Art file {name!r} is missing from {assets}.")
     return f"""
     <figure class="art-{variant}"><img src="{_e(source.as_uri())}" alt="" /></figure>"""
 
 
-def _ornament_block() -> str:
-    return _art_block("ornament-divider.png", variant="ornament")
+def _ornament_block(*, assets: Path = BOOK_ASSETS) -> str:
+    return _art_block("ornament-divider.png", variant="ornament", assets=assets)
 
 
 def _chart_block(chart: Chart) -> str:
@@ -504,14 +550,14 @@ def _chart_block(chart: Chart) -> str:
     </figure>"""
 
 
-def _steps_block(steps: Steps) -> str:
+def _steps_block(steps: Steps, *, assets: Path = BOOK_ASSETS) -> str:
     items = []
     for number, item in enumerate(steps.items, start=1):
         # With icons the gold disc shrinks to a corner badge and the
         # icon tile takes its place; without them the numbered disc the
         # edition has always printed.
         if steps.icons:
-            icon = BOOK_ASSETS / steps.icons[number - 1]
+            icon = assets / steps.icons[number - 1]
             if not icon.is_file():
                 raise PocketError(f"Step icon {steps.icons[number - 1]!r} is missing.")
             mark = (
@@ -568,6 +614,28 @@ def _reflection_block(prompts: list[str]) -> str:
     </ul>"""
 
 
+def _cards_block(cards: Cards) -> str:
+    """Tip cards as disclosures: open on the page, collapsible on the web.
+
+    ``<details open>`` is the whole mechanism, so the print path shows
+    every tip and the browser path lets a reader fold one away without
+    any script. The summary carries the title; the body carries the tip.
+    """
+    items = []
+    for title, text in cards.items:
+        items.append(
+            f"""      <details class="card" open>
+        <summary class="card-title">{_e(title)}</summary>
+        <p class="card-text">{_e(text)}</p>
+      </details>"""
+        )
+    return f"""
+    <div class="cards">
+      <p class="cards-label">{_e(cards.label)}</p>
+{chr(10).join(items)}
+    </div>"""
+
+
 def _emphasis(text: str) -> str:
     """Escape, then honour the italic accent the house style uses in titles."""
     rendered = _e(text)
@@ -599,11 +667,11 @@ def _cover_page(page: Page, foil: str | None = None) -> str:
   </section>"""
 
 
-def _interior_page(page: Page, folio: int) -> str:
+def _interior_page(page: Page, folio: int, running_head: str, *, assets: Path = BOOK_ASSETS) -> str:
     head: list[str] = []
     if page.numeral:
         head.append(f'<p class="numeral">{_e(page.numeral)}</p>')
-    head.append(f'<h2 class="page-title">{_e(page.title)}</h2>')
+    head.append(f'<h2 class="page-title">{_emphasis(page.title)}</h2>')
     if page.subtitle:
         head.append(f'<p class="page-subtitle">{_e(page.subtitle)}</p>')
 
@@ -611,7 +679,7 @@ def _interior_page(page: Page, folio: int) -> str:
     # The ornament sits directly under the section head, so it reads as
     # part of the opener rather than as another body block.
     if page.ornament:
-        blocks.append(_ornament_block())
+        blocks.append(_ornament_block(assets=assets))
     if page.text:
         blocks.append(f'<div class="prose">{_paragraphs(page.text)}</div>')
     if page.thread:
@@ -619,30 +687,34 @@ def _interior_page(page: Page, folio: int) -> str:
     for chart in page.charts:
         blocks.append(_chart_block(chart))
     for steps in page.steps:
-        blocks.append(_steps_block(steps))
+        blocks.append(_steps_block(steps, assets=assets))
     if page.sayings:
         blocks.append(_sayings_block(page.sayings))
     if page.reflection:
         blocks.append(_reflection_block(page.reflection))
+    for cards in page.cards:
+        blocks.append(_cards_block(cards))
     # The illustration fills the foot of the page; the pull quote still
     # closes it, so the last beat of the page stays words.
     if page.art:
-        blocks.append(_art_block(page.art))
+        blocks.append(_art_block(page.art, assets=assets))
     for quote in page.pull_quotes:
         blocks.append(f'<p class="pull-quote">“{_e(quote)}”</p>')
 
     if page.kind == "backmatter":
-        # The closing page is a notice, not a chapter: no numeral, and the
-        # helpline block is the only body content. The lantern art hangs
-        # above it, not beside it.
-        art = _art_block(page.art) if page.art else ""
+        # The closing page is not a chapter: no numeral, no folio number.
+        # It renders the same blocks as an interior page so a manuscript
+        # can compose a penutup — copy, practice, a safety card — and
+        # the kicker and byline close the book.
+        back_blocks = [f'<header class="page-head">{chr(10).join("        " + line for line in head)}</header>']
+        back_blocks.append('<div class="page-rule"></div>')
+        back_blocks.extend(blocks)
+        body = "\n".join(back_blocks)
         return f"""
   <section class="page backmatter">
-    <p class="kicker"><span class="rule"></span>EDISI POKET · CUMA KAWAN PEJABAT<span class="rule"></span></p>
+    <p class="kicker"><span class="rule"></span>{_e(running_head)}<span class="rule"></span></p>
     <div class="page-body">
-      {art}
-      <h2 class="page-title">{_e(page.title)}</h2>
-      <div class="prose">{_paragraphs(page.text)}</div>
+{body}
     </div>
     <p class="folio-back">BY @RAHIMAM</p>
   </section>"""
@@ -650,11 +722,12 @@ def _interior_page(page: Page, folio: int) -> str:
     body = "\n".join(blocks)
     return f"""
   <section class="page">
-    <p class="kicker running-head"><span class="rule"></span>EDISI POKET · CUMA KAWAN PEJABAT<span class="rule"></span></p>
+    <p class="kicker running-head"><span class="rule"></span>{_e(running_head)}<span class="rule"></span></p>
     <div class="page-body">
       <header class="page-head">
         {chr(10).join('        ' + line for line in head)}
       </header>
+      {'<div class="page-rule"></div>' if not page.reflection else ''}
 {body}
     </div>
     <p class="folio"><span>BY @RAHIMAM</span><span>Halaman {folio}</span></p>
@@ -733,7 +806,7 @@ def _page_css() -> str:
     display: flex;
     align-items: center;
     gap: 1.1em;
-    margin: 0 0 1.25em;
+    margin: 0 0 1em;
     font: 500 0.5em/1 var(--font-body);
     letter-spacing: 0.32em;
     text-transform: uppercase;
@@ -746,13 +819,28 @@ def _page_css() -> str:
     margin: 0;
     font: 660 3.2em/1 var(--font-display);
     letter-spacing: 0.04em;
-    color: var(--green-300);
+    color: var(--green-400);
+    /* text-shadow, not filter: a filter on the numeral makes Chrome drop
+       the glyph from the PDF text layer, so the printed chapter numbers
+       stop being selectable and searchable. */
+    text-shadow: 0 1px 0 var(--green-800), 0 14px 20px rgb(0 0 0/.45);
   }
   .page-title {
     margin: 0;
     font: 520 1.8em/1.15 var(--font-display);
     color: var(--cream);
     text-wrap: balance;
+  }
+  .page-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  /* The flagship's divider under the lead: one gilt flank line. It costs
+     one line of height, so it is reserved for pages with a head. */
+  .page-rule {
+    height: 1px;
+    background: var(--rule-flank);
+    margin: 0;
   }
   .page-subtitle {
     margin: 0;
@@ -962,6 +1050,7 @@ def _page_css() -> str:
     font: 660 0.78em/1 var(--font-display);
     color: var(--forest-night);
     background: linear-gradient(180deg, var(--gold-light), var(--gold));
+    box-shadow: 0 4px 0 var(--gold-deep), 0 8px 16px rgb(0 0 0/.4);
   }
   .step-text {
     font: 400 0.82em/1.6 var(--font-reading);
@@ -1044,6 +1133,61 @@ def _page_css() -> str:
     display: block;
     height: 1.9em;
     border-bottom: 1px dotted var(--gold-deep);
+  }
+
+  /* ---- tip cards ---------------------------------------------------
+     A card is a disclosure: the summary carries the title, the body the
+     tip. It is open on the page, so print shows every tip, and the
+     browser lets a reader fold one away. The marker is drawn in CSS so
+     no script is needed and the print path never loses it. */
+  .cards { display: grid; gap: 0.7em; }
+  .cards-label {
+    margin: 0 0 0.1em;
+    font: 600 0.55em/1 var(--font-body);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+  }
+  .card {
+    padding: 0.8em 1em 0.85em;
+    border: 1px solid var(--forest-edge);
+    border-radius: var(--radius-lg);
+    background: var(--card-v3-bg);
+  }
+  .card-title {
+    position: relative;
+    padding-right: 1.4em;
+    font: 600 0.62em/1.35 var(--font-body);
+    color: var(--gold-light);
+    cursor: pointer;
+    list-style: none;
+    text-wrap: pretty;
+  }
+  .card-title::-webkit-details-marker { display: none; }
+  .card-title::after {
+    content: "+";
+    position: absolute;
+    top: 0;
+    right: 0;
+    font: 600 0.85em/1.35 var(--font-body);
+    color: var(--gold);
+  }
+  .card[open] .card-title::after { content: "−"; }
+  .card-text {
+    margin: 0.45em 0 0;
+    font: 400 0.78em/1.6 var(--font-reading);
+    color: var(--text-on-dark);
+    text-wrap: pretty;
+  }
+
+  /* ---- card depth --------------------------------------------------
+     The flagship's shadow stack on every card surface, so a card reads
+     as an object lifted off the page rather than a flat shape. */
+  .chart, .steps, .card, .saying {
+    box-shadow: inset 0 1px 0 rgb(167 211 182/.1),
+                inset 0 -1px 0 rgb(0 0 0/.35),
+                0 6px 12px -2px rgb(0 0 0/.3),
+                0 28px 60px -12px rgb(0 0 0/.55);
   }
 
   /* ---- folio ------------------------------------------------------- */
@@ -1181,6 +1325,7 @@ AUDITED_BLOCKS = (
     ".saying-text",
     ".prompt-text",
     ".thread-line",
+    ".card-text",
     ".bar-label",
     ".page-title",
     ".page-subtitle",
@@ -1388,6 +1533,7 @@ UNIFORM_ROLES = {
     "saying": ".saying-text",
     "prompt": ".prompt-text",
     "thread": ".thread-line",
+    "card": ".card-text",
 }
 
 
@@ -1445,12 +1591,15 @@ def build_pocket_html(doc: PocketDoc, foil: str | None = None) -> str:
     """
     pages: list[str] = []
     folio = 0
+    # The running head names the book it is printed in, so one builder
+    # serves every edition: the tier and title come from front matter.
+    head = f"EDISI {doc.tier.upper()} · {doc.title.replace('*', '').upper()}"
     for page in doc.pages:
         if page.kind == "cover":
             pages.append(_cover_page(page, foil))
             continue
         folio += 1
-        pages.append(_interior_page(page, folio))
+        pages.append(_interior_page(page, folio, head, assets=doc.assets))
 
     fonts = "\n".join(
         f"""@font-face {{

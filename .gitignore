@@ -255,3 +255,16 @@ packages/brand-tools/fonts/source/
 /.claude/
 /.freebuff/
 /.superpowers/
+
+# ---------------------------------------------------------------------------
+# Large local-only assets.
+#
+# These are working files kept out of the repository on purpose, not
+# project inputs. The illustration paintings are 79 MB of 10 MB PNGs and
+# their intermediates; the rendered WebP and JPEG that the site actually
+# serves are tracked under apps/web/public/illustrations/, and the build
+# script treats a checkout without the sources as a no-op. The launch film
+# is rendered locally and is not part of the site.
+# ---------------------------------------------------------------------------
+/docs/brand/illustrations/
+/videos/
