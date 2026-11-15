@@ -1,52 +1,194 @@
-import { TIERS, type Tone } from "@/src/content";
+import { TIERS } from "@/src/content";
 import { ProductCover } from "./ProductCover";
 
-const toneBorder: Record<Tone, string> = {
-  green: "border-l-green-500",
-  gold: "border-l-gold",
-  burgundy: "border-l-burgundy-light",
+type MatrixCell = boolean | string;
+
+type CompareRow = {
+  feature: string;
+  poket: MatrixCell;
+  membangun: MatrixCell;
+  "teman-hidup": MatrixCell;
 };
 
-const exactLaunchPrice: Record<string, string | null> = {
-  poket: null,
-  membangun: "Harga pelancaran: RM 29.00",
-  "teman-hidup": "Harga pelancaran: RM 79.00",
+const COMPARE_ROWS: CompareRow[] = [
+  {
+    feature: "Kad Refleksi: Red Flag, Green Flag, Luka Hati & Corak Attach",
+    poket: true,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "Ceklis Pencetus Attach (10 soalan)",
+    poket: true,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "7 Hari Reset (60 saat sehari)",
+    poket: true,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "3 skrip untuk perbualan paling sukar minggu ini",
+    poket: true,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "7 bab panduan dengan situasi sebenar rumah tangga Malaysia",
+    poket: false,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "Kit Refleksi: 30 soalan mendalam (satu soalan setiap halaman)",
+    poket: false,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "5 contoh skrip untuk bercakap dengan jujur",
+    poket: false,
+    membangun: true,
+    "teman-hidup": true,
+  },
+  {
+    feature: "Buku Kerja 30 Hari",
+    poket: false,
+    membangun: false,
+    "teman-hidup": true,
+  },
+  {
+    feature: "Skrip Bincang Hati ke Hati (pasangan)",
+    poket: false,
+    membangun: false,
+    "teman-hidup": true,
+  },
+  {
+    feature: "Nota Suara Rahimam: Audio Terapi Hati",
+    poket: false,
+    membangun: false,
+    "teman-hidup": true,
+  },
+  {
+    feature: "12 Kad Refleksi siap cetak (format A4)",
+    poket: false,
+    membangun: false,
+    "teman-hidup": true,
+  },
+  {
+    feature: "Anggaran saiz & format",
+    poket: "15–25 ms",
+    membangun: "60–90 ms",
+    "teman-hidup": "Buku, kerja, skrip & audio",
+  },
+];
+
+const EXACT_LAUNCH_PRICE: Record<string, string | null> = {
+  poket: "Percuma sepenuhnya",
+  membangun: "Pelancaran: RM 29.00",
+  "teman-hidup": "Pelancaran: RM 79.00",
 };
+
+function CellMark({ value, tierName }: { value: MatrixCell; tierName: string }) {
+  if (value === true) {
+    return (
+      <span className="ph-tick" role="img" aria-label={`Termasuk dalam ${tierName}`}>
+        ✓
+      </span>
+    );
+  }
+  if (value === false) {
+    return (
+      <span className="inline-block h-0.5 w-4 rounded-full bg-daylight-edge" aria-label={`Tidak termasuk dalam ${tierName}`} />
+    );
+  }
+  return <span className="text-xs font-medium text-green-900">{value}</span>;
+}
 
 export function TierCompare() {
   return (
-    <div className="mx-auto grid max-w-grid gap-5 md:grid-cols-3">
-      {TIERS.map((t) => {
-        const free = t.id === "poket";
-        const launch = exactLaunchPrice[t.id];
-        return (
-          <article key={t.id} className={`ph-card relative flex flex-col gap-4 border-l-[3px] p-5 ${toneBorder[t.tone]} ${t.id === "membangun" ? "ring-1 ring-gold-deep" : ""}`}>
-            {t.id === "membangun" && (
-              <span className="absolute right-4 top-4 rounded-pill bg-green-700 px-3 py-1 text-xs font-semibold text-cream">
-                Langkah seterusnya
-              </span>
-            )}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={t.seal} alt="" width={72} height={72} className="h-[72px] w-[72px]" />
-            <ProductCover name={t.name} src={t.cover} className="max-w-[180px]" />
-            <h3 className="font-display text-2xl text-green-900">{t.name}</h3>
-            <div>
-              <p className="font-display text-3xl text-green-900">{t.price}</p>
-              {launch && <p className="mt-0.5 text-xs font-semibold text-gold-ink">{launch}</p>}
-            </div>
-            <p className="text-sm text-muted-grove">{t.size}</p>
-            <p className="font-display italic text-ink-grove">{t.subcopy}</p>
-            <ul className="flex flex-1 flex-col gap-2 text-sm text-ink-grove">
-              {t.includes.map((i) => (
-                <li key={i} className="flex gap-2"><span aria-hidden="true" className="text-gold-ink">◆</span><span>{i}</span></li>
-              ))}
-            </ul>
-            <a href={free ? "#percuma" : `/beli/${t.id}`} className={free ? "ph-cta min-h-cta-mobile justify-center" : "btn-ghost min-h-cta-mobile justify-center"}>
-              {free ? "Dapatkan percuma" : `Beli ${t.name}`}
-            </a>
-          </article>
-        );
-      })}
+    <div className="ph-compare-wrap mx-auto max-w-grid">
+      <table className="ph-compare-table">
+        <caption className="sr-only">Perbandingan kandungan antara tiga edisi Perpustakaan Hati</caption>
+        <thead>
+          <tr>
+            <th scope="col" className="w-[40%] align-bottom text-left">
+              <span className="ph-caps block text-[0.65rem] text-gold-ink">Matriks Kandungan</span>
+              <span className="mt-1 block font-display text-lg text-green-900">Apa yang kamu terima</span>
+            </th>
+            {TIERS.map((t) => {
+              const featured = t.id === "membangun";
+              const launch = EXACT_LAUNCH_PRICE[t.id];
+              return (
+                <th
+                  key={t.id}
+                  scope="col"
+                  className={`w-[20%] ${featured ? "ph-compare-featured" : ""}`}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    {featured ? (
+                      <span className="rounded-pill bg-green-700 px-2.5 py-0.5 text-[11px] font-semibold text-cream">
+                        Langkah seterusnya
+                      </span>
+                    ) : (
+                      <span className="text-[11px] uppercase tracking-caps text-muted-grove">
+                        {t.id === "poket" ? "Permulaan" : "Lengkap"}
+                      </span>
+                    )}
+                    <div className="mx-auto w-[52px]">
+                      <ProductCover name={t.name} src={t.cover} seal={t.seal} className="rounded-sm" />
+                    </div>
+                    <span className="font-display text-xl text-green-900">{t.name}</span>
+                    <span className="font-display text-lg font-semibold text-green-800">{t.price}</span>
+                    {launch && <span className="text-[11px] font-medium text-gold-ink">{launch}</span>}
+                  </div>
+                </th>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {COMPARE_ROWS.map((row) => (
+            <tr key={row.feature}>
+              <th scope="row" className="text-sm font-normal leading-snug text-ink-grove">
+                {row.feature}
+              </th>
+              <td className="align-middle">
+                <CellMark value={row.poket} tierName="Edisi Poket" />
+              </td>
+              <td className="ph-compare-featured align-middle">
+                <CellMark value={row.membangun} tierName="Edisi Membangun" />
+              </td>
+              <td className="align-middle">
+                <CellMark value={row["teman-hidup"]} tierName="Teman Hidup" />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" className="text-left text-xs text-muted-grove">
+              Pilih edisi yang sesuai dengan fasa kamu sekarang.
+            </th>
+            {TIERS.map((t) => {
+              const free = t.id === "poket";
+              const featured = t.id === "membangun";
+              return (
+                <td key={t.id} className={featured ? "ph-compare-featured" : ""}>
+                  <a
+                    href={free ? "#percuma" : `/beli/${t.id}`}
+                    className={`${free || featured ? "ph-cta" : "btn-ghost"} min-h-tap w-full justify-center px-3 py-2 text-xs`}
+                  >
+                    {free ? "Dapatkan percuma" : `Beli ${t.name}`}
+                  </a>
+                </td>
+              );
+            })}
+          </tr>
+        </tfoot>
+      </table>
     </div>
   );
 }

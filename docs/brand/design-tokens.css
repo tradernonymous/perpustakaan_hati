@@ -1430,7 +1430,7 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* ---- Bento hero (3.4) ------------------------------------------------ */
+/* ---- Bento hero (3.4 + Collector Plinth upgrade) -------------------- */
 .ph-hero-grid {
   display: grid;
   gap: 2.25rem;
@@ -1439,9 +1439,57 @@
 .ph-hero-grid > * { min-width: 0; }
 @media (min-width: 1024px) {
   .ph-hero-grid {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: 3.5rem;
+    grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
+    gap: 3rem;
   }
+}
+
+/* Collector Plinth: a deep forest showcase shelf that holds the interactive
+   3D book and live 60-second reading preview cleanly below the plate
+   instead of colliding over the painting. */
+.ph-hero-plinth {
+  position: relative;
+  display: grid;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 1.25rem;
+  padding: 1.35rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--forest-edge);
+  background:
+    radial-gradient(90% 70% at 25% 25%, rgb(242 184 92 / 0.14), transparent 65%),
+    radial-gradient(85% 75% at 80% 75%, rgb(63 145 103 / 0.2), transparent 70%),
+    linear-gradient(158deg, var(--green-900), var(--forest-night) 80%);
+  box-shadow: var(--card-v3-shadow);
+  color: var(--text-on-dark);
+}
+@media (min-width: 640px) {
+  .ph-hero-plinth {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 1.5rem;
+    padding: 1.5rem 1.75rem;
+  }
+}
+.ph-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--ph-art-edge);
+  border-radius: var(--radius-pill);
+  background: var(--daylight-raised);
+  padding: 0.35rem 0.9rem;
+  font-size: 0.7rem;
+  font-weight: var(--weight-label);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--green-800);
+}
+.ph-pulse-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--green-500);
+  box-shadow: 0 0 0 4px rgb(63 145 103 / 0.18);
 }
 
 /* Art panel: a framed painting with a caption strip. The image is the
@@ -1460,14 +1508,16 @@
    rules: the picture is the box, the img fills it. */
 .ph-art picture,
 .ph-gallery-fig picture,
-.ph-chapter-art picture {
+.ph-chapter-art picture,
+.ph-a4-cover picture {
   display: block;
   width: 100%;
   height: 100%;
 }
 .ph-art img,
 .ph-gallery-fig img,
-.ph-chapter-art img {
+.ph-chapter-art img,
+.ph-a4-cover img {
   display: block;
   width: 100%;
   height: 100%;
@@ -1516,7 +1566,48 @@
   margin-bottom: 0.4rem;
 }
 
-/* ---- Chapter cards (3.4) -------------------------------------------- */
+/* ---- Chapter & Ebook A4 Previews ------------------------------------- */
+.ph-ebook-shelf {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 44%;
+  gap: 0.9rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+}
+.ph-ebook-shelf > figure { scroll-snap-align: start; margin: 0; }
+@media (min-width: 640px) {
+  .ph-ebook-shelf { grid-auto-columns: 31%; }
+}
+@media (min-width: 1024px) {
+  .ph-ebook-shelf {
+    grid-auto-flow: row;
+    grid-auto-columns: initial;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    overflow: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
+    gap: 1.15rem;
+  }
+}
+.ph-a4-cover {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 210 / 297;
+  border-radius: 6px;
+  background: var(--forest-night);
+  box-shadow:
+    inset 0 0 0 1px rgb(201 168 106 / 0.28),
+    0 14px 30px -16px rgb(7 20 13 / 0.52);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.ph-a4-cover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ph-art-shadow-lift);
+}
+
 .ph-chapter-grid {
   display: grid;
   gap: 1rem;
@@ -1527,14 +1618,22 @@
 }
 .ph-chapter-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  padding: 1.25rem 1.35rem 1.4rem;
+  display: grid;
+  grid-template-columns: 106px minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+  padding: 1.15rem 1.25rem;
   border-radius: var(--radius-lg);
   background: var(--daylight-raised);
   border: 1px solid var(--ph-art-edge);
   box-shadow: var(--ph-art-shadow);
+}
+@media (min-width: 640px) {
+  .ph-chapter-card {
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 1.25rem;
+    padding: 1.35rem 1.45rem;
+  }
 }
 .ph-chapter-card[data-pending="true"] { background: transparent; box-shadow: none; border-style: dashed; }
 .ph-chapter-num {
@@ -1546,11 +1645,65 @@
   color: var(--gold-ink);
 }
 .ph-chapter-art {
-  margin: 0.35rem 0 0.2rem;
-  border-radius: var(--radius-md);
+  border-radius: 6px;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
-  background: var(--daylight-soft);
+  aspect-ratio: 210 / 297;
+  background: var(--forest-night);
+  box-shadow: 0 12px 24px -14px rgb(7 20 13 / 0.55);
+}
+
+/* ---- Tier Comparison Table ------------------------------------------ */
+.ph-compare-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--ph-art-edge);
+  background: var(--daylight-raised);
+  box-shadow: var(--ph-art-shadow);
+}
+.ph-compare-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  text-align: center;
+}
+.ph-compare-table th:first-child,
+.ph-compare-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--daylight-raised);
+  text-align: left;
+  border-right: 1px solid var(--daylight-edge);
+}
+.ph-compare-table thead th {
+  padding: 1.25rem 1rem;
+  vertical-align: bottom;
+  border-bottom: 1px solid var(--daylight-edge);
+}
+.ph-compare-table tbody td,
+.ph-compare-table tbody th {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--daylight-edge);
+}
+.ph-compare-table tbody tr:last-child th,
+.ph-compare-table tbody tr:last-child td { border-bottom: none; }
+.ph-compare-table tfoot td,
+.ph-compare-table tfoot th {
+  padding: 1.1rem 1rem 1.25rem;
+  border-top: 1px solid var(--daylight-edge);
+}
+.ph-compare-featured { background: rgb(233 240 230 / 0.55); }
+.ph-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background: var(--green-800);
+  color: var(--cream);
+  font-size: 0.8rem;
+  font-weight: 700;
 }
 
 /* ---- Plate gallery (3.4) -------------------------------------------- */

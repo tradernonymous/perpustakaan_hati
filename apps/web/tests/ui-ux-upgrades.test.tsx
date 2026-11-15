@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { CerminPasangan } from "@/components/CerminPasangan";
 import { EbookDeck } from "@/components/EbookDeck";
 import { EcosystemHub } from "@/components/EcosystemHub";
+import { HeroExcerptPreview } from "@/components/HeroExcerptPreview";
 import { QUESTIONS } from "@/src/games/cermin";
 import { siteUrl } from "@/src/site";
 
@@ -84,5 +85,15 @@ describe("EcosystemHub", () => {
     for (const href of expectedHrefs) {
       expect(links).toContain(href);
     }
+  });
+});
+
+describe("HeroExcerptPreview", () => {
+  it("switches live 60-second excerpts when a tab is clicked", () => {
+    render(<HeroExcerptPreview />);
+    fireEvent.click(screen.getByRole("tab", { name: "Perkara Kecil" }));
+    expect(screen.getByText(/Kasih sayang jarang jatuh dari langit/i)).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Pulang Kepada Diri" }));
+    expect(screen.getByText(/Suara sendiri tidak hilang/i)).toBeTruthy();
   });
 });
