@@ -128,8 +128,15 @@ export function OptInForm() {
 
       {status === "success" && (
         <div className="rounded border border-daylight-edge bg-sage p-4 text-sm text-ink-grove">
-          <p className="font-semibold text-green-900">Sementara menunggu Edisi Poket tiba, cuba ruang interaktif ini:</p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <p className="font-semibold text-green-900">Edisi Poket kamu sudah sedia. Muat turun sekarang atau teruskan ke ruang interaktif:</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a
+              href="/api/edisi-poket/pdf"
+              download="edisi-poket-perpustakaan-hati.pdf"
+              className="ph-cta min-h-tap inline-flex items-center px-4 py-2 text-xs"
+            >
+              Muat turun PDF Edisi Poket
+            </a>
             <a href="/kad-jujur-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Kad Jujur Hati</a>
             <a href="/cermin-pasangan" className="btn-ghost min-h-tap px-4 py-2 text-xs">Cermin Pasangan</a>
             <a href="/teman-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Teman Hati AI</a>

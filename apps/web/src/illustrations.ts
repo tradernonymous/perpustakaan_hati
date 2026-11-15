@@ -17,8 +17,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     "slug": "dua-kerusi",
     "alt": "Dua kerusi kayu menghadap satu sama lain dalam cahaya senja",
     "caption": "Dua kerusi, satu jarak yang belum berani dekat.",
-    "width": 1600,
-    "height": 1067,
+    "width": 1200,
+    "height": 900,
     "variants": [
       {
         "width": 480,
@@ -38,8 +38,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     "slug": "hujan-tetingkap",
     "alt": "Tetesan hujan menuruni tingkap berkabus",
     "caption": "Kadang-kadang yang kita cari bukan jawapan, tetapi ketenangan.",
-    "width": 1600,
-    "height": 1067,
+    "width": 1200,
+    "height": 900,
     "variants": [
       {
         "width": 480,
@@ -59,8 +59,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     "slug": "tali-longgar",
     "alt": "Tali yang longgar di tepi jambatan kecil",
     "caption": "Longgar bukan salah. Ada sesuatu yang belum siap dilepaskan.",
-    "width": 1600,
-    "height": 1200,
+    "width": 1200,
+    "height": 900,
     "variants": [
       {
         "width": 480,
@@ -80,8 +80,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     "slug": "lampu-bilik",
     "alt": "Lampu bilik yang menyala hangat dalam bilik kosong",
     "caption": "Lampu dibiarkan menyala, walaupun tiada siapa yang kembali.",
-    "width": 1600,
-    "height": 1067,
+    "width": 1200,
+    "height": 900,
     "variants": [
       {
         "width": 480,
@@ -101,8 +101,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     "slug": "tangan-hampir",
     "alt": "Dua tangan yang saling menghampiri tanpa menyentuh",
     "caption": "Hampir-hampir sudah cukup, untuk kali ini.",
-    "width": 1600,
-    "height": 1200,
+    "width": 1200,
+    "height": 900,
     "variants": [
       {
         "width": 480,
@@ -122,8 +122,8 @@ export const ILLUSTRATIONS: Illustration[] = [
     "slug": "jambatan-kecil",
     "alt": "Jambatan kecil yang menyeberang air gelap",
     "caption": "Jambatan kecil, tetapi tetap menyeberang.",
-    "width": 1600,
-    "height": 1200,
+    "width": 1200,
+    "height": 900,
     "variants": [
       {
         "width": 480,

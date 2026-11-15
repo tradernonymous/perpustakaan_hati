@@ -15,8 +15,13 @@ export function ChapterPreview() {
     <div className="ph-chapter-grid mx-auto max-w-grid">
       {CHAPTERS.map((c, i) => {
         const art = c.pending ? undefined : ILLUSTRATIONS[i % ILLUSTRATIONS.length];
+        const isTrailingOdd = CHAPTERS.length % 2 === 1 && i === CHAPTERS.length - 1;
         return (
-          <article key={c.no} className="ph-chapter-card ph-page-in" data-pending={c.pending ? "true" : "false"}>
+          <article
+            key={c.no}
+            className={`ph-chapter-card ph-page-in ${isTrailingOdd ? "ph-chapter-card-full" : ""}`}
+            data-pending={c.pending ? "true" : "false"}
+          >
             <p className="ph-chapter-num">Bab {c.no}</p>
             {art && (
               <div className="ph-chapter-art">

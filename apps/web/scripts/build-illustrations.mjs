@@ -27,7 +27,7 @@
  *     apps/web/public/illustrations/<slug>-768.jpg   (fallback only)
  *     apps/web/src/illustrations.ts                   (typed manifest)
  */
-import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import sharp from "sharp";
@@ -40,8 +40,12 @@ const OUT = path.join(ROOT, "apps/web/public/illustrations");
 const MANIFEST_TS = path.join(ROOT, "apps/web/src/illustrations.ts");
 
 const WIDTHS = [480, 768, 1200];
-const WEBP_QUALITY = 70;
-const JPEG_QUALITY = 78;
+// Uniform 4:3 editorial plate ratio so every plate shares the exact same
+// visual rhythm across Hero, PlateGallery, and ChapterPreview without
+// layout shifts or harsh 16:9 cropping.
+const ASPECT_RATIO = 3 / 4;
+const WEBP_QUALITY = 76;
+const JPEG_QUALITY = 80;
 
 /**
  * The six illustrations, with the caption the site shows beside them.
@@ -114,6 +118,11 @@ async function build() {
     throw new Error(`no illustration source in ${SOURCE_DIRS.join(", ")} and no rendered output in ${OUT}`);
   }
 
+  // Clear previous rendered assets so stale files never linger.
+  for (const entry of readdirSync(OUT)) {
+    rmSync(path.join(OUT, entry), { recursive: true, force: true });
+  }
+
   const manifest = [];
   let rendered = 0;
 
@@ -124,11 +133,12 @@ async function build() {
     const variants = [];
     for (const width of WIDTHS) {
       if (width > meta.width) continue;
+      const height = Math.round(width * ASPECT_RATIO);
       const base = path.join(OUT, `${item.slug}-${width}`);
 
       const webp = await sharp(src)
         .rotate()
-        .resize({ width, withoutEnlargement: true })
+        .resize({ width, height, fit: "cover", position: "attention", withoutEnlargement: true })
         .webp({ quality: WEBP_QUALITY, effort: 6 })
         .toBuffer();
       writeFileSync(`${base}.webp`, webp);
@@ -139,7 +149,7 @@ async function build() {
       if (width === 768) {
         const jpg = await sharp(src)
           .rotate()
-          .resize({ width, withoutEnlargement: true })
+          .resize({ width, height, fit: "cover", position: "attention", withoutEnlargement: true })
           .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
           .toBuffer();
         writeFileSync(`${base}.jpg`, jpg);
@@ -153,8 +163,8 @@ async function build() {
       slug: item.slug,
       alt: item.alt,
       caption: item.caption,
-      width: meta.width,
-      height: meta.height,
+      width: 1200,
+      height: Math.round(1200 * ASPECT_RATIO),
       variants,
     });
   }

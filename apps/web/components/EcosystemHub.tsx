@@ -7,7 +7,7 @@ type EcosystemItem = {
   description: string;
   cta: string;
   /** Bento size on wide screens. */
-  size?: "half" | "wide";
+  size?: "half" | "wide" | "tablet-wide";
   /** The dark feature card, so the grid has one anchor. */
   feature?: boolean;
 };
@@ -42,7 +42,6 @@ const ITEMS: EcosystemItem[] = [
     title: "7 Hari Cabaran Pulih Hati",
     description: "Satu soalan refleksi setiap hari selama seminggu bersama komuniti #CabaranPulihHati.",
     cta: "Lihat jadual 7 hari",
-    size: "half",
   },
   {
     href: "/hadiah-hati",
@@ -64,7 +63,6 @@ const ITEMS: EcosystemItem[] = [
     title: "Booking Kaunseling",
     description: "Tempah sesi kejelasan emosi 1-on-1 atau pengantaraan pasangan dengan panel berlesen.",
     cta: "Lihat pilihan sesi",
-    size: "half",
   },
   {
     href: "/kelab",
@@ -72,6 +70,7 @@ const ITEMS: EcosystemItem[] = [
     title: "Kelab Perpustakaan Hati",
     description: "Audio Terapi Hati 5 minit dan Malam Bicara Hati secara langsung setiap minggu.",
     cta: "Teroka kelab",
+    size: "tablet-wide",
   },
 ];
 
@@ -87,7 +86,14 @@ export function EcosystemHub() {
   return (
     <div className="ph-bento mx-auto max-w-grid">
       {ITEMS.map((item) => {
-        const size = item.size === "wide" ? "ph-bento-wide" : item.size === "half" ? "ph-bento-half" : "";
+        const size =
+          item.size === "wide"
+            ? "ph-bento-wide"
+            : item.size === "half"
+              ? "ph-bento-half"
+              : item.size === "tablet-wide"
+                ? "ph-bento-tablet-wide"
+                : "";
         return (
           <Link
             key={item.href}
@@ -101,7 +107,11 @@ export function EcosystemHub() {
               <h3 className="font-display text-xl">{item.title}</h3>
               <p className="text-sm leading-relaxed text-ink-grove">{item.description}</p>
             </div>
-            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-green-800">
+            <span
+              className={`inline-flex items-center gap-1.5 text-sm font-semibold ${
+                item.feature ? "text-gold-light" : "text-green-800"
+              }`}
+            >
               <span>{item.cta}</span>
               <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                 <path d="M3 8h10M9 4l4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />

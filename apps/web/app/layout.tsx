@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import { siteUrl } from "@/src/site";
 
@@ -35,7 +36,10 @@ export const viewport: Viewport = {
   themeColor: "#f7f4ea",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Reading x-nonce subscribes the shell to per-request CSP nonces from proxy.ts
+  // so Next.js attaches the nonce to hydration scripts instead of relying on 'unsafe-inline'.
+  await headers();
   return (
     <html lang="ms">
       <body className="ph-daylight">{children}</body>

@@ -87,10 +87,11 @@ describe("chapter cards", () => {
     expect(html).toContain("ph-chapter-card");
   });
 
-  it("keeps the held-back chapters marked as pending", () => {
+  it("renders confirmed titles for Bab 4 and 5 with plates", () => {
     const html = renderToStaticMarkup(<ChapterPreview />);
     expect(html).toContain("Bab 4");
-    expect(html).toContain("Tajuk akan diumumkan");
+    expect(html).toContain("Bila pertengkaran menjadi diam");
+    expect(html).toContain("Bercakap dengan jujur");
     expect(html).not.toContain("Bicornak");
   });
 });

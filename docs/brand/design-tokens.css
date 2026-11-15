@@ -1403,6 +1403,7 @@
    ======================================================================= */
 
   /* ---- Editorial layer (3.4) ---------------------------------------- */
+:root {
   --ph-art-edge: rgb(122 90 34 / 0.16);
   --ph-art-edge-strong: rgb(122 90 34 / 0.34);
   --ph-art-shadow:
@@ -1416,6 +1417,7 @@
   --ph-hairline: linear-gradient(90deg, transparent, var(--gold-ink-soft) 22%, var(--gold-ink-soft) 78%, transparent);
   --ph-veil: linear-gradient(180deg, rgb(247 244 234 / 0) 0%, rgb(247 244 234 / 0.82) 58%, var(--daylight) 100%);
   --ph-veil-sage: linear-gradient(180deg, rgb(233 240 230 / 0) 0%, rgb(233 240 230 / 0.82) 58%, var(--sage) 100%);
+}
 
 .ph-hairline { height: 1px; background: var(--ph-hairline); }
 
@@ -1431,9 +1433,10 @@
 /* ---- Bento hero (3.4) ------------------------------------------------ */
 .ph-hero-grid {
   display: grid;
-  gap: 2.5rem;
+  gap: 2.25rem;
   align-items: center;
 }
+.ph-hero-grid > * { min-width: 0; }
 @media (min-width: 1024px) {
   .ph-hero-grid {
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
@@ -1446,7 +1449,7 @@
 .ph-art {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 4 / 3;
   border-radius: var(--radius-lg);
   background: var(--daylight-raised);
   box-shadow: var(--ph-art-shadow);
@@ -1488,16 +1491,17 @@
 }
 .ph-art:hover { box-shadow: var(--ph-art-shadow-lift); }
 
-/* The 3D book overlaps the art panel's lower edge on wide screens, so
-   the hero reads as one composed object instead of two widgets. */
+/* On small screens the 3D book stacks cleanly below the painting caption so
+   narrow phones stay uncluttered; on wide screens it overlaps the frame edge
+   to compose one unified object. */
 .ph-book-overlap {
-  margin-top: -3.5rem;
+  margin-top: 1.25rem;
   margin-bottom: 1.25rem;
   position: relative;
   z-index: 2;
 }
 @media (min-width: 1024px) {
-  .ph-book-overlap { margin-top: -4.5rem; margin-bottom: 1.5rem; margin-left: 6%; }
+  .ph-book-overlap { margin-top: -4.25rem; margin-bottom: 1.5rem; margin-left: 6%; }
 }
 
 /* Section index number: a small gold numeral that gives each band a
@@ -1519,6 +1523,7 @@
 }
 @media (min-width: 768px) {
   .ph-chapter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .ph-chapter-card-full { grid-column: span 2; }
 }
 .ph-chapter-card {
   position: relative;
@@ -1544,7 +1549,7 @@
   margin: 0.35rem 0 0.2rem;
   border-radius: var(--radius-md);
   overflow: hidden;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3;
   background: var(--daylight-soft);
 }
 
@@ -1556,10 +1561,11 @@
 .ph-gallery {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: 78%;
+  grid-auto-columns: 82%;
   gap: 0.9rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
+  scroll-padding-inline: 0.25rem;
   overscroll-behavior-x: contain;
   padding-bottom: 0.5rem;
   scrollbar-width: thin;
@@ -1585,8 +1591,11 @@
 @media (min-width: 768px) {
   .ph-gallery {
     grid-auto-flow: row;
+    grid-auto-columns: initial;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     overflow: visible;
+    scroll-snap-type: none;
+    padding-bottom: 0;
     gap: 1.25rem;
   }
 }
@@ -1597,13 +1606,15 @@
   gap: 1rem;
   grid-template-columns: repeat(12, minmax(0, 1fr));
 }
-.ph-bento > * { grid-column: span 12; }
+.ph-bento > * { grid-column: span 12; min-width: 0; }
 @media (min-width: 640px) {
   .ph-bento > * { grid-column: span 6; }
-  .ph-bento > .ph-bento-wide { grid-column: span 12; }
+  .ph-bento > .ph-bento-wide,
+  .ph-bento > .ph-bento-tablet-wide { grid-column: span 12; }
 }
 @media (min-width: 1024px) {
-  .ph-bento > * { grid-column: span 4; }
+  .ph-bento > *,
+  .ph-bento > .ph-bento-tablet-wide { grid-column: span 4; }
   .ph-bento > .ph-bento-half { grid-column: span 6; }
   .ph-bento > .ph-bento-wide { grid-column: span 8; }
 }
