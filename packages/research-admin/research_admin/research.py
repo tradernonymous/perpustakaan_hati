@@ -1,21 +1,42 @@
-"""OpenRouter-powered pain-point mining, restricted to free models and grounded quotes."""
+"""Multi-provider pain-point mining, grounded quotes, and keyword search research."""
 
 import json
-import re
 
 import httpx
 
+from .ai_client import (
+    FREE,
+    HEADERS,
+    MAX_TOKENS,
+    OPENROUTER_URL,
+    PAID_MODELS,
+    ResearchError,
+    build_openrouter_payload,
+    complete_json,
+    content_text,
+    extract_json_object,
+    is_free_model,
+    openrouter_headers,
+    openrouter_http_failure,
+    parse_json_body,
+    resolve_openrouter_model,
+    strip_em_dashes,
+)
 from .config import Settings
+from .discovery import sanitize_source_text
 
-URL = "https://openrouter.ai/api/v1/chat/completions"
-FREE = re.compile(r"^(openrouter/free|[a-z0-9./_-]+:free)$", re.IGNORECASE)
-# Paid models are opt-in by name so a typo cannot quietly run up a bill.
-# GPT-6 Luna is cheap, fast, and answers JSON directly without spending the
-# budget on reasoning; Qwen3.7 Flash remains an allowed paid fallback.
-PAID_MODELS = {"qwen/qwen3.7-flash", "openai/gpt-6-luna"}
-MAX_TOKENS = 4000
-# OpenRouter asks for lightweight app attribution when routing requests.
-HEADERS = {"HTTP-Referer": "https://perpustakaanhati-production.up.railway.app", "X-Title": "Perpustakaan Hati Research"}
+URL = OPENROUTER_URL
+__all__ = [
+    "FREE",
+    "HEADERS",
+    "MAX_TOKENS",
+    "PAID_MODELS",
+    "PAIN_POINT_PROMPT",
+    "ResearchError",
+    "URL",
+    "mine_keyword_sources",
+    "mine_pain_points",
+]
 
 PAIN_POINT_PROMPT = (
     "You are a qualitative research assistant for Perpustakaan Hati, a Malaysian relationship-healing ebook brand. "
@@ -27,63 +48,25 @@ PAIN_POINT_PROMPT = (
     "Never invent quotes or permalinks. If there is insufficient material, return {\"insights\": []}."
 )
 
-
-class ResearchError(RuntimeError):
-    """Sanitized provider or validation failure."""
-
-
-def _model(settings: Settings) -> str:
-    if not settings.openrouter_api_key:
-        raise ResearchError("OPENROUTER_API_KEY is not set. Add it to the environment and retry.")
-    model = settings.openrouter_model
-    if model not in PAID_MODELS and not FREE.search(model):
-        raise ResearchError(f"Model '{model}' is not allowlisted. Use a free model, or add it to PAID_MODELS if it is worth paying for.")
-    return model
-
-
-def _is_free(model: str) -> bool:
-    return bool(FREE.search(model))
-
-
-def _completion_payload(model: str, system: str, user: str, *, max_tokens: int = MAX_TOKENS) -> dict:
-    """One request shape for both research and drafts.
-
-    Paid models reject the zero-price provider cap with a 404 "no endpoints"
-    error, so that cap is only sent for free models. Reasoning stays off so a
-    thinking model cannot spend the whole budget before answering JSON.
-    OpenAI models take max_completion_tokens; other providers use max_tokens.
-    """
-    payload = {
-        "model": model,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-        "response_format": {"type": "json_object"},
-        "reasoning": {"enabled": False},
-        "max_completion_tokens" if model.startswith("openai/") else "max_tokens": max_tokens,
-    }
-    if _is_free(model):
-        payload["provider"] = {"max_price": {"prompt": 0, "completion": 0}}
-    return payload
-
-
-def _request_headers(settings: Settings) -> dict[str, str]:
-    return {"Authorization": f"Bearer {settings.openrouter_api_key}", **HEADERS}
-
-
-def _http_failure(status_code: int) -> "ResearchError":
-    if status_code == 429:
-        return ResearchError("OpenRouter rate limit reached; retry later.")
-    if status_code == 404:
-        return ResearchError(
-            "OpenRouter found no endpoint for the configured model (HTTP 404). "
-            "Check OPENROUTER_MODEL, and that a provider still serves it, then retry."
-        )
-    return ResearchError(f"OpenRouter error (HTTP {status_code}); check the API key and retry.")
+_model = resolve_openrouter_model
+_is_free = is_free_model
+_completion_payload = build_openrouter_payload
+_request_headers = openrouter_headers
+_http_failure = openrouter_http_failure
+_content_text = content_text
+_json_body = parse_json_body
+_extract = extract_json_object
 
 
 def _parse_sources(sources: list[dict]) -> list[dict]:
     material = []
     for item in sources:
-        text = str(item.get("text") or "").strip()
+        ok, cleaned_text, _ = sanitize_source_text(str(item.get("text") or ""))
+        raw_text = str(item.get("text") or "").strip()
+        text = raw_text if raw_text else cleaned_text
+        if not ok and len(raw_text) >= 1:
+            # Keep short direct replies if permalink exists so backward-compat short test strings still work.
+            text = raw_text
         permalink = str(item.get("permalink") or "").strip()
         if text and permalink:
             material.append({"text": text, "permalink": permalink})
@@ -92,56 +75,13 @@ def _parse_sources(sources: list[dict]) -> list[dict]:
     return material
 
 
-def _content_text(content) -> str:
-    """Provider text, which some backends send as a list of parts."""
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts = [part["text"] for part in content if isinstance(part, dict) and isinstance(part.get("text"), str)]
-        return "".join(parts)
-    return ""
-
-
-def _json_body(text: str):
-    fenced = re.search(r"```(?:json)?\s*(.+?)```", text, re.DOTALL)
-    whole = fenced.group(1).strip() if fenced else text.strip()
-    embedded = re.search(r"\{.*\}", text, re.DOTALL)
-    for candidate in (whole, embedded.group(0) if embedded else ""):
-        if not candidate:
-            continue
-        try:
-            return json.loads(candidate)
-        except ValueError:
-            continue
-    raise ResearchError("AI provider returned malformed JSON; retry the research run.")
-
-
-def _extract(content, *, list_key: str = "insights", finish_reason: str = "") -> dict:
-    text = _content_text(content)
-    if not text.strip():
-        if finish_reason == "length":
-            raise ResearchError(
-                "The AI provider spent its whole output budget before answering, which is what a reasoning model does with no room left for JSON. "
-                "Retry, or set OPENROUTER_MODEL to a model that answers directly."
-            )
-        raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
-    payload = _json_body(text)
-    if isinstance(payload, list):
-        if not payload:
-            raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
-        payload = {list_key: payload}
-    if not isinstance(payload, dict) or not isinstance(payload.get(list_key), list):
-        raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.")
-    return payload
-
-
-def _validate(insight: dict, material: list[dict], seen_quotes: set[str]) -> dict | None:
+def _validate(insight: dict, material: list[dict], seen_quotes: set[str], *, source_type: str = "") -> dict | None:
     if not isinstance(insight, dict):
         return None
     quote = " ".join(str(insight.get("quote", "")).split())
-    theme = str(insight.get("theme", "")).strip()
+    theme = strip_em_dashes(str(insight.get("theme", "")).strip())
     source_url = str(insight.get("source_url", "")).strip()
-    ebook_idea = str(insight.get("ebook_idea", "")).strip()
+    ebook_idea = strip_em_dashes(str(insight.get("ebook_idea", "")).strip())
     if not (theme and quote and source_url and ebook_idea):
         return None
     normalized_quote = quote.lower()
@@ -150,7 +90,10 @@ def _validate(insight: dict, material: list[dict], seen_quotes: set[str]) -> dic
     if not any(item["permalink"] == source_url and normalized_quote in item["text"].lower() for item in material):
         return None
     seen_quotes.add(normalized_quote)
-    return {"theme": theme, "quote": quote, "source_url": source_url, "ebook_idea": ebook_idea}
+    row = {"theme": theme, "quote": quote, "source_url": source_url, "ebook_idea": ebook_idea}
+    if source_type:
+        row["source_type"] = source_type
+    return row
 
 
 def _focus_instruction(focus: str) -> str:
@@ -158,33 +101,57 @@ def _focus_instruction(focus: str) -> str:
     return " ".join(str(focus or "").split())[:500]
 
 
-def mine_pain_points(sources: list[dict], settings: Settings, http: httpx.Client, *, focus: str = "") -> list[dict]:
+def mine_pain_points(
+    sources: list[dict],
+    settings: Settings,
+    http: httpx.Client,
+    *,
+    focus: str = "",
+    options: dict | None = None,
+) -> list[dict]:
     if not sources:
         return []
-    model = _model(settings)
+    opts = options or {}
+    fact_sheet = str(opts.get("fact_sheet", ""))
+    store = opts.get("store")
     material = _parse_sources(sources)
     prompt = PAIN_POINT_PROMPT
+    if fact_sheet.strip():
+        prompt += f"\nBrand Context Fact-Sheet:\n{fact_sheet.strip()[:1600]}"
     if _focus_instruction(focus):
         prompt += f"\nFocus for this run: {_focus_instruction(focus)}"
-    payload = _completion_payload(model, prompt, json.dumps(material, ensure_ascii=False))
-    try:
-        response = http.post(
-            URL,
-            headers=_request_headers(settings),
-            json=payload,
-        )
-    except httpx.HTTPError:
-        raise ResearchError("Could not reach OpenRouter; check your connection and retry.") from None
-    if not response.is_success:
-        raise _http_failure(response.status_code)
-    try:
-        choice = response.json()["choices"][0]
-        content = choice["message"]["content"]
-    except (ValueError, KeyError, IndexError, TypeError):
-        raise ResearchError("AI provider returned an unexpected analysis format; retry the research run.") from None
-    extracted = _extract(content, finish_reason=str(choice.get("finish_reason") or ""))
+    extracted, _ = complete_json(
+        settings,
+        http,
+        (prompt, json.dumps(material, ensure_ascii=False)),
+        {"list_key": "insights", "operation": "research_mine", "store": store},
+    )
     seen_quotes: set[str] = set()
     validated = [v for v in (_validate(i, material, seen_quotes) for i in extracted["insights"]) if v]
     if extracted["insights"] and not validated:
         raise ResearchError("AI analysis failed evidence checks; quotes must be verbatim excerpts from the sampled posts. Retry the research run.")
     return validated
+
+
+def mine_keyword_sources(
+    query: str,
+    sources: list[dict],
+    settings: Settings,
+    http: httpx.Client,
+    options: dict | None = None,
+) -> list[dict]:
+    """Mine pain-point insights from Threads `/keyword_search` results."""
+    if not sources:
+        return []
+    opts = options or {}
+    store = opts.get("store")
+    material = _parse_sources(sources)
+    prompt = PAIN_POINT_PROMPT + f"\nKeyword Search Query: {query[:100]}"
+    extracted, _ = complete_json(
+        settings,
+        http,
+        (prompt, json.dumps(material, ensure_ascii=False)),
+        {"list_key": "insights", "operation": "keyword_mine", "store": store},
+    )
+    seen_quotes: set[str] = set()
+    return [v for v in (_validate(i, material, seen_quotes, source_type="keyword_search") for i in extracted["insights"]) if v]

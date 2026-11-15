@@ -13,18 +13,28 @@ SEGMENTS = (
 )
 
 
-def segment_for(insight: dict) -> str:
+def segment_for(insight: dict, *, custom_segments: list[dict] | None = None) -> str:
     text = f"{insight.get('theme', '')} {insight.get('quote', '')}".casefold()
+    for seg in custom_segments or []:
+        label = str(seg.get("label", "")).strip()
+        terms = [str(t).strip().casefold() for t in seg.get("keywords", []) if str(t).strip()]
+        if label and terms and any(term in text for term in terms):
+            return label
     for label, terms in SEGMENTS:
         if any(term in text for term in terms):
             return label
     return "Needs further research"
 
 
-def build_audiences(insights: list[dict], drafts: list[dict] | None = None) -> list[dict]:
+def build_audiences(
+    insights: list[dict],
+    drafts: list[dict] | None = None,
+    *,
+    custom_segments: list[dict] | None = None,
+) -> list[dict]:
     grouped: dict[str, list[dict]] = defaultdict(list)
     for item in insights:
-        grouped[segment_for(item)].append(item)
+        grouped[segment_for(item, custom_segments=custom_segments)].append(item)
     active_drafts = [d for d in (drafts or []) if isinstance(d, dict) and d.get("status") != "archived"]
     result = []
     for name, evidence in grouped.items():

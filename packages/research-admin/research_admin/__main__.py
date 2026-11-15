@@ -27,7 +27,12 @@ def main() -> None:
     port = _port(os.environ.get("PORT") or os.environ.get("RESEARCH_ADMIN_PORT") or "8787")
     host = os.environ.get("RESEARCH_ADMIN_HOST") or ("0.0.0.0" if settings.public_mode else "127.0.0.1")
     app = create_app(settings)
-    worker = JobWorker(app.state.process_next_job, poll_seconds=2.0)
+    worker = JobWorker(
+        app.state.process_next_job,
+        poll_seconds=2.0,
+        on_idle_tick=getattr(app.state, "run_maintenance_tick", None),
+    )
+    app.state.worker = worker
     worker.start()
     try:
         uvicorn.run(
@@ -41,6 +46,10 @@ def main() -> None:
         )
     finally:
         worker.stop()
+        try:
+            app.state.store.backup_database()
+        except Exception:  # noqa: BLE001 - best-effort shutdown snapshot
+            pass
 
 
 if __name__ == "__main__":
