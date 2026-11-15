@@ -1,7 +1,13 @@
-# Design System 3.3 "Daylight Grove"
+# Design System 3.4 "Editorial Grove"
 
-**Status: current version as of 2026-11-11 (Daylight Grove 3.3: Astryx bridge + opt-in nightlight + AJE branch).** This is the look for Perpustakaan Hati. Green still leads; the storefront now lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
-Version token: `--ph-system-version: '3.3.0'` in `design-tokens.css`.
+**Status: current version as of 2026-11-15 (Editorial Grove 3.4: illustrated storefront, bento layouts, phone performance guards).** This is the look for Perpustakaan Hati. Green still leads; the storefront lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
+Version token: `--ph-system-version: '3.4.0'` in `design-tokens.css`.
+
+The 3.4 layer changes how the storefront **composes**, not what it is built of. Everything
+under it still uses the same tokens, the same fonts and the same assets; what changed is
+that the page now reads like an illustrated book (a plate behind the hero, a gallery of
+the edition's art, chapter cards that carry a picture) rather than a stack of centred card
+rows, and that the three most expensive effects on a phone were turned off.
 
 Share per storefront frame: **green 55 / gold 30 / cream + ruby 15**. On the dark stage (covers, posters) the share stays green 50 / gold 40 / ruby + cream 10. Charts are locked (see `visual-identity.md` and `design-tokens.css` `--chart-1` through `--chart-5`). Teman Hati companion chat is a first-class surface: `--companion-*`, `--glass-*`, `--chart-*`, `.ph-glass`, `.ph-companion`, `.ph-tilt` live in `design-tokens.css` and `ui-kit.md`.
 
@@ -13,6 +19,36 @@ Share per storefront frame: **green 55 / gold 30 / cream + ruby 15**. On the dar
 | **AJE** | Armazas Jaya Enterprise, Rahimam's company | black / gold only | AJE signage, posters, shop material, stationery |
 
 The branch is decided by **who the work is for**, never by taste. If a layout needs both, split it into separate bands — never put AJE gold on a Perpustakaan Hati green card, or the AJE turtle on a healing surface. AJE's full rules, facts and files: [`aje.md`](./aje.md).
+
+## Editorial Grove (3.4)
+
+The storefront's composition layer. Pure CSS plus the six Edisi Poket plates.
+
+| Piece | Class | What it does |
+|---|---|---|
+| Bento hero | `.ph-hero-grid`, `.ph-art`, `.ph-book-overlap` | the hero is an illustrated plate with the 3D book overlapping its lower edge |
+| Plate gallery | `.ph-gallery` | the six illustrations: a scroll-snap scroller on a phone, a three-column grid on a wide screen |
+| Chapter cards | `.ph-chapter-grid`, `.ph-chapter-card` | the chapter preview becomes a card grid, each card carrying its own art |
+| Bento ecosystem | `.ph-bento`, `.ph-bento-feature` | the interactive space is an asymmetric grid with one dark feature card |
+| Section numbers | `.ph-sec-index` | each band is numbered like a chapter of the book |
+
+**The plates.** `apps/web/public/illustrations/` holds WebP at 480 / 768 / 1200 px plus one
+JPEG fallback, rendered from `docs/brand/illustrations/edisi-poket-kehilangan/` by
+`apps/web/scripts/build-illustrations.mjs`. They are pre-rendered on purpose: the next/image
+optimizer needs sharp at runtime and sharp is a devDependency here, so a production deploy
+would fail to serve optimized images. `apps/web/src/illustrations.ts` is the typed manifest.
+
+**Phone rules.** These are the rules the 3.4 layer holds itself to, and they are checked by
+`apps/web/tests/editorial-grove.test.tsx`:
+
+1. No `backdrop-filter` on anything that scrolls. The sticky header loses its blur below
+   768px; the blur is a class, not a Tailwind utility, so the guard can turn it off.
+2. No continuously repainting gradient on a phone. The gold beam (`.ph-beam`) stops
+   spinning below 768px and under `prefers-reduced-motion`.
+3. No animation that triggers layout. The hero glyphs float by transforming, never by
+   animating `margin-top`.
+4. Every image carries explicit width and height, so nothing shifts as it loads.
+
 
 ## The Daylight layer (3.2)
 
