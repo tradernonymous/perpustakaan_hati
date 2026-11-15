@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 import { Hero } from "@/components/Hero";
 import { PlateGallery } from "@/components/PlateGallery";
 import { ChapterPreview } from "@/components/ChapterPreview";
+import { TierCompare } from "@/components/TierCompare";
 import { EcosystemHub } from "@/components/EcosystemHub";
 import { ILLUSTRATIONS } from "@/src/illustrations";
+import { EBOOK_COVERS } from "@/src/ebook-covers";
 import Home from "@/app/page";
 
 /*
@@ -137,5 +139,36 @@ describe("editorial grove layer", () => {
     expect(tokens).toMatch(/@media \(max-width: 767px\)[\s\S]{0,900}?\.ph-beam::before \{ animation: none; \}/);
     // The blurred sticky header repaints on every scroll.
     expect(tokens).toMatch(/@media \(max-width: 767px\)[\s\S]{0,900}?\.ph-header/);
+  });
+});
+
+describe("refinements: A4 covers, comparison table, and hero plinth", () => {
+  it("renders all five real A4 ebook covers inside #bab with A4 dimensions", () => {
+    const html = renderToStaticMarkup(<ChapterPreview />);
+    expect(html).toContain("ph-ebook-shelf");
+    expect(html).toContain("ph-a4-cover");
+    expect(html).toContain('width="560"');
+    expect(html).toContain('height="792"');
+    for (const cover of EBOOK_COVERS) {
+      expect(html).toContain(cover.webp);
+      expect(html).toContain(cover.title);
+    }
+    expect(tokens).toMatch(/\.ph-a4-cover\s*\{[\s\S]*aspect-ratio:\s*210\s*\/\s*297/);
+    expect(tokens).toMatch(/\.ph-chapter-art\s*\{[\s\S]*aspect-ratio:\s*210\s*\/\s*297/);
+  });
+
+  it("renders TierCompare as a comparison table with tick and blank markers", () => {
+    const html = renderToStaticMarkup(<TierCompare />);
+    expect(html).toContain("<table");
+    expect(html).toContain("ph-compare-table");
+    expect(html).toContain("ph-tick");
+    expect(html).toContain("✓");
+    expect(html).toContain("Tidak termasuk dalam Edisi Poket");
+  });
+
+  it("stages the hero with the collector plinth and live 60-second excerpt slot", () => {
+    const html = renderToStaticMarkup(<Hero />);
+    expect(html).toContain("ph-hero-plinth");
+    expect(html).toContain("Intai 60 saat");
   });
 });

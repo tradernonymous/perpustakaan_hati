@@ -62,7 +62,7 @@ export default function Home() {
             </div>
           </div>
         </Section>
-        <Section index="04" id="bab" title="Intai beberapa bab" intro="Bab-bab pertama, seperti mana ia ditulis.">
+        <Section index="04" id="bab" title="Intai beberapa bab" intro="Pratonton kulit edisi A4 terkini dan tujuh bab utama seperti mana ia ditulis.">
           <ChapterPreview />
         </Section>
         <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
