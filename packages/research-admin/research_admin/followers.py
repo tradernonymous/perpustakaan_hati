@@ -18,6 +18,12 @@ MAX_EPOCH = 4102444800  # 2101-01-01, so a corrupt timestamp cannot crash a rend
 
 AUDIENCE_LISTS = ("not_following_back", "fans", "mutuals")
 AUDIENCE_LIST_LABELS = {"not_following_back": "Not following back", "fans": "Fans", "mutuals": "Mutuals"}
+GRAPH_COMMUNITY_LISTS = ("all_engagers", "insight_contributors", "frequent_engagers")
+GRAPH_COMMUNITY_LABELS = {
+    "all_engagers": "Active repliers",
+    "insight_contributors": "Insight contributors",
+    "frequent_engagers": "Frequent engagers (2+)",
+}
 TAG_LABELS = {"mutual": "Mutual", "follower": "Follows Rahimam", "following_only": "Doesn't follow back", "none": "Not connected"}
 
 PERMALINK = re.compile(r"@([A-Za-z0-9._]{1,30})", re.IGNORECASE)
@@ -158,9 +164,9 @@ def filter_people(analysis: dict, list_key: str, query: str = "", *, limit: int 
 
 
 class AudienceIndex:
-    """O(1) relationship lookup for insight source permalinks."""
+    """O(1) relationship and Graph-community lookup for insight source permalinks."""
 
-    def __init__(self, analysis: dict | None):
+    def __init__(self, analysis: dict | None, graph: dict | None = None):
         source = analysis or {}
         followers = {str(person.get("username", "")).casefold() for person in source.get("fans", [])}
         followers |= {str(person.get("username", "")).casefold() for person in source.get("mutuals", [])}
@@ -168,10 +174,20 @@ class AudienceIndex:
         following |= {str(person.get("username", "")).casefold() for person in source.get("mutuals", [])}
         self._followers = followers
         self._following = following
+        graph_source = graph or {}
+        self._engagers = {
+            str(person.get("username", "")).casefold(): person
+            for person in graph_source.get("engagers", [])
+            if isinstance(person, dict) and str(person.get("username", "")).strip()
+        }
 
     @property
     def enabled(self) -> bool:
         return bool(self._followers or self._following)
+
+    @property
+    def graph_enabled(self) -> bool:
+        return bool(self._engagers)
 
     def tag(self, url) -> str:
         name = author_of(url)
@@ -184,3 +200,182 @@ class AudienceIndex:
         if name in self._following:
             return "following_only"
         return "none"
+
+    def engager(self, url) -> dict | None:
+        name = author_of(url)
+        if not name or not self._engagers:
+            return None
+        return self._engagers.get(name)
+
+
+def _iso_day(value) -> str:
+    text = str(value or "").strip()
+    if len(text) >= 10 and text[4:5] == "-" and text[7:8] == "-":
+        return text[:10]
+    return since_date(value)
+
+
+def _ensure_engager(by_user: dict[str, dict], uname: str, *, day: str = "", quote: str = "", url: str = "") -> dict:
+    key = uname.casefold()
+    record = by_user.get(key)
+    if not record:
+        record = {
+            "username": uname,
+            "href": f"https://www.threads.com/@{uname}"[:MAX_HREF],
+            "replies_count": 0,
+            "seen_urls": set(),
+            "insight_ids": set(),
+            "themes": set(),
+            "last_seen": day,
+            "sample_quote": quote,
+            "last_url": url,
+        }
+        by_user[key] = record
+    return record
+
+
+def _merge_reply_engager(by_user: dict[str, dict], item: dict, owners: set[str]) -> None:
+    if not isinstance(item, dict) or item.get("source_type") == "post":
+        return
+    url = str(item.get("permalink") or "").strip()[:MAX_HREF]
+    raw_name = str(item.get("username") or "").strip().lstrip("@") or author_of(url)
+    uname = raw_name[:MAX_USERNAME]
+    if not uname or uname.casefold() in owners:
+        return
+    day = _iso_day(item.get("timestamp"))
+    text = " ".join(str(item.get("text") or "").split())[:160]
+    reply_key = (url or str(item.get("id") or text))[:MAX_HREF]
+    record = _ensure_engager(by_user, uname, day=day, quote=text, url=url)
+    if reply_key and reply_key not in record["seen_urls"]:
+        record["seen_urls"].add(reply_key)
+        record["replies_count"] = max(record["replies_count"], len(record["seen_urls"]))
+    elif not reply_key:
+        record["replies_count"] += 1
+    if day and (not record["last_seen"] or day >= record["last_seen"]):
+        record["last_seen"] = day
+        record["sample_quote"] = text or record["sample_quote"]
+        record["last_url"] = url or record["last_url"]
+    elif text and not record["sample_quote"]:
+        record["sample_quote"] = text
+
+
+def extract_engagers(
+    sources: list[dict],
+    insights: list[dict] | None = None,
+    *,
+    owner_username: str = "",
+    existing: list[dict] | None = None,
+) -> list[dict]:
+    """Build an active community roster from Threads Graph replies and saved insights."""
+    owners = {owner_username.strip().lstrip("@").casefold()} if owner_username and owner_username.strip() else set()
+    for item in sources or []:
+        if isinstance(item, dict) and item.get("source_type") == "post":
+            post_author = str(item.get("username") or author_of(item.get("permalink")) or "").strip().lstrip("@").casefold()
+            if post_author:
+                owners.add(post_author)
+
+    by_user: dict[str, dict] = {}
+    for prev in existing or []:
+        if not isinstance(prev, dict):
+            continue
+        uname = str(prev.get("username", "")).strip().lstrip("@")[:MAX_USERNAME]
+        if not uname or uname.casefold() in owners:
+            continue
+        by_user[uname.casefold()] = {
+            "username": uname,
+            "href": str(prev.get("href") or f"https://www.threads.com/@{uname}")[:MAX_HREF],
+            "replies_count": max(1, int(prev.get("replies_count", 1) or 1)),
+            "seen_urls": set(prev.get("seen_urls", [])),
+            "insight_ids": {int(i) for i in prev.get("insight_ids", []) if str(i).isdigit()},
+            "themes": {str(t).strip() for t in prev.get("themes", []) if str(t).strip()},
+            "last_seen": str(prev.get("last_seen", ""))[:10],
+            "sample_quote": str(prev.get("sample_quote", ""))[:160],
+            "last_url": str(prev.get("last_url", ""))[:MAX_HREF],
+        }
+
+    for item in sources or []:
+        _merge_reply_engager(by_user, item, owners)
+
+    for item in insights or []:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("source_url") or "").strip()[:MAX_HREF]
+        uname = author_of(url)[:MAX_USERNAME]
+        if not uname or uname.casefold() in owners:
+            continue
+        quote_text = " ".join(str(item.get("quote") or "").split())[:160]
+        record = _ensure_engager(by_user, uname, day=_iso_day(item.get("created_at")), quote=quote_text, url=url)
+        if url:
+            record["seen_urls"].add(url)
+        record["replies_count"] = max(1, record["replies_count"], len(record["seen_urls"]))
+        if str(item.get("id", "")).isdigit():
+            record["insight_ids"].add(int(item["id"]))
+        theme = str(item.get("theme") or "").strip()
+        if theme:
+            record["themes"].add(theme)
+        if not record["sample_quote"] and quote_text:
+            record["sample_quote"] = quote_text
+
+    result = [
+        {
+            "username": record["username"],
+            "href": record["href"],
+            "replies_count": max(1, int(record["replies_count"])),
+            "seen_urls": sorted(record["seen_urls"])[:50],
+            "insight_ids": sorted(record["insight_ids"]),
+            "themes": sorted(record["themes"]),
+            "last_seen": record["last_seen"],
+            "sample_quote": record["sample_quote"],
+            "last_url": record["last_url"],
+        }
+        for record in by_user.values()
+    ]
+    result.sort(key=lambda p: (-len(p["insight_ids"]), -p["replies_count"], p["username"].casefold()))
+    return result[:500]
+
+
+def analyze_graph_community(graph_data: dict | None, insights: list[dict] | None = None) -> dict | None:
+    """Enrich stored Graph API audience telemetry and active community with saved insights."""
+    if not graph_data:
+        return None
+    profile = graph_data.get("profile") if isinstance(graph_data.get("profile"), dict) else {}
+    owner = str(profile.get("username", "")).strip()
+    engagers = extract_engagers([], insights or [], owner_username=owner, existing=graph_data.get("engagers", []))
+    followers_count = max(0, int(graph_data.get("followers_count", 0) or 0))
+    prev = graph_data.get("previous_followers_count")
+    delta = (followers_count - int(prev)) if prev is not None and str(prev).lstrip("-").isdigit() else None
+    insight_contributors = [p for p in engagers if p.get("insight_ids")]
+    frequent_engagers = [p for p in engagers if int(p.get("replies_count", 0)) >= 2]
+    return {
+        "profile": profile,
+        "synced_at": str(graph_data.get("synced_at", "")),
+        "metrics": graph_data.get("metrics") if isinstance(graph_data.get("metrics"), dict) else {},
+        "demographics": graph_data.get("demographics") if isinstance(graph_data.get("demographics"), dict) else {},
+        "engagers": engagers,
+        "all_engagers": engagers,
+        "insight_contributors": insight_contributors,
+        "frequent_engagers": frequent_engagers,
+        "counts": {
+            "followers_count": followers_count,
+            "followers_delta": delta,
+            "active_repliers": len(engagers),
+            "insight_contributors": len(insight_contributors),
+            "frequent_engagers": len(frequent_engagers),
+        },
+    }
+
+
+def filter_graph_people(graph_analysis: dict, list_key: str, query: str = "", *, limit: int = 200) -> tuple[list[dict], int]:
+    """Filter active community members from the Threads Graph by list and search query."""
+    key = list_key if list_key in GRAPH_COMMUNITY_LISTS else GRAPH_COMMUNITY_LISTS[0]
+    needle = " ".join(str(query or "").split()).casefold()[:MAX_USERNAME]
+    people = graph_analysis.get(key, [])
+    if needle:
+        people = [
+            person for person in people
+            if needle in str(person.get("username", "")).casefold()
+            or needle in str(person.get("sample_quote", "")).casefold()
+            or any(needle in str(t).casefold() for t in person.get("themes", []))
+        ]
+    return people[:max(1, int(limit))], len(people)
+

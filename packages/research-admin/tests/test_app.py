@@ -504,3 +504,73 @@ def test_html_draft_generation_is_queued_with_selected_kinds(client, tmp_path):
     assert job["kind"] == "drafts"
     assert job["params"]["kinds"] == ["threads_post", "ebook_outline"]
     assert job["params"]["tone"] == "reflective" and job["params"]["language"] == "English"
+
+
+@respx.mock
+def test_auth_refresh_renews_stored_token(client):
+    respx.get(GRAPH + "/refresh_access_token").respond(
+        200, json={"access_token": "brand-new-token", "expires_in": 5184000}
+    )
+    res = client.post("/auth/refresh")
+    assert res.status_code == 200
+    body = res.json()
+    assert body["connected"] is True
+    assert body["expires_at"] > NOW + 5000000
+    assert client.app.state.store.get_token().access_token == "brand-new-token"
+
+
+@respx.mock
+def test_research_run_synchronizes_active_repliers_into_followers_graph(client):
+    respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": [
+        {"id": "1", "text": "Luahan hati hari ini", "username": "rahimam", "permalink": "https://www.threads.com/@rahimam/post/1", "timestamp": "2026-11-05T12:00:00+0000"}
+    ]})
+    respx.get(GRAPH + "/v1.0/1/insights").respond(200, json={"data": [{"name": "likes", "values": [{"value": 12}]}]})
+    respx.get(GRAPH + "/v1.0/1/replies").respond(200, json={"data": [
+        {"id": "2", "text": "How do I rebuild trust after betrayal?", "username": "nadia_kl", "permalink": "https://www.threads.com/@nadia_kl/post/2", "timestamp": "2026-11-05T13:00:00+0000"}
+    ]})
+    respx.post(OPENROUTER).respond(200, json={"choices": [{"message": {"content": json.dumps({"insights": [
+        {"theme": "Trust", "quote": "rebuild trust after betrayal", "source_url": "https://www.threads.com/@nadia_kl/post/2", "ebook_idea": "Boundaries guide"}
+    ]})}}]})
+    res = client.post("/research/run", data={"consent": "on"})
+    assert res.status_code == 200
+    followers_body = client.get("/followers").json()
+    assert followers_body["graph"] is not None
+    engagers = followers_body["graph"]["lists"]["all_engagers"]["people"]
+    assert len(engagers) == 1
+    assert engagers[0]["username"] == "nadia_kl"
+    assert engagers[0]["themes"] == ["Trust"]
+
+
+@respx.mock
+def test_draft_edit_and_publish_to_threads_flow(client):
+    saved = client.app.state.store.save_drafts([
+        {"kind": "threads_post", "title": "Original title", "content": {"post": "Initial post text."}, "source_ids": [1]}
+    ], [1])
+    draft_id = saved[0]["id"]
+
+    # Editing draft content works and validates character ceiling
+    edit_res = client.post(f"/content/drafts/{draft_id}/edit", data={"title": "Refined title", "post": "Updated gentle reflection on trust."})
+    assert edit_res.status_code == 200
+    assert edit_res.json()["title"] == "Refined title"
+    assert edit_res.json()["content"]["post"] == "Updated gentle reflection on trust."
+
+    # Publishing before approval is blocked
+    unapproved = client.post(f"/content/drafts/{draft_id}/publish")
+    assert unapproved.status_code == 400
+    assert "Approve" in unapproved.json()["error"]
+
+    # Approve and publish via Threads Graph API
+    client.post(f"/content/drafts/{draft_id}/status", data={"status": "approved"})
+    respx.post(GRAPH + "/v1.0/me/threads").respond(200, json={"id": "c-100"})
+    respx.post(GRAPH + "/v1.0/me/threads_publish").respond(200, json={"id": "p-200"})
+    respx.get(GRAPH + "/v1.0/p-200").respond(200, json={"id": "p-200", "permalink": "https://www.threads.com/@rahimam/post/P200"})
+
+    pub_res = client.post(f"/content/drafts/{draft_id}/publish")
+    assert pub_res.status_code == 200
+    assert pub_res.json()["published"]["url"] == "https://www.threads.com/@rahimam/post/P200"
+
+    # Double-publish is blocked
+    dup_res = client.post(f"/content/drafts/{draft_id}/publish")
+    assert dup_res.status_code == 400
+    assert "already" in dup_res.json()["error"].lower()
+

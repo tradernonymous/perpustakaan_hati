@@ -340,3 +340,105 @@ def test_insight_cards_carry_the_relationship_badge(client):
 def test_nav_has_a_followers_entry_after_research(client):
     body = client.get("/").text
     assert body.index("view=research") < body.index("view=followers") < body.index("view=audiences")
+
+
+def test_extract_engagers_discovers_repliers_and_links_insights():
+    from research_admin.followers import analyze_graph_community, extract_engagers
+
+    sources = [
+        {"id": "1", "source_type": "post", "username": "rahimam", "permalink": "https://www.threads.com/@rahimam/post/P1", "text": "Root post"},
+        {"id": "2", "source_type": "reply", "username": "aisyah_my", "permalink": "https://www.threads.com/@aisyah_my/post/R1", "text": "Saya susah nak percaya semula lepas curang.", "timestamp": "2026-11-10T08:00:00+0000"},
+        {"id": "3", "source_type": "reply", "username": "aisyah_my", "permalink": "https://www.threads.com/@aisyah_my/post/R2", "text": "Setiap hari rasa takut.", "timestamp": "2026-11-12T09:30:00+0000"},
+        {"id": "4", "source_type": "reply", "username": "rahimam", "permalink": "https://www.threads.com/@rahimam/post/R3", "text": "Terima kasih berkongsi."},
+        {"id": "5", "source_type": "reply", "permalink": "https://www.threads.com/@farid.kl/post/R4", "text": "Macam mana nak mula berbincang?", "timestamp": "2026-11-11T10:00:00+0000"},
+    ]
+    insights = [
+        {"id": 10, "theme": "Trust & betrayal", "quote": "susah nak percaya semula", "source_url": "https://www.threads.com/@aisyah_my/post/R1"},
+    ]
+    engagers = extract_engagers(sources, insights)
+    assert [e["username"] for e in engagers] == ["aisyah_my", "farid.kl"]
+    assert engagers[0]["replies_count"] == 2
+    assert engagers[0]["insight_ids"] == [10]
+    assert engagers[0]["themes"] == ["Trust & betrayal"]
+    assert engagers[0]["last_seen"] == "2026-11-12"
+
+    graph = analyze_graph_community({
+        "profile": {"username": "rahimam", "name": "Rahimam"},
+        "followers_count": 10540,
+        "previous_followers_count": 10500,
+        "metrics": {"views": 5000, "likes": 400, "replies": 80, "reposts": 25, "quotes": 10},
+        "demographics": {"country": [{"key": "MY", "value": 8500}]},
+        "engagers": engagers,
+        "synced_at": "2026-11-15T03:00:00+00:00",
+    }, insights)
+    assert graph["counts"]["followers_count"] == 10540
+    assert graph["counts"]["followers_delta"] == 40
+    assert graph["counts"]["active_repliers"] == 2
+    assert graph["counts"]["insight_contributors"] == 1
+    assert graph["counts"]["frequent_engagers"] == 1
+
+
+def test_followers_sync_endpoint_pulls_from_graph_without_manual_json(client):
+    import httpx
+    import respx
+
+    client.app.state.store.save_token("stored-token", NOW + 5000)
+    client.app.state.store.save_insights([
+        {"theme": "Trust", "quote": "susah nak percaya", "source_url": "https://www.threads.com/@aisyah_my/post/R1", "ebook_idea": "Boundaries"},
+    ])
+    with respx.mock:
+        respx.get("https://graph.threads.com/v1.0/me").respond(200, json={
+            "id": "99", "username": "rahimam", "name": "Rahimam",
+            "threads_biography": "Healing", "threads_profile_picture_url": "",
+        })
+        respx.get("https://graph.threads.com/v1.0/me/threads_insights").mock(side_effect=lambda req: httpx.Response(200, json={
+            "data": (
+                [
+                    {"name": "followers_count", "total_value": {"value": 10800}},
+                    {"name": "views", "total_value": {"value": 15000}},
+                    {"name": "likes", "total_value": {"value": 920}},
+                ]
+                if "followers_count" in req.url.params.get("metric", "")
+                else [{
+                    "name": "follower_demographics",
+                    "total_value": {
+                        "breakdowns": [{
+                            "dimension_keys": [req.url.params.get("breakdown", "country")],
+                            "results": [{"dimension_values": ["MY"], "value": 9100}, {"dimension_values": ["SG"], "value": 1100}],
+                        }]
+                    },
+                }]
+            )
+        }))
+        respx.get("https://graph.threads.com/v1.0/me/threads").respond(200, json={"data": [
+            {"id": "101", "text": "Luahan hati", "username": "rahimam", "permalink": "https://www.threads.com/@rahimam/post/101", "timestamp": "2026-11-14T10:00:00+0000"}
+        ]})
+        respx.get("https://graph.threads.com/v1.0/101/replies").respond(200, json={"data": [
+            {"id": "202", "text": "Saya susah nak percaya semula", "username": "aisyah_my", "permalink": "https://www.threads.com/@aisyah_my/post/R1", "timestamp": "2026-11-14T11:00:00+0000"}
+        ]})
+        res = client.post("/followers/sync")
+    assert res.status_code == 200
+    payload = res.json()
+    assert payload["followers_count"] == 10800
+    assert payload["active_repliers"] == 1
+    assert payload["profile"]["username"] == "rahimam"
+
+    # Followers JSON API now includes live graph data without any manual JSON file upload
+    info = client.get("/followers").json()
+    assert info["audience"] is None
+    assert info["graph"]["counts"]["followers_count"] == 10800
+    assert info["graph"]["counts"]["active_repliers"] == 1
+    assert info["graph"]["demographics"]["country"][0] == {"key": "MY", "value": 9100}
+
+    # Followers HTML dashboard renders Graph metrics, demographics, and community roster
+    html = client.get("/?view=followers").text
+    assert "10,800" in html or "10800" in html
+    assert "@aisyah_my" in html
+    assert "MY" in html
+
+    # Graph CSV export is formula-safe and includes discovered repliers
+    csv_text = client.get("/followers/graph.csv").text
+    assert "username,profile_url,replies_count,insights_count,themes,last_seen,sample_quote" in csv_text.splitlines()[0]
+    assert "aisyah_my" in csv_text
+
+

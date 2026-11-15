@@ -58,22 +58,29 @@ Open <http://127.0.0.1:8787/login>, sign in with the admin password, click **con
 
 1. **Overview** — recent research, source-linked evidence, current sample’s own-post performance, audience signals, drafts needing review, and a four-step workflow.
 2. **Research** — status board (connection and expiry, active AI model, last run, library totals), per-run sample-limit controls, an optional **Research focus** field (up to 500 characters; it steers only the next run, is appended to the analysis prompt, is stored on the run, and is never published), run history (which shows the focus used), searchable saved insights, original Threads source links, and checkboxes to select evidence for content generation. Running research and generating content have separate explicit AI-consent checkboxes.
-3. **Followers** — follow-back insight from Rahimam's own Threads data export (see below).
-4. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”). These are not demographic profiles; each signal links to source evidence. **Export evidence CSV** at `/audiences/export.csv` for offline planning.
-5. **Content studio** — select up to 20 evidence items, choose which **draft kinds** to generate (Threads post, ebook chapter outline, design brief — any subset), a **tone** (empathetic, direct, reflective, practical) and a **language** (match the evidence, Bahasa Melayu, English). Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
-6. **Draft library** — copy to clipboard, mark ready for use, or archive. Copying a draft includes the reference links shown in it. Approval is an internal review state only: this admin does **not** schedule or publish posts.
-7. **Connections & settings** — Threads token status/expiry, what the API sample covers, OpenRouter configuration and privacy boundaries.
+3. **Followers** — automatic live follower telemetry (`followers_count`, growth delta, `follower_demographics` by country, city, age, and gender for profiles with ≥100 followers) and an automatic **Active Community Roster** (repliers and insight contributors discovered from your Threads replies via the Graph API, with no manual JSON download required), plus optional follow-back diffing from Rahimam's Threads data export (`followers.json` + `following.json`).
+4. **Audiences** — qualitative working segments inferred only from evidence themes/quotes (trust & boundaries, healing after a breakup, self-worth, communication, unhealthy patterns, or “needs further research”), synchronized with the Draft Library (showing draft counts and an `Underserved · 0 drafts` badge when a segment has no drafts yet) and active community voices (`@username` links). **Export evidence CSV** at `/audiences/export.csv` for offline planning.
+5. **Content studio** — select up to 20 evidence items (or click a 1-click Audience Segment shortcut pill), choose which **draft kinds** to generate (Threads post, ebook chapter outline, design brief — any subset), a **tone** (empathetic, direct, reflective, practical) and a **language** (match the evidence, Bahasa Melayu, English). Every draft must cite supplied saved insight IDs. The outline and design brief also carry a **Reference posts** line with the original Threads permalink(s), added from the saved evidence rather than from model output, so a copied draft still points back to its source. The Threads post draft omits it by design.
+6. **Draft library** — edit drafts inline (`POST /content/drafts/{id}/edit`), inspect the 500-character counter on Threads post drafts, copy to clipboard, mark ready for use (`approved`), archive, or publish approved Threads post drafts directly via the Threads Graph API (`POST /content/drafts/{id}/publish`).
+7. **Connections & settings** — Threads token status/expiry, 1-click 60-day token renewal (`POST /auth/refresh`), opt-in `threads_content_publish` OAuth connection (`/auth/start?scope=publish`), what the API sample covers, OpenRouter configuration and privacy boundaries.
 
-### Followers & follow-back
+### Followers, Active Community & Follow-back
 
-The Threads Graph API exposes a profile's own posts, replies and insights but **no follower or following list**, so this view works from the two JSON files in Instagram's *Download your data* export — the same source the [Threads-Follower](https://github.com/Xiang511/Threads-Follower) tool uses (comparison approach credited to that project).
+The Followers page now operates in two complementary modes:
 
-- In **Accounts Center → Your information and permissions → Download your information → Threads**, download in **JSON**, then upload `followers.json` and `following.json` on the Followers page (one file each; 20 MB combined server-side limit, 50,000 accounts per file).
-- Headline stats: followers, following, mutuals, and the percentage of accounts Rahimam follows that do **not** follow back.
-- Three searchable lists, each with a CSV export: **Not following back** (with the date you started following them, from the export timestamp), **Fans** (follow Rahimam that she doesn't follow), and **Mutuals**. Server-side list search is bounded to 200 rows per page; the CSV carries the full filtered list.
-- The import is stored in the local SQLite database and survives restarts; **Clear import** removes it. Uploading the identical file twice is rejected.
-- **Research tie-in:** each saved insight's source permalink contains an author, so every insight card (Research, Overview, Studio) and audience-evidence block now carries a relationship badge once an import exists — **Mutual**, **Follows Rahimam**, **Doesn't follow back**, or **Not connected**. The Followers view counts how many saved insights come from accounts already in the audience.
-- The uploaded exports are **only** compared locally: they are never sent to the AI provider, and badges render nothing before the first import.
+1. **Automatic Threads Graph API Sync (no manual file download needed):**
+   - Clicking **Sync from Threads Graph ↻** (`POST /followers/sync`) or running a Research job (with **Also sync live follower count & demographics from Threads Graph** ticked) pulls:
+     - Profile metadata (`/v1.0/me`: `id`, `username`, `name`, `threads_profile_picture_url`, `threads_biography`).
+     - Account-level insights (`/v1.0/me/threads_insights`: `followers_count` with growth delta vs. the previous sync, plus `views`, `likes`, `replies`, `reposts`, `quotes`).
+     - Follower demographics (`/v1.0/me/threads_insights?metric=follower_demographics&breakdown=country|city|age|gender`, automatically skipped when a profile has `<100` followers).
+     - **Active Community Roster**: every non-owner account that replies to your sampled Threads posts or is cited in your saved research insights is indexed automatically with their reply count, cited insight IDs, themes, latest quote, and direct shortcuts to filter their evidence in Research or draft from their insights in Studio.
+   - Three filterable community views (**All active community**, **Insight contributors**, **Frequent repliers (2+)**) and a formula-safe CSV export at `GET /followers/graph.csv`.
+   - Every insight card across Overview, Research, and Studio automatically displays community engagement badges (`N replies` or `Active replier`) alongside any follow-back badge.
+2. **Optional Follow-back Diff (`followers.json` + `following.json` export):**
+   - Because Meta's Graph API does not expose passive follower usernames who have never replied, you can still optionally upload `followers.json` and `following.json` from **Accounts Center → Your information and permissions → Download your information → Threads (JSON)** (comparison approach credited to [Threads-Follower](https://github.com/Xiang511/Threads-Follower)).
+   - Headline stats: followers, following, mutuals, and the percentage of accounts Rahimam follows that do **not** follow back.
+   - Three searchable lists (**Not following back**, **Fans**, **Mutuals**) with CSV export at `GET /followers/export.csv`.
+   - When both Graph sync and JSON export are present, active community rows also carry their follow-back relationship badge (**Mutual**, **Follows Rahimam**, **Doesn't follow back**).
 
 ### Background job queue
 
@@ -107,21 +114,26 @@ A successful browser form run redirects back to the workspace; API clients can c
 |---|---|
 | `GET /` | Status page + insights table |
 | `GET /login` / `POST /login` / `POST /logout` | Password session |
-| `GET /auth/start` | Begin Threads OAuth (307) |
+| `GET /auth/start` | Begin Threads OAuth (307); pass `?scope=publish` to include `threads_content_publish` |
 | `GET /auth/callback` | Finish OAuth, store token |
+| `POST /auth/refresh` | Refresh the stored 60-day Threads access token via `/refresh_access_token` |
 | `GET /auth/status` | `{"connected", "expires_at"}` |
-| `POST /research/run` | Consent-protected research run; accepts optional `focus` (≤500 chars). HTML form submissions are queued (303 back to the page), JSON runs stay synchronous |
+| `POST /research/run` | Consent-protected research run; accepts optional `focus` (≤500 chars) and `sync_graph=on` to refresh Graph follower telemetry. Automatically synchronizes active community repliers into the Followers view |
 | `GET /research/insights` | Stored insights JSON |
 | `GET /research/runs` | Saved sample history: limits used, themes, focus used, and the prioritized owned-post metrics |
-| `GET /audiences` | Evidence-backed qualitative segments |
+| `GET /audiences` | Evidence-backed qualitative segments synchronized with draft coverage (`draft_count`, `needs_drafts`) and community `voices` |
 | `GET /audiences/export.csv` | Source-linked audience evidence CSV (spreadsheet formula-safe) |
+| `POST /followers/sync` | Pull live `followers_count`, `follower_demographics`, profile metadata, and active community repliers directly from the Threads Graph API (pass `queue=on` to run in background queue) |
+| `GET /followers/graph.csv` | Formula-safe CSV export of the Graph active community (`?glist=all_engagers\|insight_contributors\|frequent_engagers&q=`) |
 | `POST /followers/import` | Multipart upload of `followers.json` + `following.json` from the Threads data export; rejects identical files, bad JSON, >20 MB combined, and >50,000 accounts per file. HTML submissions redirect back with a notice, JSON returns counts |
-| `GET /followers` | Imported audience: counts, `imported_at`, and up to 500 people per list, filtered by `?q=` |
+| `GET /followers` | Returns `{"audience": ..., "graph": ...}` combining imported follow-back lists and live Graph follower/community data |
 | `GET /followers/export.csv` | Follow-back CSV, formula-safe; optional `?list=not_following_back\|fans\|mutuals` and `?q=` filters |
-| `POST /followers/clear` | Remove the stored follower import |
+| `POST /followers/clear` | Remove the stored follower import and Graph audience snapshot |
 | `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs, optional `kinds` (subset), `tone`, `language`; non-post drafts include `content.references` with the source permalink. HTML submissions are queued, JSON stays synchronous |
 | `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`), including `content.references` on non-post drafts |
 | `POST /content/drafts/{id}/status` | Mark a draft `draft`, `approved`, or `archived` |
+| `POST /content/drafts/{id}/edit` | Edit a saved draft's title and content fields inline |
+| `POST /content/drafts/{id}/publish` | Publish an `approved` Threads post draft directly to Threads via `/v1.0/me/threads` + `/v1.0/me/threads_publish` and record the live permalink |
 | `GET /queue` | Recent background jobs: kind, status, params, result, error |
 | `POST /queue/clear` | Cancel every queued job |
 | `POST /queue/{id}/cancel` | Cancel a queued job, or request a running job to stop |
