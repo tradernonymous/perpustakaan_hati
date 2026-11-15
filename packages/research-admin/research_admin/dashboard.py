@@ -51,6 +51,7 @@ class DashboardData:
     follow_query: str = ""
     follow_uf: str = ""
     follow_sort: str = "newest"
+    unfollow_queue: list[dict] = field(default_factory=list)
 
 
 def _e(value) -> str:
@@ -224,7 +225,41 @@ def _follow_insights_board(analysis: dict) -> str:
 
 
 def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csrf_input: str, *, status_class: str, is_connected: bool) -> str:
-    analysis = data.audience
+    has_import = data.audience is not None
+    queued_later = [p for p in data.unfollow_queue if p.get("unfollow_status") == "later"]
+    done_unfollowed = [p for p in data.unfollow_queue if p.get("unfollow_status") == "unfollowed"]
+    analysis = data.audience or {
+        "counts": {
+            "followers": 0,
+            "following": len(queued_later),
+            "not_following_back": len(queued_later),
+            "fans": 0,
+            "mutuals": 0,
+            "percent_not_following_back": 100.0 if queued_later else 0.0,
+        },
+        "not_following_back": queued_later,
+        "following": queued_later,
+        "unfollow_later": queued_later,
+        "unfollowed": done_unfollowed,
+        "fans": [],
+        "mutuals": [],
+        "insights": {
+            "reciprocity_rate": 0.0,
+            "follower_following_ratio": 0.0,
+            "fan_rate": 0.0,
+            "ghost_non_followers": len(queued_later),
+            "engaged_non_followers": 0,
+            "older_90d_count": 0,
+            "older_30d_count": 0,
+            "recent_30d_count": 0,
+            "unknown_date_count": len(queued_later),
+            "median_days_not_following_back": None,
+            "oldest_non_follower": None,
+            "top_cohorts": [],
+            "unfollow_later_count": len(queued_later),
+            "unfollowed_count": len(done_unfollowed),
+        },
+    }
     list_key = data.follow_list if data.follow_list in FOLLOW_VIEW_LISTS else AUDIENCE_LISTS[0]
     follow_q = data.follow_query
     uf = data.follow_uf if data.follow_uf in UNFOLLOW_FILTERS else "all"
@@ -236,14 +271,6 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
         'The upload stays in this admin’s local database and is never sent to the AI provider.</p>'
         '<p class="help">Comparison approach credited to <a class="text-link" href="https://github.com/Xiang511/Threads-Follower" target="_blank" rel="noreferrer">Threads-Follower</a>.</p>'
     )
-    if not analysis:
-        return (
-            f'<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1>'
-            f'<p class="lead">Live follower count, demographics &amp; active community from the Threads Graph API, plus optional follow-back diffing from your data export.</p></div>'
-            f'<span class="status {status_class}">{_e(data.connection)}</span></div>'
-            f'{graph_section}'
-            f'<section class="panel"><div class="section-head"><div><p class="eyebrow">NOT IMPORTED YET</p><h2>Upload the two export files</h2></div></div>{_import_form(csrf_input)}{download_help}</section>'
-        )
     counts = analysis["counts"]
     ins = analysis.get("insights") or {}
     exported = quote(follow_q, safe="")
@@ -277,12 +304,25 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
             f'{_e(FOLLOW_SORT_LABELS[skey])}</a>'
             for skey in FOLLOW_SORTS
         )
+        quick_add = (
+            f'<form class="search" method="post" action="/followers/unfollow" style="margin:8px 0">{csrf_input}'
+            f'<input type="hidden" name="action" value="later">'
+            f'<input type="hidden" name="return_list" value="unfollow_later">'
+            f'<input name="usernames" placeholder="Add @username1, @username2 to Unfollow Later">'
+            f'<button class="button ghost small" type="submit">+ Queue to Unfollow Later</button></form>'
+        )
         subfilter_bar = (
             f'<div class="filter-pills"><span class="muted" style="font-size:11px;align-self:center">Filter following:</span>{uf_pills}</div>'
             f'<div class="filter-pills"><span class="muted" style="font-size:11px;align-self:center">Sort:</span>{sort_pills}</div>'
+            f'{quick_add}'
         )
     people, shown_total = filter_people(analysis, list_key, follow_q, uf=uf, sort=sort, limit=200)
-    rows = "".join(_follow_row(person, list_key) for person in people) or '<div class="empty">Nobody matches this list yet.</div>'
+    empty_msg = (
+        '<div class="empty">Nobody matches this list yet.</div>'
+        if has_import
+        else '<div class="empty">Upload <b>followers.json</b> and <b>following.json</b> below to load your full Following &amp; Not-Following-Back list, or queue @usernames above.</div>'
+    )
+    rows = "".join(_follow_row(person, list_key) for person in people) or empty_msg
     if list_key in ("not_following_back", "following", "unfollow_later") and people:
         rows = (
             f'<form method="post" action="/followers/unfollow">{csrf_input}'
@@ -318,11 +358,7 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
         f'<input type="hidden" name="sort" value="{_e(sort)}">'
         f'<input name="q" value="{_e(follow_q)}" placeholder="Search @username or YYYY-MM"><button class="button ghost small">Search</button></form>'
     )
-    return (
-        f'<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT &amp; UNFOLLOW PLANNER</p><h1>Followers</h1>'
-        f'<p class="lead">Compared from the Threads data export and synchronized with the Threads Graph API. Filter your following list by non-followers, ghost accounts, or follow age to unfollow them later.</p></div>'
-        f'<div class="actions"><a class="button ghost small" href="/followers/export.csv?list={_e(list_key)}{uf_qs}{sort_qs}{q_qs}">Export CSV</a></div></div>'
-        f'{graph_section}'
+    stats_and_board = (
         f'<div class="stats">'
         f'<article class="stat card"><span>Followers</span><b>{counts["followers"]}</b><small>Accounts following Rahimam · {ins.get("fan_rate", 0.0)}% one-way fans</small></article>'
         f'<article class="stat card"><span>Following</span><b>{counts["following"]}</b><small>Accounts Rahimam follows · {ins.get("follower_following_ratio", 0.0)}x follower ratio</small></article>'
@@ -331,9 +367,26 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
         f'</div>'
         f'{_follow_insights_board(analysis)}'
         f'{tie_in}'
+    ) if has_import else _follow_insights_board(analysis)
+    import_panel = (
+        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">REFRESH</p><h2>Re-import or clear</h2></div><form method="post" action="/followers/clear">{csrf_input}<button class="button ghost small">Clear import</button></form></div>{_import_form(csrf_input)}{download_help}</section>'
+        if has_import
+        else f'<section class="panel"><div class="section-head"><div><p class="eyebrow">NOT IMPORTED YET</p><h2>Upload the two export files</h2></div></div>{_import_form(csrf_input)}{download_help}</section>'
+    )
+    header_right = (
+        f'<div class="actions"><a class="button ghost small" href="/followers/export.csv?list={_e(list_key)}{uf_qs}{sort_qs}{q_qs}">Export CSV</a></div>'
+        if has_import
+        else f'<span class="status {status_class}">{_e(data.connection)}</span>'
+    )
+    return (
+        f'<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT &amp; UNFOLLOW PLANNER</p><h1>Followers</h1>'
+        f'<p class="lead">Filter your following list by non-followers, ghost accounts (0 replies), or follow age to unfollow them later — synchronized with live Threads Graph telemetry.</p></div>'
+        f'{header_right}</div>'
+        f'{stats_and_board}'
         f'<section class="panel"><div class="section-head"><div><p class="eyebrow">LISTS &amp; UNFOLLOW FILTERS</p><h2>{_e(AUDIENCE_LIST_LABELS[list_key])}</h2></div>{search_form}</div>'
         f'<div class="filter-pills">{pills}</div>{subfilter_bar}{rows}{page_note}</section>'
-        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">REFRESH</p><h2>Re-import or clear</h2></div><form method="post" action="/followers/clear">{csrf_input}<button class="button ghost small">Clear import</button></form></div>{_import_form(csrf_input)}{download_help}</section>'
+        f'{import_panel}'
+        f'{graph_section}'
     )
 
 

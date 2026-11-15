@@ -515,6 +515,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             jobs=store.list_jobs(),
             focus=focus,
             audience=audience, graph_audience=graph_audience,
+            unfollow_queue=store.list_unfollow_queue(),
             follow_list=follow_list, graph_list=graph_list, follow_query=follow_query,
             follow_uf=follow_uf, follow_sort=follow_sort,
             model=settings.openrouter_model,
