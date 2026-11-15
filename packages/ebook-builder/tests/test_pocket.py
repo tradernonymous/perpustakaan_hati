@@ -308,6 +308,59 @@ def test_chart_without_rows_is_rejected():
 
 
 # --------------------------------------------------------------------------
+# tip cards
+# --------------------------------------------------------------------------
+
+
+CARDS_MS = (
+    "---\ntitle: X\ntier: poket\n---\n\n::: page\nkind: content\nnumeral: 05\n"
+    "title: Tips\n:::\n\n::: cards\nlabel: Lima tips\n"
+    "- Tulis dahulu | Tuang perasaan ke dalam tulisan.\n"
+    "- Tanya, jangan meneka | “Apa yang kamu fikirkan?”\n:::\n"
+)
+
+
+def test_cards_parse_label_and_items():
+    doc = parse_pocket(CARDS_MS)
+    cards = doc.pages[0].cards[0]
+    assert cards.label == "Lima tips"
+    assert cards.items == [
+        ("Tulis dahulu", "Tuang perasaan ke dalam tulisan."),
+        ("Tanya, jangan meneka", "“Apa yang kamu fikirkan?”"),
+    ]
+
+
+def test_cards_render_open_details():
+    """A tip card is a disclosure: open in print, collapsible on the web."""
+    html = build_pocket_html(parse_pocket(CARDS_MS))
+    assert html.count('<details class="card" open>') == 2
+    assert html.count('<summary class="card-title">') == 2
+    assert '<p class="card-text">' in html
+    assert '<p class="cards-label">Lima tips</p>' in html
+
+
+def test_cards_require_a_separator():
+    with pytest.raises(PocketError):
+        parse_pocket(
+            "---\ntitle: X\n---\n\n::: page\nkind: content\n:::\n\n"
+            "::: cards\nlabel: L\n- Tanpa pembahagi\n:::\n"
+        )
+
+
+def test_second_edition_cards_parse():
+    """The second edition ships tip cards; they must carry title and text."""
+    ms = ROOT / "content" / "ebooks" / "edisi-poket-ruang-atau-hukuman" / "manuscript.md"
+    doc = parse_pocket(ms.read_text(encoding="utf-8"))
+    cards = [b for p in doc.pages for b in p.cards]
+    assert cards, "the second edition has tip cards"
+    for block in cards:
+        assert block.label.strip()
+        assert block.items
+        for title, text in block.items:
+            assert title.strip() and text.strip()
+
+
+# --------------------------------------------------------------------------
 # typesetting
 # --------------------------------------------------------------------------
 
@@ -344,6 +397,35 @@ def test_running_head_and_folio_are_present():
     assert "EDISI POKET · CUMA KAWAN PEJABAT" in html
     assert "BY @RAHIMAM" in html
     assert "Halaman" in html
+
+
+def test_running_head_is_derived_from_the_front_matter():
+    """The head names the book it is printed in, not one fixed title."""
+    html = build_pocket_html(
+        parse_pocket("---\ntitle: Ruang atau *Hukuman*\ntier: poket\n---\n\n::: page\nkind: content\ntitle: Uji\n:::\n")
+    )
+    assert "EDISI POKET · RUANG ATAU HUKUMAN" in html
+    assert "CUMA KAWAN" not in html
+
+
+def test_art_resolves_beside_its_manuscript(tmp_path):
+    """Each book ships its own art folder; the manuscript names it."""
+    (tmp_path / "art-uji.png").write_bytes(b"\x89PNG\r\n\x1a\n")
+    doc = parse_pocket(
+        "---\ntitle: X\ntier: poket\n---\n\n::: page\nkind: content\ntitle: Uji\nart: art-uji.png\n:::\n",
+        assets=tmp_path,
+    )
+    assert (tmp_path / "art-uji.png").as_uri() in build_pocket_html(doc)
+
+
+def test_missing_art_names_the_folder_it_looked_in(tmp_path):
+    with pytest.raises(PocketError, match="art-tiada.png"):
+        build_pocket_html(
+            parse_pocket(
+                "---\ntitle: X\ntier: poket\n---\n\n::: page\nkind: content\ntitle: Uji\nart: art-tiada.png\n:::\n",
+                assets=tmp_path,
+            )
+        )
 
 
 def test_every_source_line_is_rendered():
@@ -469,6 +551,25 @@ def test_pdf_text_is_extractable(tmp_path):
 
 
 @pytest.mark.skipif(CHROME is None or not PDF_TOOLS, reason="needs headless Chrome and poppler-utils")
+def test_pdf_keeps_the_chapter_numerals_in_its_text_layer(tmp_path):
+    """The printed chapter numbers must survive as text, not just as ink.
+
+    A CSS filter on the numeral looks the same on the page, but Chrome
+    rasterises the glyph and drops it from the PDF text layer, so the
+    numbers stop being selectable and searchable. This pins them.
+    """
+    doc = _document()
+    out = render_pocket_pdf(doc, tmp_path / "pocket.pdf")
+    text = subprocess.run(
+        ["pdftotext", str(out), "-"], capture_output=True, text=True, check=True
+    ).stdout
+    numerals = [
+        line.strip() for line in text.splitlines() if line.strip() in {"01", "02", "03"}
+    ]
+    assert numerals, "the chapter numerals are missing from the PDF text layer"
+
+
+@pytest.mark.skipif(CHROME is None or not PDF_TOOLS, reason="needs headless Chrome and poppler-utils")
 def test_the_pdf_carries_the_same_type_as_the_measured_page(tmp_path):
     """The PDF must print the page that was measured.
 
@@ -541,3 +642,79 @@ def test_foil_raster_is_transparent(tmp_path):
     assert header[:8] == b"\x89PNG\r\n\x1a\n"
     # The colour type byte lives in the IHDR chunk: 6 means RGBA.
     assert header[25] == 6, "the foil raster should carry an alpha channel"
+
+
+# --------------------------------------------------------------------------
+# third edition — Perkara Kecil, Hati Kenyang
+# --------------------------------------------------------------------------
+
+POCKET_3 = (
+    ROOT / "content" / "ebooks" / "edisi-poket-perkara-kecil-hati-kenyang" / "manuscript.md"
+)
+
+
+def _third_document():
+    return parse_pocket(
+        POCKET_3.read_text(encoding="utf-8"), assets=POCKET_3.parent / "assets"
+    )
+
+
+def test_third_edition_is_a_five_chapter_pocket_book():
+    doc = _third_document()
+    assert doc.title.replace("*", "") == "Perkara Kecil, Hati Kenyang"
+    assert doc.tier == "poket"
+    numerals = [p.numeral for p in doc.pages if p.kind == "content" and p.numeral]
+    assert numerals == ["01", "02", "03", "04", "05", "06"]
+
+
+def test_third_edition_quotes_the_post_verbatim():
+    """The post is quoted as sent, shorthand and all."""
+    doc = _third_document()
+    thread = next(p for p in doc.pages if p.kind == "thread")
+    assert "YANG DIBELI MAKANAN, YANG KENYANG HATI" in thread.thread
+    assert "Pernah x pasangan tersenyum" in thread.thread
+    assert "YANG DIBELI" not in thread.text
+
+
+def test_third_edition_wires_every_art_file():
+    doc = _third_document()
+    html = build_pocket_html(doc)
+    arts = [p.art for p in doc.pages if p.art]
+    assert len(arts) >= 6
+    for name in arts:
+        assert (POCKET_3.parent / "assets" / name).is_file(), name
+    assert 'class="art-panel"' in html
+
+
+def test_third_edition_charts_are_sourced_and_labelled():
+    """No number ships uncited, and an illustrative model says it is one."""
+    doc = _third_document()
+    charts = [c for p in doc.pages for c in p.charts]
+    assert len(charts) >= 4
+    for chart in charts:
+        assert chart.source.strip(), chart.title
+        assert "ilustratif" in chart.note.lower(), chart.title
+
+
+def test_third_edition_closes_on_safety_without_a_pitch():
+    doc = _third_document()
+    back = doc.pages[-1]
+    assert back.kind == "backmatter"
+    assert "Keselamatan" in back.title
+    sayings = " ".join(text for text, _source in back.sayings)
+    assert "HEAL 15555" in sayings
+    assert "RM " not in back.text
+
+
+@pytest.mark.skipif(CHROME is None or not PDF_TOOLS, reason="needs headless Chrome and poppler-utils")
+def test_third_edition_renders_an_a4_pdf(tmp_path):
+    doc = _third_document()
+    out = render_pocket_pdf(doc, tmp_path / "pocket.pdf")
+    info = subprocess.run(
+        ["pdfinfo", str(out)], capture_output=True, text=True, check=True
+    ).stdout
+    assert int(re.search(r"^Pages:\s+(\d+)", info, re.M).group(1)) == len(doc.pages)
+    text = subprocess.run(
+        ["pdftotext", str(out), "-"], capture_output=True, text=True, check=True
+    ).stdout
+    assert "HEAL 15555" in text

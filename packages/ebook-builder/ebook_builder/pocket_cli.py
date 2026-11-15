@@ -38,13 +38,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", default="dist/edisi-poket.pdf", help="output PDF path")
     args = parser.parse_args(argv)
 
-    source = Path(args.manuscript)
+    source = Path(args.manuscript).resolve()
     if not source.is_file():
         print(f"error: {source} is not a file", file=sys.stderr)
         return 1
 
     try:
-        doc = parse_pocket(source.read_text(encoding="utf-8"))
+        doc = parse_pocket(source.read_text(encoding="utf-8"), assets=source.parent / "assets")
         report = measure_pocket(doc)
         output = render_pocket_pdf(doc, Path(args.out))
     except PocketError as exc:
