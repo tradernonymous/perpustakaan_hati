@@ -36,7 +36,7 @@ export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
         </div>
         <div className="ph-book-open" key={page} data-open={open} aria-hidden={!open} aria-live="polite">
           <p className="ph-book-page-no">Muka surat {page + 1} / {pages.length}</p>
-          <h3>{active.title}</h3>
+          <p className="ph-book-page-title">{active.title}</p>
           <p>{active.text}</p>
         </div>
       </div>
