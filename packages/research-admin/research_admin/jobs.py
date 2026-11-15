@@ -1,6 +1,7 @@
-"""Background job queue for research runs and draft generation."""
+"""Background job queue for research runs, draft generation, watchlist, and scheduled publishing."""
 
 import threading
+from datetime import UTC, datetime
 
 
 class JobCancelled(RuntimeError):
@@ -8,13 +9,15 @@ class JobCancelled(RuntimeError):
 
 
 class JobWorker:
-    """Runs queued jobs one at a time on a daemon thread."""
+    """Runs queued jobs one at a time on a daemon thread with heartbeat and maintenance ticks."""
 
-    def __init__(self, process_next_job, *, poll_seconds: float = 2.0):
+    def __init__(self, process_next_job, *, poll_seconds: float = 2.0, on_idle_tick=None):
         self._process_next_job = process_next_job
+        self._on_idle_tick = on_idle_tick
         self._poll_seconds = max(float(poll_seconds), 0.5)
         self._stop = threading.Event()
         self._thread: threading.Thread | None = None
+        self.last_tick_at: str = ""
 
     @property
     def running(self) -> bool:
@@ -36,10 +39,16 @@ class JobWorker:
 
     def _run(self) -> None:
         while not self._stop.is_set():
+            self.last_tick_at = datetime.now(UTC).isoformat()
             processed = False
             try:
                 processed = self._process_next_job()
             except Exception:  # noqa: BLE001 - a bad job must never kill the worker
                 processed = True
             if not processed:
+                if callable(self._on_idle_tick):
+                    try:
+                        self._on_idle_tick()
+                    except Exception:  # noqa: BLE001
+                        pass
                 self._stop.wait(self._poll_seconds)

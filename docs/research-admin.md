@@ -105,40 +105,48 @@ A successful browser form run redirects back to the workspace; API clients can c
 - Research history retains bounded own-post metrics and only top-level run summaries; audience segments are qualitative keyword groupings of saved themes/quotes, not verified demographics.
 - CSV export neutralizes spreadsheet formula-leading characters. Source URLs and saved text are escaped when rendered.
 - Uploaded follower exports are parsed server-side, stored in the local database only, and never forwarded to the AI provider.
-- Research and content creation are separate explicit-consent actions. No scheduler or Threads publishing route is implemented; approved drafts must be copied and published manually.
+- Research and content creation are separate explicit-consent actions. Publishing and reply moderation are always explicit operator actions (`POST /content/drafts/{id}/publish`, `/inbox/{id}/reply`, `/inbox/{id}/hide`) or explicitly scheduled (`POST /content/drafts/{id}/schedule`).
 - Errors returned to the browser never contain tokens or keys.
+
+## Production & Optional Environment Variables
+
+- **Required in production**: `THREADS_CLIENT_ID`, `THREADS_CLIENT_SECRET`, `RESEARCH_ADMIN_PASSWORD`, plus at least one AI provider key (`OPENROUTER_API_KEY`, `GROQ_API_KEY`, `NVIDIA_NIM_API_KEY`, or `OPENAI_COMPAT_BASE_URL` + `OPENAI_COMPAT_API_KEY`).
+- **AI failover**: `AI_PROVIDER_PRIORITY` (default `openrouter,groq,nim,openai_compat`), `RESEARCH_ALLOWED_MODELS` (extra allowed OpenRouter models).
+- **Webhooks & Threads**: `THREADS_REDIRECT_URI` (or `THREADS_REDIRECT_URL`), `THREADS_WEBHOOK_VERIFY_TOKEN`, `THREADS_APP_SECRET`.
+- **Telegram Ops & Watchlist**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`, `MINI_APP_URL`, `RESEARCH_WATCHLIST_HOURS`.
+- **Cross-service storefront sync (`apps/web`)**: `WEB_INTERNAL_URL`, `RESEARCH_SYNC_SECRET` (HMAC-SHA256 via `X-Research-Signature`).
 
 ## API
 
 | Route | What |
 |---|---|
-| `GET /` | Status page + insights table |
-| `GET /login` / `POST /login` / `POST /logout` | Password session |
-| `GET /auth/start` | Begin Threads OAuth (307); pass `?scope=publish` to include `threads_content_publish` |
-| `GET /auth/callback` | Finish OAuth, store token |
+| `GET /` | Status page + Daylight Grove studio & insights workspace (`?view=overview\|research\|followers\|audiences\|studio\|library\|calendar\|inbox\|knowledge\|settings`) |
+| `GET /assets/fonts/{name}` / `GET /favicon.ico` | Self-hosted Daylight Grove WOFF2 fonts & PH monogram icon |
+| `GET /login` / `POST /login` / `POST /logout` | Password session (DB-persisted rate limiting) |
+| `GET /auth/start` | Begin Threads OAuth (307); pass `?scope=publish` or `?scope=expanded` (includes keyword search & reply moderation scopes) |
+| `GET /auth/callback` | Finish OAuth with persistent DB `oauth_states`, store encrypted token & scope metadata, relay token to storefront if configured |
 | `POST /auth/refresh` | Refresh the stored 60-day Threads access token via `/refresh_access_token` |
-| `GET /auth/status` | `{"connected", "expires_at"}` |
-| `POST /research/run` | Consent-protected research run; accepts optional `focus` (≤500 chars) and `sync_graph=on` to refresh Graph follower telemetry. Automatically synchronizes active community repliers into the Followers view |
-| `GET /research/insights` | Stored insights JSON |
-| `GET /research/runs` | Saved sample history: limits used, themes, focus used, and the prioritized owned-post metrics |
-| `GET /audiences` | Evidence-backed qualitative segments synchronized with draft coverage (`draft_count`, `needs_drafts`) and community `voices` |
+| `GET /auth/status` | `{"connected", "expires_at", "scopes", "username"}` |
+| `POST /research/run` | Consent-protected research run; accepts optional `focus` (≤500 chars) and `sync_graph=on`. Feeds active repliers into Inbox & Followers |
+| `POST /research/keyword` | Mine public Threads posts matching `keyword` (`KEYWORD` or `TAG` mode) via `/keyword_search` |
+| `GET /research/insights` / `GET /research/runs` | Stored insights JSON and bounded sample run logs |
+| `GET /audiences` / `POST /audiences/segments` | Evidence-backed qualitative + custom keyword segments (`draft_count`, `needs_drafts`, community `voices`) |
 | `GET /audiences/export.csv` | Source-linked audience evidence CSV (spreadsheet formula-safe) |
-| `POST /followers/sync` | Pull live `followers_count`, `follower_demographics`, profile metadata, and active community repliers directly from the Threads Graph API (pass `queue=on` to run in background queue) |
-| `GET /followers/graph.csv` | Formula-safe CSV export of the Graph active community (`?glist=all_engagers\|insight_contributors\|frequent_engagers&q=`) |
-| `POST /followers/import` | Multipart upload of `followers.json` + `following.json` from the Threads data export; rejects identical files, bad JSON, >20 MB combined, and >50,000 accounts per file. HTML submissions redirect back with a notice, JSON returns counts |
-| `GET /followers` | Returns `{"audience": ..., "graph": ...}` combining imported follow-back lists, unfollow insights, and live Graph follower/community data (`?uf=&sort=&q=`) |
-| `POST /followers/unfollow` | Queue accounts in **Unfollow Later** (`action=later`), mark them **Unfollowed** (`action=unfollowed`), or restore (`action=keep`) |
-| `GET /followers/export.csv` | Follow-back CSV, formula-safe; optional `?list=not_following_back\|following\|unfollow_later\|fans\|mutuals`, `?uf=`, `?sort=`, and `?q=` filters |
-| `POST /followers/clear` | Remove the stored follower import and Graph audience snapshot |
-| `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs, optional `kinds` (subset), `tone`, `language`; non-post drafts include `content.references` with the source permalink. HTML submissions are queued, JSON stays synchronous |
-| `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`), including `content.references` on non-post drafts |
-| `POST /content/drafts/{id}/status` | Mark a draft `draft`, `approved`, or `archived` |
-| `POST /content/drafts/{id}/edit` | Edit a saved draft's title and content fields inline |
-| `POST /content/drafts/{id}/publish` | Publish an `approved` Threads post draft directly to Threads via `/v1.0/me/threads` + `/v1.0/me/threads_publish` and record the live permalink |
-| `GET /queue` | Recent background jobs: kind, status, params, result, error |
-| `POST /queue/clear` | Cancel every queued job |
-| `POST /queue/{id}/cancel` | Cancel a queued job, or request a running job to stop |
-| `POST /queue/{id}/retry` | Re-queue a failed or cancelled job (400 otherwise) |
+| `POST /followers/sync` | Pull live `followers_count`, `follower_demographics` (auto-gated `<100` followers), metrics history, and active repliers |
+| `GET /followers/graph.csv` / `GET /followers/export.csv` | Formula-safe CSV exports for Graph community and imported follow-back lists |
+| `POST /followers/import` / `POST /followers/unfollow` / `POST /followers/clear` | JSON follow-back import + Unfollow Later queue + snapshot churn diff |
+| `GET /inbox` / `POST /inbox/sync` / `POST /inbox/{id}/draft` / `POST /inbox/{id}/reply` / `POST /inbox/{id}/hide` | Engagement Inbox moderation, AI non-clinical reply drafting, `/replies`, and `/manage_reply` hide/unhide |
+| `GET /knowledge` / `POST /knowledge/nodes` / `POST /knowledge/nodes/{slug}/delete` | Book-of-Knowledge Wiki-Link Graph + bounded Fact-Sheet compiler |
+| `POST /content/generate` / `POST /content/variants` | Consent-protected single or 3-variant + 4-angle Hook Lab generation |
+| `POST /content/drafts/{id}/adjust` / `star` / `status` / `edit` / `schedule` | Quick rewrites (`shorter`, `warmer`, `story`, `no_cta`, `hook_alt`), favorites, inline & chapter editing, UTC scheduling |
+| `POST /content/drafts/{id}/publish` | Publish approved/scheduled draft as a single Threads post or `as_thread=on` multi-post reply chain |
+| `GET /content/drafts/{id}/card.html` / `ebook.md` / `GET /content/export/publish-pack` | Daylight Grove Quote Card preview, ebook Markdown, and `.md`/`.ics` Publish Pack |
+| `GET /queue` / `GET /queue/stream` / `POST /queue/*` | Background queue status, Server-Sent Events live stream, cancel/retry/clear |
+| `GET /mini` | Lightweight Telegram Mini App approval card view |
+| `POST /watchlist/config` / `POST /watchlist/run` / `POST /telegram/test` / `GET /backups/latest.db` | Watchlist monitoring, Telegram digest alerts (dedupe-protected), and on-demand SQLite online backup |
+| `GET|POST /webhooks/threads` | Meta webhook subscription verification + HMAC-SHA256 signed reply ingestion into Inbox |
+| `POST /internal/ingest/web-signals` / `GET /internal/status` | Signed (`X-Research-Signature`) cross-service contract with `apps/web` |
+| `GET /healthz` / `GET /healthz/details` | Public DB health check + signed-in diagnostics |
 
 Token refresh: long-lived Threads tokens last ~60 days. When `/auth/status` says disconnected, click **connect Threads** again.
 

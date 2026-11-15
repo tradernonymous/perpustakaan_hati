@@ -347,18 +347,93 @@ def analyze_audience(
     return {"counts": counts, **groups, "insights": _compute_follow_insights(counts, groups)}
 
 
+_UNFOLLOW_PREDICATES = {
+    "not_following_back": lambda p: not p.get("follows_back", False),
+    "ghosts": lambda p: not p.get("follows_back", False) and int(p.get("replies_count", 0)) == 0,
+    "older_90d": lambda p: not p.get("follows_back", False) and (p.get("days_followed") or -1) >= 90,
+    "older_30d": lambda p: not p.get("follows_back", False) and (p.get("days_followed") or -1) >= 30,
+    "recent_30d": lambda p: not p.get("follows_back", False) and p.get("days_followed") is not None and int(p["days_followed"]) < 30,
+    "engaged": lambda p: not p.get("follows_back", False) and int(p.get("replies_count", 0)) > 0,
+    "unfollow_later": lambda p: p.get("unfollow_status") == "later",
+}
+
+
 def _apply_unfollow_filter(people: list[dict], uf: str) -> list[dict]:
-    predicates = {
-        "not_following_back": lambda p: not p.get("follows_back", False),
-        "ghosts": lambda p: not p.get("follows_back", False) and int(p.get("replies_count", 0)) == 0,
-        "older_90d": lambda p: not p.get("follows_back", False) and (p.get("days_followed") or -1) >= 90,
-        "older_30d": lambda p: not p.get("follows_back", False) and (p.get("days_followed") or -1) >= 30,
-        "recent_30d": lambda p: not p.get("follows_back", False) and p.get("days_followed") is not None and int(p["days_followed"]) < 30,
-        "engaged": lambda p: not p.get("follows_back", False) and int(p.get("replies_count", 0)) > 0,
-        "unfollow_later": lambda p: p.get("unfollow_status") == "later",
-    }
-    pred = predicates.get(uf)
+    pred = _UNFOLLOW_PREDICATES.get(uf)
     return [p for p in people if pred(p)] if pred else people
+
+
+def count_unfollow_filters(analysis: dict, list_key: str) -> dict[str, int]:
+    """Compute accurate filter chip counts scoped to the currently selected audience tab."""
+    key = list_key if list_key in FOLLOW_VIEW_LISTS else AUDIENCE_LISTS[0]
+    people = list(analysis.get(key, []))
+    counts = {"all": len(people)}
+    for uf_key, pred in _UNFOLLOW_PREDICATES.items():
+        counts[uf_key] = sum(1 for person in people if pred(person))
+    return counts
+
+
+def build_preimport_analysis(unfollow_queue: list[dict], engagers: list[dict] | None = None) -> dict:
+    """Build lightweight audience analysis from persisted unfollow queue and Graph engagers prior to JSON upload."""
+    engager_map = {
+        str(e.get("username", "")).casefold(): e
+        for e in (engagers or [])
+        if isinstance(e, dict) and str(e.get("username", "")).strip()
+    }
+    hydrated = []
+    for row in unfollow_queue or []:
+        item = dict(row)
+        eng = engager_map.get(str(item.get("username", "")).casefold())
+        if eng:
+            item["replies_count"] = max(int(item.get("replies_count", 0) or 0), int(eng.get("replies_count", 0) or 0))
+            item["insight_count"] = max(int(item.get("insight_count", 0) or 0), len(eng.get("insight_ids", [])))
+        hydrated.append(item)
+    later_rows = [p for p in hydrated if p.get("unfollow_status") == "later"]
+    done_rows = [p for p in hydrated if p.get("unfollow_status") == "unfollowed"]
+    empty_counts = {
+        "followers": 0,
+        "following": 0,
+        "not_following_back": 0,
+        "fans": 0,
+        "mutuals": 0,
+        "percent_not_following_back": 0.0,
+    }
+    groups = {
+        "not_following_back": [],
+        "following": [],
+        "unfollow_later": later_rows,
+        "unfollowed": done_rows,
+        "fans": [],
+        "mutuals": [],
+    }
+    return {"counts": empty_counts, **groups, "insights": _compute_follow_insights(empty_counts, groups)}
+
+
+def diff_snapshots(previous: dict | None, current_followers: list[dict], current_following: list[dict]) -> dict | None:
+    """Compare a previous audience snapshot against the current JSON export."""
+    if not previous:
+        return None
+    prev_followers = {str(p.get("username", "")).casefold(): str(p.get("username", "")) for p in previous.get("followers", []) if p.get("username")}
+    prev_following = {str(p.get("username", "")).casefold(): str(p.get("username", "")) for p in previous.get("following", []) if p.get("username")}
+    curr_followers = {str(p.get("username", "")).casefold(): str(p.get("username", "")) for p in current_followers if p.get("username")}
+    curr_following = {str(p.get("username", "")).casefold(): str(p.get("username", "")) for p in current_following if p.get("username")}
+    prev_mutuals = set(prev_followers) & set(prev_following)
+    curr_mutuals = set(curr_followers) & set(curr_following)
+    new_followers = [curr_followers[k] for k in sorted(set(curr_followers) - set(prev_followers))]
+    unfollowed_you = [prev_followers[k] for k in sorted(set(prev_followers) - set(curr_followers))]
+    you_unfollowed = [prev_following[k] for k in sorted(set(prev_following) - set(curr_following))]
+    newly_mutual = [curr_followers[k] for k in sorted(curr_mutuals - prev_mutuals)]
+    return {
+        "previous_imported_at": str(previous.get("imported_at", "")),
+        "new_followers": new_followers[:50],
+        "new_followers_count": len(new_followers),
+        "unfollowed_you": unfollowed_you[:50],
+        "unfollowed_you_count": len(unfollowed_you),
+        "you_unfollowed": you_unfollowed[:50],
+        "you_unfollowed_count": len(you_unfollowed),
+        "newly_mutual": newly_mutual[:50],
+        "newly_mutual_count": len(newly_mutual),
+    }
 
 
 def filter_people(  # noqa: PLR0913
