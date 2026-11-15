@@ -25,9 +25,13 @@ EM_DASH = "—"
 # Published copy: the surfaces a reader sees.
 COPY_FILES = [
     ROOT / "content" / "ebooks" / "edisi-poket-cuma-kawan-pejabat" / "manuscript.md",
+    ROOT / "content" / "ebooks" / "edisi-poket-ruang-atau-hukuman" / "manuscript.md",
+    ROOT / "content" / "ebooks" / "edisi-poket-perkara-kecil-hati-kenyang" / "manuscript.md",
+    ROOT / "content" / "ebooks" / "edisi-poket-pulang-kepada-suara-sendiri" / "manuscript.md",
     ROOT / "content" / "ebooks" / "tier-1-free" / "outline.md",
     ROOT / "content" / "ebooks" / "tier-2-standard" / "chapters.md",
     ROOT / "content" / "ebooks" / "tier-2-standard" / "manuscript" / "edisi-membangun.md",
+    ROOT / "content" / "ebooks" / "tier-2-standard" / "manuscript" / "diam-ruang-atau-hukuman.md",
     ROOT / "content" / "ebooks" / "tier-3-premium" / "bundle.md",
     ROOT / "content" / "ebooks" / "tier-3-premium" / "manuscript" / "teman-hidup.md",
     ROOT / "apps" / "web" / "src" / "content.ts",
