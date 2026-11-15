@@ -21,9 +21,12 @@ from .dashboard import DashboardData, render_dashboard
 from .followers import (
     AUDIENCE_LIST_LABELS,
     AUDIENCE_LISTS,
+    FOLLOW_SORTS,
+    FOLLOW_VIEW_LISTS,
     GRAPH_COMMUNITY_LABELS,
     GRAPH_COMMUNITY_LISTS,
     MAX_ENTRIES,
+    UNFOLLOW_FILTERS,
     AudienceError,
     analyze_audience,
     analyze_graph_community,
@@ -227,19 +230,25 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     def _clean_focus(value) -> str:
         return " ".join(str(value or "").split())[:500]
 
-    def audience_analysis() -> dict | None:
-        stored = store.get_audience()
-        if not stored:
-            return None
-        analysis = analyze_audience(stored["followers"], stored["following"])
-        analysis["imported_at"] = stored["imported_at"]
-        return analysis
-
     def graph_audience_analysis() -> dict | None:
         stored = store.get_graph_audience()
         if not stored:
             return None
         return analyze_graph_community(stored, store.list_insights())
+
+    def audience_analysis() -> dict | None:
+        stored = store.get_audience()
+        if not stored:
+            return None
+        graph = graph_audience_analysis()
+        analysis = analyze_audience(
+            stored["followers"],
+            stored["following"],
+            unfollow_map=store.get_unfollow_map(),
+            engagers=graph["engagers"] if graph else None,
+        )
+        analysis["imported_at"] = stored["imported_at"]
+        return analysis
 
     app.state.audience_analysis = audience_analysis
     app.state.graph_audience_analysis = graph_audience_analysis
@@ -483,6 +492,8 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         follow_list = request.query_params.get("list", "") if view == "followers" else ""
         graph_list = request.query_params.get("glist", "") if view == "followers" else ""
         follow_query = request.query_params.get("q", "") if view == "followers" else ""
+        follow_uf = request.query_params.get("uf", "") if view == "followers" else ""
+        follow_sort = request.query_params.get("sort", "newest") if view == "followers" else "newest"
         token = app.state.store.get_token()
         connected = token is not None and token.expires_at > time.time()
         expiry = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(token.expires_at)) if connected else ""
@@ -505,6 +516,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             focus=focus,
             audience=audience, graph_audience=graph_audience,
             follow_list=follow_list, graph_list=graph_list, follow_query=follow_query,
+            follow_uf=follow_uf, follow_sort=follow_sort,
             model=settings.openrouter_model,
             error=request.query_params.get("notice", ""), configured=bool(settings.openrouter_api_key), threads_configured=not settings.missing_threads(),
         ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
@@ -653,19 +665,24 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if not analysis and not graph:
             return {"audience": None}
         query = request.query_params.get("q", "")
+        uf = request.query_params.get("uf", "")
+        sort = request.query_params.get("sort", "newest")
         audience_payload = None
         if analysis:
             audience_payload = {
                 "counts": analysis["counts"],
+                "insights": analysis["insights"],
                 "imported_at": analysis["imported_at"],
                 "query": query,
+                "uf": uf if uf in UNFOLLOW_FILTERS else "all",
+                "sort": sort if sort in FOLLOW_SORTS else "newest",
                 "lists": {
                     key: {
                         "label": AUDIENCE_LIST_LABELS[key],
                         "total": len(analysis[key]),
-                        "people": filter_people(analysis, key, query, limit=500)[0],
+                        "people": filter_people(analysis, key, query, uf=uf, sort=sort, limit=500)[0],
                     }
-                    for key in AUDIENCE_LISTS
+                    for key in FOLLOW_VIEW_LISTS
                 },
             }
         if not graph:
@@ -687,6 +704,62 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             },
         }
         return {"audience": audience_payload, "graph": graph_payload}
+
+    @app.post("/followers/unfollow")
+    async def followers_unfollow(request: Request):
+        is_html = "text/html" in request.headers.get("accept", "")
+        ctype = request.headers.get("content-type", "").lower()
+        ret_list, ret_uf, ret_sort, ret_q = "not_following_back", "", "newest", ""
+        if "application/json" in ctype:
+            try:
+                body = await request.json()
+            except Exception:
+                body = {}
+            raw_names = body.get("usernames", []) if isinstance(body, dict) else []
+            action = str(body.get("action", "later")).strip() if isinstance(body, dict) else "later"
+        else:
+            try:
+                form = await request.form()
+                raw_names = form.getlist("usernames")
+                action = str(form.get("action", "later")).strip()
+                ret_list = str(form.get("return_list", "not_following_back")).strip()
+                ret_uf = str(form.get("return_uf", "")).strip()
+                ret_sort = str(form.get("return_sort", "newest")).strip()
+                ret_q = str(form.get("return_q", "")).strip()
+            except Exception:
+                raw_names = []
+                action = "later"
+        if isinstance(raw_names, str):
+            raw_names = [part.strip() for part in raw_names.split(",") if part.strip()]
+        elif isinstance(raw_names, (list, tuple)):
+            expanded = []
+            for item in raw_names:
+                expanded.extend(part.strip() for part in str(item).split(",") if part.strip())
+            raw_names = expanded
+        else:
+            raw_names = []
+        if action not in ("later", "unfollowed", "keep"):
+            return follow_redirect("Invalid unfollow action.") if is_html else error(400, "Invalid unfollow action.")
+        if not raw_names:
+            return follow_redirect("Select at least one account first.") if is_html else error(400, "Select at least one account first.")
+        updated = app.state.store.set_unfollow_status(raw_names, action)
+        if is_html:
+            labels = {
+                "later": f"Saved {updated} account{'' if updated == 1 else 's'} to Unfollow Later",
+                "unfollowed": f"Marked {updated} account{'' if updated == 1 else 's'} as unfollowed",
+                "keep": f"Removed {updated} account{'' if updated == 1 else 's'} from Unfollow Later",
+            }
+            target_list = ret_list if ret_list in FOLLOW_VIEW_LISTS else "not_following_back"
+            qs = f"/?view=followers&list={quote(target_list)}"
+            if ret_uf in UNFOLLOW_FILTERS and ret_uf != "all":
+                qs += f"&uf={quote(ret_uf)}"
+            if ret_sort in FOLLOW_SORTS and ret_sort != "newest":
+                qs += f"&sort={quote(ret_sort)}"
+            if ret_q:
+                qs += f"&q={quote(ret_q)}"
+            qs += f"&notice={quote(labels[action])}"
+            return RedirectResponse(qs, status_code=303)
+        return {"updated": updated, "action": action}
 
     @app.post("/followers/sync")
     async def followers_sync(request: Request):
@@ -755,13 +828,15 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if not analysis:
             return error(404, "No follower import yet. Upload followers.json and following.json first.")
         wanted = request.query_params.get("list", "")
-        keys = [wanted] if wanted in AUDIENCE_LISTS else list(AUDIENCE_LISTS)
+        keys = [wanted] if wanted in FOLLOW_VIEW_LISTS else list(AUDIENCE_LISTS)
         query = request.query_params.get("q", "")
+        uf = request.query_params.get("uf", "")
+        sort = request.query_params.get("sort", "newest")
         output = io.StringIO(newline="")
         writer = csv.writer(output)
         writer.writerow(("list", "username", "profile_url", "since"))
         for key in keys:
-            people, _total = filter_people(analysis, key, query, limit=MAX_ENTRIES)
+            people, _total = filter_people(analysis, key, query, uf=uf, sort=sort, limit=MAX_ENTRIES)
             for person in people:
                 cells = (AUDIENCE_LIST_LABELS[key], person["username"], person["href"], since_date(person["since"]))
                 writer.writerow([("'" + str(value)) if str(value).startswith(("=", "+", "-", "@", "\t", "\r")) else value for value in cells])

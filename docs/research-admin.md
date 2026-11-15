@@ -76,11 +76,11 @@ The Followers page now operates in two complementary modes:
      - **Active Community Roster**: every non-owner account that replies to your sampled Threads posts or is cited in your saved research insights is indexed automatically with their reply count, cited insight IDs, themes, latest quote, and direct shortcuts to filter their evidence in Research or draft from their insights in Studio.
    - Three filterable community views (**All active community**, **Insight contributors**, **Frequent repliers (2+)**) and a formula-safe CSV export at `GET /followers/graph.csv`.
    - Every insight card across Overview, Research, and Studio automatically displays community engagement badges (`N replies` or `Active replier`) alongside any follow-back badge.
-2. **Optional Follow-back Diff (`followers.json` + `following.json` export):**
+2. **Optional Follow-back Diff & Unfollow Planner (`followers.json` + `following.json` export):**
    - Because Meta's Graph API does not expose passive follower usernames who have never replied, you can still optionally upload `followers.json` and `following.json` from **Accounts Center → Your information and permissions → Download your information → Threads (JSON)** (comparison approach credited to [Threads-Follower](https://github.com/Xiang511/Threads-Follower)).
-   - Headline stats: followers, following, mutuals, and the percentage of accounts Rahimam follows that do **not** follow back.
-   - Three searchable lists (**Not following back**, **Fans**, **Mutuals**) with CSV export at `GET /followers/export.csv`.
-   - When both Graph sync and JSON export are present, active community rows also carry their follow-back relationship badge (**Mutual**, **Follows Rahimam**, **Doesn't follow back**).
+   - **Follow-Back & Unfollow Insights Board**: computes reciprocity rate (`mutuals / following`), follower-to-following ratio, one-way fan share, **Ghost non-followers** (`0` Graph replies + doesn't follow back) vs. **Engaged non-followers** (replied to your posts despite not following back), follow tenure buckets (`≥90d`, `≥30d`, `<30d`, median wait days, oldest non-follower), and top non-reciprocated follow cohorts (`YYYY-MM`).
+   - **Filter `Following` to Unfollow Later**: five list tabs (**Not following back**, **Following**, **Unfollow later**, **Fans**, **Mutuals**), 8 unfollow sub-filters (`?uf=all|not_following_back|ghosts|older_90d|older_30d|recent_30d|engaged|unfollow_later`), and 3 sort orders (`?sort=newest|oldest|az`).
+   - **Unfollow Queue (`POST /followers/unfollow`)**: select accounts in **Following** or **Not following back** to **Save to Unfollow Later** (`action=later`), copy `@usernames`, export a filtered CSV at `GET /followers/export.csv`, open their Threads profile (`Open to unfollow ↗`), and click **Mark selected as Unfollowed ✓** (`action=unfollowed`) to remove them from your active `following` list without re-downloading `following.json`.
 
 ### Background job queue
 
@@ -126,8 +126,9 @@ A successful browser form run redirects back to the workspace; API clients can c
 | `POST /followers/sync` | Pull live `followers_count`, `follower_demographics`, profile metadata, and active community repliers directly from the Threads Graph API (pass `queue=on` to run in background queue) |
 | `GET /followers/graph.csv` | Formula-safe CSV export of the Graph active community (`?glist=all_engagers\|insight_contributors\|frequent_engagers&q=`) |
 | `POST /followers/import` | Multipart upload of `followers.json` + `following.json` from the Threads data export; rejects identical files, bad JSON, >20 MB combined, and >50,000 accounts per file. HTML submissions redirect back with a notice, JSON returns counts |
-| `GET /followers` | Returns `{"audience": ..., "graph": ...}` combining imported follow-back lists and live Graph follower/community data |
-| `GET /followers/export.csv` | Follow-back CSV, formula-safe; optional `?list=not_following_back\|fans\|mutuals` and `?q=` filters |
+| `GET /followers` | Returns `{"audience": ..., "graph": ...}` combining imported follow-back lists, unfollow insights, and live Graph follower/community data (`?uf=&sort=&q=`) |
+| `POST /followers/unfollow` | Queue accounts in **Unfollow Later** (`action=later`), mark them **Unfollowed** (`action=unfollowed`), or restore (`action=keep`) |
+| `GET /followers/export.csv` | Follow-back CSV, formula-safe; optional `?list=not_following_back\|following\|unfollow_later\|fans\|mutuals`, `?uf=`, `?sort=`, and `?q=` filters |
 | `POST /followers/clear` | Remove the stored follower import and Graph audience snapshot |
 | `POST /content/generate` | Consent-protected drafts from 1–20 selected insight IDs, optional `kinds` (subset), `tone`, `language`; non-post drafts include `content.references` with the source permalink. HTML submissions are queued, JSON stays synchronous |
 | `GET /content/drafts` | Saved draft library (`?status=draft|approved|archived`), including `content.references` on non-post drafts |

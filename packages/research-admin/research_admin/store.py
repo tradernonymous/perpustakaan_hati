@@ -137,6 +137,12 @@ class Store:
                     engagers_json TEXT NOT NULL DEFAULT '[]',
                     synced_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS unfollow_queue (
+                    username_key TEXT PRIMARY KEY,
+                    username TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS jobs (
                     id INTEGER PRIMARY KEY, kind TEXT NOT NULL, status TEXT NOT NULL,
                     params_json TEXT NOT NULL, result_json TEXT NOT NULL DEFAULT '{}',
@@ -397,7 +403,39 @@ class Store:
     def clear_audience(self) -> bool:
         with closing(sqlite3.connect(self.db_path)) as db, db:
             cursor = db.execute("DELETE FROM audience WHERE id = 1")
+            db.execute("DELETE FROM unfollow_queue")
             return cursor.rowcount == 1
+
+    def set_unfollow_status(self, usernames: list[str], status: str) -> int:
+        if status not in ("later", "unfollowed", "keep"):
+            raise StoreError("Invalid unfollow status.")
+        cleaned = []
+        seen = set()
+        for raw in usernames or []:
+            uname = str(raw or "").strip().lstrip("@")[:60]
+            key = uname.casefold()
+            if uname and key not in seen:
+                seen.add(key)
+                cleaned.append((key, uname))
+        if not cleaned:
+            return 0
+        stamp = datetime.now(UTC).isoformat()
+        with closing(sqlite3.connect(self.db_path)) as db, db:
+            if status == "keep":
+                db.executemany("DELETE FROM unfollow_queue WHERE username_key = ?", [(k,) for k, _ in cleaned])
+            else:
+                db.executemany(
+                    "INSERT INTO unfollow_queue(username_key, username, status, updated_at) VALUES (?, ?, ?, ?) "
+                    "ON CONFLICT(username_key) DO UPDATE SET username = excluded.username, status = excluded.status, updated_at = excluded.updated_at",
+                    [(k, u, status, stamp) for k, u in cleaned],
+                )
+        return len(cleaned)
+
+    def get_unfollow_map(self) -> dict[str, str]:
+        with closing(sqlite3.connect(self.db_path)) as db:
+            db.row_factory = sqlite3.Row
+            rows = db.execute("SELECT username_key, status FROM unfollow_queue").fetchall()
+        return {str(row["username_key"]): str(row["status"]) for row in rows}
 
     # -- job queue ---------------------------------------------------------
 

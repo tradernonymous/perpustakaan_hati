@@ -17,7 +17,40 @@ MAX_USERNAME = 60
 MAX_EPOCH = 4102444800  # 2101-01-01, so a corrupt timestamp cannot crash a render.
 
 AUDIENCE_LISTS = ("not_following_back", "fans", "mutuals")
-AUDIENCE_LIST_LABELS = {"not_following_back": "Not following back", "fans": "Fans", "mutuals": "Mutuals"}
+FOLLOW_VIEW_LISTS = ("not_following_back", "following", "unfollow_later", "fans", "mutuals")
+AUDIENCE_LIST_LABELS = {
+    "not_following_back": "Not following back",
+    "following": "Following",
+    "unfollow_later": "Unfollow later",
+    "fans": "Fans",
+    "mutuals": "Mutuals",
+}
+UNFOLLOW_FILTERS = (
+    "all",
+    "not_following_back",
+    "ghosts",
+    "older_90d",
+    "older_30d",
+    "recent_30d",
+    "engaged",
+    "unfollow_later",
+)
+UNFOLLOW_FILTER_LABELS = {
+    "all": "All",
+    "not_following_back": "Not following back",
+    "ghosts": "Ghost (0 replies)",
+    "older_90d": "Followed 90+ days",
+    "older_30d": "Followed 30+ days",
+    "recent_30d": "Recent (<30d)",
+    "engaged": "Replied on Threads",
+    "unfollow_later": "Unfollow later queue",
+}
+FOLLOW_SORTS = ("newest", "oldest", "az")
+FOLLOW_SORT_LABELS = {
+    "newest": "Newest followed",
+    "oldest": "Oldest followed first",
+    "az": "Username A–Z",
+}
 GRAPH_COMMUNITY_LISTS = ("all_engagers", "insight_contributors", "frequent_engagers")
 GRAPH_COMMUNITY_LABELS = {
     "all_engagers": "Active repliers",
@@ -119,47 +152,242 @@ def _since(*values) -> int:
     return max(known) if known else 0
 
 
-def analyze_audience(followers: list[dict], following: list[dict]) -> dict:
-    """Split the two exports into the three relationships, newest first."""
-    followed_by = {person["username"].casefold(): person for person in followers}
-    following_now = {person["username"].casefold(): person for person in following}
-    not_following_back = [
-        {"username": person["username"], "href": person["href"], "since": person["timestamp"]}
-        for key, person in following_now.items() if key not in followed_by
-    ]
-    fans = [
-        {"username": person["username"], "href": person["href"], "since": person["timestamp"]}
-        for key, person in followed_by.items() if key not in following_now
-    ]
-    mutuals = [
-        {"username": person["username"], "href": person["href"], "since": _since(person["timestamp"], following_now[key]["timestamp"])}
-        for key, person in followed_by.items() if key in following_now
-    ]
-    for group in (not_following_back, fans, mutuals):
-        group.sort(key=lambda person: (-person["since"], person["username"].casefold()))
-    following_count = len(following_now)
+def _days_since(timestamp: int, now_ts: int) -> int | None:
+    if not 0 < timestamp < MAX_EPOCH or now_ts <= 0:
+        return None
+    return max(0, (now_ts - timestamp) // 86400)
+
+
+def _tenure_bucket(days: int | None) -> str:
+    if days is None:
+        return "unknown"
+    if days >= 90:
+        return "90d_plus"
+    if days >= 30:
+        return "30d_plus"
+    return "recent_30d"
+
+
+def _person_row(
+    person: dict,
+    *,
+    since_ts: int,
+    follows_back: bool,
+    now_ts: int,
+    meta: tuple[str, dict | None] = ("", None),
+) -> dict:
+    unfollow_status, engager = meta
+    uname = str(person["username"])
+    href = str(person.get("href", ""))
+    profile_url = href if href.startswith(("http://", "https://")) else f"https://www.threads.com/@{uname}"[:MAX_HREF]
+    days = _days_since(since_ts, now_ts)
+    replies_count = int(engager.get("replies_count", 0) or 0) if isinstance(engager, dict) else 0
+    insight_count = len(engager.get("insight_ids", [])) if isinstance(engager, dict) else 0
     return {
-        "counts": {
-            "followers": len(followed_by),
-            "following": following_count,
-            "not_following_back": len(not_following_back),
-            "fans": len(fans),
-            "mutuals": len(mutuals),
-            "percent_not_following_back": round(100 * len(not_following_back) / following_count, 1) if following_count else 0.0,
-        },
-        "not_following_back": not_following_back,
-        "fans": fans,
-        "mutuals": mutuals,
+        "username": uname,
+        "href": href,
+        "profile_url": profile_url,
+        "since": since_ts,
+        "follows_back": follows_back,
+        "days_followed": days,
+        "tenure_bucket": _tenure_bucket(days),
+        "unfollow_status": unfollow_status,
+        "replies_count": replies_count,
+        "insight_count": insight_count,
     }
 
 
-def filter_people(analysis: dict, list_key: str, query: str = "", *, limit: int = 200) -> tuple[list[dict], int]:
-    """One bounded page of a list, optionally filtered by username."""
-    key = list_key if list_key in AUDIENCE_LISTS else AUDIENCE_LISTS[0]
+def _compute_follow_insights(counts: dict, groups: dict[str, list[dict]]) -> dict:
+    followers_count = int(counts["followers"])
+    following_count = int(counts["following"])
+    not_following_back = groups["not_following_back"]
+    fans = groups["fans"]
+    mutuals = groups["mutuals"]
+    unfollow_later = groups["unfollow_later"]
+    unfollowed = groups["unfollowed"]
+    ghosts = sum(1 for p in not_following_back if int(p.get("replies_count", 0)) == 0)
+    engaged = sum(1 for p in not_following_back if int(p.get("replies_count", 0)) > 0)
+    older_90d = sum(1 for p in not_following_back if (p.get("days_followed") or -1) >= 90)
+    older_30d = sum(1 for p in not_following_back if (p.get("days_followed") or -1) >= 30)
+    recent_30d = sum(1 for p in not_following_back if p.get("days_followed") is not None and int(p["days_followed"]) < 30)
+    unknown_date = sum(1 for p in not_following_back if p.get("days_followed") is None)
+    dated_days = sorted(int(p["days_followed"]) for p in not_following_back if p.get("days_followed") is not None)
+    median_days = dated_days[len(dated_days) // 2] if dated_days else None
+    dated_people = [p for p in not_following_back if int(p.get("since", 0)) > 0]
+    oldest_person = min(dated_people, key=lambda p: (int(p["since"]), p["username"].casefold())) if dated_people else None
+    oldest_summary = (
+        {
+            "username": oldest_person["username"],
+            "since_date": since_date(oldest_person["since"]),
+            "days_followed": oldest_person["days_followed"],
+            "profile_url": oldest_person["profile_url"],
+        }
+        if oldest_person
+        else None
+    )
+    cohorts: dict[str, int] = {}
+    for person in dated_people:
+        day_str = since_date(person["since"])
+        if len(day_str) >= 7:
+            ym = day_str[:7]
+            cohorts[ym] = cohorts.get(ym, 0) + 1
+    top_cohorts = [
+        {"month": ym, "count": cnt}
+        for ym, cnt in sorted(cohorts.items(), key=lambda item: (-item[1], item[0]))[:4]
+    ]
+    return {
+        "reciprocity_rate": round(100 * len(mutuals) / following_count, 1) if following_count else 0.0,
+        "follower_following_ratio": round(followers_count / following_count, 2) if following_count else float(followers_count),
+        "fan_rate": round(100 * len(fans) / followers_count, 1) if followers_count else 0.0,
+        "ghost_non_followers": ghosts,
+        "engaged_non_followers": engaged,
+        "older_90d_count": older_90d,
+        "older_30d_count": older_30d,
+        "recent_30d_count": recent_30d,
+        "unknown_date_count": unknown_date,
+        "median_days_not_following_back": median_days,
+        "oldest_non_follower": oldest_summary,
+        "top_cohorts": top_cohorts,
+        "unfollow_later_count": len(unfollow_later),
+        "unfollowed_count": len(unfollowed),
+    }
+
+
+def analyze_audience(
+    followers: list[dict],
+    following: list[dict],
+    *,
+    unfollow_map: dict[str, str] | None = None,
+    engagers: list[dict] | None = None,
+    now_ts: int | None = None,
+) -> dict:
+    """Split the two exports into relationships and compute unfollow/follow-back insights."""
+    now_val = int(now_ts if now_ts is not None else datetime.now(UTC).timestamp())
+    uf_map = {str(k).casefold(): str(v) for k, v in (unfollow_map or {}).items()}
+    engager_map = {
+        str(e.get("username", "")).casefold(): e
+        for e in (engagers or [])
+        if isinstance(e, dict) and str(e.get("username", "")).strip()
+    }
+    followed_by = {person["username"].casefold(): person for person in followers}
+    following_now = {}
+    unfollowed = []
+    for person in following:
+        key = person["username"].casefold()
+        if uf_map.get(key) == "unfollowed":
+            unfollowed.append(
+                _person_row(person, since_ts=person["timestamp"], follows_back=key in followed_by, now_ts=now_val, meta=("unfollowed", engager_map.get(key)))
+            )
+        else:
+            following_now[key] = person
+
+    not_following_back = [
+        _person_row(
+            person,
+            since_ts=person["timestamp"],
+            follows_back=False,
+            now_ts=now_val,
+            meta=("later" if uf_map.get(key) == "later" else "", engager_map.get(key)),
+        )
+        for key, person in following_now.items()
+        if key not in followed_by
+    ]
+    fans = [
+        _person_row(
+            person,
+            since_ts=person["timestamp"],
+            follows_back=True,
+            now_ts=now_val,
+            meta=("", engager_map.get(key)),
+        )
+        for key, person in followed_by.items()
+        if key not in following_now
+    ]
+    mutuals = [
+        _person_row(
+            person,
+            since_ts=_since(person["timestamp"], following_now[key]["timestamp"]),
+            follows_back=True,
+            now_ts=now_val,
+            meta=("later" if uf_map.get(key) == "later" else "", engager_map.get(key)),
+        )
+        for key, person in followed_by.items()
+        if key in following_now
+    ]
+    all_following = [
+        _person_row(
+            person,
+            since_ts=person["timestamp"],
+            follows_back=key in followed_by,
+            now_ts=now_val,
+            meta=("later" if uf_map.get(key) == "later" else "", engager_map.get(key)),
+        )
+        for key, person in following_now.items()
+    ]
+    unfollow_later = [p for p in all_following if p.get("unfollow_status") == "later"]
+    for group in (not_following_back, fans, mutuals, all_following, unfollow_later, unfollowed):
+        group.sort(key=lambda person: (-person["since"], person["username"].casefold()))
+    following_count = len(following_now)
+    counts = {
+        "followers": len(followed_by),
+        "following": following_count,
+        "not_following_back": len(not_following_back),
+        "fans": len(fans),
+        "mutuals": len(mutuals),
+        "percent_not_following_back": round(100 * len(not_following_back) / following_count, 1) if following_count else 0.0,
+    }
+    groups = {
+        "not_following_back": not_following_back,
+        "following": all_following,
+        "unfollow_later": unfollow_later,
+        "unfollowed": unfollowed,
+        "fans": fans,
+        "mutuals": mutuals,
+    }
+    return {"counts": counts, **groups, "insights": _compute_follow_insights(counts, groups)}
+
+
+def _apply_unfollow_filter(people: list[dict], uf: str) -> list[dict]:
+    predicates = {
+        "not_following_back": lambda p: not p.get("follows_back", False),
+        "ghosts": lambda p: not p.get("follows_back", False) and int(p.get("replies_count", 0)) == 0,
+        "older_90d": lambda p: not p.get("follows_back", False) and (p.get("days_followed") or -1) >= 90,
+        "older_30d": lambda p: not p.get("follows_back", False) and (p.get("days_followed") or -1) >= 30,
+        "recent_30d": lambda p: not p.get("follows_back", False) and p.get("days_followed") is not None and int(p["days_followed"]) < 30,
+        "engaged": lambda p: not p.get("follows_back", False) and int(p.get("replies_count", 0)) > 0,
+        "unfollow_later": lambda p: p.get("unfollow_status") == "later",
+    }
+    pred = predicates.get(uf)
+    return [p for p in people if pred(p)] if pred else people
+
+
+def filter_people(  # noqa: PLR0913
+    analysis: dict,
+    list_key: str,
+    query: str = "",
+    *,
+    uf: str = "",
+    sort: str = "newest",
+    limit: int = 200,
+) -> tuple[list[dict], int]:
+    """One bounded page of a list, optionally filtered by username/cohort, unfollow segment, and sort order."""
+    key = list_key if list_key in FOLLOW_VIEW_LISTS else AUDIENCE_LISTS[0]
     needle = " ".join(str(query or "").split()).casefold()[:MAX_USERNAME]
-    people = analysis.get(key, [])
+    people = list(analysis.get(key, []))
+    if uf in UNFOLLOW_FILTERS and uf != "all":
+        people = _apply_unfollow_filter(people, uf)
     if needle:
-        people = [person for person in people if needle in str(person.get("username", "")).casefold()]
+        people = [
+            person for person in people
+            if needle in str(person.get("username", "")).casefold()
+            or needle in since_date(person.get("since"))
+        ]
+    if sort == "oldest":
+        people.sort(key=lambda p: (0 if int(p.get("since", 0)) > 0 else 1, int(p.get("since", 0)), p["username"].casefold()))
+    elif sort == "az":
+        people.sort(key=lambda p: p["username"].casefold())
+    else:
+        people.sort(key=lambda p: (-int(p.get("since", 0)), p["username"].casefold()))
     return people[:max(1, int(limit))], len(people)
 
 

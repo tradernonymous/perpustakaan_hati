@@ -442,3 +442,77 @@ def test_followers_sync_endpoint_pulls_from_graph_without_manual_json(client):
     assert "aisyah_my" in csv_text
 
 
+def test_following_unfollow_filters_insights_and_unfollow_later_workflow(client):
+    day = 86400
+    base_now = 1720000000
+    followers_data = json.dumps([
+        flat_entry("mutual_friend", base_now - 10 * day),
+        flat_entry("loyal_fan", base_now - 20 * day),
+    ])
+    following_data = json.dumps([
+        flat_entry("mutual_friend", base_now - 10 * day),
+        flat_entry("stale_ghost", base_now - 120 * day),
+        flat_entry("mid_ghost", base_now - 45 * day),
+        flat_entry("engaged_nonfollower", base_now - 15 * day),
+    ])
+    # Seed Graph engager so engaged_nonfollower is recognized as having replied on Threads
+    client.app.state.store.save_graph_audience(
+        profile={"username": "rahimam"},
+        followers_count=2,
+        engagers=[{"username": "engaged_nonfollower", "href": "https://www.threads.com/@engaged_nonfollower", "replies_count": 3, "insight_ids": [1]}],
+    )
+    upload(client, followers=followers_data, following=following_data)
+
+    body = client.get("/followers").json()
+    aud = body["audience"]
+    assert aud["counts"]["following"] == 4
+    assert aud["counts"]["not_following_back"] == 3
+    ins = aud["insights"]
+    assert ins["reciprocity_rate"] == 25.0
+    assert ins["ghost_non_followers"] == 2
+    assert ins["engaged_non_followers"] == 1
+    assert ins["older_90d_count"] >= 1
+    assert ins["older_30d_count"] >= 2
+    assert ins["oldest_non_follower"]["username"] == "stale_ghost"
+
+    # Filter 'following' list to only those not following back, sorted oldest first
+    filtered = client.get("/followers?uf=not_following_back&sort=oldest").json()["audience"]
+    names = [p["username"] for p in filtered["lists"]["following"]["people"]]
+    assert names == ["stale_ghost", "mid_ghost", "engaged_nonfollower"]
+
+    # Filter 'following' list to ghosts only (0 replies + not following back)
+    ghosts = client.get("/followers?uf=ghosts&sort=oldest").json()["audience"]
+    assert [p["username"] for p in ghosts["lists"]["following"]["people"]] == ["stale_ghost", "mid_ghost"]
+
+    # Queue stale_ghost and mid_ghost to "Unfollow Later"
+    res = client.post("/followers/unfollow", json={"usernames": ["stale_ghost", "mid_ghost"], "action": "later"})
+    assert res.status_code == 200
+    assert res.json() == {"updated": 2, "action": "later"}
+
+    after_later = client.get("/followers").json()["audience"]
+    assert after_later["insights"]["unfollow_later_count"] == 2
+    assert [p["username"] for p in after_later["lists"]["unfollow_later"]["people"]] == ["mid_ghost", "stale_ghost"]
+
+    # Render HTML view of Following filtered to unfollow_later
+    html = client.get("/?view=followers&list=following&uf=unfollow_later").text
+    assert "@stale_ghost" in html
+    assert "Queued to unfollow" in html
+    assert "UNFOLLOW TRIAGE" in html
+
+    # Mark stale_ghost as unfollowed — removes them from active following & not_following_back
+    res_done = client.post(
+        "/followers/unfollow",
+        data={"usernames": "stale_ghost", "action": "unfollowed", "return_list": "not_following_back"},
+        headers={"Accept": "text/html"},
+        follow_redirects=False,
+    )
+    assert res_done.status_code == 303
+    after_done = client.get("/followers").json()["audience"]
+    assert after_done["counts"]["following"] == 3
+    assert after_done["counts"]["not_following_back"] == 2
+    assert after_done["insights"]["unfollowed_count"] == 1
+    assert after_done["insights"]["unfollow_later_count"] == 1
+    assert "stale_ghost" not in [p["username"] for p in after_done["lists"]["not_following_back"]["people"]]
+
+
+

@@ -8,9 +8,14 @@ from .content import DRAFT_KINDS, DRAFT_LANGUAGES, DRAFT_TONES
 from .followers import (
     AUDIENCE_LIST_LABELS,
     AUDIENCE_LISTS,
+    FOLLOW_SORT_LABELS,
+    FOLLOW_SORTS,
+    FOLLOW_VIEW_LISTS,
     GRAPH_COMMUNITY_LABELS,
     GRAPH_COMMUNITY_LISTS,
     TAG_LABELS,
+    UNFOLLOW_FILTER_LABELS,
+    UNFOLLOW_FILTERS,
     AudienceIndex,
     filter_graph_people,
     filter_people,
@@ -44,6 +49,8 @@ class DashboardData:
     follow_list: str = ""
     graph_list: str = ""
     follow_query: str = ""
+    follow_uf: str = ""
+    follow_sort: str = "newest"
 
 
 def _e(value) -> str:
@@ -138,20 +145,196 @@ def _follow_chip(tag: str) -> str:
     return f'<span class="follow-chip { _e(tag) }">{_e(label)}</span>'
 
 
-FOLLOW_ROW_TAGS = {"not_following_back": "following_only", "fans": "follower", "mutuals": "mutual"}
-FOLLOW_SINCE_LABELS = {"not_following_back": "You follow since", "fans": "Follows Rahimam since", "mutuals": "Mutual since"}
+FOLLOW_ROW_TAGS = {
+    "not_following_back": "following_only",
+    "following": "following_only",
+    "unfollow_later": "following_only",
+    "fans": "follower",
+    "mutuals": "mutual",
+}
+FOLLOW_SINCE_LABELS = {
+    "not_following_back": "You follow since",
+    "following": "You follow since",
+    "unfollow_later": "You follow since",
+    "fans": "Follows Rahimam since",
+    "mutuals": "Mutual since",
+}
 
 
 def _follow_row(person: dict, list_key: str) -> str:
     username = _e(str(person.get("username", "")))
-    href = str(person.get("href", ""))
+    href = str(person.get("href") or person.get("profile_url") or f"https://www.threads.com/@{person.get('username', '')}")
     link = (
         f'<a class="source" href="{_e(href)}" target="_blank" rel="noreferrer">@{username} ↗</a>'
         if href.startswith(("http://", "https://")) else f"@{username}"
     )
     since = since_date(person.get("since"))
-    when = f"{FOLLOW_SINCE_LABELS[list_key]} {since}" if since else "Date not in the export"
-    return f'<div class="run-row follow-row"><div>{link}<span>{_e(when)}</span></div><p>{_follow_chip(FOLLOW_ROW_TAGS[list_key])}</p></div>'
+    days = person.get("days_followed")
+    days_note = f" · {int(days)}d ago" if isinstance(days, int) else ""
+    label_prefix = FOLLOW_SINCE_LABELS.get(list_key, "You follow since")
+    when = f"{label_prefix} {since}{days_note}" if since else "Date not in the export"
+    follows_back = bool(person.get("follows_back", list_key in ("fans", "mutuals")))
+    row_tag = "mutual" if (list_key in ("following", "unfollow_later") and follows_back) else FOLLOW_ROW_TAGS.get(list_key, "following_only")
+    chips = [_follow_chip(row_tag)]
+    replies = int(person.get("replies_count", 0) or 0)
+    if not follows_back:
+        if replies > 0:
+            chips.append(f'<span class="follow-chip follower">Replied · {replies}</span>')
+        else:
+            chips.append('<span class="follow-chip">Ghost · 0 replies</span>')
+    if person.get("unfollow_status") == "later":
+        chips.append('<span class="follow-chip following_only">Queued to unfollow</span>')
+    if href.startswith(("http://", "https://")) and not follows_back:
+        chips.append(f'<a class="text-link" href="{_e(href)}" target="_blank" rel="noreferrer">Open to unfollow ↗</a>')
+    selectable = list_key in ("not_following_back", "following", "unfollow_later")
+    check = f'<label class="select"><input type="checkbox" name="usernames" value="{username}"> {link}</label>' if selectable else link
+    return f'<div class="run-row follow-row"><div>{check}<span>{_e(when)}</span></div><p class="follow-wrap">{"".join(chips)}</p></div>'
+
+
+def _follow_insights_board(analysis: dict) -> str:
+    ins = analysis.get("insights") or {}
+    if not ins:
+        return ""
+    oldest = ins.get("oldest_non_follower")
+    oldest_text = f'Oldest: @{_e(oldest["username"])} ({_e(oldest["since_date"])})' if isinstance(oldest, dict) else "No dated non-followers yet"
+    median_days = ins.get("median_days_not_following_back")
+    median_text = f"Median wait: {median_days}d · " if median_days is not None else ""
+    cohorts = ins.get("top_cohorts") or []
+    cohort_links = " · ".join(
+        f'<a class="text-link" href="/?view=followers&amp;list=not_following_back&amp;q={quote(str(c["month"]), safe="")}">{_e(c["month"])} ({int(c["count"])})</a>'
+        for c in cohorts[:3]
+        if isinstance(c, dict)
+    ) or "Upload dated export to see follow cohorts"
+    return (
+        '<section class="board">'
+        '<article class="card board-card"><p class="eyebrow">UNFOLLOW TRIAGE · GRAPH SYNC</p>'
+        f'<b>{int(ins.get("ghost_non_followers", 0))} ghost · {int(ins.get("engaged_non_followers", 0))} engaged</b>'
+        '<p>Ghosts neither follow back nor reply on Threads · <a class="text-link" href="/?view=followers&amp;list=following&amp;uf=ghosts">Filter ghosts →</a></p></article>'
+        '<article class="card board-card"><p class="eyebrow">FOLLOW TENURE · WAITING TIME</p>'
+        f'<b>{int(ins.get("older_90d_count", 0))} ≥90d · {int(ins.get("older_30d_count", 0))} ≥30d · {int(ins.get("recent_30d_count", 0))} &lt;30d</b>'
+        f'<p>{_e(median_text)}{oldest_text} · <a class="text-link" href="/?view=followers&amp;list=not_following_back&amp;sort=oldest">Oldest first →</a></p></article>'
+        '<article class="card board-card"><p class="eyebrow">UNFOLLOW LATER SHORTLIST</p>'
+        f'<b>{int(ins.get("unfollow_later_count", 0))} queued · {int(ins.get("unfollowed_count", 0))} unfollowed</b>'
+        '<p>Filter following → save to queue → unfollow on Threads → mark done · <a class="text-link" href="/?view=followers&amp;list=unfollow_later">Open queue →</a></p></article>'
+        '<article class="card board-card"><p class="eyebrow">RATIO &amp; FOLLOW COHORTS</p>'
+        f'<b>{ins.get("reciprocity_rate", 0.0)}% reciprocity · {ins.get("follower_following_ratio", 0.0)}x ratio</b>'
+        f'<p>Top non-follow months: {cohort_links}</p></article>'
+        '</section>'
+    )
+
+
+def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csrf_input: str, *, status_class: str, is_connected: bool) -> str:
+    analysis = data.audience
+    list_key = data.follow_list if data.follow_list in FOLLOW_VIEW_LISTS else AUDIENCE_LISTS[0]
+    follow_q = data.follow_query
+    uf = data.follow_uf if data.follow_uf in UNFOLLOW_FILTERS else "all"
+    sort = data.follow_sort if data.follow_sort in FOLLOW_SORTS else "newest"
+    graph_section = _graph_followers_section(data, follow_index, csrf_input, connected=is_connected)
+    download_help = (
+        '<p class="help">Instagram does not expose follower lists through the Threads API, so this view reads the files from '
+        '<b>Accounts Center → Your information and permissions → Download your information → Threads → JSON</b>. '
+        'The upload stays in this admin’s local database and is never sent to the AI provider.</p>'
+        '<p class="help">Comparison approach credited to <a class="text-link" href="https://github.com/Xiang511/Threads-Follower" target="_blank" rel="noreferrer">Threads-Follower</a>.</p>'
+    )
+    if not analysis:
+        return (
+            f'<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1>'
+            f'<p class="lead">Live follower count, demographics &amp; active community from the Threads Graph API, plus optional follow-back diffing from your data export.</p></div>'
+            f'<span class="status {status_class}">{_e(data.connection)}</span></div>'
+            f'{graph_section}'
+            f'<section class="panel"><div class="section-head"><div><p class="eyebrow">NOT IMPORTED YET</p><h2>Upload the two export files</h2></div></div>{_import_form(csrf_input)}{download_help}</section>'
+        )
+    counts = analysis["counts"]
+    ins = analysis.get("insights") or {}
+    exported = quote(follow_q, safe="")
+    uf_qs = f"&amp;uf={quote(uf, safe='')}" if uf != "all" else ""
+    sort_qs = f"&amp;sort={quote(sort, safe='')}" if sort != "newest" else ""
+    q_qs = f"&amp;q={exported}" if exported else ""
+    pills = "".join(
+        f'<a class="{"selected" if key == list_key else ""}" href="/?view=followers&amp;list={key}{q_qs}">'
+        f'{_e(AUDIENCE_LIST_LABELS[key])} · {len(analysis.get(key, []))}</a>'
+        for key in FOLLOW_VIEW_LISTS
+    )
+    subfilter_bar = ""
+    if list_key in ("not_following_back", "following", "unfollow_later"):
+        uf_Counts = {
+            "all": len(analysis.get(list_key, [])),
+            "not_following_back": counts["not_following_back"],
+            "ghosts": int(ins.get("ghost_non_followers", 0)),
+            "older_90d": int(ins.get("older_90d_count", 0)),
+            "older_30d": int(ins.get("older_30d_count", 0)),
+            "recent_30d": int(ins.get("recent_30d_count", 0)),
+            "engaged": int(ins.get("engaged_non_followers", 0)),
+            "unfollow_later": int(ins.get("unfollow_later_count", 0)),
+        }
+        uf_pills = "".join(
+            f'<a class="{"selected" if fkey == uf else ""}" href="/?view=followers&amp;list={list_key}&amp;uf={fkey}{sort_qs}{q_qs}">'
+            f'{_e(UNFOLLOW_FILTER_LABELS[fkey])} · {uf_Counts[fkey]}</a>'
+            for fkey in UNFOLLOW_FILTERS
+        )
+        sort_pills = "".join(
+            f'<a class="{"selected" if skey == sort else ""}" href="/?view=followers&amp;list={list_key}{uf_qs}&amp;sort={skey}{q_qs}">'
+            f'{_e(FOLLOW_SORT_LABELS[skey])}</a>'
+            for skey in FOLLOW_SORTS
+        )
+        subfilter_bar = (
+            f'<div class="filter-pills"><span class="muted" style="font-size:11px;align-self:center">Filter following:</span>{uf_pills}</div>'
+            f'<div class="filter-pills"><span class="muted" style="font-size:11px;align-self:center">Sort:</span>{sort_pills}</div>'
+        )
+    people, shown_total = filter_people(analysis, list_key, follow_q, uf=uf, sort=sort, limit=200)
+    rows = "".join(_follow_row(person, list_key) for person in people) or '<div class="empty">Nobody matches this list yet.</div>'
+    if list_key in ("not_following_back", "following", "unfollow_later") and people:
+        rows = (
+            f'<form method="post" action="/followers/unfollow">{csrf_input}'
+            f'<input type="hidden" name="return_list" value="{_e(list_key)}">'
+            f'<input type="hidden" name="return_uf" value="{_e(uf)}">'
+            f'<input type="hidden" name="return_sort" value="{_e(sort)}">'
+            f'<input type="hidden" name="return_q" value="{_e(follow_q)}">'
+            '<div class="actions" style="margin:10px 0">'
+            '<button class="button ghost small" type="button" data-select-follow="true">Select all visible</button>'
+            '<button class="button ghost small" type="button" data-select-follow="false">Clear selection</button>'
+            '<button class="button small" type="submit" name="action" value="later">Save selected to Unfollow Later</button>'
+            '<button class="button ghost small" type="submit" name="action" value="unfollowed">Mark selected as Unfollowed ✓</button>'
+            '<button class="button ghost small" type="submit" name="action" value="keep">Remove from Unfollow Later</button>'
+            '<button class="button ghost small" type="button" data-copy-usernames="true">Copy @usernames</button>'
+            f'</div>{rows}</form>'
+        )
+    page_note = f'<p class="help">Showing {len(people)} of {shown_total} matches. Export the CSV for the full list.</p>' if shown_total > len(people) else ""
+    tag_totals = {"mutual": 0, "follower": 0, "following_only": 0, "none": 0}
+    for item in data.insights:
+        tag = follow_index.tag(item.get("source_url"))
+        if tag in tag_totals:
+            tag_totals[tag] += 1
+    tie_in = (
+        f'<p class="small-copy">{tag_totals["mutual"]} mutual · {tag_totals["follower"]} fan · '
+        f'{tag_totals["following_only"]} not-following-back · {tag_totals["none"]} not connected — '
+        f'{tag_totals["mutual"] + tag_totals["follower"] + tag_totals["following_only"]} of {len(data.insights)} saved insights '
+        'come from accounts already linked to this import.</p>'
+    ) if follow_index.enabled and data.insights else ""
+    search_form = (
+        f'<form class="search" method="get"><input type="hidden" name="view" value="followers">'
+        f'<input type="hidden" name="list" value="{_e(list_key)}">'
+        f'<input type="hidden" name="uf" value="{_e(uf)}">'
+        f'<input type="hidden" name="sort" value="{_e(sort)}">'
+        f'<input name="q" value="{_e(follow_q)}" placeholder="Search @username or YYYY-MM"><button class="button ghost small">Search</button></form>'
+    )
+    return (
+        f'<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT &amp; UNFOLLOW PLANNER</p><h1>Followers</h1>'
+        f'<p class="lead">Compared from the Threads data export and synchronized with the Threads Graph API. Filter your following list by non-followers, ghost accounts, or follow age to unfollow them later.</p></div>'
+        f'<div class="actions"><a class="button ghost small" href="/followers/export.csv?list={_e(list_key)}{uf_qs}{sort_qs}{q_qs}">Export CSV</a></div></div>'
+        f'{graph_section}'
+        f'<div class="stats">'
+        f'<article class="stat card"><span>Followers</span><b>{counts["followers"]}</b><small>Accounts following Rahimam · {ins.get("fan_rate", 0.0)}% one-way fans</small></article>'
+        f'<article class="stat card"><span>Following</span><b>{counts["following"]}</b><small>Accounts Rahimam follows · {ins.get("follower_following_ratio", 0.0)}x follower ratio</small></article>'
+        f'<article class="stat card"><span>Mutuals</span><b>{counts["mutuals"]}</b><small>You follow each other · {ins.get("reciprocity_rate", 0.0)}% reciprocity</small></article>'
+        f'<article class="stat card"><span>Not following back</span><b>{counts["percent_not_following_back"]}%</b><small>{counts["not_following_back"]} of who she follows · {int(ins.get("unfollow_later_count", 0))} queued</small></article>'
+        f'</div>'
+        f'{_follow_insights_board(analysis)}'
+        f'{tie_in}'
+        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">LISTS &amp; UNFOLLOW FILTERS</p><h2>{_e(AUDIENCE_LIST_LABELS[list_key])}</h2></div>{search_form}</div>'
+        f'<div class="filter-pills">{pills}</div>{subfilter_bar}{rows}{page_note}</section>'
+        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">REFRESH</p><h2>Re-import or clear</h2></div><form method="post" action="/followers/clear">{csrf_input}<button class="button ghost small">Clear import</button></form></div>{_import_form(csrf_input)}{download_help}</section>'
+    )
 
 
 def _import_form(csrf_input: str) -> str:
@@ -489,55 +672,7 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
         <section class="panel"><div class="section-head"><div><p class="eyebrow">EVIDENCE IN LIBRARY</p><h2>{total_evidence} saved insight{'' if total_evidence == 1 else 's'}</h2></div><form class="search" method="get"><input type="hidden" name="view" value="research"><input name="q" value="{_e(query)}" placeholder="Search themes, quotes, ideas"><button class="button ghost small">Search</button></form></div>{theme_pills}{quick_select}<form method="post" action="/content/generate">{csrf_input}<div class="evidence-grid">{cards}</div>{_draft_controls()}<div class="selection-bar"><label><input type="checkbox" name="consent" required> I consent to send selected saved insights to the configured AI provider to generate drafts.</label><button class="button" {"" if insights and configured else "disabled"}>Create grounded drafts <span>→</span></button></div></form></section>
         <section class="panel"><div class="section-head"><div><p class="eyebrow">RUN LOG</p><h2>Research history</h2></div></div>{history}</section>'''
     elif view == "followers":
-        analysis = data.audience
-        list_key = data.follow_list if data.follow_list in AUDIENCE_LISTS else AUDIENCE_LISTS[0]
-        follow_q = data.follow_query
-        graph_section = _graph_followers_section(data, follow_index, csrf_input, connected=is_connected)
-        download_help = (
-            '<p class="help">Instagram does not expose follower lists through the Threads API, so this view reads the files from '
-            '<b>Accounts Center → Your information and permissions → Download your information → Threads → JSON</b>. '
-            'The upload stays in this admin’s local database and is never sent to the AI provider.</p>'
-            '<p class="help">Comparison approach credited to <a class="text-link" href="https://github.com/Xiang511/Threads-Follower" target="_blank" rel="noreferrer">Threads-Follower</a>.</p>'
-        )
-        if not analysis:
-            content = f'''<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1><p class="lead">Live follower count, demographics &amp; active community from the Threads Graph API, plus optional follow-back diffing from your data export.</p></div><span class="status {status_class}">{_e(connection)}</span></div>
-            {graph_section}
-            <section class="panel"><div class="section-head"><div><p class="eyebrow">NOT IMPORTED YET</p><h2>Upload the two export files</h2></div></div>{_import_form(csrf_input)}{download_help}</section>'''
-        else:
-            counts = analysis["counts"]
-            exported = quote(follow_q, safe="")
-            pills = "".join(
-                f'<a class="{"selected" if key == list_key else ""}" href="/?view=followers&amp;list={key}{f"&amp;q={exported}" if exported else ""}">'
-                f'{_e(AUDIENCE_LIST_LABELS[key])} · {len(analysis[key])}</a>'
-                for key in AUDIENCE_LISTS
-            )
-            people, shown_total = filter_people(analysis, list_key, follow_q, limit=200)
-            rows = "".join(_follow_row(person, list_key) for person in people) or '<div class="empty">Nobody matches this list yet.</div>'
-            page_note = ""
-            if shown_total > len(people):
-                page_note = f'<p class="help">Showing {len(people)} of {shown_total} matches. Export the CSV for the full list.</p>'
-            tag_totals = {"mutual": 0, "follower": 0, "following_only": 0, "none": 0}
-            for item in insights:
-                tag = follow_index.tag(item.get("source_url"))
-                if tag in tag_totals:
-                    tag_totals[tag] += 1
-            tie_in = (
-                f'<p class="small-copy">{tag_totals["mutual"]} mutual · {tag_totals["follower"]} fan · '
-                f'{tag_totals["following_only"]} not-following-back · {tag_totals["none"]} not connected — '
-                f'{tag_totals["mutual"] + tag_totals["follower"] + tag_totals["following_only"]} of {len(insights)} saved insights '
-                'come from accounts already linked to this import.</p>'
-            ) if follow_index.enabled and insights else ""
-            search_form = (
-                f'<form class="search" method="get"><input type="hidden" name="view" value="followers">'
-                f'<input type="hidden" name="list" value="{_e(list_key)}">'
-                f'<input name="q" value="{_e(follow_q)}" placeholder="Search usernames"><button class="button ghost small">Search</button></form>'
-            )
-            content = f'''<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT</p><h1>Followers</h1><p class="lead">Compared from the Threads data export and synchronized with the Threads Graph API. Each saved insight shows whether its source author follows Rahimam back.</p></div><div class="actions"><a class="button ghost small" href="/followers/export.csv?list={_e(list_key)}{f"&amp;q={exported}" if exported else ""}">Export CSV</a></div></div>
-            {graph_section}
-            <div class="stats"><article class="stat card"><span>Followers</span><b>{counts["followers"]}</b><small>Accounts following Rahimam</small></article><article class="stat card"><span>Following</span><b>{counts["following"]}</b><small>Accounts Rahimam follows</small></article><article class="stat card"><span>Mutuals</span><b>{counts["mutuals"]}</b><small>You follow each other</small></article><article class="stat card"><span>Not following back</span><b>{counts["percent_not_following_back"]}%</b><small>{counts["not_following_back"]} of who she follows</small></article></div>
-            {tie_in}
-            <section class="panel"><div class="section-head"><div><p class="eyebrow">LISTS</p><h2>{_e(AUDIENCE_LIST_LABELS[list_key])}</h2></div>{search_form}</div><div class="filter-pills">{pills}</div>{rows}{page_note}</section>
-            <section class="panel"><div class="section-head"><div><p class="eyebrow">REFRESH</p><h2>Re-import or clear</h2></div><form method="post" action="/followers/clear">{csrf_input}<button class="button ghost small">Clear import</button></form></div>{_import_form(csrf_input)}{download_help}</section>'''
+        content = _render_followers_view(data, follow_index, csrf_input, status_class=status_class, is_connected=is_connected)
     elif view == "audiences":
         audience_cards = "".join(
             f'''<article class="audience card"><div class="card-top"><span class="tag">WORKING SEGMENT</span>'''
@@ -595,4 +730,4 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 @media(max-width:950px){{.shell{{grid-template-columns:205px minmax(0,1fr)}}aside{{padding-inline:12px}}main{{padding-inline:25px}}.stats,.board{{grid-template-columns:repeat(2,minmax(0,1fr))}}.steps{{grid-template-columns:1fr 1fr;gap:5px}}.step-arrow{{display:none}}.steps>a{{border:1px solid #eee9de;border-radius:9px;padding:10px}}.two-col{{grid-template-columns:1fr}}}}
 @media(max-width:680px){{.shell{{display:block;padding-bottom:64px}}aside{{position:fixed;z-index:10;top:auto;bottom:0;width:100%;height:auto;padding:7px 8px calc(7px + env(safe-area-inset-bottom));display:block;border-top:1px solid #49614f}}.brand,.nav-label{{display:none}}.side-bottom{{margin:0;padding:0;border:0;display:block;position:fixed;right:12px;bottom:70px;background:#12251b;border-radius:10px;padding:10px 14px;box-shadow:0 8px 28px rgb(0 0 0/.22)}}.side-bottom>a{{display:none}}nav{{display:flex;justify-content:space-around;gap:2px}}.nav-link{{flex:1;justify-content:center;flex-direction:column;gap:3px;padding:6px 2px;font-size:9px}}.nav-mark{{height:6px;width:6px}}main{{padding:19px 15px 36px}}.topline{{margin-bottom:20px}}.welcome,.page-head{{display:block}}.welcome .button,.page-head>.button{{margin-top:17px}}.welcome{{padding:14px 0 22px}}h1{{font-size:37px}}.stats{{gap:8px}}.stat{{padding:13px}}.stat>b{{font-size:28px}}.stat small{{font-size:10px}}.workflow,.panel{{padding:16px;margin:12px 0}}.steps{{gap:6px}}.steps b{{font-size:14px}}.steps small{{font-size:10px}}.draft-grid,.audience-grid,.evidence-grid,.settings-grid,.studio-layout,.board,.limits-grid{{grid-template-columns:1fr}}.run-bar,.selection-bar,.run-actions{{align-items:stretch;flex-direction:column}}.run-bar .button,.selection-bar .button,.run-card .button{{width:100%}}.section-head{{align-items:flex-start;flex-direction:column}}.search{{width:100%}}.search input{{min-width:0;flex:1}}.run-row{{grid-template-columns:1fr;gap:5px}}.status{{display:inline-flex;margin-top:5px}}.filter-pills{{gap:5px}}}}
 </style></head><body><div class="shell"><aside><div class="brand"><div class="brand-mark">PH</div><div><b>Perpustakaan Hati</b><small>Research studio</small></div></div><div><p class="nav-label">WORKSPACE</p><nav>{nav}</nav></div><div class="side-bottom">Research is a sample, not a census.<br><a href="/?view=settings">Privacy & connections →</a>{logout_action}</div></aside><main><div class="topline"><span class="crumb">Workspace <span class="muted">/</span> { _e(labels[view]) }</span><span class="account"><i class="dot {status_class}"></i> Rahimam’s Threads account</span></div>{notice}{nav_error}{content}</main></div>
-<script>document.addEventListener('click',async e=>{{const b=e.target.closest('[data-copy]');if(b){{const el=document.getElementById(b.dataset.copy);if(!el)return;const text=el.innerText;try{{await navigator.clipboard.writeText(text);b.textContent='Copied';setTimeout(()=>b.textContent='Copy text',1400)}}catch{{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='Copied'}}return}}const sa=e.target.closest('[data-select-all]');if(sa){{const v=sa.dataset.selectAll==='true';document.querySelectorAll('input[name="insight_ids"]').forEach(c=>{{c.checked=v}});return}}const os=e.target.closest('[data-open-studio]');if(os){{const ids=[...document.querySelectorAll('input[name="insight_ids"]:checked')].map(c=>c.value);location.href='/?view=studio'+(ids.length?'&select='+ids.join(','):'');return}}}});</script><script>const q=document.querySelector('[data-queue-active]');if(q)setTimeout(function(){{if(!document.activeElement||document.activeElement===document.body)location.reload()}},8000);</script></body></html>'''
+<script>document.addEventListener('click',async e=>{{const b=e.target.closest('[data-copy]');if(b){{const el=document.getElementById(b.dataset.copy);if(!el)return;const text=el.innerText;try{{await navigator.clipboard.writeText(text);b.textContent='Copied';setTimeout(()=>b.textContent='Copy text',1400)}}catch{{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='Copied'}}return}}const sa=e.target.closest('[data-select-all]');if(sa){{const v=sa.dataset.selectAll==='true';document.querySelectorAll('input[name="insight_ids"]').forEach(c=>{{c.checked=v}});return}}const sf=e.target.closest('[data-select-follow]');if(sf){{const v=sf.dataset.selectFollow==='true';document.querySelectorAll('input[name="usernames"]').forEach(c=>{{c.checked=v}});return}}const cu=e.target.closest('[data-copy-usernames]');if(cu){{const checked=[...document.querySelectorAll('input[name="usernames"]:checked')].map(c=>'@'+c.value);const all=[...document.querySelectorAll('input[name="usernames"]')].map(c=>'@'+c.value);const list=checked.length?checked:all;if(!list.length)return;try{{await navigator.clipboard.writeText(list.join('\\n'));cu.textContent='Copied '+list.length;setTimeout(()=>cu.textContent='Copy @usernames',1400)}}catch{{}}return}}const os=e.target.closest('[data-open-studio]');if(os){{const ids=[...document.querySelectorAll('input[name="insight_ids"]:checked')].map(c=>c.value);location.href='/?view=studio'+(ids.length?'&select='+ids.join(','):'');return}}}});</script><script>const q=document.querySelector('[data-queue-active]');if(q)setTimeout(function(){{if(!document.activeElement||document.activeElement===document.body)location.reload()}},8000);</script></body></html>'''
