@@ -67,17 +67,15 @@ export const TIERS: Tier[] = [
   },
 ];
 
-// Only titles confirmed correct are shown. Bab 4 and Bab 5 are held back until
-// the manuscript titles are confirmed (the source spelling looks like a typo),
-// so they appear as a pending slot instead of a title.
+// All seven chapters carry confirmed titles aligned with Edisi Membangun.
 export type Chapter = { no: number; title: string; note: string; pending: boolean };
 
 export const CHAPTERS: Chapter[] = [
   { no: 1, title: "Kenapa hubungan sakit", note: "Kenapa kita bertindak balas sebelum sempat berfikir, dan cara menenangkan diri dahulu.", pending: false },
   { no: 2, title: "Kenali corak attach kamu", note: "Cemas, mengelak atau selamat, dilihat melalui situasi rumah tangga Malaysia.", pending: false },
   { no: 3, title: "Red flag & green flag", note: "Bahasa yang sama untuk menamakan apa yang kamu rasa, lengkap dengan ceklis green flag.", pending: false },
-  { no: 4, title: "Tajuk akan diumumkan", note: "Bab ini sedang disiapkan. Tajuknya akan diumumkan apabila muatan akhir disahkan.", pending: true },
-  { no: 5, title: "Tajuk akan diumumkan", note: "Bab ini sedang disiapkan. Tajuknya akan diumumkan apabila muatan akhir disahkan.", pending: true },
+  { no: 4, title: "Bila pertengkaran menjadi diam", note: "Empat tanda amaran Gottman dalam pertengkaran, dan cara keluar daripada kitaran diam.", pending: false },
+  { no: 5, title: "Bercakap dengan jujur", note: "Cara meluahkan keperluan hati tanpa menyalahkan atau menyerang pasangan.", pending: false },
   { no: 6, title: "Bila dia tidak berubah", note: "Sempadan, menjaga diri, dan cara pergi dengan baik.", pending: false },
   { no: 7, title: "Pulih dengan perlahan", note: "Patah hati dan duka, dalam perjalanan 30 hari.", pending: false },
 ];

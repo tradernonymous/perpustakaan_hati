@@ -24,13 +24,15 @@ describe("cover slots", () => {
   });
 });
 
-describe("held-back chapters", () => {
-  it("shows Bab 4 and 5 as pending without leaking the unconfirmed titles", () => {
+describe("confirmed chapters", () => {
+  it("renders Bab 4 and 5 with confirmed manuscript titles and zero draft typos", () => {
     const html = renderToStaticMarkup(<ChapterPreview />);
     expect(html).toContain("Bab 4");
     expect(html).toContain("Bab 5");
-    expect(html).toContain("Tajuk akan diumumkan");
+    expect(html).toContain("Bila pertengkaran menjadi diam");
+    expect(html).toContain("Bercakap dengan jujur");
     expect(html).not.toContain("Bicornak");
+    expect(html).not.toContain("pertapaan");
   });
 });
 

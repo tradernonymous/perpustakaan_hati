@@ -34,11 +34,13 @@ describe("tier ladder matches docs/brand/tier-naming.md", () => {
 });
 
 describe("chapter previews", () => {
-  it("only shows chapter titles confirmed correct (Bab 4 and 5 are held back)", () => {
+  it("shows all seven confirmed chapter titles without draft typos", () => {
     const html = renderToStaticMarkup(<ChapterPreview />);
     expect(html).not.toContain("Bicornak");
     expect(html).not.toContain("pertapaan");
-    expect(CHAPTERS.length).toBeGreaterThan(0);
+    expect(html).toContain("Bila pertengkaran menjadi diam");
+    expect(html).toContain("Bercakap dengan jujur");
+    expect(CHAPTERS.length).toBe(7);
     for (const c of CHAPTERS) expect(html).toContain(c.title.replace(/&/g, "&amp;"));
   });
 });

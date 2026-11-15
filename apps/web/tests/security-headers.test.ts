@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { CSP, SECURITY_HEADERS } from "@/src/server/security";
+import { NextRequest } from "next/server";
+import { buildCsp, CSP, SECURITY_HEADERS } from "@/src/server/security";
+import { proxy } from "@/proxy";
 
 describe("Content-Security-Policy", () => {
   it("locks down the dangerous defaults", () => {
@@ -18,5 +20,19 @@ describe("Content-Security-Policy", () => {
     expect(keys).toEqual(expect.arrayContaining([
       "Content-Security-Policy", "X-Content-Type-Options", "Referrer-Policy", "Permissions-Policy", "Strict-Transport-Security",
     ]));
+  });
+  it("builds per-request nonce CSP without unsafe-inline in script-src", () => {
+    const nonced = buildCsp("testNonce123");
+    expect(nonced).toContain("script-src 'self' 'nonce-testNonce123' 'strict-dynamic'");
+    expect(nonced).not.toContain("script-src 'self' 'unsafe-inline'");
+  });
+  it("proxy issues unique nonces and sets Content-Security-Policy per request", () => {
+    const res1 = proxy(new NextRequest("http://localhost:3000/"));
+    const res2 = proxy(new NextRequest("http://localhost:3000/"));
+    const csp1 = res1.headers.get("Content-Security-Policy") ?? "";
+    const csp2 = res2.headers.get("Content-Security-Policy") ?? "";
+    expect(csp1).toContain("'nonce-");
+    expect(csp1).not.toContain("script-src 'self' 'unsafe-inline'");
+    expect(csp1).not.toBe(csp2);
   });
 });

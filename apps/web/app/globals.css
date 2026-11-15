@@ -31,7 +31,7 @@
      All motion is CSS-only and honour prefers-reduced-motion via the base
      layer kill-switch. */
   .ph-mark-glow {
-    animation: ph-mark-glow var(--dur-ember, 9s) var(--ease-ember, cubic-bezier(0.65, 0, 0.35, 1)) ease-in-out infinite;
+    animation: ph-mark-glow var(--dur-ember, 9s) var(--ease-ember, cubic-bezier(0.65, 0, 0.35, 1)) infinite;
   }
   .ph-mark-orbit {
     animation: ph-mark-orbit 28s linear infinite;
@@ -43,7 +43,7 @@
 
   /* ---- Ember field (hero backdrop) --------------------------------- */
   .ph-ember {
-    animation: ph-ember var(--dur-ember, 9s) var(--ease-ember, cubic-bezier(0.65, 0, 0.35, 1)) ease-in-out infinite;
+    animation: ph-ember var(--dur-ember, 9s) var(--ease-ember, cubic-bezier(0.65, 0, 0.35, 1)) infinite;
   }
   .ph-ember-2 { animation-delay: 2.4s; }
   .ph-ember-3 { animation-delay: 4.8s; }

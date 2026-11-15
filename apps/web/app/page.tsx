@@ -68,13 +68,13 @@ export default function Home() {
         <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
           <PlateGallery />
         </Section>
-        <Section index="06" id="interaktif" tone="soft" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
+        <Section index="06" id="interaktif" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
           <EcosystemHub />
         </Section>
-        <Section index="07" id="pembaca" title="Suara pembaca">
+        <Section index="07" id="pembaca" tone="soft" title="Suara pembaca">
           <Testimonials />
         </Section>
-        <Section index="08" id="soalan" tone="soft" title="Soalan lazim">
+        <Section index="08" id="soalan" title="Soalan lazim">
           <Faq />
         </Section>
       </main>

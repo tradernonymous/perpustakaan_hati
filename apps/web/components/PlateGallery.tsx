@@ -12,7 +12,7 @@ import { Illustration } from "@/components/Illustration";
 export function PlateGallery() {
   return (
     <div
-      className="ph-gallery"
+      className="ph-gallery mx-auto max-w-grid"
       role="region"
       aria-label="Enam ilustrasi Edisi Poket"
       tabIndex={0}
