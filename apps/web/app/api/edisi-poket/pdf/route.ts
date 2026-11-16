@@ -10,8 +10,12 @@ const FILENAME = "edisi-poket-perpustakaan-hati.pdf";
 async function loadPocketPdf(): Promise<Uint8Array> {
   const assetsDir = process.env.ASSETS_DIR ?? path.join(process.env.DATA_DIR ?? "./data", "assets");
   const candidates = [
+    // An operator may mount the book on the persistent volume.
     path.join(assetsDir, "edisi-poket.pdf"),
+    // The build artefact, when the whole repo is present.
     path.resolve(process.cwd(), "../../content/ebooks/tier-1-free/edisi-poket.pdf"),
+    // The shipped copy inside the image (public/ is copied into the image).
+    path.resolve(process.cwd(), "public/ebooks/edisi-poket.pdf"),
   ];
 
   for (const candidate of candidates) {

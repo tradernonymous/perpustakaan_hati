@@ -157,6 +157,23 @@ PALETTE = {
     "muted-grove": "#4f5f53",
     "gold-ink": "#7a5a22",
     "gold-ink-soft": "#96742f",
+    # Design System 3.5 "Ladder of Light" — the per-tier ramp.
+    # One set per tier: ink (on light), on-dark, fill, band, edge.
+    "tier-poket-ink": "#1d5a3d",
+    "tier-poket-on-dark": "#7db895",
+    "tier-poket-fill": "#2d7954",
+    "tier-poket-band": "#e4f4e9",
+    "tier-poket-edge": "#8fc0a5",
+    "tier-membangun-ink": "#7a5a22",
+    "tier-membangun-on-dark": "#e9cea2",
+    "tier-membangun-fill": "#c9a86a",
+    "tier-membangun-band": "#f7efdd",
+    "tier-membangun-edge": "#c9a86a",
+    "tier-teman-hidup-ink": "#5c1e17",
+    "tier-teman-hidup-on-dark": "#d4746f",
+    "tier-teman-hidup-fill": "#a34a56",
+    "tier-teman-hidup-band": "#f3e3e0",
+    "tier-teman-hidup-edge": "#c9978f",
     # AJE — Armazas Jaya Enterprise branch (black + gold)
     "aje-black": "#0a0a0a",
     "aje-black-raised": "#151515",
@@ -228,6 +245,44 @@ REQUIRED_PAIRS = [
     ("aje-gold", "aje-black", 3.0, "AJE gold rule / mark on AJE black (graphic)"),
     ("aje-black", "aje-gold", 4.5, "AJE CTA label on gold"),
     ("aje-gold-deep", "aje-cream", 4.5, "AJE gold text on AJE cream"),
+    # ---- Design System 3.5 "Ladder of Light" — the per-tier ramp ------
+    # Each tier's ink must read as text on every light ground the
+    # storefront puts it on.
+    ("tier-poket-ink", "daylight", 4.5, "Edisi Poket tier text on ivory"),
+    ("tier-poket-ink", "sage", 4.5, "Edisi Poket tier text on the sage band"),
+    ("tier-poket-ink", "daylight-raised", 4.5, "Edisi Poket tier text on a light card"),
+    ("tier-membangun-ink", "daylight", 4.5, "Edisi Membangun tier text on ivory"),
+    ("tier-membangun-ink", "sage", 4.5, "Edisi Membangun tier text on the sage band"),
+    ("tier-membangun-ink", "daylight-raised", 4.5, "Edisi Membangun tier text on a light card"),
+    ("tier-teman-hidup-ink", "daylight", 4.5, "Teman Hidup tier text on ivory"),
+    ("tier-teman-hidup-ink", "sage", 4.5, "Teman Hidup tier text on the sage band"),
+    ("tier-teman-hidup-ink", "daylight-raised", 4.5, "Teman Hidup tier text on a light card"),
+    # ...and on its own pale band.
+    ("tier-poket-ink", "tier-poket-band", 4.5, "Edisi Poket tier text on its own band"),
+    ("tier-membangun-ink", "tier-membangun-band", 4.5, "Edisi Membangun tier text on its own band"),
+    ("tier-teman-hidup-ink", "tier-teman-hidup-band", 4.5, "Teman Hidup tier text on its own band"),
+    # The on-dark variants carry tier names on the dark forest stage.
+    ("tier-poket-on-dark", "forest-night", 4.5, "Edisi Poket tier text on the dark stage"),
+    ("tier-poket-on-dark", "forest-raised", 4.5, "Edisi Poket tier text on a dark card"),
+    ("tier-poket-on-dark", "forest-soft", 4.5, "Edisi Poket tier text on a dark overlay"),
+    ("tier-membangun-on-dark", "forest-night", 4.5, "Edisi Membangun tier text on the dark stage"),
+    ("tier-membangun-on-dark", "forest-raised", 4.5, "Edisi Membangun tier text on a dark card"),
+    ("tier-membangun-on-dark", "forest-soft", 4.5, "Edisi Membangun tier text on a dark overlay"),
+    ("tier-teman-hidup-on-dark", "forest-night", 4.5, "Teman Hidup tier text on the dark stage"),
+    ("tier-teman-hidup-on-dark", "forest-raised", 4.5, "Teman Hidup tier text on a dark card"),
+    ("tier-teman-hidup-on-dark", "forest-soft", 4.5, "Teman Hidup tier text on a dark overlay"),
+    # The tier fill is a solid block with a label sitting on it.
+    ("cream", "tier-poket-fill", 4.5, "label on the Edisi Poket tier fill"),
+    ("ink", "tier-membangun-fill", 4.5, "label on the Edisi Membangun tier fill"),
+    ("cream", "tier-teman-hidup-fill", 4.5, "label on the Teman Hidup tier fill"),
+    # As a non-text graphic on the dark stage (WCAG 1.4.11).
+    ("tier-poket-fill", "forest-night", 3.0, "Edisi Poket tier block on the dark stage"),
+    ("tier-membangun-fill", "forest-night", 3.0, "Edisi Membangun tier block on the dark stage"),
+    ("tier-teman-hidup-fill", "forest-night", 3.0, "Teman Hidup tier block on the dark stage"),
+    # The hairline that separates a tier band from its neighbours.
+    ("tier-poket-edge", "tier-poket-band", 1.5, "Edisi Poket band edge"),
+    ("tier-membangun-edge", "tier-membangun-band", 1.5, "Edisi Membangun band edge"),
+    ("tier-teman-hidup-edge", "tier-teman-hidup-band", 1.5, "Teman Hidup band edge"),
 ]
 
 # tier colours must remain tellable apart without relying on hue alone
@@ -235,6 +290,16 @@ TIER_PAIRS = [
     ("green-500", "gold", "Edisi Poket vs Edisi Membangun"),
     ("gold", "burgundy-light", "Edisi Membangun vs Teman Hidup"),
     ("green-500", "burgundy-light", "Edisi Poket vs Teman Hidup"),
+    # The 3.5 tier ramp, checked in the three roles the storefront uses.
+    ("tier-poket-ink", "tier-membangun-ink", "tier ink: Edisi Poket vs Edisi Membangun"),
+    ("tier-membangun-ink", "tier-teman-hidup-ink", "tier ink: Edisi Membangun vs Teman Hidup"),
+    ("tier-poket-ink", "tier-teman-hidup-ink", "tier ink: Edisi Poket vs Teman Hidup"),
+    ("tier-poket-on-dark", "tier-membangun-on-dark", "tier on-dark: Edisi Poket vs Edisi Membangun"),
+    ("tier-membangun-on-dark", "tier-teman-hidup-on-dark", "tier on-dark: Edisi Membangun vs Teman Hidup"),
+    ("tier-poket-on-dark", "tier-teman-hidup-on-dark", "tier on-dark: Edisi Poket vs Teman Hidup"),
+    ("tier-poket-fill", "tier-membangun-fill", "tier fill: Edisi Poket vs Edisi Membangun"),
+    ("tier-membangun-fill", "tier-teman-hidup-fill", "tier fill: Edisi Membangun vs Teman Hidup"),
+    ("tier-poket-fill", "tier-teman-hidup-fill", "tier fill: Edisi Poket vs Teman Hidup"),
 ]
 
 DELTA_E_MIN = 10.0

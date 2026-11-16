@@ -64,7 +64,7 @@ describe("website_sam ports", () => {
     expect(html.match(/ph-spine/g)?.length).toBe(3);
     expect(html).toContain("ph-beam");
     expect(html).toContain("blur(");
-    expect(html).toContain("/brand/animated/seal-edisi-membangun.svg");
+    expect(html).toContain("/ebooks/cover-membangun.png");
   });
   it("stats strip counts up to real numbers from the editions, rendered final for no-JS", () => {
     const html = renderToStaticMarkup(<StatsStrip />);

@@ -10,6 +10,7 @@ import { Reveal } from "@/components/Reveal";
 import { Testimonials } from "@/components/Testimonials";
 import { EbookDeck } from "@/components/EbookDeck";
 import { TierCompare } from "@/components/TierCompare";
+import { TierLadder } from "@/components/TierLadder";
 import { EcosystemHub } from "@/components/EcosystemHub";
 import { PlateGallery } from "@/components/PlateGallery";
 import { SectionOrnament } from "@/components/SectionOrnament";
@@ -55,6 +56,7 @@ export default function Home() {
         </Section>
         <Section index="03" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
           <div className="flex flex-col gap-12">
+            <TierLadder />
             <EbookDeck />
             <div>
               <h3 className="mb-6 text-center font-display text-2xl text-green-900">Bandingkan semua edisi</h3>

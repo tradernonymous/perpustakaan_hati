@@ -30,6 +30,17 @@ TIER_CLASSES = {
     "teman-hidup": "tier-premium",
 }
 
+# The seal that goes on the printed cover. Each tier has its own
+# silhouette, so the cover tells the reader which edition it is even
+# before the title is read.
+TIER_SEALS = {
+    "poket": "seal-edisi-poket.svg",
+    "membangun": "seal-edisi-membangun.svg",
+    "teman-hidup": "seal-teman-hidup.svg",
+}
+
+BRAND_ASSETS = Path(__file__).resolve().parents[3] / "docs" / "brand" / "assets"
+
 # Roman numerals for chapter numbers, 1..12 is plenty for these books.
 ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
 
@@ -83,6 +94,10 @@ def _cover(manuscript: Manuscript) -> str:
     tier_class = TIER_CLASSES.get(tier, TIER_CLASSES["poket"])
     title = _escape(manuscript.title or "Edisi Poket")
     subtitle = _escape(manuscript.subtitle)
+    seal = BRAND_ASSETS / TIER_SEALS.get(tier, TIER_SEALS["poket"])
+    seal_markup = ""
+    if seal.is_file():
+        seal_markup = f'<img class="tier-seal" src="{_escape(seal.as_uri())}" alt="" />'
     return f"""
 <section class="page layout-cover {tier_class}">
   <div class="wordmark">Perpustakaan Hati</div>
@@ -90,6 +105,7 @@ def _cover(manuscript: Manuscript) -> str:
   <h1>{title}</h1>
   <div class="byline">— by @rahimam —</div>
   <p class="tagline">{subtitle}</p>
+  {seal_markup}
 </section>
 """
 

@@ -122,7 +122,9 @@ def lockup(s: str) -> str:
 
 def seal(s: str) -> str:
     s = add_style(emblem_motion(s), SEAL_CSS)
-    return sub(r'<circle ([^>]*stroke-dasharray="2 9"[^>]*/>)', r'<circle class="phx-turn" \1', s, "gilt ring")
+    # The gilt ring follows the tier's silhouette, so it is a path now
+    # (it was a circle when every tier shared one shape).
+    return sub(r'<path ([^>]*stroke-dasharray="2 9"[^>]*/>)', r'<path class="phx-turn" \1', s, "gilt ring")
 
 
 def emblem(s: str) -> str:

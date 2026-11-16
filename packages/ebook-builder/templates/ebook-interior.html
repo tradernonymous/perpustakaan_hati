@@ -92,6 +92,7 @@
 
   /* ---------- cover ---------- */
   .layout-cover {
+    position: relative;
     background: var(--ink);
     color: var(--gold-light);
     margin: -18mm -15mm -20mm -20mm;
@@ -113,6 +114,35 @@
     width: 60mm;
     margin: 10mm auto 14mm;
     background: var(--green);
+  }
+
+  /* The tier ramp on the printed cover. Each edition's cover is framed
+     and lit in that edition's own tier colour and metal, so the three
+     editions are three different books, not one book in three sizes.
+     The values are the ones the web reads from --tier-*-tokens. */
+  .layout-cover.tier-free {
+    --cover-accent: #2d7954;
+    --cover-metal: #a7d3b6;
+  }
+  .layout-cover.tier-standard {
+    --cover-accent: #c9a86a;
+    --cover-metal: #e9cea2;
+  }
+  .layout-cover.tier-premium {
+    --cover-accent: #a34a56;
+    --cover-metal: #dd9b93;
+  }
+  .layout-cover.tier-free .tier-bar,
+  .layout-cover.tier-standard .tier-bar,
+  .layout-cover.tier-premium .tier-bar {
+    background: var(--cover-accent);
+  }
+  .layout-cover .tier-seal {
+    position: absolute;
+    right: 14mm;
+    bottom: 16mm;
+    width: 26mm;
+    height: auto;
   }
   .layout-cover h1 {
     font-size: 28pt;

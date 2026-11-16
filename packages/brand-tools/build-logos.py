@@ -467,34 +467,86 @@ def scallop_path(cx: float, cy: float, r: float, bumps: int, depth: float) -> st
     return " ".join(pts) + " Z"
 
 
+def tier_shape_path(shape: str, cx: float, cy: float, r: float) -> str:
+    """The silhouette each tier is stamped in.
+
+    The brand doc (visual-identity.md) promises each tier its own shape,
+    because colour alone must never carry the tier:
+        Edisi Poket     = circle
+        Edisi Membangun = hexagon
+        Teman Hidup     = arch / shield
+
+    Every path is closed, centred on (cx, cy) and fits inside radius `r`,
+    so the rim, the extrusion and the medallion can all reuse it.
+    """
+    if shape == "circle":
+        # A circle as two arcs: one command per half.
+        return (f"M{cx - r:.1f},{cy:.1f} "
+                f"A{r:.1f},{r:.1f} 0 1 1 {cx + r:.1f},{cy:.1f} "
+                f"A{r:.1f},{r:.1f} 0 1 1 {cx - r:.1f},{cy:.1f} Z")
+
+    if shape == "hexagon":
+        # Flat-top hexagon: six straight edges, points at 0/60/120 degrees.
+        pts = []
+        for i in range(6):
+            a = 2 * math.pi * i / 6 - math.pi / 2
+            pts.append(f"{cx + r * math.cos(a):.1f},{cy + r * math.sin(a):.1f}")
+        return "M" + " L".join(pts) + " Z"
+
+    if shape == "arch":
+        # A shield with a rounded top: straight sides, an arched crown,
+        # and a rounded point at the bottom.
+        shoulder = cy - r * 0.42
+        half = r * 0.72
+        return (
+            f"M{cx - half:.1f},{cy + r * 0.92:.1f} "
+            f"L{cx - half:.1f},{shoulder:.1f} "
+            f"A{half:.1f},{r * 0.72:.1f} 0 0 1 {cx + half:.1f},{shoulder:.1f} "
+            f"L{cx + half:.1f},{cy + r * 0.92:.1f} "
+            f"Q{cx:.1f},{cy + r * 1.12:.1f} {cx - half:.1f},{cy + r * 0.92:.1f} Z"
+        )
+
+    raise ValueError(f"unknown tier shape: {shape}")
+
+
 SEALS = [
-    # file, top, main, bottom, fill, label colour, rim gradient
-    ("seal-edisi-poket.svg", "EDISI", "POKET", "PERCUMA", GREEN_700, CREAM, "foil-gold"),
-    ("seal-edisi-membangun.svg", "EDISI", "MEMBANGUN", "@RAHIMAM", GOLD, INK, "foil-emerald"),
-    ("seal-teman-hidup.svg", "TEMAN", "HIDUP", "PREMIUM", BURGUNDY, CREAM, "foil-gold"),
+    # file, top, main, bottom, fill, label colour, rim gradient, shape
+    ("seal-edisi-poket.svg", "EDISI", "POKET", "PERCUMA", GREEN_700, CREAM, "foil-gold", "circle"),
+    ("seal-edisi-membangun.svg", "EDISI", "MEMBANGUN", "@RAHIMAM", GOLD, INK, "foil-emerald", "hexagon"),
+    ("seal-teman-hidup.svg", "TEMAN", "HIDUP", "PREMIUM", BURGUNDY, CREAM, "foil-gold", "arch"),
 ]
 
 
 def build_seals(fraunces: TTFont, inter: TTFont) -> list[str]:
-    """Scalloped tier seals. 3D: extruded scalloped rim with a lighting
-    bevel, a recessed (inner-shadowed) medallion, debossed labels."""
+    """Tier seals, each in its own silhouette. 3D: extruded rim with a
+    lighting bevel, a recessed (inner-shadowed) medallion, debossed labels.
+
+    The silhouette is the tier's second signal after colour: circle for
+    Edisi Poket, hexagon for Edisi Membangun, arch for Teman Hidup. The
+    rim and the medallion share one path, so the tier colour never bleeds
+    past the rim as a halo."""
     names = []
     f_main, f_lab = weight(fraunces, W_HERO), weight(inter, W_LABEL)
-    for fname, top, main, bottom, fill, fg, rim in SEALS:
+    for fname, top, main, bottom, fill, fg, rim, shape in SEALS:
         p = "phs-" + fname.removeprefix("seal-").removesuffix(".svg")
         pt = centred(f_lab, top, 32, 10, 300, 254)
         pm = fitted(f_main, main, 90, 5, 300, 350, 330)
         pbm = centred(f_lab, bottom, 24, 7, 300, 426)
-        scallop = scallop_path(300, 300, 258, 40, 7)
+        outer = tier_shape_path(shape, 300, 300, 258)
+        medallion = tier_shape_path(shape, 300, 300, 226)
+        ring = tier_shape_path(shape, 300, 300, 206)
         body = f"""  <!--
-    Perpustakaan Hati — tier seal "{top} {main}" (Design System 3.1)
+    Perpustakaan Hati — tier seal "{top} {main}" (Design System 3.5)
     Source: docs/brand/tier-naming.md (tier colour is fixed)
+    Silhouette: {shape} — the tier's second signal, so colour is never
+    the only thing that tells the tiers apart.
     3D: extruded foil rim + bevel, recessed medallion, debossed labels.
     Use: eBook covers, store cards, Threads promo cards. Min 96px wide.
   -->
   <defs>
 {v3_defs(p)}
-    <path id="{p}-rim" d="{scallop}"/>
+    <path id="{p}-rim" d="{outer}"/>
+    <path id="{p}-medallion" d="{medallion}"/>
     <radialGradient id="{p}-recess" cx="0.5" cy="0.42" r="0.55">
       <stop offset="0.8" stop-color="#000" stop-opacity="0"/>
       <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
@@ -504,10 +556,10 @@ def build_seals(fraunces: TTFont, inter: TTFont) -> list[str]:
   {extrude(f"{p}-rim", 8, "#6b5228" if rim == "foil-gold" else GREEN_800,
            "#2e2310" if rim == "foil-gold" else GREEN_950)}
   <use href="#{p}-rim" fill="url(#{p}-{rim})" filter="url(#{p}-bevel-soft)"/>
-  <circle cx="300" cy="300" r="226" fill="{fill}"/>
-  <circle cx="300" cy="300" r="226" fill="url(#{p}-recess)"/>
-  <circle cx="300" cy="300" r="225" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="3"/>
-  <circle cx="300" cy="300" r="206" fill="none" stroke="url(#{p}-{rim})" stroke-width="3"
+  <use href="#{p}-medallion" fill="{fill}"/>
+  <use href="#{p}-medallion" fill="url(#{p}-recess)"/>
+  <use href="#{p}-medallion" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="3"/>
+  <path d="{ring}" fill="none" stroke="url(#{p}-{rim})" stroke-width="3"
           stroke-dasharray="2 9" stroke-linecap="round"/>
   <g transform="translate(246,128) scale(0.18)">
     {emblem(p, glints=False)}

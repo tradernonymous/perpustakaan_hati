@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Teman Hidup seal">
   <!--
-    Perpustakaan Hati — tier seal "TEMAN HIDUP" (Design System 3.1)
+    Perpustakaan Hati — tier seal "TEMAN HIDUP" (Design System 3.5)
     Source: docs/brand/tier-naming.md (tier colour is fixed)
+    Silhouette: arch — the tier's second signal, so colour is never
+    the only thing that tells the tiers apart.
     3D: extruded foil rim + bevel, recessed medallion, debossed labels.
     Use: eBook covers, store cards, Threads promo cards. Min 96px wide.
   -->
@@ -101,7 +103,8 @@
       <feComposite in2="catch" operator="in" result="light"/>
       <feMerge><feMergeNode in="light"/><feMergeNode in="SourceGraphic"/><feMergeNode in="shade"/></feMerge>
     </filter>
-    <path id="phs-teman-hidup-rim" d="M558.0,300.0 Q571.2,321.3 554.8,340.4 Q564.5,363.5 545.4,379.7 Q551.3,404.1 529.9,417.1 Q531.9,442.1 508.7,451.6 Q506.8,476.6 482.4,482.4 Q476.6,506.8 451.6,508.7 Q442.1,531.9 417.1,529.9 Q404.1,551.3 379.7,545.4 Q363.5,564.5 340.4,554.8 Q321.3,571.2 300.0,558.0 Q278.7,571.2 259.6,554.8 Q236.5,564.5 220.3,545.4 Q195.9,551.3 182.9,529.9 Q157.9,531.9 148.4,508.7 Q123.4,506.8 117.6,482.4 Q93.2,476.6 91.3,451.6 Q68.1,442.1 70.1,417.1 Q48.7,404.1 54.6,379.7 Q35.5,363.5 45.2,340.4 Q28.8,321.3 42.0,300.0 Q28.8,278.7 45.2,259.6 Q35.5,236.5 54.6,220.3 Q48.7,195.9 70.1,182.9 Q68.1,157.9 91.3,148.4 Q93.2,123.4 117.6,117.6 Q123.4,93.2 148.4,91.3 Q157.9,68.1 182.9,70.1 Q195.9,48.7 220.3,54.6 Q236.5,35.5 259.6,45.2 Q278.7,28.8 300.0,42.0 Q321.3,28.8 340.4,45.2 Q363.5,35.5 379.7,54.6 Q404.1,48.7 417.1,70.1 Q442.1,68.1 451.6,91.3 Q476.6,93.2 482.4,117.6 Q506.8,123.4 508.7,148.4 Q531.9,157.9 529.9,182.9 Q551.3,195.9 545.4,220.3 Q564.5,236.5 554.8,259.6 Q571.2,278.7 558.0,300.0 Z"/>
+    <path id="phs-teman-hidup-rim" d="M114.2,537.4 L114.2,191.6 A185.8,185.8 0 0 1 485.8,191.6 L485.8,537.4 Q300.0,589.0 114.2,537.4 Z"/>
+    <path id="phs-teman-hidup-medallion" d="M137.3,507.9 L137.3,205.1 A162.7,162.7 0 0 1 462.7,205.1 L462.7,507.9 Q300.0,553.1 137.3,507.9 Z"/>
     <radialGradient id="phs-teman-hidup-recess" cx="0.5" cy="0.42" r="0.55">
       <stop offset="0.8" stop-color="#000" stop-opacity="0"/>
       <stop offset="1" stop-color="#000" stop-opacity="0.45"/>
@@ -117,10 +120,10 @@
   <use href="#phs-teman-hidup-rim" fill="#624b25" transform="translate(0.0,2)"/>
   <use href="#phs-teman-hidup-rim" fill="#6b5228" transform="translate(0.0,1)"/>
   <use href="#phs-teman-hidup-rim" fill="url(#phs-teman-hidup-foil-gold)" filter="url(#phs-teman-hidup-bevel-soft)"/>
-  <circle cx="300" cy="300" r="226" fill="#5c1e17"/>
-  <circle cx="300" cy="300" r="226" fill="url(#phs-teman-hidup-recess)"/>
-  <circle cx="300" cy="300" r="225" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="3"/>
-  <circle cx="300" cy="300" r="206" fill="none" stroke="url(#phs-teman-hidup-foil-gold)" stroke-width="3"
+  <use href="#phs-teman-hidup-medallion" fill="#5c1e17"/>
+  <use href="#phs-teman-hidup-medallion" fill="url(#phs-teman-hidup-recess)"/>
+  <use href="#phs-teman-hidup-medallion" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="3"/>
+  <path d="M151.7,489.5 L151.7,213.5 A148.3,148.3 0 0 1 448.3,213.5 L448.3,489.5 Q300.0,530.7 151.7,489.5 Z" fill="none" stroke="url(#phs-teman-hidup-foil-gold)" stroke-width="3"
           stroke-dasharray="2 9" stroke-linecap="round"/>
   <g transform="translate(246,128) scale(0.18)">
     <path id="phs-teman-hidup-coverpath" d="M300,262 C228,214 116,206 40,228 L28,346 C116,326 228,334 300,372 C372,334 484,326 572,346 L560,228 C484,206 372,214 300,262 Z"/>

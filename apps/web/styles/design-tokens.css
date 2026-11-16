@@ -101,6 +101,78 @@
   --tier-standard-fill: var(--gold);
   --tier-premium-fill: var(--burgundy);
 
+  /* =====================================================================
+     TIER RAMP — Design System 3.5 "Ladder of Light"
+     One token set per tier, so a surface can say which tier it is about
+     without a per-component colour hack. Each tier gets six roles:
+
+       --tier-<t>-ink    tier colour as TEXT on a light ground
+       --tier-<t>-on-dark tier colour as TEXT on the dark forest stage
+       --tier-<t>-fill   solid tier block (seal medallion, badge)
+       --tier-<t>-on-fill label colour that sits on --tier-<t>-fill
+       --tier-<t>-band   pale tint band for the tier's own section
+       --tier-<t>-edge   hairline that separates that band (>= 1.5:1 vs band)
+
+     The hues are the three locked tier colours and nothing else: green for
+     Edisi Poket, gold for Edisi Membangun, burgundy for Teman Hidup. The
+     ramp changes *value*, not hue, so the ladder still reads as one system.
+
+     Measured with packages/brand-tools/check-contrast.py:
+       - tier ink on daylight / sage / daylight-raised: all >= 4.5:1
+       - tier on-dark on forest-night / raised / soft: all >= 4.5:1
+       - tier fill label on fill: all >= 4.5:1
+       - tier fill vs forest-night as a graphic: >= 3:1 (WCAG 1.4.11)
+       - tier edge vs its own band: >= 1.5:1
+       - worst-case CVD dE between any two tier inks: 17.7 (protanopia)
+     Colour never carries the tier alone: each tier also has its own shape
+     (circle / hexagon / arch-shield) and always shows its name.
+     ===================================================================== */
+
+  /* Edisi Poket — the free lead magnet. Emerald, quiet, the entry point. */
+  --tier-poket-ink: #1d5a3d;        /* green-800 — 7.39:1 on daylight */
+  --tier-poket-on-dark: #7db895;    /* green-400 — 8.22:1 on forest-night */
+  --tier-poket-fill: #2d7954;       /* green-700 — 3.56:1 vs forest */
+  --tier-poket-on-fill: #fdfee6;    /* cream — 5.16:1 on green-700 */
+  --tier-poket-band: #e4f4e9;      /* green-100 */
+  --tier-poket-edge: #8fc0a5;      /* 1.80:1 vs its own band */
+
+  /* Edisi Membangun — the paid core guide. Gold, the lit middle step. */
+  --tier-membangun-ink: #7a5a22;        /* gold-ink — 5.76:1 on daylight */
+  --tier-membangun-on-dark: #e9cea2;    /* gold-light — 12.39:1 on forest */
+  --tier-membangun-fill: #c9a86a;       /* gold — 8.33:1 vs forest */
+  --tier-membangun-on-fill: #0a0a0c;    /* ink — 8.75:1 on gold */
+  --tier-membangun-band: #f7efdd;
+  --tier-membangun-edge: #c9a86a;       /* 1.97:1 vs its own band */
+
+  /* Teman Hidup — the premium bundle. Burgundy, deep and the top step. */
+  --tier-teman-hidup-ink: #5c1e17;      /* burgundy — 11.54:1 on daylight */
+  --tier-teman-hidup-on-dark: #d4746f;  /* 5.85:1 on forest, 4.63:1 on soft */
+  --tier-teman-hidup-fill: #a34a56;     /* 3.29:1 vs forest, 5.58:1 cream label */
+  --tier-teman-hidup-on-fill: #fdfee6;  /* cream */
+  --tier-teman-hidup-band: #f3e3e0;
+  --tier-teman-hidup-edge: #c9978f;     /* 2.03:1 vs its own band */
+
+  /* ---- tier rim + depth — the ladder, not just the hue ---------------
+     Each tier is stamped with a rim of its own metal and sits at its own
+     height. Edisi Poket is a flat card; Edisi Membangun is a stamped
+     coin; Teman Hidup is a raised medallion with a gilt bevel. */
+  --tier-poket-rim: #a7d3b6;          /* green-300 — a flat metal, not a gradient */
+  --tier-membangun-rim: #e9cea2;      /* gold-light — the stamped coin's metal */
+  --tier-teman-hidup-rim: #dd9b93;    /* the medallion's lit bevel */
+
+  --tier-poket-depth:
+    inset 0 1px 0 rgb(255 255 255 / 0.05),
+    0 8px 20px rgb(0 0 0 / 0.18);
+  --tier-membangun-depth:
+    inset 0 1px 0 rgb(255 255 255 / 0.08),
+    0 3px 0 rgb(160 123 69 / 0.55),
+    0 18px 44px rgb(0 0 0 / 0.34);
+  --tier-teman-hidup-depth:
+    inset 0 2px 0 rgb(255 255 255 / 0.12),
+    inset 0 -2px 0 rgb(0 0 0 / 0.35),
+    0 4px 0 rgb(63 23 17 / 0.7),
+    0 28px 68px rgb(0 0 0 / 0.46);
+
   /* ---- typography ---------------------------------------------------- */
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -277,6 +349,31 @@
   --seal-standard-bg: var(--gold);      /* ink label 8.75:1 */
   --seal-premium-bg: var(--burgundy);   /* cream label 12.40:1 */
   --seal-rim: var(--foil-gold);
+
+  /* ---- tier shape + scale --------------------------------------------
+     Each tier has its own silhouette, so the ladder is readable without
+     colour (see visual-identity.md -> Colour-blindness safety):
+       Edisi Poket    = circle
+       Edisi Membangun = hexagon
+       Teman Hidup    = arch / shield
+     --tier-<t>-shape is the CSS clip-path that draws it; --tier-<t>-scale
+     is how large the tier's medallion sits, which is what makes the
+     premium tier read as more substantial at a glance. */
+  --tier-poket-shape: circle(50% at 50% 50%);
+  --tier-membangun-shape: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  --tier-teman-hidup-shape: polygon(
+    50% 0%, 70% 4%, 84% 13%, 93% 26%, 97% 42%,
+    100% 100%, 0% 100%, 3% 42%, 7% 26%, 16% 13%, 30% 4%);
+
+  --tier-poket-scale: 0.82;
+  --tier-membangun-scale: 0.92;
+  --tier-teman-hidup-scale: 1;
+
+  /* tier foil for display type: each tier gets its own metal */
+  --tier-poket-foil: var(--foil-emerald);
+  --tier-membangun-foil: var(--foil-gold);
+  --tier-teman-hidup-foil: linear-gradient(178deg,
+    #f0b9b3 0%, #d68d85 26%, #a34a56 50%, #7e3038 60%, #dd9b93 78%, #a34a56 100%);
   --card-v3-bg: linear-gradient(180deg, var(--forest-raised), var(--forest-night));
   --card-v3-border: var(--forest-edge);
   --card-v3-shadow:
@@ -1704,6 +1801,243 @@
   color: var(--cream);
   font-size: 0.8rem;
   font-weight: 700;
+}
+/* In a tier column the tick takes that tier's own colour, so a reader
+   scanning the matrix sees three columns of three colours. */
+.ph-tick[data-tier] {
+  background: var(--tier-fill);
+  color: var(--tier-on-fill);
+}
+
+/* The price ribbon on a deck slide, in the tier's own colour. The tier is
+   still named on the cover and in the card below, so colour is a
+   reinforcement here, never the only signal. */
+.ph-tier-ribbon[data-tier] {
+  background: var(--tier-fill);
+  color: var(--tier-on-fill);
+  border-color: var(--tier-rim);
+}
+
+/* =====================================================================
+   TIER LADDER — Design System 3.5 "Ladder of Light"
+   A surface says which tier it is about with one attribute:
+       data-tier="poket" | "membangun" | "teman-hidup"
+   Everything downstream — colour, rim, depth, silhouette, size — reads
+   from the tier ramp in the token block. Nothing here hard-codes a tier
+   colour, so changing the ramp changes every surface at once.
+
+   Colour alone never carries the tier: each tier also has its own
+   silhouette (circle / hexagon / arch) and always shows its name.
+   ===================================================================== */
+
+[data-tier="poket"] {
+  --tier-ink: var(--tier-poket-ink);
+  --tier-on-dark: var(--tier-poket-on-dark);
+  --tier-fill: var(--tier-poket-fill);
+  --tier-on-fill: var(--tier-poket-on-fill);
+  --tier-band: var(--tier-poket-band);
+  --tier-edge: var(--tier-poket-edge);
+  --tier-rim: var(--tier-poket-rim);
+  --tier-depth: var(--tier-poket-depth);
+  --tier-shape: var(--tier-poket-shape);
+  --tier-scale: var(--tier-poket-scale);
+  --tier-foil: var(--tier-poket-foil);
+}
+[data-tier="membangun"] {
+  --tier-ink: var(--tier-membangun-ink);
+  --tier-on-dark: var(--tier-membangun-on-dark);
+  --tier-fill: var(--tier-membangun-fill);
+  --tier-on-fill: var(--tier-membangun-on-fill);
+  --tier-band: var(--tier-membangun-band);
+  --tier-edge: var(--tier-membangun-edge);
+  --tier-rim: var(--tier-membangun-rim);
+  --tier-depth: var(--tier-membangun-depth);
+  --tier-shape: var(--tier-membangun-shape);
+  --tier-scale: var(--tier-membangun-scale);
+  --tier-foil: var(--tier-membangun-foil);
+}
+[data-tier="teman-hidup"] {
+  --tier-ink: var(--tier-teman-hidup-ink);
+  --tier-on-dark: var(--tier-teman-hidup-on-dark);
+  --tier-fill: var(--tier-teman-hidup-fill);
+  --tier-on-fill: var(--tier-teman-hidup-on-fill);
+  --tier-band: var(--tier-teman-hidup-band);
+  --tier-edge: var(--tier-teman-hidup-edge);
+  --tier-rim: var(--tier-teman-hidup-rim);
+  --tier-depth: var(--tier-teman-hidup-depth);
+  --tier-shape: var(--tier-teman-hidup-shape);
+  --tier-scale: var(--tier-teman-hidup-scale);
+  --tier-foil: var(--tier-teman-hidup-foil);
+}
+
+/* The tier's medallion: its own silhouette, its own rim, its own depth.
+   Used for the tier seal, the tier badge on a cover, and the tier mark
+   in the ladder. The scale rises with the tier, so the premium tier
+   reads as the heavier object without needing to be read. */
+.ph-tier-medal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: 12%;
+  background: var(--tier-fill);
+  color: var(--tier-on-fill);
+  clip-path: var(--tier-shape);
+  transform: scale(var(--tier-scale));
+  box-shadow: var(--tier-depth);
+}
+.ph-tier-medal::after {
+  /* the rim: a hairline inside the silhouette, in the tier's own metal */
+  content: '';
+  position: absolute;
+  inset: 6%;
+  border: 1px solid var(--tier-rim);
+  clip-path: var(--tier-shape);
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* A small tier chip: fill in the tier colour, label in the tier's own
+   label colour. Used in the compare table and on the deck. */
+.ph-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.25em 0.7em;
+  border-radius: var(--radius-pill);
+  background: var(--tier-fill);
+  color: var(--tier-on-fill);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The tier's own band: a pale tint with a hairline edge, so a tier
+   section reads as its own territory on the ivory page ground. */
+.ph-tier-band {
+  background: var(--tier-band);
+  border-top: 1px solid var(--tier-edge);
+  border-bottom: 1px solid var(--tier-edge);
+}
+
+/* A tier card: the tier's rim and depth, not the generic card shadow. */
+.ph-tier-card {
+  border: 1px solid var(--tier-edge);
+  background: var(--daylight-raised);
+  box-shadow: var(--tier-depth);
+}
+
+/* ---- tier surfaces ---------------------------------------------------
+   A surface that knows its tier sets data-tier once; everything below
+   reads the ramp. Nothing hard-codes a tier colour. */
+
+/* Text in the tier's own colour: ink on light grounds, on-dark on the
+   forest stage. */
+.ph-tier-ink { color: var(--tier-ink); }
+.ph-tier-on-dark { color: var(--tier-on-dark); }
+
+/* The tier's name set in the tier's own metal (display type only).
+   The flat tier ink is the fallback when background-clip is missing. */
+.ph-tier-foil { color: var(--tier-ink); }
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .ph-tier-foil {
+    background-image: var(--tier-foil);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* A cover framed in the tier's metal instead of the generic gilt frame,
+   and lit by the tier's own colour. */
+.ph-tier-cover {
+  background:
+    radial-gradient(90% 60% at 50% 26%,
+      color-mix(in srgb, var(--tier-fill) 26%, transparent), transparent 70%),
+    linear-gradient(170deg, var(--green-950), var(--forest-night) 70%);
+  box-shadow:
+    inset 0 0 0 1px var(--tier-rim),
+    inset 0 0 0 7px var(--forest-night),
+    inset 0 0 0 8px var(--tier-rim),
+    inset 0 0 60px rgb(0 0 0 / 0.55);
+}
+
+/* The ladder itself: three rungs, each one step heavier than the last.
+   The steps share a baseline so the escalation is read, not guessed. */
+.ph-ladder {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 0.5rem;
+}
+.ph-ladder-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
+/* The rung under each step: a band in the tier's own colour. The steps
+   rise, so the ladder reads as a staircase. */
+.ph-ladder-rung {
+  width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--tier-fill) 88%, transparent),
+    color-mix(in srgb, var(--tier-fill) 45%, transparent));
+  box-shadow: var(--tier-depth);
+}
+/* Rung height rises with the tier: flat card, stamped coin, medallion. */
+.ph-ladder-step[data-tier="poket"] .ph-ladder-rung { height: 0.55rem; }
+.ph-ladder-step[data-tier="membangun"] .ph-ladder-rung { height: 1.1rem; }
+.ph-ladder-step[data-tier="teman-hidup"] .ph-ladder-rung { height: 1.75rem; }
+
+/* The medallion holder: the tier's own silhouette at the tier's own
+   scale. The step it sits on is what makes it look heavy or light. */
+.ph-ladder-medal {
+  width: 5.5rem;
+  transform: scale(var(--tier-scale));
+}
+@media (min-width: 768px) {
+  .ph-ladder-medal { width: 7.5rem; }
+}
+
+/* The label under a ladder step: name always ships with the tier, so the
+   tier is never carried by colour alone. */
+.ph-ladder-label {
+  font-family: var(--font-display);
+  font-weight: var(--weight-display);
+  color: var(--tier-ink);
+}
+.ph-ladder-note {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: var(--muted-grove, #6b6b6b);
+}
+
+/* ---- tier motion v3 (Design System 3.5) -----------------------------
+   Scroll-driven where the browser supports it; elsewhere the element is
+   simply there. Reduced motion never animates anything. */
+@keyframes ph-tier-rise {
+  from { opacity: 0; transform: translateY(26px) scale(0.92); }
+}
+@keyframes ph-tier-rim {
+  from { opacity: 0; transform: scale(0.86) rotate(-6deg); }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .ph-tier-rise {
+      animation: ph-tier-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 32%;
+    }
+    .ph-tier-rim {
+      animation: ph-tier-rim linear both;
+      animation-timeline: view();
+      animation-range: entry 6% cover 40%;
+    }
+  }
 }
 
 /* ---- Plate gallery (3.4) -------------------------------------------- */
