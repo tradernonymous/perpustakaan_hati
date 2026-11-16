@@ -31,6 +31,15 @@ TOKENS = ROOT / "docs" / "brand" / "design-tokens.css"
 FONTS = ROOT / "packages" / "brand-tools" / "fonts"
 ASSETS = ROOT / "docs" / "brand" / "assets"
 
+# One seal per tier. The cover shows the seal of the edition it is: a
+# reader who sees only the cover still knows which tier it is, because
+# the seal's silhouette says so as well as its colour.
+TIER_SEALS = {
+    "poket": "seal-edisi-poket.svg",
+    "membangun": "seal-edisi-membangun.svg",
+    "teman-hidup": "seal-teman-hidup.svg",
+}
+
 # The edition's own illustration store. Generated gold-line art lives with
 # the manuscript it belongs to, not in the shared brand folder, so the
 # design-system lock only guards the files every edition shares.
@@ -642,7 +651,8 @@ def _emphasis(text: str) -> str:
     return re.sub(r"\*(.+?)\*", r"<em>\1</em>", rendered)
 
 
-def _cover_page(page: Page, foil: str | None = None) -> str:
+def _cover_page(page: Page, foil: str | None = None, tier: str = "poket") -> str:
+    seal_name = TIER_SEALS.get(tier, TIER_SEALS["poket"])
     if foil:
         wordmark = f'<img class="foil" src="{_e(foil)}" alt="" />'
     else:
@@ -651,7 +661,7 @@ def _cover_page(page: Page, foil: str | None = None) -> str:
             f'        <p class="wordmark-accent">{_e(page.wordmark_accent)}</p>'
         )
     return f"""
-  <section class="page cover">
+  <section class="page cover" data-tier="{_e(tier)}">
     <div class="cover-frame">
       <div class="cover-inner">
         <p class="kicker"><span class="rule"></span>{_e(page.kicker)}<span class="rule"></span></p>
@@ -663,7 +673,7 @@ def _cover_page(page: Page, foil: str | None = None) -> str:
         <p class="kicker byline"><span class="rule"></span>{_e(page.byline)}<span class="rule"></span></p>
       </div>
     </div>
-    <img class="seal" src="{_e((ASSETS / 'seal-edisi-poket.svg').as_uri())}" alt="Meterai Edisi Poket" />
+    <img class="seal" src="{_e((ASSETS / seal_name).as_uri())}" alt="Meterai edisi" />
   </section>"""
 
 
@@ -1301,6 +1311,34 @@ def _page_css() -> str:
     background: var(--ribbon-bg);
     border: 1px solid var(--gold);
   }
+
+  /* The tier ramp on a printed cover. The cover frame, the ribbon and
+     the seal all take the tier's own metal, so the three editions are
+     three different books and not one book in three sizes. The values
+     are the same ones the web reads from --tier-*-tokens, so a change
+     to the ramp reaches the printed edition too. */
+  .cover[data-tier="poket"] {
+    --cover-accent: #2d7954;
+    --cover-metal: #a7d3b6;
+    --cover-on-accent: #fdfee6;
+  }
+  .cover[data-tier="membangun"] {
+    --cover-accent: #c9a86a;
+    --cover-metal: #e9cea2;
+    --cover-on-accent: #0a0a0c;
+  }
+  .cover[data-tier="teman-hidup"] {
+    --cover-accent: #a34a56;
+    --cover-metal: #dd9b93;
+    --cover-on-accent: #fdfee6;
+  }
+  .cover .cover-frame { border-color: var(--cover-metal); }
+  .cover .cover-inner { border-color: var(--cover-accent); }
+  .cover .tier-ribbon {
+    color: var(--cover-on-accent);
+    background: var(--cover-accent);
+    border-color: var(--cover-metal);
+  }
   .cover .byline { margin: 0.4em 0 0; width: 100%; }
   .seal {
     position: absolute;
@@ -1596,7 +1634,7 @@ def build_pocket_html(doc: PocketDoc, foil: str | None = None) -> str:
     head = f"EDISI {doc.tier.upper()} · {doc.title.replace('*', '').upper()}"
     for page in doc.pages:
         if page.kind == "cover":
-            pages.append(_cover_page(page, foil))
+            pages.append(_cover_page(page, foil, doc.tier or "poket"))
             continue
         folio += 1
         pages.append(_interior_page(page, folio, head, assets=doc.assets))

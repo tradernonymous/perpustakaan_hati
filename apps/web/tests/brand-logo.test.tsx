@@ -66,10 +66,11 @@ describe("design-system cover, seals and ribbon on the editions", () => {
     expect(html).toContain("Kulit buku akan datang");
     expect(html).not.toContain("<img");
   });
-  it("every deck slide shows its tier seal and a ribbon with the edition name", () => {
+  it("every deck slide shows its tier cover and a ribbon with the edition name", () => {
     const html = renderToStaticMarkup(<EbookDeck />);
-    for (const f of ["seal-edisi-poket.svg", "seal-edisi-membangun.svg", "seal-teman-hidup.svg"]) {
-      expect(html).toContain(`/brand/animated/${f}`);
+    // The rendered covers carry each tier's seal in the artwork itself.
+    for (const t of ["poket", "membangun", "teman-hidup"]) {
+      expect(html).toContain(`/ebooks/cover-${t}.png`);
     }
     expect(html.match(/ph-ribbon/g)?.length).toBeGreaterThanOrEqual(3);
   });

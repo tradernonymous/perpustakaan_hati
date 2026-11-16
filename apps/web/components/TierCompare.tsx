@@ -1,4 +1,4 @@
-import { TIERS } from "@/src/content";
+import { TIERS, type Tier } from "@/src/content";
 import { ProductCover } from "./ProductCover";
 
 type MatrixCell = boolean | string;
@@ -91,10 +91,18 @@ const EXACT_LAUNCH_PRICE: Record<string, string | null> = {
   "teman-hidup": "Pelancaran: RM 79.00",
 };
 
-function CellMark({ value, tierName }: { value: MatrixCell; tierName: string }) {
+function CellMark({
+  value,
+  tierName,
+  tier,
+}: {
+  value: MatrixCell;
+  tierName: string;
+  tier: Tier["id"];
+}) {
   if (value === true) {
     return (
-      <span className="ph-tick" role="img" aria-label={`Termasuk dalam ${tierName}`}>
+      <span className="ph-tick" role="img" aria-label={`Termasuk dalam ${tierName}`} data-tier={tier}>
         ✓
       </span>
     );
@@ -104,7 +112,11 @@ function CellMark({ value, tierName }: { value: MatrixCell; tierName: string }) 
       <span className="inline-block h-0.5 w-4 rounded-full bg-daylight-edge" aria-label={`Tidak termasuk dalam ${tierName}`} />
     );
   }
-  return <span className="text-xs font-medium text-green-900">{value}</span>;
+  return (
+    <span className="text-xs font-medium ph-tier-ink" data-tier={tier}>
+      {value}
+    </span>
+  );
 }
 
 export function TierCompare() {
@@ -125,6 +137,7 @@ export function TierCompare() {
                 <th
                   key={t.id}
                   scope="col"
+                  data-tier={t.id}
                   className={`w-[20%] ${featured ? "ph-compare-featured" : ""}`}
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -138,11 +151,11 @@ export function TierCompare() {
                       </span>
                     )}
                     <div className="mx-auto w-[52px]">
-                      <ProductCover name={t.name} src={t.cover} seal={t.seal} className="rounded-sm" />
+                      <ProductCover name={t.name} src={t.cover} seal={t.seal} tier={t.id} className="rounded-sm" />
                     </div>
-                    <span className="font-display text-xl text-green-900">{t.name}</span>
-                    <span className="font-display text-lg font-semibold text-green-800">{t.price}</span>
-                    {launch && <span className="text-[11px] font-medium text-gold-ink">{launch}</span>}
+                    <span className="ph-tier-badge" data-tier={t.id}>{t.name}</span>
+                    <span className="font-display text-lg font-semibold ph-tier-ink">{t.price}</span>
+                    {launch && <span className="text-[11px] font-medium ph-tier-ink">{launch}</span>}
                   </div>
                 </th>
               );
@@ -155,14 +168,14 @@ export function TierCompare() {
               <th scope="row" className="text-sm font-normal leading-snug text-ink-grove">
                 {row.feature}
               </th>
-              <td className="align-middle">
-                <CellMark value={row.poket} tierName="Edisi Poket" />
+              <td className="align-middle" data-tier="poket">
+                <CellMark value={row.poket} tierName="Edisi Poket" tier="poket" />
               </td>
-              <td className="ph-compare-featured align-middle">
-                <CellMark value={row.membangun} tierName="Edisi Membangun" />
+              <td className="ph-compare-featured align-middle" data-tier="membangun">
+                <CellMark value={row.membangun} tierName="Edisi Membangun" tier="membangun" />
               </td>
-              <td className="align-middle">
-                <CellMark value={row["teman-hidup"]} tierName="Teman Hidup" />
+              <td className="align-middle" data-tier="teman-hidup">
+                <CellMark value={row["teman-hidup"]} tierName="Teman Hidup" tier="teman-hidup" />
               </td>
             </tr>
           ))}
@@ -176,7 +189,7 @@ export function TierCompare() {
               const free = t.id === "poket";
               const featured = t.id === "membangun";
               return (
-                <td key={t.id} className={featured ? "ph-compare-featured" : ""}>
+                <td key={t.id} data-tier={t.id} className={featured ? "ph-compare-featured" : ""}>
                   <a
                     href={free ? "#percuma" : `/beli/${t.id}`}
                     className={`${free || featured ? "ph-cta" : "btn-ghost"} min-h-tap w-full justify-center px-3 py-2 text-xs`}

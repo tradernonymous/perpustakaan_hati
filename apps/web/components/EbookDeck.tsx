@@ -82,6 +82,7 @@ export function EbookDeck() {
                   aria-label={`${i + 1} of ${TIERS.length}`}
                   aria-hidden={!active}
                   data-active={active}
+                  data-tier={t.id}
                   className={`ph-coverflow-card absolute inset-0 rounded bg-daylight-raised ${active ? "ph-beam" : "overflow-hidden"}`}
                   style={{
                     transform: `translateX(${i * 100}%) scale(${scale}) rotateY(${ry}deg) translateZ(${z}px)`,
@@ -91,8 +92,16 @@ export function EbookDeck() {
                   }}
                 >
                   <span className="ph-spine" aria-hidden="true" />
-                  <ProductCover name={t.name} src={t.cover} seal={t.seal.replace("/brand/", "/brand/animated/")} className="h-full w-full rounded-none border-0" />
-                  <span className="ph-ribbon absolute left-1/2 top-4 -translate-x-1/2 whitespace-nowrap text-sm">{t.price}</span>
+                  <ProductCover
+                    name={t.name}
+                    src={t.cover}
+                    seal={t.seal.replace("/brand/", "/brand/animated/")}
+                    tier={t.id}
+                    className="h-full w-full rounded-none border-0"
+                  />
+                  <span className="ph-ribbon ph-tier-ribbon absolute left-1/2 top-4 -translate-x-1/2 whitespace-nowrap" data-tier={t.id}>
+                    {t.price}
+                  </span>
                   <a
                     href={t.id === "poket" ? "#percuma" : `/beli/${t.id}`}
                     tabIndex={active ? 0 : -1}
@@ -127,7 +136,12 @@ export function EbookDeck() {
               onClick={() => setIndex(i)}
               className="flex min-h-tap min-w-tap cursor-pointer items-center justify-center"
             >
-              <span aria-hidden="true" className={`block h-2 rounded-pill transition-all duration-300 ${i === index ? "w-6 bg-green-700" : "w-2 bg-daylight-edge"}`} />
+              <span
+                aria-hidden="true"
+                data-tier={t.id}
+                className={`block h-2 rounded-pill transition-all duration-300 ${i === index ? "w-6" : "w-2 bg-daylight-edge"}`}
+                style={i === index ? { background: "var(--tier-fill)" } : undefined}
+              />
             </button>
           ))}
         </div>
@@ -141,16 +155,16 @@ export function EbookDeck() {
         </button>
       </div>
 
-      <div className="ph-card mx-auto mt-6 max-w-reading p-5 text-center">
-        <h3 className="ph-title text-2xl text-green-900">{tier.name}</h3>
-        <p className="mt-1 font-display text-3xl text-green-900">{tier.price}</p>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-kicker text-gold-ink">{LAUNCH_NOTE[tier.id]}</p>
+      <div className="ph-tier-card mx-auto mt-6 max-w-reading p-5 text-center" data-tier={tier.id}>
+        <h3 className="ph-title text-2xl ph-tier-ink">{tier.name}</h3>
+        <p className="mt-1 font-display text-3xl ph-tier-ink">{tier.price}</p>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-kicker ph-tier-ink">{LAUNCH_NOTE[tier.id]}</p>
         <p className="mt-2 text-sm text-muted-grove">{tier.size}</p>
         <p className="mt-2 font-display italic text-ink-grove">{tier.subcopy}</p>
         <ul className="mx-auto mt-4 flex max-w-[460px] flex-col gap-1.5 text-left text-sm text-ink-grove">
           {tier.includes.map((item) => (
             <li key={item} className="flex items-start gap-2">
-              <span aria-hidden="true" className="text-gold-ink">◆</span>
+              <span aria-hidden="true" className="ph-tier-ink">◆</span>
               <span>{item}</span>
             </li>
           ))}

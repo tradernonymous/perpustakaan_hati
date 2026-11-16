@@ -34,6 +34,13 @@ const brandColors = {
   'gold-ink': { DEFAULT: '#7a5a22', soft: '#96742f' },
   // AJE branch — black + gold only, never mixed into Perpustakaan Hati
   aje: { black: '#0a0a0a', raised: '#151515', gold: '#c9a86a', light: '#e9cea2', deep: '#8a6224', cream: '#fdfee6' },
+  // Design System 3.5 "Ladder of Light" — the per-tier ramp.
+  // Same values as the --tier-* tokens in design-tokens.css.
+  tier: {
+    poket: { ink: '#1d5a3d', 'on-dark': '#7db895', fill: '#2d7954', band: '#e4f4e9', edge: '#8fc0a5' },
+    membangun: { ink: '#7a5a22', 'on-dark': '#e9cea2', fill: '#c9a86a', band: '#f7efdd', edge: '#c9a86a' },
+    'teman-hidup': { ink: '#5c1e17', 'on-dark': '#d4746f', fill: '#a34a56', band: '#f3e3e0', edge: '#c9978f' },
+  },
   cream: '#fdfee6',
   paper: '#f4efe6',
   linen: '#eae2d4',

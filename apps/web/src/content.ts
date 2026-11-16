@@ -31,7 +31,7 @@ export const TIERS: Tier[] = [
       "3 skrip untuk perbualan yang paling sukar minggu ini",
     ],
     seal: "/brand/seal-edisi-poket.svg",
-    cover: null,
+    cover: "/ebooks/cover-poket.png",
   },
   {
     id: "membangun",
@@ -46,7 +46,7 @@ export const TIERS: Tier[] = [
       "5 contoh skrip untuk bercakap dengan jujur",
     ],
     seal: "/brand/seal-edisi-membangun.svg",
-    cover: null,
+    cover: "/ebooks/cover-membangun.png",
   },
   {
     id: "teman-hidup",
@@ -63,7 +63,7 @@ export const TIERS: Tier[] = [
       "12 Kad Refleksi untuk dicetak",
     ],
     seal: "/brand/seal-teman-hidup.svg",
-    cover: null,
+    cover: "/ebooks/cover-teman-hidup.png",
   },
 ];
 
