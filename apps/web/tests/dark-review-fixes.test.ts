@@ -38,7 +38,7 @@ describe("review fixes: dark scope must not leak into the ivory admin", () => {
 
 describe("review fixes: phone header and sticky bar", () => {
   it("makes the header opaque on phones even inside the nightlight scope", () => {
-    expect(css).toMatch(/@media \(max-width: 767px\)\s*\{[\s\S]*?\.ph-nightlight \.ph-header\s*\{[^}]*background:\s*var\(--surface-base\)/);
+    expect(css).toMatch(/@media \(max-width: 767px\)\s*\{[\s\S]*?\.ph-nightlight \.ph-header[^{]*\{[^}]*background:\s*var\(--surface-base\)/);
   });
   it("drops the backdrop blur from the sticky CTA bar", () => {
     expect(src("components/StickyCta.tsx")).not.toContain("backdrop-blur");

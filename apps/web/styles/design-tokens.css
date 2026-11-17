@@ -238,7 +238,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.7.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.8.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -1449,8 +1449,8 @@
 .ph-ticker {
   overflow: hidden;
   padding-block: 0.9rem;
-  border-block: 1px solid var(--forest-edge);
-  background: var(--forest-raised);
+  border-block: 1px solid var(--border-default);
+  background: var(--surface-raised);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
 }
@@ -2225,7 +2225,7 @@
    Below 768px they become still frames. */
 @media (max-width: 767px) {
   .ph-beam::before { animation: none; }
-  .ph-header, .ph-nightlight .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface-base); }
+  .ph-header, .ph-nightlight .ph-header, .ph-void .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface-base); }
   /* A live blur filter on two off-screen covers is a GPU cost on every
      frame of the carousel animation. The depth still reads from the
      scale, the rotation and the opacity. */
@@ -2359,15 +2359,15 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 }
 /* Page grounds. Sections alternate between the two so the page has rhythm
    without a single light band. */
-.ph-dark-section { background-color: var(--forest-night); color: var(--text-on-dark); }
-.ph-dark-section-raised { background-color: var(--forest-raised); color: var(--text-on-dark); }
-.ph-dark-section-raised::before, .ph-dark-section::before { content: none !important; }
+.ph-dark-section { background-color: var(--surface-base); color: var(--text-on-dark); }
+.ph-dark-section-raised { background-color: var(--surface-raised); color: var(--text-on-dark); }
 .ph-day-stage { background-color: var(--surface-base); background-image: var(--ph-glow-green), var(--ph-glow-gold); }
 .ph-nightlight :is(.ph-title, .ph-hero):not(.ph-daylight *) { color: var(--text-on-dark); }
 .ph-nightlight .ph-caps { color: var(--gold-light); }
 .ph-nightlight .ph-hero-eyebrow { color: var(--green-300); background: var(--forest-soft); }
 /* Header: translucent dark with a hairline. Blur only on wide screens. */
 .ph-nightlight .ph-header { background: rgb(7 20 13 / 0.82); border-color: var(--forest-edge); }
+.ph-void .ph-header { background: rgb(3 6 4 / 0.8); border-color: rgb(157 225 193 / 0.1); }
 /* Cards: raised ground, hairline, lift on hover by transform only. */
 .ph-nightlight .ph-card, .ph-nightlight .ph-chapter-card, .ph-nightlight .ph-bento > * {
   border-color: var(--forest-edge);
@@ -2396,3 +2396,126 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .ph-nightlight [data-tier="membangun"] { --tier-band: rgb(201 168 106 / 0.14); --tier-edge: rgb(201 168 106 / 0.5); }
 .ph-nightlight [data-tier="teman-hidup"] { --tier-band: rgb(163 74 86 / 0.18); --tier-edge: rgb(212 116 111 / 0.5); }
 .ph-nightlight { --ph-featured-col: rgb(201 168 106 / 0.10); }
+
+
+/* =======================================================================
+   DESIGN SYSTEM 3.8 — "VOID GROVE"
+   Same palette, one step darker, like raycast.com: the page ground is a
+   near-black with a trace of green (#030604) and raised surfaces are only
+   a breath lighter. Everything is still a role (surface-base, surface-
+   raised, ...), so a component never names the colour.
+   Hero: one beam of light falls from the top edge and breathes; a soft
+   spotlight follows a real pointer. Nothing else moves. Compositor only
+   (opacity and transform), still on phones after the entrance.
+   ======================================================================= */
+:root {
+  --ph-void: #030604;          /* page ground */
+  --ph-void-raised: #08120c;   /* cards, alternate bands */
+  --ph-void-soft: #0e1b13;     /* inputs, overlays */
+}
+.ph-void {
+  --surface-base: var(--ph-void);
+  --surface-raised: var(--ph-void-raised);
+  --surface-soft: var(--ph-void-soft);
+  --border-default: rgb(157 225 193 / 0.1);
+  --card-v3-bg: linear-gradient(180deg, var(--ph-void-raised), var(--ph-void));
+  --card-v3-border: rgb(157 225 193 / 0.1);
+  --chart-track: var(--ph-void-soft);
+  background-color: var(--ph-void);
+}
+/* A glowing hairline opens every band, as on the reference. */
+.ph-dark-section, .ph-dark-section-raised { position: relative; }
+.ph-dark-section::before, .ph-dark-section-raised::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 1px;
+  background: var(--ph-hairline-dark); opacity: 0.7; pointer-events: none;
+}
+.ph-void .ph-day-stage { background-color: var(--ph-void); background-image: none; }
+.ph-void :is(input, textarea, select):not(.ph-daylight *) { background-color: var(--ph-void-soft); border-color: rgb(157 225 193 / 0.14); }
+.ph-void .ph-hero-eyebrow { background: var(--ph-void-soft); border-color: rgb(157 225 193 / 0.18); }
+
+/* ---- Hero light ---------------------------------------------------- */
+.ph-hero-fx { --hx: 50%; --hy: 20%; position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.ph-hero-beam {
+  position: absolute; left: 50%; top: -12%; width: min(980px, 130vw); height: 82%;
+  margin-left: calc(min(980px, 130vw) / -2);
+  background:
+    radial-gradient(50% 70% at 50% 0%, rgb(125 184 149 / 0.5), transparent 72%),
+    radial-gradient(26% 48% at 50% 0%, rgb(233 206 162 / 0.3), transparent 78%);
+  transform-origin: 50% 0;
+  opacity: 0;
+  animation: ph-beam-in 1.4s var(--ease-decelerate) 0.1s forwards, ph-beam-breathe 8s ease-in-out 1.5s infinite;
+}
+.ph-hero-spot {
+  display: none; position: absolute; left: 0; top: 0; width: 520px; height: 520px; margin: -260px 0 0 -260px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(201 168 106 / 0.1), transparent);
+  transform: translate3d(var(--hx), var(--hy), 0);
+  opacity: 0;
+  transition: transform 160ms var(--ease-decelerate), opacity 400ms var(--ease-decelerate);
+}
+.ph-hero-fx[data-live] .ph-hero-spot { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .ph-hero-spot { display: block; } }
+@keyframes ph-beam-in { from { opacity: 0; transform: scaleY(0.6); } to { opacity: 1; transform: scaleY(1); } }
+@keyframes ph-beam-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.62; } }
+.ph-hero-fx ~ * { position: relative; z-index: 1; }
+/* Headline words rise one after another. */
+.ph-rise { opacity: 0; transform: translateY(14px); animation: ph-rise 700ms var(--ease-decelerate) forwards; }
+@keyframes ph-rise { to { opacity: 1; transform: translateY(0); } }
+.ph-hero-eyebrow { text-decoration: none; transition: border-color 200ms var(--ease-standard), color 200ms var(--ease-standard); }
+.ph-hero-eyebrow:hover { border-color: var(--ph-art-edge-strong); color: var(--gold-light); }
+.ph-hero-eyebrow-arrow { transition: transform 200ms var(--ease-standard); }
+.ph-hero-eyebrow:hover .ph-hero-eyebrow-arrow { transform: translateX(3px); }
+
+/* ---- Section headings: white fading to muted, as on the reference ---- */
+.ph-void :is(.ph-title):not(.ph-daylight *) {
+  background-image: linear-gradient(180deg, var(--text-on-dark) 35%, rgb(230 226 218 / 0.55));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+@media (forced-colors: active) {
+  .ph-void :is(.ph-title) { background-image: none; -webkit-text-fill-color: currentColor; }
+}
+@media print {
+  .ph-void :is(.ph-title) { background-image: none; -webkit-text-fill-color: currentColor; color: #000; }
+}
+/* ---- Cursor-lit border ring on spotlight cards ---------------------- */
+.ph-void .ph-lux:not(.ph-beam)::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: radial-gradient(240px 160px at var(--mx) var(--my), rgb(233 206 162 / 0.65), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity var(--dur-base) var(--ease-out);
+}
+.ph-void .ph-lux:not(.ph-beam):hover::before { opacity: 1; }
+@media (max-width: 767px) {
+  .ph-hero-beam { animation: ph-beam-in 1.4s var(--ease-decelerate) 0.1s forwards; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-hero-beam { animation: none; opacity: 0.85; }
+  .ph-rise { animation: none; opacity: 1; transform: none; }
+}
+
+/* ---- Quick-jump palette (3.8) --------------------------------------- */
+.ph-kbd-hint {
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--tap-min, 44px); padding: 0 0.6rem; border-radius: 0.6rem;
+  border: 1px solid rgb(157 225 193 / 0.14); background: transparent; color: var(--text-muted); font-size: 0.8125rem; cursor: pointer;
+  transition: border-color 200ms var(--ease-standard), color 200ms var(--ease-standard);
+}
+.ph-kbd-hint:hover { border-color: rgb(157 225 193 / 0.3); color: var(--text-primary); }
+.ph-palette kbd, .ph-kbd-hint kbd {
+  font: 600 0.6875rem/1 var(--font-body); padding: 0.2rem 0.4rem; border-radius: 0.35rem;
+  border: 1px solid rgb(157 225 193 / 0.22); border-bottom-width: 2px; color: var(--text-muted); background: var(--surface-soft);
+}
+.ph-palette-scrim { position: fixed; inset: 0; z-index: var(--z-toast, 70); display: grid; place-items: start center; padding: 14vh 1rem 1rem; background: rgb(0 0 0 / 0.66); }
+.ph-palette {
+  width: min(560px, 100%); border-radius: 0.9rem; overflow: hidden; background: var(--ph-void-raised, #08120c); color: var(--text-primary);
+  border: 1px solid rgb(157 225 193 / 0.16); box-shadow: 0 40px 100px -20px rgb(0 0 0 / 0.9);
+}
+.ph-palette-input { width: 100%; padding: 1rem 1.1rem; background: transparent; border: 0; border-bottom: 1px solid rgb(157 225 193 / 0.12); color: var(--text-primary); font-size: 1rem; outline: none; }
+.ph-palette-input:focus-visible { outline: none; box-shadow: inset 0 -2px 0 var(--green-300); }
+.ph-palette-list { list-style: none; margin: 0; padding: 0.4rem; max-height: 50vh; overflow-y: auto; }
+.ph-palette-opt { display: flex; justify-content: space-between; gap: 1rem; padding: 0.7rem 0.8rem; border-radius: 0.55rem; cursor: pointer; font-size: 0.9375rem; }
+.ph-palette-opt[aria-selected="true"] { background: rgb(125 184 149 / 0.16); }
+.ph-palette-hint { color: var(--text-muted); font-size: 0.75rem; }
+.ph-palette-empty { margin: 0; padding: 1.2rem; color: var(--text-muted); text-align: center; }
+.ph-palette-foot { margin: 0; padding: 0.6rem 1rem; display: flex; gap: 0.4rem; align-items: center; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid rgb(157 225 193 / 0.1); }
+@media (max-width: 1023px) { .ph-kbd-hint { display: none; } }

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { NAV } from "@/src/content";
 import { BrandMark } from "@/components/BrandMark";
+import { OPEN_PALETTE_EVENT } from "@/components/CommandPalette";
 
 export function SiteHeader({ base = "" }: { base?: string }) {
   const [open, setOpen] = useState(false);
@@ -43,6 +44,9 @@ export function SiteHeader({ base = "" }: { base?: string }) {
           <a href="/pustaka" className="flex min-h-tap items-center rounded px-2.5 text-sm font-medium text-fg-healing transition-colors hover:text-fg">
             Pustaka
           </a>
+          <button type="button" onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))} className="ph-kbd-hint ml-1" aria-label="Lompat ke bahagian atau halaman (Ctrl atau Cmd + K)">
+            <span>Lompat ke</span><kbd aria-hidden="true">Ctrl K</kbd>
+          </button>
           <a href={`${base}#percuma`} className="ph-cta ml-2 min-h-tap text-sm">Edisi Poket, percuma</a>
         </nav>
 

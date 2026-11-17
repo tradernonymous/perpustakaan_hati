@@ -1,7 +1,7 @@
 import { AuthorByline } from "@/components/AuthorByline";
 import { HeroBook } from "@/components/HeroBook";
 import { HeroExcerptPreview } from "@/components/HeroExcerptPreview";
-import { HeroGlyphs } from "@/components/HeroGlyphs";
+import { HeroBeam } from "@/components/HeroBeam";
 import { Illustration } from "@/components/Illustration";
 import { OptInForm } from "@/components/OptInForm";
 import { ReadingProgress } from "@/components/ReadingProgress";
@@ -31,23 +31,24 @@ export function Hero() {
 
   return (
     <section id="atas" className="ph-day-stage relative overflow-hidden px-5 pb-14 pt-8 md:pb-20 md:pt-12">
-      <HeroGlyphs />
+      <HeroBeam />
 
       <div className="ph-hero-grid mx-auto max-w-grid">
         <div className="flex flex-col items-center gap-5 text-center lg:items-start lg:text-left">
-          <div className="animate-fade-up" style={{ animationDelay: "60ms" }}>
-            <span className="ph-hero-eyebrow">
+          <div className="ph-rise" style={{ animationDelay: "40ms" }}>
+            <a href="#edisi" className="ph-hero-eyebrow">
               <span className="ph-pulse-dot" aria-hidden="true" />
               <span>Koleksi Edisi 01 · Psikologi Hubungan</span>
-            </span>
+              <span aria-hidden="true" className="ph-hero-eyebrow-arrow">→</span>
+            </a>
           </div>
 
-          <div className="w-full max-w-[560px] animate-fade-up" style={{ animationDelay: "120ms" }}>
+          <div className="w-full max-w-[560px]">
             <h1 className="font-display text-fg">
-              <span className="ph-caps block text-[clamp(1.35rem,1rem+1.4vw,2rem)] text-fg-accent">Perpustakaan</span>
-              <span className="ph-hero mt-1 block text-[clamp(3.75rem,2.3rem+6.2vw,6.75rem)] leading-[0.94]">HATI</span>
+              <span className="ph-rise ph-caps block text-[clamp(1.35rem,1rem+1.4vw,2rem)] text-fg-accent" style={{ animationDelay: "140ms" }}>Perpustakaan</span>
+              <span className="ph-rise ph-hero mt-1 block text-[clamp(3.75rem,2.3rem+6.2vw,6.75rem)] leading-[0.94]" style={{ animationDelay: "260ms" }}>HATI</span>
             </h1>
-            <SectionOrnament className="mt-4 lg:mx-0" />
+            <div className="ph-rise mt-4" style={{ animationDelay: "380ms" }}><SectionOrnament className="lg:mx-0" /></div>
           </div>
 
           <p className="ph-kicker w-full max-w-[420px] animate-fade-up" style={{ animationDelay: "220ms" }}>

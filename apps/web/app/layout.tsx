@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { siteUrl } from "@/src/site";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const title = "Perpustakaan Hati | Karya untuk jiwa yang pernah terluka";
 const description =
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#07140d",
+  themeColor: "#030604",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,7 +43,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await headers();
   return (
     <html lang="ms">
-      <body className="ph-nightlight">{children}</body>
+      <body className="ph-nightlight ph-void">
+        {children}
+        <CommandPalette />
+      </body>
     </html>
   );
 }
