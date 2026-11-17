@@ -32,7 +32,7 @@ export function DemoPayButton({ orderId }: { orderId: string }) {
       <button type="button" onClick={pay} disabled={busy} className="ph-cta min-h-cta-mobile items-center justify-center disabled:opacity-60">
         {busy ? "Memproses..." : "Bayar (demo)"}
       </button>
-      <p aria-live="polite" role="status" className="text-burgundy-light">{error}</p>
+      <p aria-live="polite" role="status" className="text-danger">{error}</p>
     </div>
   );
 }

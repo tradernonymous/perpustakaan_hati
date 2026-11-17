@@ -21,14 +21,14 @@ export default async function AdminPage() {
     return (
       <main className="ph-daylight mx-auto flex min-h-screen max-w-reading flex-col justify-center gap-6 px-5 py-16">
         <p className="ph-kicker">Perpustakaan Hati</p>
-        <h1 className="font-display text-3xl text-green-900">Masuk ke admin</h1>
-        <p className="text-muted-grove">
+        <h1 className="font-display text-3xl text-fg">Masuk ke admin</h1>
+        <p className="text-fg-muted">
           Hanya akaun Facebook yang disenaraikan boleh masuk. Akaun lain akan ditolak walaupun berjaya log masuk.
         </p>
         <a href="/api/auth/facebook/start" className="ph-cta min-h-cta-mobile items-center justify-center text-center">
           Masuk dengan Facebook
         </a>
-        <p className="text-sm text-muted-grove">
+        <p className="text-sm text-fg-muted">
           Kata laluan admin masih berfungsi sebagai sandaran: buka{" "}
           <a className="underline" href="/admin/subscribers">
             eksport pelanggan
@@ -47,7 +47,7 @@ export default async function AdminPage() {
   return (
     <main className="ph-daylight mx-auto flex min-h-screen max-w-reading flex-col gap-6 px-5 py-16">
       <p className="ph-kicker">Perpustakaan Hati</p>
-      <h1 className="font-display text-3xl text-green-900">Admin</h1>
+      <h1 className="font-display text-3xl text-fg">Admin</h1>
       <AdminPanel threads={threads} />
     </main>
   );

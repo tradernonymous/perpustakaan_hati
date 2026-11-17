@@ -69,15 +69,15 @@ export function CerminPasangan() {
 
     return (
       <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-6" role="status" aria-live="polite">
-        <span className="inline-block w-fit rounded-full bg-sage px-3 py-1 text-xs font-medium uppercase tracking-wider text-green-900">
+        <span className="inline-block w-fit rounded-full bg-surface-soft px-3 py-1 text-xs font-medium uppercase tracking-wider text-fg">
           {copy.badge}
         </span>
-        <h3 className="font-display text-2xl text-green-900">Peta Hubungan kamu</h3>
-        <p className="font-mono text-sm text-green-900">
+        <h3 className="font-display text-2xl text-fg">Peta Hubungan kamu</h3>
+        <p className="font-mono text-sm text-fg">
           Skor: {score} / {maxScore}
         </p>
-        <p className="font-medium text-ink-grove">{copy.headline}</p>
-        <p className="text-sm text-muted-grove">{copy.detail}</p>
+        <p className="font-medium text-fg">{copy.headline}</p>
+        <p className="text-sm text-fg-muted">{copy.detail}</p>
 
         <div className="flex flex-wrap gap-3 pt-2">
           <a
@@ -106,21 +106,21 @@ export function CerminPasangan() {
 
   return (
     <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-6">
-      <div className="flex items-center justify-between gap-2 text-sm text-green-900">
+      <div className="flex items-center justify-between gap-2 text-sm text-fg">
         <span>
           Cermin Pasangan, soalan {answers.length + 1} / {QUESTIONS.length}
         </span>
-        <span className="font-mono text-xs text-muted-grove">{progressPct}%</span>
+        <span className="font-mono text-xs text-fg-muted">{progressPct}%</span>
       </div>
 
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-sage" aria-hidden="true">
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-soft" aria-hidden="true">
         <div
-          className="h-full rounded-full bg-green-700 transition-all duration-300"
+          className="h-full rounded-full bg-green-400 transition-all duration-300"
           style={{ width: `${progressPct}%` }}
         />
       </div>
 
-      <p className="font-display text-lg text-ink-grove">{q.text}</p>
+      <p className="font-display text-lg text-fg">{q.text}</p>
 
       <div className="flex flex-col gap-2.5">
         {q.options.map((o) => (
@@ -139,7 +139,7 @@ export function CerminPasangan() {
         <div className="flex justify-between pt-2">
           <button
             type="button"
-            className="text-sm text-green-800 underline underline-offset-4 hover:text-green-900"
+            className="text-sm text-fg-healing underline underline-offset-4 hover:text-fg"
             onClick={() => setAnswers((prev) => prev.slice(0, -1))}
           >
             Undur ke soalan sebelum

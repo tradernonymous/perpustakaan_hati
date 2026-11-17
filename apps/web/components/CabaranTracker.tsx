@@ -41,10 +41,10 @@ export function CabaranTracker({ days }: { days: CabaranDay[] }) {
     <div className="mx-auto flex max-w-reading flex-col gap-4">
       <div className="ph-card flex flex-wrap items-center justify-between gap-3 p-4">
         <div>
-          <p className="font-display text-lg text-green-900">
+          <p className="font-display text-lg text-fg">
             Kemajuan kamu: {completed.length} / {days.length} hari ({pct}%)
           </p>
-          <p className="text-xs text-muted-grove">Disimpan dalam pelayar kamu secara peribadi.</p>
+          <p className="text-xs text-fg-muted">Disimpan dalam pelayar kamu secara peribadi.</p>
         </div>
         <a
           href={`https://www.threads.net/intent/post?text=${threadsText}`}
@@ -61,7 +61,7 @@ export function CabaranTracker({ days }: { days: CabaranDay[] }) {
           const checked = completed.includes(d.day);
           const inputId = `cabaran-day-${d.day}`;
           return (
-            <li key={d.day} className={`ph-card p-4 transition ${checked ? "border-green-700 bg-sage/60" : ""}`}>
+            <li key={d.day} className={`ph-card p-4 transition ${checked ? "border-green-700 bg-surface-soft" : ""}`}>
               <div className="flex items-start gap-3">
                 <input
                   id={inputId}
@@ -71,11 +71,11 @@ export function CabaranTracker({ days }: { days: CabaranDay[] }) {
                   className="mt-1 h-5 w-5 accent-green-700"
                 />
                 <label htmlFor={inputId} className="flex-1 cursor-pointer">
-                  <p className="font-display text-green-900">
+                  <p className="font-display text-fg">
                     Hari {d.day} {checked ? "(Selesai)" : ""}
                   </p>
-                  <p className="text-ink-grove">{d.prompt}</p>
-                  <p className="mt-1 text-sm text-muted-grove">{d.action}</p>
+                  <p className="text-fg">{d.prompt}</p>
+                  <p className="mt-1 text-sm text-fg-muted">{d.action}</p>
                 </label>
               </div>
             </li>

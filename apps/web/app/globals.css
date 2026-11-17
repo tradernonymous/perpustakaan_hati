@@ -13,8 +13,8 @@
     scroll-padding-top: 4.5rem;
     -webkit-text-size-adjust: 100%;
   }
-  body { @apply bg-daylight font-body text-base leading-[1.65] text-ink-grove antialiased; }
-  :focus-visible { outline: 2px solid var(--green-700, #2d7954); outline-offset: 2px; }
+  body { @apply bg-surface font-body text-base leading-[1.65] text-fg antialiased; }
+  :focus-visible { outline: var(--focus-width, 2px) solid var(--focus-color, #a7d3b6); outline-offset: var(--focus-offset, 2px); }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
@@ -23,7 +23,7 @@
 
 @layer components {
   .btn-ghost {
-    @apply inline-flex min-h-tap cursor-pointer items-center justify-center gap-2 rounded-pill border border-green-700 px-6 py-3 text-base font-semibold text-green-800 transition-colors hover:bg-sage hover:text-green-900 active:translate-y-px;
+    @apply inline-flex min-h-tap cursor-pointer items-center justify-center gap-2 rounded-pill border border-green-600 px-6 py-3 text-base font-semibold text-fg-healing transition-colors hover:bg-surface-soft hover:text-fg active:translate-y-px;
   }
 
   /* ---- Animated brand mark (Design System 3.1 redesign) ------------ */

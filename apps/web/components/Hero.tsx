@@ -3,6 +3,7 @@ import { HeroBook } from "@/components/HeroBook";
 import { HeroExcerptPreview } from "@/components/HeroExcerptPreview";
 import { HeroGlyphs } from "@/components/HeroGlyphs";
 import { Illustration } from "@/components/Illustration";
+import { OptInForm } from "@/components/OptInForm";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { SectionOrnament } from "@/components/SectionOrnament";
 import { ILLUSTRATIONS } from "@/src/illustrations";
@@ -42,8 +43,8 @@ export function Hero() {
           </div>
 
           <div className="w-full max-w-[560px] animate-fade-up" style={{ animationDelay: "120ms" }}>
-            <h1 className="font-display text-green-900">
-              <span className="ph-caps block text-[clamp(1.35rem,1rem+1.4vw,2rem)] text-gold-ink">Perpustakaan</span>
+            <h1 className="font-display text-fg">
+              <span className="ph-caps block text-[clamp(1.35rem,1rem+1.4vw,2rem)] text-fg-accent">Perpustakaan</span>
               <span className="ph-hero mt-1 block text-[clamp(3.75rem,2.3rem+6.2vw,6.75rem)] leading-[0.94]">HATI</span>
             </h1>
             <SectionOrnament className="mt-4 lg:mx-0" />
@@ -53,33 +54,32 @@ export function Hero() {
             <AuthorByline />
           </p>
 
-          <p className="ph-script text-2xl text-green-800 md:text-3xl animate-fade-up" style={{ animationDelay: "300ms" }}>
+          <p className="ph-script text-2xl text-fg-healing md:text-3xl animate-fade-up" style={{ animationDelay: "300ms" }}>
             Karya untuk jiwa yang pernah terluka
           </p>
 
-          <p className="max-w-prose text-base leading-relaxed text-ink-grove md:text-lg animate-fade-up" style={{ animationDelay: "380ms" }}>
+          <p className="max-w-prose text-base leading-relaxed text-fg md:text-lg animate-fade-up" style={{ animationDelay: "380ms" }}>
             Tulisan yang memulihkan, dalam Bahasa Melayu yang dekat di hati. Mulakan dengan satu buku
             kecil yang boleh dibaca sementara menunggu bas atau train.
           </p>
 
-          <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row animate-fade-up" style={{ animationDelay: "480ms" }}>
-            <a href="#percuma" className="ph-cta min-h-cta-mobile w-full items-center justify-center sm:w-auto">
-              Mula dengan Edisi Poket, percuma
-            </a>
-            <a href="#edisi" className="btn-ghost min-h-cta-mobile w-full justify-center sm:w-auto">
-              Lihat semua edisi
-            </a>
+          <div id="percuma" className="w-full max-w-[520px] scroll-mt-20 animate-fade-up" style={{ animationDelay: "480ms" }}>
+            <h2 className="mb-3 font-display text-xl text-fg">Edisi Poket, percuma</h2>
+            <OptInForm />
+            <p className="mt-3 text-sm text-fg-muted">
+              Mahu lihat dahulu? <a href="#edisi" className="text-fg-accent underline underline-offset-4">Lihat semua edisi</a>
+            </p>
           </div>
 
           <ul className="flex flex-wrap justify-center gap-2 lg:justify-start animate-fade-up" style={{ animationDelay: "560ms" }} aria-label="Kelebihan">
             {CHIPS.map((c) => (
-              <li key={c} className="rounded-pill border border-daylight-edge bg-daylight-raised px-3 py-1 text-xs text-green-800">
+              <li key={c} className="rounded-pill border border-line bg-surface-raised px-3 py-1 text-xs text-fg-healing">
                 {c}
               </li>
             ))}
           </ul>
 
-          <p className="max-w-md border-l-2 border-gold/60 pl-3.5 text-left font-reading text-sm italic text-muted-grove animate-fade-up" style={{ animationDelay: "620ms" }}>
+          <p className="max-w-md border-l-2 border-gold/60 pl-3.5 text-left font-reading text-sm italic text-fg-muted animate-fade-up" style={{ animationDelay: "620ms" }}>
             “Sekali baca, lama terasa. Ruang kecil untuk hati bertenang sebelum berbicara.”
           </p>
         </div>
@@ -105,8 +105,8 @@ export function Hero() {
       <ul className="mx-auto mt-10 grid max-w-grid gap-4 sm:grid-cols-3 animate-fade-up" style={{ animationDelay: "680ms" }} aria-label="Cara belajar">
         {LESSONS.map((l) => (
           <li key={l.title} className="ph-glass border-t-2 border-t-gold/50 p-4">
-            <p className="font-display text-lg text-green-900">{l.title}</p>
-            <p className="mt-1 text-sm text-ink-grove">{l.text}</p>
+            <p className="font-display text-lg text-fg">{l.title}</p>
+            <p className="mt-1 text-sm text-fg">{l.text}</p>
           </li>
         ))}
       </ul>

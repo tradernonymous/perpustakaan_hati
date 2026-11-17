@@ -13,8 +13,8 @@ export function ChapterPreview() {
     <div className="mx-auto flex max-w-grid flex-col gap-10">
       <div>
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-display text-xl text-green-900">Koleksi Ebook Semasa (Pratonton A4)</h3>
-          <span className="text-xs uppercase tracking-caps text-gold-ink">
+          <h3 className="font-display text-xl text-fg">Koleksi Ebook Semasa (Pratonton A4)</h3>
+          <span className="text-xs uppercase tracking-caps text-fg-accent">
             {EBOOK_COVERS.length} judul A4 dalam folder koleksi
           </span>
         </div>
@@ -40,9 +40,9 @@ export function ChapterPreview() {
                 </picture>
               </div>
               <figcaption className="flex flex-col gap-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-caps text-gold-ink">{ebook.pages}</span>
-                <span className="font-display text-base leading-snug text-green-900">{ebook.title}</span>
-                <span className="text-xs leading-relaxed text-muted-grove">{ebook.summary}</span>
+                <span className="text-[11px] font-semibold uppercase tracking-caps text-fg-accent">{ebook.pages}</span>
+                <span className="font-display text-base leading-snug text-fg">{ebook.title}</span>
+                <span className="text-xs leading-relaxed text-fg-muted">{ebook.summary}</span>
               </figcaption>
             </figure>
           ))}
@@ -74,11 +74,11 @@ export function ChapterPreview() {
               </div>
               <div className="flex flex-col gap-1.5">
                 <p className="ph-chapter-num">Bab {c.no}</p>
-                <h3 className={`ph-title text-xl ${c.pending ? "italic text-green-800/70" : "text-green-900"}`}>
+                <h3 className={`ph-title text-xl ${c.pending ? "italic text-fg-healing" : "text-fg"}`}>
                   {c.title}
                 </h3>
-                <p className="text-xs font-medium text-gold-ink">{cover.title} · {cover.pages}</p>
-                <p className="text-[15px] leading-relaxed text-ink-grove">{c.note}</p>
+                <p className="text-xs font-medium text-fg-accent">{cover.title} · {cover.pages}</p>
+                <p className="text-[15px] leading-relaxed text-fg">{c.note}</p>
               </div>
             </article>
           );

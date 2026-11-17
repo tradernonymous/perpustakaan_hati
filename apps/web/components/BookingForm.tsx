@@ -84,8 +84,8 @@ export function BookingForm() {
     const selected = OPTIONS.find((o) => o.id === sessionType) ?? OPTIONS[0];
     return (
       <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-6" role="status" aria-live="polite">
-        <p className="font-display text-2xl text-green-900">Permintaan sesi diterima.</p>
-        <p className="text-ink-grove">
+        <p className="font-display text-2xl text-fg">Permintaan sesi diterima.</p>
+        <p className="text-fg">
           Terima kasih, {name}. Pasukan kami akan hubungi melalui WhatsApp atau e-mel untuk sahkan slot masa dan pautan pembayaran FPX / DuitNow bagi {selected.label} (RM{quoteForType(sessionType) / 100}).
         </p>
         <div className="flex flex-wrap gap-3">
@@ -118,7 +118,7 @@ export function BookingForm() {
       </div>
 
       <fieldset className="flex flex-col gap-2.5">
-        <legend className="text-sm font-medium text-green-900">Pilih jenis sesi</legend>
+        <legend className="text-sm font-medium text-fg">Pilih jenis sesi</legend>
         {OPTIONS.map((opt) => {
           const active = sessionType === opt.id;
           return (
@@ -126,8 +126,8 @@ export function BookingForm() {
               key={opt.id}
               className={
                 active
-                  ? "flex cursor-pointer items-start gap-3 rounded-lg border-2 border-green-700 bg-sage p-3.5"
-                  : "flex cursor-pointer items-start gap-3 rounded-lg border border-daylight-edge bg-cream/60 p-3.5 hover:border-green-700/50"
+                  ? "flex cursor-pointer items-start gap-3 rounded-lg border-2 border-green-700 bg-surface-soft p-3.5"
+                  : "flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-surface-raised p-3.5 hover:border-green-700/50"
               }
             >
               <input
@@ -139,13 +139,13 @@ export function BookingForm() {
                 className="mt-1 h-4 w-4 accent-green-700"
               />
               <span className="flex-1">
-                <span className="flex flex-wrap items-baseline justify-between gap-2 font-medium text-green-900">
+                <span className="flex flex-wrap items-baseline justify-between gap-2 font-medium text-fg">
                   <span>{opt.label}</span>
                   <span className="font-mono text-sm">
                     RM{quoteForType(opt.id) / 100} ({opt.duration})
                   </span>
                 </span>
-                <span className="mt-1 block text-xs text-muted-grove">{opt.detail}</span>
+                <span className="mt-1 block text-xs text-fg-muted">{opt.detail}</span>
               </span>
             </label>
           );
@@ -153,14 +153,14 @@ export function BookingForm() {
       </fieldset>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <label htmlFor={`${id}-name`} className="flex flex-col gap-1 text-sm text-green-900 sm:col-span-2">
+        <label htmlFor={`${id}-name`} className="flex flex-col gap-1 text-sm text-fg sm:col-span-2">
           Nama panggilan atau nama penuh
           <input
             ref={nameRef}
             id={`${id}-name`}
             type="text"
             required
-            className="min-h-tap rounded border border-daylight-edge bg-sage px-3 text-ink-grove"
+            className="min-h-tap rounded border border-line bg-surface-soft px-3 text-fg"
             placeholder="cth: Amirul atau Siti"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -168,14 +168,14 @@ export function BookingForm() {
           />
         </label>
 
-        <label htmlFor={`${id}-email`} className="flex flex-col gap-1 text-sm text-green-900">
+        <label htmlFor={`${id}-email`} className="flex flex-col gap-1 text-sm text-fg">
           E-mel
           <input
             ref={emailRef}
             id={`${id}-email`}
             type="email"
             required
-            className="min-h-tap rounded border border-daylight-edge bg-sage px-3 text-ink-grove"
+            className="min-h-tap rounded border border-line bg-surface-soft px-3 text-fg"
             placeholder="nama@contoh.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -183,14 +183,14 @@ export function BookingForm() {
           />
         </label>
 
-        <label htmlFor={`${id}-phone`} className="flex flex-col gap-1 text-sm text-green-900">
+        <label htmlFor={`${id}-phone`} className="flex flex-col gap-1 text-sm text-fg">
           Nombor WhatsApp
           <input
             ref={phoneRef}
             id={`${id}-phone`}
             type="tel"
             required
-            className="min-h-tap rounded border border-daylight-edge bg-sage px-3 text-ink-grove"
+            className="min-h-tap rounded border border-line bg-surface-soft px-3 text-fg"
             placeholder="012-345 6789"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
@@ -199,12 +199,12 @@ export function BookingForm() {
         </label>
       </div>
 
-      <label htmlFor={`${id}-notes`} className="flex flex-col gap-1 text-sm text-green-900">
+      <label htmlFor={`${id}-notes`} className="flex flex-col gap-1 text-sm text-fg">
         Konteks ringkas dan waktu pilihan (pilihan)
         <textarea
           id={`${id}-notes`}
           rows={3}
-          className="rounded border border-daylight-edge bg-sage px-3 py-2 text-ink-grove"
+          className="rounded border border-line bg-surface-soft px-3 py-2 text-fg"
           placeholder="cth: Malam hari bekerja selepas 8 malam, ingin bincang soal komunikasi pasangan"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -212,7 +212,7 @@ export function BookingForm() {
         />
       </label>
 
-      <div className="flex items-start gap-2.5 text-sm text-green-900">
+      <div className="flex items-start gap-2.5 text-sm text-fg">
         <input
           ref={consentRef}
           id={`${id}-consent`}
@@ -221,7 +221,7 @@ export function BookingForm() {
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
         />
-        <label htmlFor={`${id}-consent`} className="text-muted-grove">
+        <label htmlFor={`${id}-consent`} className="text-fg-muted">
           Saya setuju butiran ini digunakan untuk pengesahan slot kaunseling sahaja (patuh PDPA 2010).
         </label>
       </div>
@@ -232,7 +232,7 @@ export function BookingForm() {
         </p>
       )}
 
-      <p className="text-xs text-muted-grove">
+      <p className="text-xs text-fg-muted">
         Bayaran melalui FPX / DuitNow hanya dibuat selepas jadual sesi disahkan. Peringatan automatik melalui WhatsApp dan Google Meet.
       </p>
 

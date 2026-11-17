@@ -49,8 +49,8 @@ export function HadiahHatiPanel({ voucherRm, freeCardUnlock }: { voucherRm: numb
 
   return (
     <div className="ph-card mx-auto flex max-w-reading flex-col gap-5 p-6">
-      <div className="rounded-lg border border-daylight-edge bg-sage/60 p-4 text-sm text-ink-grove">
-        <p className="font-medium text-green-900">Cara kumpul penyertaan:</p>
+      <div className="rounded-lg border border-line bg-surface-soft p-4 text-sm text-fg">
+        <p className="font-medium text-fg">Cara kumpul penyertaan:</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Muat turun Edisi Poket percuma (1 penyertaan).</li>
           <li>Kongsi keputusan Cermin Pasangan atau Kad Jujur Hati di Threads (1 penyertaan).</li>
@@ -59,7 +59,7 @@ export function HadiahHatiPanel({ voucherRm, freeCardUnlock }: { voucherRm: numb
       </div>
 
       <form onSubmit={onGenerate} className="flex flex-col gap-3" noValidate>
-        <label htmlFor={`${id}-email`} className="text-sm text-green-900">
+        <label htmlFor={`${id}-email`} className="text-sm text-fg">
           Jana kod rujukan dan voucher RM{voucherRm} kamu
         </label>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -69,7 +69,7 @@ export function HadiahHatiPanel({ voucherRm, freeCardUnlock }: { voucherRm: numb
             placeholder="nama@contoh.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="min-h-tap flex-1 rounded border border-daylight-edge bg-sage px-3 text-ink-grove"
+            className="min-h-tap flex-1 rounded border border-line bg-surface-soft px-3 text-fg"
           />
           <button type="submit" className="ph-cta min-h-tap">
             Jana Kod
@@ -83,15 +83,15 @@ export function HadiahHatiPanel({ voucherRm, freeCardUnlock }: { voucherRm: numb
       </form>
 
       {code && (
-        <div className="rounded-lg border border-gold bg-cream p-4" role="status" aria-live="polite">
-          <p className="text-xs uppercase tracking-wider text-muted-grove">Kod Rujukan Kamu</p>
+        <div className="rounded-lg border border-gold bg-surface-raised p-4" role="status" aria-live="polite">
+          <p className="text-xs uppercase tracking-wider text-fg-muted">Kod Rujukan Kamu</p>
           <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono text-lg font-medium text-green-900">{code}</span>
+            <span className="font-mono text-lg font-medium text-fg">{code}</span>
             <button type="button" className="btn-ghost min-h-tap" onClick={copyCode}>
               {copied ? "Disalin" : "Salin Kod"}
             </button>
           </div>
-          <p className="mt-2 text-xs text-muted-grove">
+          <p className="mt-2 text-xs text-fg-muted">
             Kad refleksi bonus dibuka: {freeCardUnlock ? "Ya" : "Tidak"} · Voucher: RM{voucherRm}
           </p>
         </div>

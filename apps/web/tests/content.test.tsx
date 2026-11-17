@@ -69,7 +69,8 @@ describe("hero and sticky CTA", () => {
   it("hero carries the tagline and a CTA to the opt-in", () => {
     const html = renderToStaticMarkup(<Hero />);
     expect(html).toContain("Karya untuk jiwa yang pernah terluka");
-    expect(html).toContain('href="#percuma"');
+    expect(html).toContain('id="percuma"');
+    expect(html).toContain('id="optin-email"');
   });
   it("sticky CTA links to the opt-in", () => {
     expect(renderToStaticMarkup(<StickyCta />)).toContain('href="#percuma"');

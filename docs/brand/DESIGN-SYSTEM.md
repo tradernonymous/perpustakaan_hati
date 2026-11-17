@@ -1,7 +1,19 @@
-# Design System 3.6 "Precise Grove"
+# Design System 3.7 "Dark Grove" (builds on Design System 3.6 "Precise Grove")
 
-**Status: current version as of 2026-11-17 (Precise Grove 3.6: focus, selection, wrapping, numerals, motion roles, contrast and elevation tokens).** This is the look for Perpustakaan Hati. Green still leads; the storefront lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
-Version token: `--ph-system-version: '3.6.0'` in `design-tokens.css`.
+**Status: current version as of 2026-11-18.** The storefront and the research admin now live on the dark forest-night stage by default (`<body class="ph-nightlight">`). Ivory (`.ph-daylight`) stays for PDFs, print and the eBook pages. Layout reference: raycast.com (near-black ground, hairline borders, one soft glow behind the hero, big tight display type, bento cards, one bright call to action per screen). The palette is unchanged: green leads, gold carries the luxury detail.
+Version token: `--ph-system-version: '3.7.0'` in `design-tokens.css`.
+
+## Dark Grove (3.7)
+
+| Piece | Token / class | Why |
+|---|---|---|
+| Dark default | `body.ph-nightlight`, `themeColor #07140d` | One ground for every storefront and admin page |
+| Semantic colours | Tailwind `bg-surface`, `bg-surface-raised`, `bg-surface-soft`, `text-fg`, `text-fg-muted`, `text-fg-accent`, `text-fg-healing`, `border-line` | Components name a role, the theme scope decides the colour. Never hard-code `bg-daylight` or `text-green-900` on a page |
+| Hero glow | `--ph-glow-green`, `--ph-glow-gold` | The single soft light behind the hero |
+| Hairline | `--ph-hairline-dark` | Dividers on dark |
+| Section grounds | `.ph-dark-section`, `.ph-dark-section-raised` | Sections alternate night / raised for rhythm |
+
+Earlier layers below (3.6 and older) still apply. Where they say "ivory", read "the active theme scope".
 
 The 3.4 layer changes how the storefront **composes**, not what it is built of. Everything
 under it still uses the same tokens, the same fonts and the same assets; what changed is
