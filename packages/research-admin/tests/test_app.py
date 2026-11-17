@@ -594,3 +594,15 @@ def test_dark_dashboard_keeps_nowrap_and_readable_button_text(client):
     assert "#142c20-space" not in dash
     assert ".button{display:inline-flex" in dash.replace("{{", "{")
     assert "color:#fdfee6;text-decoration:none" in dash
+
+
+def test_dark_dashboard_text_accents_use_the_readable_link_colour(client):
+    login(client)
+    dash = client.get("/").text.replace("{{", "{").replace("}}", "}")
+    assert "--link:#9de1c1" in dash
+    assert ".button.ghost{background:transparent;color:var(--link)" in dash
+    assert ".text-link,.source{font-size:12px;font-weight:650;color:var(--link)" in dash
+    assert ".follow-chip.follower{border-color:#2d7954;background:#12301f;color:var(--link)" in dash
+    assert ".audience .count{font:500 23px \"Fraunces\",Georgia,serif;color:var(--link)" in dash
+    assert ".draft-refs a{color:var(--link)" in dash
+    assert ".button:hover{background:#1d5a3d}" in dash
