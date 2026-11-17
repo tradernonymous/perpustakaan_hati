@@ -1,8 +1,10 @@
 # Visual Identity — Color, Type & Logo
 
-> **Current: Design System 3.1 "Gilded Grove".** The system is not locked — it can
+> **Current: Design System 3.6 "Precise Grove".** The system is not locked — it can
 > change. Working rules are in [`DESIGN-SYSTEM.md`](./DESIGN-SYSTEM.md). Sections
 > below on the 2.0 ink-and-gold look are history; v3 sections are the law today.
+> 3.6 adds no colours: it is the focus/selection/motion/elevation refinement
+> layer described in DESIGN-SYSTEM.md.
 
 Palette derived from the 6 brand reference images (pixel-sampled, not guessed).
 Dominant reality in the artwork: **ink black + antique gold + sepia brown**, with

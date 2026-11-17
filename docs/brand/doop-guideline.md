@@ -1,4 +1,4 @@
-# Perpustakaan Hati — Design System 3.2 "Daylight Grove"
+# Perpustakaan Hati — Design System 3.6 "Precise Grove"
 
 Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "Karya untuk jiwa yang pernah terluka".
 Mood: a sunlit reading room with a lantern still lit in the corner. Editorial, foil-stamped, calm. **GREEN LEADS.**
@@ -6,6 +6,15 @@ Colour share per frame: **green 55 / gold 30 / cream + ruby 15** on light surfac
 
 **Surface rule (3.2).** The storefront runs on warm ivory (`--daylight`), alternating with sage (`--sage`). The cinematic forest stage is now reserved for objects: book covers, seals, posters and the 3D book. On light, gold is *detail* (`--gold-ink` for text, `--gold-ink-soft` for hairlines); green carries headings and CTAs. Never put `--gold-light` text on ivory. When a design needs the wordmark on light, typeset it — gilt small caps above a deep-green Fraunces word — instead of using the dark lockup SVG.
 Charts (locked): `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-light, `--chart-4` lantern, `--chart-5` mint-glass. Pair with label/shape. Teman Hati companion surface uses `--companion-*`, `.ph-glass`, `.ph-tilt`.
+
+**Refinement rules (3.6 "Precise Grove").** The look does not change; the details get exact.
+- Focus is one recipe: a 2px ring, offset 2px from the element, in `--focus-color` (green-300 on the dark stage, green-800 on ivory). A filled control offsets 3px so the ring sits on the page ground.
+- Selection is green, never the browser blue: `--selection-bg` with `--selection-fg`. The text caret and native checkboxes use the same green (`--caret-color`, `--accent-color`).
+- Headings balance their line breaks (`text-wrap: balance`); paragraphs avoid orphans (`text-wrap: pretty`).
+- Numbers in stats, prices and tables are tabular, so digits do not shift while counting.
+- Motion picks a role: `--ease-decelerate` when something arrives, `--ease-accelerate` when it leaves, `--ease-standard` for a state change.
+- Elevation is four steps (`--elevation-1..4` in the CSS, backed by `--shadow-tint-1..4`); the theme scope decides the shadow material, so never hand-write a shadow on a new surface. On a Doop poster, keep the existing card and seal shadows.
+- For a poster frame there is no focus or selection, so none of the above changes a still design.
 
 ## Fonts
 Use Fraunces for display, Inter for UI and labels, and Source Serif 4 for long reading. Shipped templates load the self-hosted files in `packages/brand-tools/fonts/`; never add Google Fonts runtime links. In Doop, use these family names with `Georgia`/`system-ui` fallbacks when local font files are unavailable.
@@ -32,6 +41,10 @@ Weights per role: display caps 560, hero word 660, titles 520, italic script 400
  --font-display:'Fraunces',Georgia,serif;--font-body:'Inter',system-ui,sans-serif;--font-reading:'Source Serif 4',Georgia,serif;
  --daylight:#f7f4ea;--daylight-raised:#fffdf6;--daylight-soft:#eef2e8;--sage:#e9f0e6;--daylight-edge:#d2c4a8;--ink-grove:#12251b;--muted-grove:#4f5f53;--gold-ink:#7a5a22;--gold-ink-soft:#96742f;
  --aje-black:#0a0a0a;--aje-black-raised:#151515;--aje-gold:#c9a86a;--aje-gold-light:#e9cea2;--aje-gold-deep:#8a6224;--aje-cream:#fdfee6;
+ --focus-width:2px;--focus-offset:2px;--focus-color:var(--green-300);--focus-color-light:var(--green-800);
+ --selection-bg:var(--green-800);--selection-fg:var(--cream);--selection-bg-light:var(--green-200);--selection-fg-light:var(--ink-grove);
+ --caret-color:var(--green-400);--accent-color:var(--green-400);
+ --ease-standard:cubic-bezier(0.2,0,0,1);--ease-decelerate:cubic-bezier(0.05,0.7,0.1,1);--ease-accelerate:cubic-bezier(0.3,0,0.8,0.15);
 }
 .ph-daylight{background:var(--daylight);color:var(--ink-grove)}
 .ph-daylight .ph-card{background:var(--daylight-raised);border:1px solid var(--daylight-edge);color:var(--ink-grove);box-shadow:0 1px 0 rgb(255 255 255/.9) inset,0 1px 3px rgb(60 45 20/.08),0 18px 40px -24px rgb(60 45 20/.35)}

@@ -236,7 +236,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.4.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.6.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -409,6 +409,13 @@
   --dur-base: 240ms;
   --dur-slow: 400ms;
 
+  /* 3.6 role eases. A component picks the ROLE it plays, not a curve, so a
+     new surface cannot invent its own timing. Durations stay on the
+     --dur-* scale above; only the shape of the speed change changes. */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);        /* hover, press, state change */
+  --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1); /* arriving: enter, reveal */
+  --ease-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15); /* leaving: exit, dismiss */
+
   /* =====================================================================
      3.1 "Warmer Grove" extension — three-layer discipline, charts locked,
      Teman Hati companion surface, read-first guardrails.
@@ -419,6 +426,20 @@
      Green still leads: the ground stays forest-night green-black and
      the thread renders stay green-led (mean G > R and G > B).
      ===================================================================== */
+
+  /* ---- Elevation scale (semantic, 3.6) ------------------------------
+     One ladder, two materials. A surface asks for how high it sits; the
+     theme scope decides what that looks like, so a light page gets a warm
+     shadow and a forest stage gets a neutral one without a second token
+     name. The elaborate --card-v3-* and --cta-v3-* recipes stay as they are. */
+  --shadow-tint-1: rgb(0 0 0 / 0.22);
+  --shadow-tint-2: rgb(0 0 0 / 0.28);
+  --shadow-tint-3: rgb(0 0 0 / 0.32);
+  --shadow-tint-4: rgb(0 0 0 / 0.42);
+  --elevation-1: 0 1px 2px var(--shadow-tint-1);
+  --elevation-2: 0 4px 10px -2px var(--shadow-tint-2);
+  --elevation-3: 0 12px 28px -6px var(--shadow-tint-3);
+  --elevation-4: 0 28px 60px -12px var(--shadow-tint-4);
 
   /* ---- Layout scale (semantic) -------------------------------------- */
   --content-reading: 640px;
@@ -439,6 +460,14 @@
   /* ---- Focus & states (semantic) ----------------------------------- */
   --focus-ring: 0 0 0 2px var(--forest-night), 0 0 0 4px var(--green-400);
   --focus-ring-light: 0 0 0 2px var(--cream), 0 0 0 4px var(--green-800);
+  /* 3.6 focus recipe (WCAG 2.2 SC 2.4.11: a 2 CSS px perimeter that clears
+     3:1 against the adjacent ground). The ring is drawn with `outline`, so
+     it never overwrites a component's own box-shadow. */
+  --focus-width: 2px;
+  --focus-offset: 2px;
+  --focus-offset-wide: 3px;              /* filled controls: ring on the page, not the fill */
+  --focus-color: var(--green-300);       /* on forest-night: 11.33:1 */
+  --focus-color-light: var(--green-800); /* on daylight: 7.39:1 */
   --state-hover-opacity: 0.92;
   --state-active-lift: -2px;
   --state-disabled-opacity: 0.45;
@@ -446,6 +475,23 @@
   --status-error: var(--burgundy-light);
   --status-warning: var(--lantern);
   --status-info: var(--green-400);
+
+  /* ---- Selection, caret, native controls (3.6) -----------------------
+     The last place a foreign colour leaked into the brand was the browser's
+     default blue: text selection, the text caret, and the native checkbox /
+     radio / range tint. These tokens are green on both grounds, and the
+     theme scopes remap them with the rest of the semantic layer. */
+  --selection-bg: var(--green-800);
+  --selection-fg: var(--cream);            /* 7.94:1 on the selection fill */
+  --selection-bg-light: var(--green-200);
+  --selection-fg-light: var(--ink-grove);  /* 12.28:1 on the selection fill */
+  --caret-color: var(--green-400);
+  --caret-color-light: var(--green-700);
+  --accent-color: var(--green-400);
+  --accent-color-light: var(--green-700);
+  --scrollbar-thumb: rgb(167 211 182 / 0.28);
+  --scrollbar-thumb-light: rgb(45 121 84 / 0.35);
+  --scrollbar-track: transparent;
 
   /* ---- Surface / text / action (semantic, Layer 2) ------------------ */
   --surface-base: var(--forest-night);
@@ -605,6 +651,20 @@
   --chart-track: var(--sage);
   --chart-grid: rgb(18 37 27 / 0.10);
   --chart-label: var(--muted-grove);
+
+  /* 3.6: the same roles, re-pointed at their light-ground values. They are
+     aliases, not new colours, so the palette still has one source. */
+  --focus-color: var(--focus-color-light);
+  --selection-bg: var(--selection-bg-light);
+  --selection-fg: var(--selection-fg-light);
+  --caret-color: var(--caret-color-light);
+  --accent-color: var(--accent-color-light);
+  /* Warm shadow material for ivory. The elevation shapes do not change. */
+  --shadow-tint-1: rgb(60 45 20 / 0.08);
+  --shadow-tint-2: rgb(60 45 20 / 0.12);
+  --shadow-tint-3: rgb(60 45 20 / 0.16);
+  --shadow-tint-4: rgb(60 45 20 / 0.22);
+  color-scheme: light;   /* native controls follow the ivory ground */
 }
 
 /* Daylight adaptations for the component layer. Each one exists because
@@ -933,7 +993,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--card-v3-shadow);
   color: var(--text-on-dark);
-  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  /* 3.6: a hover is a state change, so it uses the standard ease. */
+  transition: transform var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard);
 }
 .ph-card:is(a, button, [tabindex]):hover { transform: translateY(-2px); box-shadow: var(--card-v3-shadow-hover); }
 .ph-cta {
@@ -961,7 +1022,9 @@
     0 0 0 var(--cta-v3-edge),
     0 1px 1px rgb(0 0 0 / 0.3);
 }
-.ph-cta:focus-visible { outline: 2px solid var(--green-300); outline-offset: 3px; }
+/* 3.6: the ring steps out past the filled button onto the page ground, so
+   it is measured against the ground it actually sits on. */
+.ph-cta:focus-visible { outline: var(--focus-width) solid var(--focus-color); outline-offset: var(--focus-offset-wide); }
 
 /* Teman Hati glass sheet + tilt card (opt-in, marketing/companion only).
    Never use for reading body or checkout. */
@@ -1376,7 +1439,7 @@
 }
 
 /* Stats: foil numerals at hero weight. */
-.ph-stat-num { font-weight: var(--weight-hero); letter-spacing: -0.01em; line-height: 1; }
+.ph-stat-num { font-weight: var(--weight-hero); letter-spacing: -0.01em; line-height: 1; font-variant-numeric: tabular-nums; }
 
 /* Marquee ticker (website_sam .ticker): masked edges, pause on hover/focus. */
 @keyframes ph-ticker { to { transform: translateX(-50%); } }
@@ -1404,8 +1467,15 @@
 }
 
 /* Mobile sticky CTA steps aside while the opt-in form is on screen. */
-.ph-sticky-cta { transition: transform 300ms var(--ease-out), opacity 300ms var(--ease-out); }
-.ph-sticky-cta[data-hidden="true"] { transform: translateY(110%); opacity: 0; pointer-events: none; }
+/* 3.6: arriving decelerates, leaving accelerates. Same distance, opposite
+   speed shape, which is how the two directions read as one gesture. */
+.ph-sticky-cta { transition: transform 300ms var(--ease-decelerate), opacity 300ms var(--ease-decelerate); }
+.ph-sticky-cta[data-hidden="true"] {
+  transform: translateY(110%);
+  opacity: 0;
+  pointer-events: none;
+  transition-timing-function: var(--ease-accelerate);
+}
 
 /* Glyph field: each glyph moves by its own depth (website_sam HeroField). */
 .ph-glyph { transform: translate(calc(var(--glyph-x) * var(--depth, 0.6)), calc(var(--glyph-y) * var(--depth, 0.6) + var(--glyph-float, 0px))); }
@@ -1469,6 +1539,16 @@
   --chart-track: var(--forest-soft);
   --chart-grid: rgb(230 226 218 / 0.12);
   --chart-label: var(--text-muted-on-dark);
+
+  /* 3.6: the opt-in dark scope asks for the dark values explicitly rather
+     than relying on :root, so a future base-scope change cannot silently
+     move it. */
+  --focus-color: var(--green-300);
+  --selection-bg: var(--green-800);
+  --selection-fg: var(--cream);
+  --caret-color: var(--green-400);
+  --accent-color: var(--green-400);
+  color-scheme: dark;
 
   background-color: var(--forest-night);
   color: var(--text-on-dark);
@@ -2153,4 +2233,94 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .ph-beam::before { animation: none; }
+}
+
+/* =======================================================================
+   DESIGN SYSTEM 3.6 — "PRECISE GROVE" (refinement layer)
+   Same palette, same fonts, same assets, same layout recipes. 3.6 is the
+   machinery a mature system needs so that a later surface does not invent
+   its own value. Every item below is a published practice, not a taste:
+
+     1. Focus: one recipe at 2 CSS px, offset from the element, at 3:1+
+        against the ground (WCAG 2.2 SC 2.4.11 Focus Appearance).
+     2. Selection, caret and native controls: the browser's default blue
+        was the one foreign colour left in the brand. Now green.
+     3. Text wrapping: headings balance, paragraphs pretty, so a two-line
+        Malay title never leaves a single orphaned word.
+     4. Numerals: tabular in stats, prices and tables, so digits do not
+        shift width while a count-up runs.
+     5. Motion roles: standard / decelerate / accelerate (tokens above).
+     6. High contrast: prefers-contrast: more strengthens muted copy,
+        hairlines and the glass scrim without changing any hue.
+     7. Forced colours: the focus ring survives Windows High Contrast.
+     8. Off-screen work: opt-in content-visibility for long sections.
+     9. Scrollbar: slim, brand-tinted, with a stable gutter so the page
+        does not jump between a short and a long view.
+   ======================================================================= */
+
+/* 1. Focus ------------------------------------------------------------
+   `outline` is used on purpose: it never fights a component's own
+   box-shadow (depth recipes), and it is visible in forced-colors mode. */
+:focus-visible {
+  outline: var(--focus-width) solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+/* 7. Forced colours: the brand outline colour is overridden by the OS, so
+   ask for the system highlight explicitly. */
+@media (forced-colors: active) {
+  :focus-visible { outline: 2px solid Highlight; }
+}
+
+/* 2. Selection, caret, native controls -------------------------------- */
+::selection { background: var(--selection-bg); color: var(--selection-fg); }
+/* The scope element itself is not covered by a descendant selector. */
+.ph-daylight::selection { background: var(--selection-bg-light); color: var(--selection-fg-light); }
+body {
+  caret-color: var(--caret-color);
+  accent-color: var(--accent-color);
+}
+
+/* 9. Scrollbar: stable gutter (no layout jump), slim, brand-tinted.
+   The scrollbar belongs to <html>, which sits above the theme scope, so
+   the light tint is selected with :has() rather than a variable. */
+html {
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+html:has(body.ph-daylight) {
+  scrollbar-color: var(--scrollbar-thumb-light) var(--scrollbar-track);
+}
+
+/* 3. Text wrapping ---------------------------------------------------- */
+h1, h2, h3, .ph-title { text-wrap: balance; }
+p, li, figcaption, blockquote { text-wrap: pretty; }
+
+/* 4 + 8 + helpers: opt-in utilities (a surface asks for them; nothing here
+   is applied page-wide except the wrapping above). */
+.ph-balance { text-wrap: balance; }
+.ph-pretty { text-wrap: pretty; }
+.ph-nums { font-variant-numeric: tabular-nums; }
+.ph-cv { content-visibility: auto; contain-intrinsic-size: auto 640px; }
+.ph-elev-1 { box-shadow: var(--elevation-1); }
+.ph-elev-2 { box-shadow: var(--elevation-2); }
+.ph-elev-3 { box-shadow: var(--elevation-3); }
+.ph-elev-4 { box-shadow: var(--elevation-4); }
+
+/* 6. High contrast: raise the two things that carry meaning by tone alone
+   (muted copy and hairlines). No hue changes, so the brand still holds. */
+@media (prefers-contrast: more) {
+  /* The semantic layer is the right place to raise contrast: the primitives
+     (what a poster snapshots) stay exactly as they are. */
+  :root {
+    --text-muted: #cfc7b8;           /* 11.22:1 on forest-night (was 6.92:1) */
+    --border-faint: rgb(157 225 193 / 0.32);
+    --glass-bg: rgb(13 33 23 / 0.92);
+  }
+  .ph-daylight {
+    --text-muted: #3c4a40;           /* 8.50:1 on daylight (was 6.17:1) */
+    --border-default: var(--gold-ink-soft); /* hairlines reach 3.95:1 */
+    --glass-bg: rgb(255 253 246 / 0.94);
+  }
 }

@@ -11,6 +11,16 @@ Phase 1 deliverable covering three output surfaces from one token source
 - Base ground: `daylight` (`<body class="ph-daylight">`). Section alternation: `daylight` → `sage` → `daylight`; the final CTA band closes on `sage`. Book covers, seals and posters stay on `.ph-stage` (`forest-night`) because they are objects, not page grounds. AJE surfaces use `.aje-surface` (black + gold) and never mix with the green system in one band.
 - Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `forest-night` label.
 
+### 3.6 utilities (web)
+| Utility | What it does |
+|---|---|
+| `:focus-visible` | global 2px ring, offset 2px, `--focus-color` (green-300 dark / green-800 light) |
+| `::selection` | green selection fill with a measured label colour |
+| `.ph-balance` / `.ph-pretty` | `text-wrap: balance` / `pretty` (already applied to headings and paragraphs) |
+| `.ph-nums` | tabular numerals for stats, prices and tables |
+| `.ph-elev-1..4` / `shadow-elev-1..4` | the elevation ladder; the theme scope decides the material |
+| `.ph-cv` | opt-in `content-visibility: auto` for very long sections |
+
 ### Components
 | Component | Spec |
 |---|---|
