@@ -38,6 +38,8 @@
   --burgundy: #5c1e17;
   --burgundy-deep: #3f1711;
   --burgundy-light: #c25a58;   /* readable on ink — tier badge text */
+  --burgundy-text-dark: #f0a3a0;   /* 3.7: error text on forest — 9.37:1 on night, 7.41:1 on soft */
+  --burgundy-text-light: #8a2f2f;  /* 3.7: error text on ivory — 7.1:1 */
 
   /* ---- conversion ---------------------------------------------------- */
   --terracotta: #da725b;
@@ -618,6 +620,7 @@
    posters). That is why a book cover stays dark inside a light page.
    ======================================================================= */
 .ph-daylight {
+  --text-danger: var(--burgundy-text-light);
   --surface-base: var(--daylight);
   --surface-raised: var(--daylight-raised);
   --surface-soft: var(--sage);
@@ -1514,6 +1517,7 @@
    ======================================================================= */
 .ph-nightlight,
 [data-theme="nightlight"] {
+  --text-danger: var(--burgundy-text-dark);
   --surface-base: var(--forest-night);
   --surface-raised: var(--forest-raised);
   --surface-soft: var(--forest-soft);
@@ -2221,7 +2225,7 @@
    Below 768px they become still frames. */
 @media (max-width: 767px) {
   .ph-beam::before { animation: none; }
-  .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface-base); }
+  .ph-header, .ph-nightlight .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface-base); }
   /* A live blur filter on two off-screen covers is a GPU cost on every
      frame of the carousel animation. The depth still reads from the
      scale, the rotation and the opacity. */
@@ -2359,7 +2363,7 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .ph-dark-section-raised { background-color: var(--forest-raised); color: var(--text-on-dark); }
 .ph-dark-section-raised::before, .ph-dark-section::before { content: none !important; }
 .ph-day-stage { background-color: var(--surface-base); background-image: var(--ph-glow-green), var(--ph-glow-gold); }
-.ph-nightlight .ph-title, .ph-nightlight .ph-hero { color: var(--text-on-dark); }
+.ph-nightlight :is(.ph-title, .ph-hero):not(.ph-daylight *) { color: var(--text-on-dark); }
 .ph-nightlight .ph-caps { color: var(--gold-light); }
 .ph-nightlight .ph-hero-eyebrow { color: var(--green-300); background: var(--forest-soft); }
 /* Header: translucent dark with a hairline. Blur only on wide screens. */
@@ -2369,10 +2373,10 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   border-color: var(--forest-edge);
 }
 .ph-nightlight .ph-bento h3, .ph-nightlight .ph-bento-tag { color: var(--green-300); }
-.ph-nightlight input, .ph-nightlight textarea, .ph-nightlight select {
+.ph-nightlight :is(input, textarea, select):not(.ph-daylight *) {
   background-color: var(--forest-soft); color: var(--text-on-dark); border-color: var(--forest-edge);
 }
-.ph-nightlight ::placeholder { color: var(--text-muted-on-dark); opacity: 1; }
+.ph-nightlight :not(.ph-daylight *)::placeholder { color: var(--text-muted-on-dark); opacity: 1; }
 
 /* Closing call to action: one static glow, no animation. */
 .ph-closing-glow {
@@ -2384,8 +2388,8 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 /* 3.7: on the dark stage a tier's text colour is its on-dark value and its
    band is a deep tint of its own fill, so the tier still reads without the
    pale ivory band. Same ramp, re-pointed; no new colours. */
-.ph-nightlight [data-tier],
-[data-theme="nightlight"] [data-tier] {
+.ph-nightlight [data-tier]:not(.ph-daylight *),
+[data-theme="nightlight"] [data-tier]:not(.ph-daylight *) {
   --tier-ink: var(--tier-on-dark);
 }
 .ph-nightlight [data-tier="poket"] { --tier-band: rgb(45 121 84 / 0.16); --tier-edge: rgb(125 184 149 / 0.45); }

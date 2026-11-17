@@ -14,7 +14,7 @@ export default async function Pustaka({ searchParams }: { searchParams: Promise<
   if (!lib) {
     return (
       <PageShell title="Pustaka Saya" intro="Muat turun semula buku yang sudah kamu beli. Kami hantar pautan selamat ke e-mel kamu.">
-        {t && <p className="mb-6 text-center text-burgundy">Pautan sudah tamat atau tidak sah. Minta yang baharu di bawah.</p>}
+        {t && <p className="mb-6 text-center text-danger">Pautan sudah tamat atau tidak sah. Minta yang baharu di bawah.</p>}
         <LibraryLogin />
       </PageShell>
     );

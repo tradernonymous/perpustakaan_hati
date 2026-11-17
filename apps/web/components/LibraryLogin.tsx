@@ -47,9 +47,9 @@ export function LibraryLogin() {
         aria-describedby="lib-email-error"
         onChange={() => setEmailError("")}
         className="min-h-tap w-full rounded border border-line bg-surface-soft px-3 text-base text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-green-700" />
-      <p id="lib-email-error" role="alert" className="text-sm text-burgundy">{emailError}</p>
+      <p id="lib-email-error" role="alert" className="text-sm text-danger">{emailError}</p>
       <button type="submit" disabled={busy} className="ph-cta min-h-cta-mobile items-center justify-center disabled:opacity-60">{busy ? "Menghantar..." : "Hantar pautan ke e-mel"}</button>
-      <p aria-live="polite" role="status" className={ok ? "text-fg-healing" : "text-burgundy"}>{msg}</p>
+      <p aria-live="polite" role="status" className={ok ? "text-fg-healing" : "text-danger"}>{msg}</p>
     </form>
   );
 }

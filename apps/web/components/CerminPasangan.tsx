@@ -115,7 +115,7 @@ export function CerminPasangan() {
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-soft" aria-hidden="true">
         <div
-          className="h-full rounded-full bg-green-700 transition-all duration-300"
+          className="h-full rounded-full bg-green-400 transition-all duration-300"
           style={{ width: `${progressPct}%` }}
         />
       </div>

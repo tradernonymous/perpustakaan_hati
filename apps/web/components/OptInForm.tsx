@@ -87,7 +87,7 @@ export function OptInForm() {
           aria-describedby="optin-email-error"
           onChange={() => clearError("email")}
         />
-        <p id="optin-email-error" role="alert" className="text-sm text-burgundy">{errors.email}</p>
+        <p id="optin-email-error" role="alert" className="text-sm text-danger">{errors.email}</p>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="optin-phone" className="text-sm font-semibold text-fg">Nombor WhatsApp (pilihan jika ada e-mel)</label>
@@ -114,7 +114,7 @@ export function OptInForm() {
         <span>
           Saya setuju e-mel/nombor saya disimpan untuk menghantar Edisi Poket dan kemas kini
           Perpustakaan Hati, mengikut notis privasi PDPA. Saya boleh berhenti bila-bila masa.
-          <span id="optin-consent-error" role="alert" className="mt-1 block text-burgundy">{errors.consent}</span>
+          <span id="optin-consent-error" role="alert" className="mt-1 block text-danger">{errors.consent}</span>
         </span>
       </label>
 
@@ -122,7 +122,7 @@ export function OptInForm() {
         {status === "submitting" ? "Menghantar..." : status === "success" ? "Sudah didaftarkan" : "Dapatkan Edisi Poket"}
       </button>
 
-      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy" : "font-medium text-fg-healing"}>
+      <p aria-live="polite" role="status" className={status === "error" ? "text-danger" : "font-medium text-fg-healing"}>
         {message}
       </p>
 

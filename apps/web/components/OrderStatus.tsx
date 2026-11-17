@@ -39,7 +39,7 @@ export function OrderStatus({ orderId }: { orderId: string }) {
           <p className="font-display text-2xl text-fg">Menunggu pengesahan bank...</p>
           <p className="text-fg">Biasanya dalam beberapa saat. Jangan tutup halaman ini.</p>
           <div className="mx-auto h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-surface-soft" aria-hidden="true">
-            <div className="animate-heal-travel h-full w-1/3 rounded-full bg-green-700" />
+            <div className="animate-heal-travel h-full w-1/3 rounded-full bg-green-400" />
           </div>
           <p className="text-xs text-fg-muted">
             Jika sudah selesai membayar tetapi belum dikemas kini selepas 1 minit, semak <a href="/pustaka" className="underline">Pustaka Saya</a> menggunakan e-mel pesanan kamu.

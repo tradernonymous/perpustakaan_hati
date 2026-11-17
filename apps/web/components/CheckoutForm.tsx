@@ -92,7 +92,7 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
           aria-describedby="co-email-error"
           onChange={() => setFieldError((prev) => ({ ...prev, email: undefined }))}
         />
-        <p id="co-email-error" role="alert" className="text-sm text-burgundy">{fieldError.email}</p>
+        <p id="co-email-error" role="alert" className="text-sm text-danger">{fieldError.email}</p>
       </div>
       <div className="flex flex-col gap-1">
         <label htmlFor="co-phone" className="text-sm font-semibold text-fg">Nombor WhatsApp (pilihan, untuk pautan segera)</label>
@@ -124,7 +124,7 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
         />
         <span>
           Saya setuju e-mel/nombor saya digunakan untuk menghantar pesanan ini, mengikut notis privasi PDPA.
-          <span id="co-consent-error" role="alert" className="mt-1 block text-burgundy">{fieldError.consent}</span>
+          <span id="co-consent-error" role="alert" className="mt-1 block text-danger">{fieldError.consent}</span>
         </span>
       </label>
 
@@ -136,7 +136,7 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
       <button type="submit" disabled={busy} className="ph-cta min-h-cta-mobile items-center justify-center disabled:opacity-60">
         {busy ? "Membuka pembayaran..." : `Bayar ${rm(total)}`}
       </button>
-      <p aria-live="polite" role="status" className="text-burgundy">{error}</p>
+      <p aria-live="polite" role="status" className="text-danger">{error}</p>
       <div className="space-y-1 rounded border border-line bg-surface-soft p-3 text-xs text-fg-muted">
         <p>Penghantaran segera ke e-mel kamu (dan WhatsApp jika diisi) sebaik pembayaran disahkan.</p>
         <p>Data diurus mengikut PDPA Malaysia dan tidak dikongsi dengan pihak ketiga. Selepas bayar, buku juga boleh dicapai melalui /pustaka.</p>
