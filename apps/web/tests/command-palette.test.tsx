@@ -66,3 +66,53 @@ describe("quick-jump palette", () => {
     expect(screen.getByRole("dialog")).toBeTruthy(); // Ctrl/Cmd+K is a chord, so it is allowed everywhere
   });
 });
+
+describe("palette review fixes", () => {
+  it("is mounted once in the root layout so every page has it, not only the home page", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const layout = readFileSync(join(__dirname, "../app/layout.tsx"), "utf8");
+    const page = readFileSync(join(__dirname, "../app/page.tsx"), "utf8");
+    expect(layout).toContain("<CommandPalette />");
+    expect(page).not.toContain("<CommandPalette />");
+  });
+
+  it("keeps Tab inside the dialog", () => {
+    render(<CommandPalette />);
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    const tab = new KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true });
+    screen.getByRole("combobox").dispatchEvent(tab);
+    expect(tab.defaultPrevented).toBe(true);
+  });
+
+  it("returns focus to the element that had it, even after a repeated Ctrl+K", () => {
+    render(<><button>Mula</button><CommandPalette /></>);
+    const btn = screen.getByRole("button", { name: "Mula" });
+    btn.focus();
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    expect(document.activeElement).toBe(btn);
+  });
+
+  it("locks body scroll while open and restores it on close", () => {
+    document.body.style.overflow = "";
+    render(<CommandPalette />);
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    expect(document.body.style.overflow).toBe("hidden");
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "Escape" });
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("scrolls the active option into view", () => {
+    const calls: string[] = [];
+    Element.prototype.scrollIntoView = function (this: Element) { calls.push(this.id); };
+    render(<CommandPalette />);
+    fireEvent.keyDown(window, { key: "k", ctrlKey: true });
+    calls.length = 0;
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowDown" });
+    expect(calls.length).toBe(1);
+    expect(calls[0]).toMatch(/-opt-1$/);
+  });
+});

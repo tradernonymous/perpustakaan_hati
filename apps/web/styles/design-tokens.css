@@ -2450,8 +2450,10 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   border-radius: 50%;
   background: radial-gradient(closest-side, rgb(201 168 106 / 0.1), transparent);
   transform: translate3d(var(--hx), var(--hy), 0);
-  transition: transform 160ms var(--ease-decelerate);
+  opacity: 0;
+  transition: transform 160ms var(--ease-decelerate), opacity 400ms var(--ease-decelerate);
 }
+.ph-hero-fx[data-live] .ph-hero-spot { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .ph-hero-spot { display: block; } }
 @keyframes ph-beam-in { from { opacity: 0; transform: scaleY(0.6); } to { opacity: 1; transform: scaleY(1); } }
 @keyframes ph-beam-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.62; } }
@@ -2472,6 +2474,9 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 @media (forced-colors: active) {
   .ph-void :is(.ph-title) { background-image: none; -webkit-text-fill-color: currentColor; }
 }
+@media print {
+  .ph-void :is(.ph-title) { background-image: none; -webkit-text-fill-color: currentColor; color: #000; }
+}
 /* ---- Cursor-lit border ring on spotlight cards ---------------------- */
 .ph-void .ph-lux:not(.ph-beam)::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
@@ -2491,12 +2496,12 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 
 /* ---- Quick-jump palette (3.8) --------------------------------------- */
 .ph-kbd-hint {
-  display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--tap, 2.75rem); padding: 0 0.6rem; border-radius: 0.6rem;
+  display: inline-flex; align-items: center; gap: 0.5rem; min-height: var(--tap-min, 44px); padding: 0 0.6rem; border-radius: 0.6rem;
   border: 1px solid rgb(157 225 193 / 0.14); background: transparent; color: var(--text-muted); font-size: 0.8125rem; cursor: pointer;
   transition: border-color 200ms var(--ease-standard), color 200ms var(--ease-standard);
 }
 .ph-kbd-hint:hover { border-color: rgb(157 225 193 / 0.3); color: var(--text-primary); }
-kbd {
+.ph-palette kbd, .ph-kbd-hint kbd {
   font: 600 0.6875rem/1 var(--font-body); padding: 0.2rem 0.4rem; border-radius: 0.35rem;
   border: 1px solid rgb(157 225 193 / 0.22); border-bottom-width: 2px; color: var(--text-muted); background: var(--surface-soft);
 }

@@ -17,7 +17,6 @@ import { SectionOrnament } from "@/components/SectionOrnament";
 import { StatsStrip } from "@/components/StatsStrip";
 import { Ticker } from "@/components/Ticker";
 import { LuxCursor } from "@/components/LuxCursor";
-import { CommandPalette } from "@/components/CommandPalette";
 import { OrganizationSchema } from "@/components/OrganizationSchema";
 
 import type { Metadata } from "next";
@@ -82,7 +81,6 @@ export default function Home() {
       <SafetyFooter />
       <StickyCta />
       <LuxCursor />
-      <CommandPalette />
     </>
   );
 }

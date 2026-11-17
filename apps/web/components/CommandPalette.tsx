@@ -34,6 +34,7 @@ export function CommandPalette() {
   const [active, setActive] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const returnTo = useRef<HTMLElement | null>(null);
+  const openRef = useRef(false);
   const uid = useId();
 
   const items = useMemo(() => {
@@ -43,6 +44,8 @@ export function CommandPalette() {
 
   useEffect(() => {
     const show = () => {
+      if (openRef.current) return;
+      openRef.current = true;
       returnTo.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       setQ("");
       setActive(0);
@@ -63,15 +66,27 @@ export function CommandPalette() {
   }, []);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (!open) return;
+    inputRef.current?.focus();
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
+  useEffect(() => {
+    if (open) document.getElementById(`${uid}-opt-${active}`)?.scrollIntoView?.({ block: "nearest" });
+  }, [open, active, uid]);
+
   function close() {
+    openRef.current = false;
     setOpen(false);
     returnTo.current?.focus?.();
   }
 
   function go(href: string) {
+    openRef.current = false;
     setOpen(false);
     const onHome = window.location.pathname === "/";
     window.location.assign(href.startsWith("#") && !onHome ? `/${href}` : href);
@@ -79,6 +94,7 @@ export function CommandPalette() {
 
   function onInputKey(e: React.KeyboardEvent) {
     if (e.key === "Escape") return close();
+    if (e.key === "Tab") { e.preventDefault(); return; }
     if (!items.length) return;
     if (e.key === "ArrowDown") { e.preventDefault(); setActive((a) => (a + 1) % items.length); }
     if (e.key === "ArrowUp") { e.preventDefault(); setActive((a) => (a - 1 + items.length) % items.length); }

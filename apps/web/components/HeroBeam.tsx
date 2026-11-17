@@ -22,6 +22,7 @@ export function HeroBeam() {
       const e = last;
       if (!el || !e) return;
       const r = el.getBoundingClientRect();
+      el.setAttribute("data-live", "");
       el.style.setProperty("--hx", `${(e.clientX - r.left).toFixed(0)}px`);
       el.style.setProperty("--hy", `${(e.clientY - r.top).toFixed(0)}px`);
     };

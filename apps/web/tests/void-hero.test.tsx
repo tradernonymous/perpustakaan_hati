@@ -108,3 +108,29 @@ describe("3.8 Raycast-style details", () => {
     expect(renderToStaticMarkup(<EbookDeck />)).toMatch(/class="[^"]*ph-tier-card[^"]*ph-lux|class="[^"]*ph-lux[^"]*ph-tier-card/);
   });
 });
+
+describe("3.8 review fixes: css", () => {
+  it("scopes the kbd style to the palette and the header hint", () => {
+    expect(css).not.toMatch(/^kbd\s*\{/m);
+    expect(css).toMatch(/\.ph-palette kbd,\s*\.ph-kbd-hint kbd\s*\{/);
+  });
+  it("uses the real tap-size token", () => {
+    expect(css).not.toContain("var(--tap,");
+    expect(css).toContain("var(--tap-min");
+  });
+  it("prints headings in a solid colour (background clipping is dropped in print)", () => {
+    expect(css).toMatch(/@media print\s*\{[\s\S]*?\.ph-void :is\(\.ph-title\)[\s\S]*?-webkit-text-fill-color:\s*currentColor/);
+  });
+  it("hides the spotlight until the pointer has moved once", async () => {
+    expect(css).toMatch(/\.ph-hero-spot\s*\{[^}]*opacity:\s*0/);
+    expect(css).toMatch(/\.ph-hero-fx\[data-live\] \.ph-hero-spot\s*\{\s*opacity:\s*1/);
+    const { container } = render(<HeroBeam />);
+    const fx = container.querySelector<HTMLElement>(".ph-hero-fx")!;
+    expect(fx.hasAttribute("data-live")).toBe(false);
+    const e = new MouseEvent("pointermove", { clientX: 5, clientY: 5 });
+    Object.defineProperty(e, "pointerType", { value: "mouse" });
+    window.dispatchEvent(e);
+    await new Promise((r) => setTimeout(r, 40));
+    expect(fx.hasAttribute("data-live")).toBe(true);
+  });
+});
