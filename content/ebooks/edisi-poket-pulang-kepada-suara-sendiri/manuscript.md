@@ -146,7 +146,7 @@ icons: icon-tanya.png, icon-dengar.png, icon-tulis.png
 - Apa yang kamu perlukan minggu ini, dan siapa yang boleh memberikannya.
 :::
 
-> Tiga soalan yang dijawab jujur lebih berguna daripada satu malam yang panjang.
+> Tiga soalan yang jujur lebih berguna daripada satu malam yang panjang.
 
 ::: page
 kind: content
