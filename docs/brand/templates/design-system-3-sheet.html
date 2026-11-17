@@ -2,13 +2,13 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8">
-<title>Perpustakaan Hati — Design System 3.1 "Gilded Grove"</title>
+<title>Perpustakaan Hati — Design System 3.6 "Precise Grove"</title>
 <!--
-  Perpustakaan Hati — Design System 3.1 showcase sheet (1600x1200).
+  Perpustakaan Hati — Design System 3.6 showcase sheet (1600x1200).
   Every colour and component here reads from design-tokens.css; nothing
   is hard-coded except layout. Render to PNG with any headless Chromium:
 
-    chrome-headless-shell --screenshot=docs/brand/preview/design-system-3-1.png \
+    chrome-headless-shell --screenshot=docs/brand/preview/design-system-3-6.png \
       --window-size=1600,1200 --allow-file-access-from-files \
       file://$PWD/docs/brand/templates/design-system-3-sheet.html
 -->
@@ -53,7 +53,7 @@
   .layer.l4::after { content: ''; position: absolute; inset: 0; background-image: var(--grain); mix-blend-mode: overlay; }
 
   /* right: system */
-  .sys { padding: 40px 44px; display: flex; flex-direction: column; gap: 24px; }
+  .sys { padding: 36px 44px; display: flex; flex-direction: column; gap: 18px; }
   h2 { font-size: 12px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
 
   .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
@@ -77,6 +77,27 @@
   .t-script { font: italic 400 30px/1.2 var(--font-script); color: var(--gold-light); }
   .t-read { font: 400 18px/1.5 var(--font-reading); }
 
+  /* 3.6 precision tiles */
+  .precision { display: grid; grid-template-columns: 1.1fr 1.1fr 1fr; gap: 10px; }
+  .tile { height: 86px; border-radius: var(--radius-md); border: 1px solid var(--forest-edge);
+          background: var(--forest-raised); padding: 10px 12px; display: flex; flex-direction: column;
+          justify-content: space-between; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+          color: var(--text-muted-on-dark); }
+  .tile .demo { font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--text-on-dark); }
+  /* focus: the 3.6 ring, drawn with outline so it leaves the shadow alone */
+  .focus-demo { display: inline-block; padding: 6px 12px; border-radius: var(--radius-pill);
+                background: var(--cta-v3-bg); color: var(--cta-v3-fg); font-weight: 600;
+                outline: var(--focus-width) solid var(--focus-color); outline-offset: var(--focus-offset); }
+  /* selection: brand green, never the browser blue */
+  .sel-demo { display: inline-block; padding: 2px 4px; background: var(--selection-bg); color: var(--selection-fg); }
+  /* elevation: one ladder, four steps */
+  .elev-row { display: flex; gap: 8px; }
+  .elev-row i { display: block; width: 34px; height: 22px; border-radius: 3px; background: var(--forest-soft);
+                box-shadow: var(--elevation-1); }
+  .elev-row i:nth-child(2) { box-shadow: var(--elevation-2); }
+  .elev-row i:nth-child(3) { box-shadow: var(--elevation-3); }
+  .elev-row i:nth-child(4) { box-shadow: var(--elevation-4); }
+
   .rules { font-size: 13px; line-height: 1.6; color: var(--text-muted-on-dark); columns: 2; column-gap: 28px; }
   .rules li { margin-left: 16px; break-inside: avoid; }
   .rules b { color: var(--green-300); font-weight: 600; }
@@ -87,9 +108,11 @@
   <section class="hero ph-stage">
     <img src="../assets/lockup-cinematic.svg" alt="Perpustakaan Hati cinematic lockup">
     <div>
-      <h1>Design System 3.1 — <em>Gilded Grove</em></h1>
-      <p>Cinematic, lantern-lit and foil-stamped. Green still leads: the dark ground is a green-black,
-        the hero word is emerald foil, and gold is only the frame around it.</p>
+      <h1>Design System 3.6 — <em>Precise Grove</em></h1>
+      <p>Cinematic, lantern-lit and foil-stamped, with a warm ivory storefront layer. Green still
+        leads: the dark ground is a green-black, the hero word is emerald foil, and gold is only the
+        frame around it. 3.6 keeps this look and makes the details exact: focus, selection, motion
+        roles and one elevation ladder.</p>
       <div class="share">
         <div class="bar">
           <i style="flex:50;background:var(--foil-emerald)"></i>
@@ -169,6 +192,26 @@
       <div class="spec"><span>Hero · foil</span><b class="t-hero ph-foil-emerald">Jalan Pulang</b></div>
       <div class="spec"><span>Script accent</span><i class="t-script">Karya untuk jiwa yang pernah terluka</i></div>
       <div class="spec"><span>Reading</span><p class="t-read">Teman hati sementara menunggu bas atau train.</p></div>
+    </div>
+
+    <div>
+      <h2>3.6 precision — focus · selection · elevation · motion</h2>
+      <div class="precision">
+        <div class="tile">
+          <span>Focus · 2px · 3:1</span>
+          <span class="demo"><button class="focus-demo" type="button">Muat turun</button></span>
+        </div>
+        <div class="tile">
+          <span>Selection · green, not blue</span>
+          <span class="demo"><span class="sel-demo">Teman hati</span></span>
+        </div>
+        <div class="tile">
+          <span>Elevation 1–4</span>
+          <span class="elev-row"><i></i><i></i><i></i><i></i></span>
+        </div>
+      </div>
+      <p class="cap">Motion picks a role, not a curve: decelerate on arrival, accelerate on exit,
+        standard for a state change. Headings balance, paragraphs avoid orphans, numbers are tabular.</p>
     </div>
 
     <ul class="rules">
