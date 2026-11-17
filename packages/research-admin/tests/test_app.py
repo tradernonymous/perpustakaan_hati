@@ -574,3 +574,23 @@ def test_draft_edit_and_publish_to_threads_flow(client):
     assert dup_res.status_code == 400
     assert "already" in dup_res.json()["error"].lower()
 
+
+
+def test_dashboard_login_and_mini_review_use_the_dark_grove_ground(client):
+    login(client)
+    dash = client.get("/").text
+    assert "--bg:#07140d" in dash
+    assert 'content="dark"' in dash
+    assert "background:#FBF7F0" not in dash and "--bg:#FBF7F0" not in dash
+    assert "outline:2px solid #9de1c1" in dash
+    anon = TestClient(client.app, base_url="http://testserver")
+    assert "--bg:#07140d" in anon.get("/login").text
+
+
+def test_dark_dashboard_keeps_nowrap_and_readable_button_text(client):
+    login(client)
+    dash = client.get("/").text
+    assert "white-space:nowrap" in dash
+    assert "#142c20-space" not in dash
+    assert ".button{display:inline-flex" in dash.replace("{{", "{")
+    assert "color:#fdfee6;text-decoration:none" in dash

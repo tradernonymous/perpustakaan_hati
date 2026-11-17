@@ -619,15 +619,15 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         note = f"<p class=err role=alert>{html_module.escape(message)}</p>" if message else ""
         return f"""<!doctype html><html lang=ms><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Masuk — Threads research admin</title>
 <style>
-:root{{--ink:#12251b;--muted:#4f5f53;--line:#d2c4a8;--gold:#7a5a22;--green:#2d7954;--bg:#f7f4ea;--card:#fffdf6}}
+:root{{--ink:#e6e2da;--muted:#a49c8d;--line:#24402f;--gold:#e9cea2;--green:#9de1c1;--bg:#07140d;--card:#0d2117;color-scheme:dark}}
 *{{box-sizing:border-box}}body{{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;padding:24px}}
-main{{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:28px;box-shadow:0 18px 40px -24px rgb(60 45 20/.35)}}
+main{{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:28px;box-shadow:0 18px 40px -24px rgb(0 0 0/.7)}}
 .kicker{{display:flex;align-items:center;gap:.7em;margin:0 0 6px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}}
 .kicker::before,.kicker::after{{content:'';flex:1 1 2em;height:1px;background:var(--line)}}
 h1{{font-family:Georgia,serif;font-weight:600;font-size:24px;margin:6px 0 4px}}p.sub{{margin:0 0 18px;color:var(--muted);font-size:14px}}
-label{{display:block;font-size:13px;font-weight:600;margin:0 0 6px}}input{{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:#eef2e8;color:var(--ink);padding:0 12px;font-size:16px}}
+label{{display:block;font-size:13px;font-weight:600;margin:0 0 6px}}input{{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:0 12px;font-size:16px}}
 input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{width:100%;min-height:48px;margin-top:14px;border:0;border-radius:999px;background:linear-gradient(180deg,#7db895,#5b9b7d 50%,#3f9167);color:#07140d;font:600 16px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 3px 0 #1d5a3d}}
-.err{{margin:12px 0 0;color:#8a2f2f;font-size:14px}}footer{{margin-top:16px;font-size:12px;color:var(--muted)}}
+.err{{margin:12px 0 0;color:#f0a3a0;font-size:14px}}footer{{margin-top:16px;font-size:12px;color:var(--muted)}}
 </style></head><body><main>
 <p class=kicker>Threads research</p>
 <h1>Masuk ke admin</h1>
@@ -1717,18 +1717,18 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
         drafts = [d for d in store.list_drafts(limit=20) if d["status"] in ("draft", "approved", "scheduled")]
         cards = "".join(
-            f"<article style='background:#FFFCF6;border:1px solid #DFD4BD;border-radius:12px;padding:14px;margin-bottom:12px'>"
-            f"<div style='font-size:12px;color:#8D5F24'>{html_module.escape(d['kind'])} · {html_module.escape(d['status'])}</div>"
+            f"<article style='background:#0d2117;border:1px solid #24402f;border-radius:12px;padding:14px;margin-bottom:12px'>"
+            f"<div style='font-size:12px;color:#e9cea2'>{html_module.escape(d['kind'])} · {html_module.escape(d['status'])}</div>"
             f"<h3 style='margin:6px 0'>{html_module.escape(d['title'])}</h3>"
-            f"<p style='font-size:14px;color:#4C5C50'>{html_module.escape(str((d.get('content') or {}).get('post', (d.get('content') or {}).get('premise', '')))[:220])}</p>"
+            f"<p style='font-size:14px;color:#a9b2a6'>{html_module.escape(str((d.get('content') or {}).get('post', (d.get('content') or {}).get('premise', '')))[:220])}</p>"
             f"<form method=post action=/content/drafts/{int(d['id'])}/status style='display:inline'>"
             f"<input type=hidden name=csrf value='{html_module.escape(csrf, quote=True)}'><input type=hidden name=status value=approved>"
-            f"<button style='padding:8px 14px;border-radius:999px;border:0;background:#4A7C59;color:#fff'>Approve</button></form></article>"
+            f"<button style='padding:8px 14px;border-radius:999px;border:0;background:#5b9b7d;color:#07140d'>Approve</button></form></article>"
             for d in drafts[:10]
         ) or "<p>No pending drafts.</p>"
         return HTMLResponse(
             f"<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-            f"<title>PH Mini Studio</title></head><body style='margin:0;padding:16px;background:#F7F3EA;color:#1C2D23;font-family:Inter,system-ui,sans-serif'>"
+            f"<title>PH Mini Studio</title><meta name=color-scheme content=dark></head><body style='margin:0;padding:16px;background:#07140d;color:#e6e2da;font-family:Inter,system-ui,sans-serif'>"
             f"<h1 style='margin:0 0 12px'>Perpustakaan Hati · Mini Review</h1>{cards}</body></html>"
         )
 
