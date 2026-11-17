@@ -283,6 +283,18 @@ REQUIRED_PAIRS = [
     ("tier-poket-edge", "tier-poket-band", 1.5, "Edisi Poket band edge"),
     ("tier-membangun-edge", "tier-membangun-band", 1.5, "Edisi Membangun band edge"),
     ("tier-teman-hidup-edge", "tier-teman-hidup-band", 1.5, "Teman Hidup band edge"),
+    # ---- Design System 3.6 "Precise Grove" ----------------------------
+    # The focus ring is a non-text indicator: WCAG 2.2 SC 2.4.11 asks for
+    # 3:1 against the ground the ring is drawn on.
+    ("green-300", "forest-night", 3.0, "3.6 focus ring on the dark stage"),
+    ("green-300", "forest-raised", 3.0, "3.6 focus ring on a dark card"),
+    ("green-800", "daylight", 3.0, "3.6 focus ring on the ivory ground"),
+    ("green-800", "sage", 3.0, "3.6 focus ring on the sage band"),
+    # Selected text is still text: 4.5:1 on the selection fill.
+    ("cream", "green-800", 4.5, "3.6 selected text on the dark selection fill"),
+    ("ink-grove", "green-200", 4.5, "3.6 selected text on the light selection fill"),
+    # prefers-contrast: more raises the hairline to a readable edge.
+    ("gold-ink-soft", "daylight", 3.0, "3.6 high-contrast hairline on ivory"),
 ]
 
 # tier colours must remain tellable apart without relying on hue alone

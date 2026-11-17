@@ -130,8 +130,8 @@ describe("editorial grove layer", () => {
     expect(tokens).toContain(".ph-bento {");
   });
 
-  it("bumps the system version to 3.4.0", () => {
-    expect(tokens).toContain("--ph-system-version: '3.4.0'");
+  it("bumps the system version to the current release", () => {
+    expect(tokens).toContain("--ph-system-version: '3.6.0'");
   });
 
   it("stops the three expensive effects on a phone", () => {

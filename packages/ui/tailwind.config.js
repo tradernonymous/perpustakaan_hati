@@ -88,6 +88,12 @@ const brandShadows = {
   'card-v3':
     'inset 0 1px 0 rgb(167 211 182 / 0.08), 0 24px 60px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(201 168 106 / 0.10)',
   'cta-v3': '0 0 0 1px rgb(200 233 134 / 0.35), 0 10px 30px rgb(63 145 103 / 0.45)',
+  // Design System 3.6 elevation ladder — var() so the theme scope decides
+  // the material (neutral on forest, warm on ivory), same as the CSS tokens.
+  'elev-1': 'var(--elevation-1)',
+  'elev-2': 'var(--elevation-2)',
+  'elev-3': 'var(--elevation-3)',
+  'elev-4': 'var(--elevation-4)',
 };
 
 module.exports = {
@@ -111,7 +117,13 @@ module.exports = {
         display: '0.06em',
         flank: '0.32em',
       },
-      transitionTimingFunction: { sanctuary: 'cubic-bezier(0.16, 1, 0.3, 1)' },
+      transitionTimingFunction: {
+        sanctuary: 'cubic-bezier(0.16, 1, 0.3, 1)',
+        // Design System 3.6 role eases — pick the role, not the curve
+        standard: 'cubic-bezier(0.2, 0, 0, 1)',
+        decelerate: 'cubic-bezier(0.05, 0.7, 0.1, 1)',
+        accelerate: 'cubic-bezier(0.3, 0, 0.8, 0.15)',
+      },
       zIndex: { sticky: '30', header: '40', overlay: '50', sheet: '60', toast: '70' },
       minHeight: { tap: '44px', 'cta-mobile': '56px' },
       minWidth: { tap: '44px' },

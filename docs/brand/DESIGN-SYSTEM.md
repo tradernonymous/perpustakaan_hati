@@ -1,7 +1,7 @@
-# Design System 3.4 "Editorial Grove"
+# Design System 3.6 "Precise Grove"
 
-**Status: current version as of 2026-11-15 (Editorial Grove 3.4: illustrated storefront, bento layouts, phone performance guards).** This is the look for Perpustakaan Hati. Green still leads; the storefront lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
-Version token: `--ph-system-version: '3.4.0'` in `design-tokens.css`.
+**Status: current version as of 2026-11-17 (Precise Grove 3.6: focus, selection, wrapping, numerals, motion roles, contrast and elevation tokens).** This is the look for Perpustakaan Hati. Green still leads; the storefront lives on warm ivory and gold carries the luxury detail. The cinematic forest stage is kept for covers, seals and posters.
+Version token: `--ph-system-version: '3.6.0'` in `design-tokens.css`.
 
 The 3.4 layer changes how the storefront **composes**, not what it is built of. Everything
 under it still uses the same tokens, the same fonts and the same assets; what changed is
@@ -49,6 +49,31 @@ would fail to serve optimized images. `apps/web/src/illustrations.ts` is the typ
    animating `margin-top`.
 4. Every image carries explicit width and height, so nothing shifts as it loads.
 
+
+## Precise Grove (3.6)
+
+A refinement layer, not a new look: same palette, same fonts, same assets, same
+layout recipes. 3.6 is the machinery a mature system needs so that a later surface
+does not invent its own value. Each item is a published practice, and each one is
+either a base rule or a token with a named consumer.
+
+| Piece | Token / class | Why |
+|---|---|---|
+| Focus recipe | `--focus-width`, `--focus-offset`, `--focus-color` (`:focus-visible`) | WCAG 2.2 SC 2.4.11: a 2px perimeter at 3:1+ against the ground. `outline` is used so it never fights a component's box-shadow. |
+| Wide focus offset | `--focus-offset-wide` | A filled control (`.ph-cta`) steps the ring out to the page ground, where it is actually measured. |
+| Selection, caret, native controls | `--selection-bg`, `--selection-fg`, `--caret-color`, `--accent-color` | The browser's default blue was the one foreign colour left in the brand. |
+| Text wrapping | `h1-h3`, `.ph-title` balance; `p`, `li` pretty | A two-line Malay title never leaves one orphaned word. |
+| Tabular numerals | `.ph-nums`, `.ph-stat-num` | Digits do not change width while a count-up runs. |
+| Motion roles | `--ease-standard`, `--ease-decelerate`, `--ease-accelerate` | A component picks the role it plays, not a curve. `.ph-card` uses standard; `.ph-sticky-cta` decelerates in and accelerates out. |
+| Elevation ladder | `--elevation-1..4`, `.ph-elev-1..4`, Tailwind `shadow-elev-1..4` | One ladder, two materials: the theme scope decides the shadow. |
+| High contrast | `prefers-contrast: more` | Raises muted copy, hairlines and the glass scrim. No hue changes. |
+| Forced colours | `@media (forced-colors: active)` | The focus ring survives Windows High Contrast. |
+| Off-screen work | `.ph-cv` | Opt-in `content-visibility` for very long sections. |
+| Scrollbar | `--scrollbar-thumb`, `--scrollbar-thumb-light` | Slim, brand-tinted, stable gutter: no layout jump between a short and a long view. |
+
+Measured pairs for the new indicators live in `check-contrast.py` (the 3.6 block):
+green-300 on forest-night 11.33:1, green-800 on daylight 7.39:1, cream on
+green-800 7.94:1, ink-grove on green-200 12.28:1.
 
 ## The Daylight layer (3.2)
 
