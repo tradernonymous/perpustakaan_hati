@@ -1869,7 +1869,7 @@
   padding: 1.1rem 1rem 1.25rem;
   border-top: 1px solid var(--border-default);
 }
-.ph-compare-featured { background: rgb(233 240 230 / 0.55); }
+.ph-compare-featured { background: var(--ph-featured-col, rgb(233 240 230 / 0.55)); }
 .ph-tick {
   display: inline-flex;
   align-items: center;
@@ -2373,3 +2373,22 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   background-color: var(--forest-soft); color: var(--text-on-dark); border-color: var(--forest-edge);
 }
 .ph-nightlight ::placeholder { color: var(--text-muted-on-dark); opacity: 1; }
+
+/* Closing call to action: one static glow, no animation. */
+.ph-closing-glow {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(55% 70% at 50% 100%, rgb(63 145 103 / 0.3), transparent 70%),
+              radial-gradient(35% 40% at 50% 100%, rgb(201 168 106 / 0.14), transparent 70%);
+}
+
+/* 3.7: on the dark stage a tier's text colour is its on-dark value and its
+   band is a deep tint of its own fill, so the tier still reads without the
+   pale ivory band. Same ramp, re-pointed; no new colours. */
+.ph-nightlight [data-tier],
+[data-theme="nightlight"] [data-tier] {
+  --tier-ink: var(--tier-on-dark);
+}
+.ph-nightlight [data-tier="poket"] { --tier-band: rgb(45 121 84 / 0.16); --tier-edge: rgb(125 184 149 / 0.45); }
+.ph-nightlight [data-tier="membangun"] { --tier-band: rgb(201 168 106 / 0.14); --tier-edge: rgb(201 168 106 / 0.5); }
+.ph-nightlight [data-tier="teman-hidup"] { --tier-band: rgb(163 74 86 / 0.18); --tier-edge: rgb(212 116 111 / 0.5); }
+.ph-nightlight { --ph-featured-col: rgb(201 168 106 / 0.10); }

@@ -55,7 +55,8 @@ describe("editorial grove hero", () => {
 
   it("still offers the free edition and the edition list", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain('href="#percuma"');
+    expect(html).toContain('id="percuma"');
+    expect(html).toContain('id="optin-email"');
     expect(html).toContain('href="#edisi"');
   });
 });

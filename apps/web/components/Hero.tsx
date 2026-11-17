@@ -3,6 +3,7 @@ import { HeroBook } from "@/components/HeroBook";
 import { HeroExcerptPreview } from "@/components/HeroExcerptPreview";
 import { HeroGlyphs } from "@/components/HeroGlyphs";
 import { Illustration } from "@/components/Illustration";
+import { OptInForm } from "@/components/OptInForm";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { SectionOrnament } from "@/components/SectionOrnament";
 import { ILLUSTRATIONS } from "@/src/illustrations";
@@ -62,13 +63,12 @@ export function Hero() {
             kecil yang boleh dibaca sementara menunggu bas atau train.
           </p>
 
-          <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row animate-fade-up" style={{ animationDelay: "480ms" }}>
-            <a href="#percuma" className="ph-cta min-h-cta-mobile w-full items-center justify-center sm:w-auto">
-              Mula dengan Edisi Poket, percuma
-            </a>
-            <a href="#edisi" className="btn-ghost min-h-cta-mobile w-full justify-center sm:w-auto">
-              Lihat semua edisi
-            </a>
+          <div id="percuma" className="w-full max-w-[520px] scroll-mt-20 animate-fade-up" style={{ animationDelay: "480ms" }}>
+            <h2 className="mb-3 font-display text-xl text-fg">Edisi Poket, percuma</h2>
+            <OptInForm />
+            <p className="mt-3 text-sm text-fg-muted">
+              Mahu lihat dahulu? <a href="#edisi" className="text-fg-accent underline underline-offset-4">Lihat semua edisi</a>
+            </p>
           </div>
 
           <ul className="flex flex-wrap justify-center gap-2 lg:justify-start animate-fade-up" style={{ animationDelay: "560ms" }} aria-label="Kelebihan">

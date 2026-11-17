@@ -33,11 +33,11 @@ export function SiteHeader({ base = "" }: { base?: string }) {
 
         <nav aria-label="Utama" className="hidden items-center gap-1 lg:flex">
           {NAV.map((n) => (
-            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg transition-colors hover:text-fg">
+            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg-muted transition-colors hover:text-fg">
               {n.label}
             </a>
           ))}
-          <a href={`${base}#interaktif`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg transition-colors hover:text-fg">
+          <a href={`${base}#interaktif`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg-muted transition-colors hover:text-fg">
             Interaktif
           </a>
           <a href="/pustaka" className="flex min-h-tap items-center rounded px-2.5 text-sm font-medium text-fg-healing transition-colors hover:text-fg">

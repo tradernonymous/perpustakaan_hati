@@ -42,9 +42,10 @@ describe("flow", () => {
     expect(html).toContain('href="/beli/membangun"');
     expect(html).toContain('href="/beli/teman-hidup"');
   });
-  it("hero has a primary and a secondary action", () => {
+  it("hero has an inline opt-in as primary action and a link to the editions", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain('href="#percuma"');
+    expect(html).toContain('id="percuma"');
+    expect(html).toContain('id="optin-email"');
     expect(html).toContain('href="#edisi"');
   });
 });

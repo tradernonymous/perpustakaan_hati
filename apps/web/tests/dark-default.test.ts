@@ -24,3 +24,12 @@ describe("Design System 3.7 dark default", () => {
     }
   });
 });
+
+describe("tiers on the dark stage", () => {
+  it("re-points the tier ink at the on-dark value inside the nightlight scope", () => {
+    expect(css).toMatch(/\.ph-nightlight \[data-tier\][\s\S]*?--tier-ink:\s*var\(--tier-on-dark\)/);
+  });
+  it("gives the featured compare column a dark tint, not the ivory wash", () => {
+    expect(css).toContain("--ph-featured-col: rgb(201 168 106 / 0.10)");
+  });
+});

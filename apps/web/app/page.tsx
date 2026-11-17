@@ -3,7 +3,7 @@ import { HowItWorks } from "@/components/HowItWorks";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ChapterPreview } from "@/components/ChapterPreview";
 import { Hero } from "@/components/Hero";
-import { OptInForm } from "@/components/OptInForm";
+import { ClosingCta } from "@/components/ClosingCta";
 import { SafetyFooter } from "@/components/SafetyFooter";
 import { StickyCta } from "@/components/StickyCta";
 import { Reveal } from "@/components/Reveal";
@@ -27,10 +27,10 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
   id?: string; index?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-surface-soft" : "bg-surface"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-20`}>
-      <div className="mx-auto mb-8 max-w-reading text-center">
+    <section id={id} className={`ph-section-warm ${tone === "soft" ? "ph-dark-section-raised" : "ph-dark-section"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-24`}>
+      <div className="mx-auto mb-10 max-w-reading text-center">
         {index && <span className="ph-sec-index">{index}</span>}
-        <h2 className="ph-title ph-ink-in text-3xl text-fg md:text-4xl">{title}</h2>
+        <h2 className="ph-title ph-ink-in text-3xl text-fg md:text-5xl">{title}</h2>
         <SectionOrnament className="mt-4" />
         {intro && <p className="mt-3 text-fg-muted">{intro}</p>}
       </div>
@@ -51,8 +51,8 @@ export default function Home() {
         <Section index="01" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
           <HowItWorks />
         </Section>
-        <Section index="02" id="percuma" title="Edisi Poket, percuma" intro="Tinggalkan e-mel atau nombor WhatsApp. Kami hantar apabila bukunya sedia.">
-          <OptInForm />
+        <Section index="02" id="interaktif" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
+          <EcosystemHub />
         </Section>
         <Section index="03" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
           <div className="flex flex-col gap-12">
@@ -70,15 +70,13 @@ export default function Home() {
         <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
           <PlateGallery />
         </Section>
-        <Section index="06" id="interaktif" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
-          <EcosystemHub />
-        </Section>
-        <Section index="07" id="pembaca" tone="soft" title="Suara pembaca">
+        <Section index="06" id="pembaca" title="Suara pembaca">
           <Testimonials />
         </Section>
-        <Section index="08" id="soalan" title="Soalan lazim">
+        <Section index="07" id="soalan" tone="soft" title="Soalan lazim">
           <Faq />
         </Section>
+        <ClosingCta />
       </main>
       <SafetyFooter />
       <StickyCta />
