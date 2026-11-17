@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#07140d",
+  themeColor: "#030604",
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await headers();
   return (
     <html lang="ms">
-      <body className="ph-nightlight">{children}</body>
+      <body className="ph-nightlight ph-void">{children}</body>
     </html>
   );
 }

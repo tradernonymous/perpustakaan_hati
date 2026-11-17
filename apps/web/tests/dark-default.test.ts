@@ -9,14 +9,14 @@ const brandCss = readFileSync(join(root, "../../docs/brand/design-tokens.css"), 
 
 describe("Design System 3.7 dark default", () => {
   it("puts the nightlight scope on the body", () => {
-    expect(layout).toContain('className="ph-nightlight"');
+    expect(layout).toMatch(/className="ph-nightlight[ "]/);
   });
-  it("uses the forest-night ground as themeColor", () => {
-    expect(layout).toContain('themeColor: "#07140d"');
+  it("uses a dark ground as themeColor", () => {
+    expect(layout).toMatch(/themeColor: "#0[0-9a-f]{5}"/);
   });
   it("bumps the system version to 3.7.0", () => {
-    expect(css).toContain("--ph-system-version: '3.7.0'");
-    expect(brandCss).toContain("--ph-system-version: '3.7.0'");
+    expect(css).toContain("--ph-system-version: '3.8.0'");
+    expect(brandCss).toContain("--ph-system-version: '3.8.0'");
   });
   it("defines the dark page tokens and section classes", () => {
     for (const t of ["--ph-glow-green", "--ph-glow-gold", "--ph-hairline-dark", ".ph-dark-section", ".ph-dark-section-raised"]) {

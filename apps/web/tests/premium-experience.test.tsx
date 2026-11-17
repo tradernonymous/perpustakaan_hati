@@ -69,9 +69,9 @@ describe("premium interactive experience", () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
-  it("hero embeds the glyph field behind the book", () => {
+  it("hero embeds the light beam layer behind the book", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-glyphs");
+    expect(html).toContain("ph-hero-fx");
   });
 
   it("hero is mobile-first: stacked actions and scaled book on small screens", () => {

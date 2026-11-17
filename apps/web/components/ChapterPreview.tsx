@@ -56,7 +56,7 @@ export function ChapterPreview() {
           return (
             <article
               key={c.no}
-              className={`ph-chapter-card ph-page-in ${isTrailingOdd ? "ph-chapter-card-full" : ""}`}
+              className={`ph-chapter-card ph-lux ph-page-in ${isTrailingOdd ? "ph-chapter-card-full" : ""}`}
               data-pending={c.pending ? "true" : "false"}
             >
               <div className="ph-chapter-art">

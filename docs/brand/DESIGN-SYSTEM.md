@@ -1,4 +1,20 @@
-# Design System 3.7 "Dark Grove" (builds on Design System 3.6 "Precise Grove")
+# Design System 3.8 "Void Grove" (builds on 3.7 "Dark Grove" and 3.6 "Precise Grove")
+
+**Status: current version as of 2026-11-18.** The storefront ground goes one step darker, like raycast.com: a near-black with a trace of green. Same palette, same fonts, same assets. Version token: `--ph-system-version: '3.8.0'` in `design-tokens.css`.
+
+## Void Grove (3.8)
+
+| Piece | Token / class | Why |
+|---|---|---|
+| Void ground | `body.ph-void`, `--ph-void #030604`, `--ph-void-raised #08120c`, `--ph-void-soft #0e1b13`, `themeColor #030604` | The page is near-black; raised bands and cards are only a breath lighter. Roles (`bg-surface*`) re-point, components do not change |
+| Band hairline | `.ph-dark-section::before` + `--ph-hairline-dark` | A glowing line opens every band |
+| Hero light | `HeroBeam`, `.ph-hero-beam`, `.ph-hero-spot` | One beam falls from the top edge and breathes by opacity; a soft spotlight follows a real pointer. Opacity and transform only; still on phones after the entrance; off under reduced motion |
+| Headline rise | `.ph-rise` | The three headline words rise in sequence once |
+| Gradient headings | `.ph-void .ph-title` | White fading to muted, with a forced-colours fallback |
+| Lit card ring | `.ph-void .ph-lux:not(.ph-beam)::before` | A cursor-lit 1px border ring on spotlight cards; chapter cards and the edition card now join the spotlight |
+| Eyebrow link | `.ph-hero-eyebrow` as `<a href="#edisi">` | The pill is a link with an arrow, as on the reference |
+
+## Earlier: Dark Grove (3.7), built on Design System 3.6 "Precise Grove"
 
 **Status: current version as of 2026-11-18.** The storefront and the research admin now live on the dark forest-night stage by default (`<body class="ph-nightlight">`). Ivory (`.ph-daylight`) stays for PDFs, print and the eBook pages. Layout reference: raycast.com (near-black ground, hairline borders, one soft glow behind the hero, big tight display type, bento cards, one bright call to action per screen). The palette is unchanged: green leads, gold carries the luxury detail.
 Version token: `--ph-system-version: '3.7.0'` in `design-tokens.css`.

@@ -155,7 +155,7 @@ export function EbookDeck() {
         </button>
       </div>
 
-      <div className="ph-tier-card mx-auto mt-6 max-w-reading p-5 text-center" data-tier={tier.id}>
+      <div className="ph-tier-card ph-lux mx-auto mt-6 max-w-reading p-5 text-center" data-tier={tier.id}>
         <h3 className="ph-title text-2xl ph-tier-ink">{tier.name}</h3>
         <p className="mt-1 font-display text-3xl ph-tier-ink">{tier.price}</p>
         <p className="mt-1 text-xs font-semibold uppercase tracking-kicker ph-tier-ink">{LAUNCH_NOTE[tier.id]}</p>
