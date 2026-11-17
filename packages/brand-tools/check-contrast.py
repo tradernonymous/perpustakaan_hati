@@ -137,6 +137,7 @@ PALETTE = {
     "paper": "#f4efe6",
     "linen": "#eae2d4",
     "text-on-dark": "#e6e2da",
+    "text-muted-on-dark": "#a49c8d",
     "text-on-light": "#0a0a0c",
     "stone-light": "#a49c8d",
     "sepia": "#573a2f",
@@ -217,6 +218,12 @@ REQUIRED_PAIRS = [
     ("green-400", "forest-night", 4.5, "green text on the v3 main ground"),
     ("green-300", "forest-raised", 4.5, "green text on a v3 card"),
     ("stone-light", "forest-night", 4.5, "muted copy on the v3 ground"),
+    # ---- Design System 3.7 "Dark Grove": storefront default surface ----
+    ("text-muted-on-dark", "forest-night", 4.5, "muted copy on the dark page ground"),
+    ("text-muted-on-dark", "forest-raised", 4.5, "muted copy on a dark card"),
+    ("text-muted-on-dark", "forest-soft", 4.5, "muted copy / placeholder on a dark input"),
+    ("gold-light", "forest-raised", 4.5, "gold heading on a dark card"),
+    ("green-300", "forest-soft", 4.5, "green label on a dark input"),
     # foil gradients are display-size only: their darkest stop must still
     # clear 3:1 (WCAG large text) so the word never drops out.
     ("foil-emerald-low", "forest-night", 3.0, "darkest emerald-foil stop, display type"),

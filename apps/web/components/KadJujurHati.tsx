@@ -5,8 +5,8 @@ import { CARDS, drawCard, scoreBingo, type CardCategory } from "@/src/games/card
 
 const CATEGORY_STYLE: Record<CardCategory, { label: string; badgeClass: string; borderClass: string }> = {
   red: { label: "Red Flag", badgeClass: "bg-red-100 text-red-900 border-red-300", borderClass: "border-red-300" },
-  green: { label: "Green Flag", badgeClass: "bg-sage text-green-900 border-green-700/30", borderClass: "border-green-700/40" },
-  luka: { label: "Luka & Pulih", badgeClass: "bg-gold/15 text-ink-grove border-gold", borderClass: "border-gold" },
+  green: { label: "Green Flag", badgeClass: "bg-surface-soft text-fg border-green-700/30", borderClass: "border-green-700/40" },
+  luka: { label: "Luka & Pulih", badgeClass: "bg-gold/15 text-fg border-gold", borderClass: "border-gold" },
 };
 
 const BINGO_ROWS: string[][] = [
@@ -35,22 +35,22 @@ export function KadJujurHati() {
 
   return (
     <div className="ph-card mx-auto flex max-w-reading flex-col gap-5 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-green-900">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm text-fg">
         <span>Kad Jujur Hati: tarik kad, baca, dan kongsi di Threads dengan #JujurHati</span>
-        <span className="font-mono text-xs text-muted-grove">
+        <span className="font-mono text-xs text-fg-muted">
           Kad {cardPosition} / {CARDS.length}
         </span>
       </div>
 
-      <article className={`rounded-lg border-2 bg-cream/70 p-5 ${meta.borderClass}`}>
+      <article className={`rounded-lg border-2 bg-surface-raised p-5 ${meta.borderClass}`}>
         <div className="flex items-center justify-between gap-2">
           <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-medium ${meta.badgeClass}`}>
             {meta.label}
           </span>
-          <span className="text-xs text-muted-grove">Kategori: {card.category}</span>
+          <span className="text-xs text-fg-muted">Kategori: {card.category}</span>
         </div>
-        <h3 className="mt-3 font-display text-2xl text-green-900">{card.title}</h3>
-        <p className="mt-2 text-base leading-relaxed text-ink-grove">{card.prompt}</p>
+        <h3 className="mt-3 font-display text-2xl text-fg">{card.title}</h3>
+        <p className="mt-2 text-base leading-relaxed text-fg">{card.prompt}</p>
       </article>
 
       <div className="flex flex-wrap gap-2.5">
@@ -73,10 +73,10 @@ export function KadJujurHati() {
         </a>
       </div>
 
-      <div className="border-t border-daylight-edge pt-4">
-        <div className="mb-2 flex items-center justify-between text-sm text-muted-grove">
+      <div className="border-t border-line pt-4">
+        <div className="mb-2 flex items-center justify-between text-sm text-fg-muted">
           <span>Papan Bingo Hati: {marked.length} / {CARDS.length} sudah ditanda</span>
-          {bingoLines > 0 && <span className="font-medium text-green-900">Bingo! {bingoLines} baris lengkap</span>}
+          {bingoLines > 0 && <span className="font-medium text-fg">Bingo! {bingoLines} baris lengkap</span>}
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           {CARDS.map((c, i) => {
@@ -95,8 +95,8 @@ export function KadJujurHati() {
                   selected
                     ? "min-h-tap rounded border border-green-700 bg-green-700 px-2 py-1.5 text-xs font-medium text-cream"
                     : active
-                      ? "min-h-tap rounded border border-gold bg-sage px-2 py-1.5 text-xs text-green-900"
-                      : "min-h-tap rounded border border-daylight-edge bg-cream/60 px-2 py-1.5 text-xs text-ink-grove hover:border-green-700/50"
+                      ? "min-h-tap rounded border border-gold bg-surface-soft px-2 py-1.5 text-xs text-fg"
+                      : "min-h-tap rounded border border-line bg-surface-raised px-2 py-1.5 text-xs text-fg hover:border-green-700/50"
                 }
               >
                 {c.title}

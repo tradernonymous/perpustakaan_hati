@@ -69,12 +69,12 @@ export function OptInForm() {
   }
 
   const field =
-    "min-h-tap w-full rounded border border-daylight-edge bg-sage px-3 text-base text-ink-grove placeholder:text-muted-grove focus:outline-none focus:ring-2 focus:ring-green-700";
+    "min-h-tap w-full rounded border border-line bg-surface-soft px-3 text-base text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-green-700";
 
   return (
     <form onSubmit={onSubmit} noValidate className="ph-beam ph-lux ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8">
       <div className="flex flex-col gap-1">
-        <label htmlFor="optin-email" className="text-sm font-semibold text-green-900">E-mel</label>
+        <label htmlFor="optin-email" className="text-sm font-semibold text-fg">E-mel</label>
         <input
           id="optin-email"
           name="email"
@@ -90,7 +90,7 @@ export function OptInForm() {
         <p id="optin-email-error" role="alert" className="text-sm text-burgundy">{errors.email}</p>
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="optin-phone" className="text-sm font-semibold text-green-900">Nombor WhatsApp (pilihan jika ada e-mel)</label>
+        <label htmlFor="optin-phone" className="text-sm font-semibold text-fg">Nombor WhatsApp (pilihan jika ada e-mel)</label>
         <input id="optin-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="012-345 6789" className={field} />
       </div>
 
@@ -100,7 +100,7 @@ export function OptInForm() {
         <input id="optin-website" name="website" type="text" tabIndex={-1} autoComplete="off" />
       </div>
 
-      <label className="flex min-h-tap cursor-pointer items-start gap-3 text-sm text-ink-grove">
+      <label className="flex min-h-tap cursor-pointer items-start gap-3 text-sm text-fg">
         <input
           id="optin-consent"
           type="checkbox"
@@ -122,13 +122,13 @@ export function OptInForm() {
         {status === "submitting" ? "Menghantar..." : status === "success" ? "Sudah didaftarkan" : "Dapatkan Edisi Poket"}
       </button>
 
-      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy" : "font-medium text-green-800"}>
+      <p aria-live="polite" role="status" className={status === "error" ? "text-burgundy" : "font-medium text-fg-healing"}>
         {message}
       </p>
 
       {status === "success" && (
-        <div className="rounded border border-daylight-edge bg-sage p-4 text-sm text-ink-grove">
-          <p className="font-semibold text-green-900">Edisi Poket kamu sudah sedia. Muat turun sekarang atau teruskan ke ruang interaktif:</p>
+        <div className="rounded border border-line bg-surface-soft p-4 text-sm text-fg">
+          <p className="font-semibold text-fg">Edisi Poket kamu sudah sedia. Muat turun sekarang atau teruskan ke ruang interaktif:</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
               href="/api/edisi-poket/pdf"

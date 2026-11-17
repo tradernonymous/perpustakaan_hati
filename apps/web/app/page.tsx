@@ -27,12 +27,12 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
   id?: string; index?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-sage" : "bg-daylight"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-20`}>
+    <section id={id} className={`ph-section-warm ${tone === "soft" ? "bg-surface-soft" : "bg-surface"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-20`}>
       <div className="mx-auto mb-8 max-w-reading text-center">
         {index && <span className="ph-sec-index">{index}</span>}
-        <h2 className="ph-title ph-ink-in text-3xl text-green-900 md:text-4xl">{title}</h2>
+        <h2 className="ph-title ph-ink-in text-3xl text-fg md:text-4xl">{title}</h2>
         <SectionOrnament className="mt-4" />
-        {intro && <p className="mt-3 text-muted-grove">{intro}</p>}
+        {intro && <p className="mt-3 text-fg-muted">{intro}</p>}
       </div>
       <Reveal>{children}</Reveal>
     </section>
@@ -59,7 +59,7 @@ export default function Home() {
             <TierLadder />
             <EbookDeck />
             <div>
-              <h3 className="mb-6 text-center font-display text-2xl text-green-900">Bandingkan semua edisi</h3>
+              <h3 className="mb-6 text-center font-display text-2xl text-fg">Bandingkan semua edisi</h3>
               <TierCompare />
             </div>
           </div>

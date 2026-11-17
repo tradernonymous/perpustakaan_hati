@@ -109,7 +109,7 @@ function CellMark({
   }
   if (value === false) {
     return (
-      <span className="inline-block h-0.5 w-4 rounded-full bg-daylight-edge" aria-label={`Tidak termasuk dalam ${tierName}`} />
+      <span className="inline-block h-0.5 w-4 rounded-full bg-line" aria-label={`Tidak termasuk dalam ${tierName}`} />
     );
   }
   return (
@@ -127,8 +127,8 @@ export function TierCompare() {
         <thead>
           <tr>
             <th scope="col" className="w-[40%] align-bottom text-left">
-              <span className="ph-caps block text-[0.65rem] text-gold-ink">Matriks Kandungan</span>
-              <span className="mt-1 block font-display text-lg text-green-900">Apa yang kamu terima</span>
+              <span className="ph-caps block text-[0.65rem] text-fg-accent">Matriks Kandungan</span>
+              <span className="mt-1 block font-display text-lg text-fg">Apa yang kamu terima</span>
             </th>
             {TIERS.map((t) => {
               const featured = t.id === "membangun";
@@ -146,7 +146,7 @@ export function TierCompare() {
                         Langkah seterusnya
                       </span>
                     ) : (
-                      <span className="text-[11px] uppercase tracking-caps text-muted-grove">
+                      <span className="text-[11px] uppercase tracking-caps text-fg-muted">
                         {t.id === "poket" ? "Permulaan" : "Lengkap"}
                       </span>
                     )}
@@ -165,7 +165,7 @@ export function TierCompare() {
         <tbody>
           {COMPARE_ROWS.map((row) => (
             <tr key={row.feature}>
-              <th scope="row" className="text-sm font-normal leading-snug text-ink-grove">
+              <th scope="row" className="text-sm font-normal leading-snug text-fg">
                 {row.feature}
               </th>
               <td className="align-middle" data-tier="poket">
@@ -182,7 +182,7 @@ export function TierCompare() {
         </tbody>
         <tfoot>
           <tr>
-            <th scope="row" className="text-left text-xs text-muted-grove">
+            <th scope="row" className="text-left text-xs text-fg-muted">
               Pilih edisi yang sesuai dengan fasa kamu sekarang.
             </th>
             {TIERS.map((t) => {

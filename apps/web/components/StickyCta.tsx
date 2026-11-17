@@ -22,7 +22,7 @@ export function StickyCta() {
       data-sticky-cta
       data-hidden={hidden}
       aria-hidden={hidden || undefined}
-      className="ph-sticky-cta fixed inset-x-0 bottom-0 z-sticky border-t border-daylight-edge bg-daylight/95 px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden"
+      className="ph-sticky-cta fixed inset-x-0 bottom-0 z-sticky border-t border-line bg-surface px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden"
     >
       <a href="#percuma" tabIndex={hidden ? -1 : undefined} className="ph-cta flex min-h-cta-mobile w-full items-center justify-center">
         Dapatkan Edisi Poket, percuma

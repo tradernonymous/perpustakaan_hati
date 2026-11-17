@@ -56,6 +56,6 @@ describe("nightlight scope", () => {
 
 describe("system version", () => {
   it("is bumped to the current system version", () => {
-    expect(css).toContain("--ph-system-version: '3.6.0'");
+    expect(css).toContain("--ph-system-version: '3.7.0'");
   });
 });

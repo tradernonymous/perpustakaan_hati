@@ -29,6 +29,10 @@ const brandColors = {
   // Design System 3.2 "Daylight Grove" — light page layer
   daylight: { DEFAULT: '#f7f4ea', raised: '#fffdf6', soft: '#eef2e8', edge: '#d2c4a8' },
   sage: '#e9f0e6',
+  // 3.7 semantic roles: resolve through the active theme scope (.ph-nightlight / .ph-daylight)
+  surface: { DEFAULT: 'var(--surface-base)', raised: 'var(--surface-raised)', soft: 'var(--surface-soft)' },
+  fg: { DEFAULT: 'var(--text-primary)', muted: 'var(--text-muted)', accent: 'var(--text-accent)', healing: 'var(--text-healing)' },
+  line: { DEFAULT: 'var(--border-default)', faint: 'var(--border-faint)', gilt: 'var(--border-gilt)' },
   'ink-grove': '#12251b',
   'muted-grove': '#4f5f53',
   'gold-ink': { DEFAULT: '#7a5a22', soft: '#96742f' },

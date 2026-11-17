@@ -236,7 +236,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.6.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.7.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -712,7 +712,7 @@
 .ph-day-stage {
   position: relative;
   isolation: isolate;
-  background-color: var(--daylight);
+  background-color: var(--surface-base);
   background-image: var(--glow-daylight);
 }
 .ph-day-stage::after {
@@ -1602,7 +1602,7 @@
    phone guard below can turn it off: backdrop-filter on a sticky bar
    repaints the blurred region on every scroll frame. */
 .ph-header {
-  background: rgb(247 244 234 / 0.9);
+  background: rgb(7 20 13 / 0.82);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
@@ -1653,13 +1653,13 @@
   gap: 0.5rem;
   border: 1px solid var(--ph-art-edge);
   border-radius: var(--radius-pill);
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   padding: 0.35rem 0.9rem;
   font-size: 0.7rem;
   font-weight: var(--weight-label);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--green-800);
+  color: var(--text-healing);
 }
 .ph-pulse-dot {
   width: 0.45rem;
@@ -1676,7 +1676,7 @@
   overflow: hidden;
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-lg);
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   box-shadow: var(--ph-art-shadow);
   transition: box-shadow var(--dur-base) var(--ease-out), transform var(--dur-base) var(--ease-out);
 }
@@ -1708,7 +1708,7 @@
   font-size: 0.9rem;
   font-style: italic;
   line-height: 1.5;
-  color: var(--muted-grove);
+  color: var(--text-muted);
 }
 .ph-art-veil {
   position: absolute;
@@ -1739,7 +1739,7 @@
   font-weight: var(--weight-hero);
   font-size: 0.95rem;
   letter-spacing: 0.12em;
-  color: var(--gold-ink-soft);
+  color: var(--text-accent);
   margin-bottom: 0.4rem;
 }
 
@@ -1801,7 +1801,7 @@
   align-items: start;
   padding: 1.15rem 1.25rem;
   border-radius: var(--radius-lg);
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   border: 1px solid var(--ph-art-edge);
   box-shadow: var(--ph-art-shadow);
 }
@@ -1819,7 +1819,7 @@
   font-weight: var(--weight-label);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--gold-ink);
+  color: var(--text-accent);
 }
 .ph-chapter-art {
   border-radius: 6px;
@@ -1834,7 +1834,7 @@
   overflow-x: auto;
   border-radius: var(--radius-lg);
   border: 1px solid var(--ph-art-edge);
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   box-shadow: var(--ph-art-shadow);
 }
 .ph-compare-table {
@@ -1848,26 +1848,26 @@
   position: sticky;
   left: 0;
   z-index: 2;
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   text-align: left;
-  border-right: 1px solid var(--daylight-edge);
+  border-right: 1px solid var(--border-default);
 }
 .ph-compare-table thead th {
   padding: 1.25rem 1rem;
   vertical-align: bottom;
-  border-bottom: 1px solid var(--daylight-edge);
+  border-bottom: 1px solid var(--border-default);
 }
 .ph-compare-table tbody td,
 .ph-compare-table tbody th {
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--daylight-edge);
+  border-bottom: 1px solid var(--border-default);
 }
 .ph-compare-table tbody tr:last-child th,
 .ph-compare-table tbody tr:last-child td { border-bottom: none; }
 .ph-compare-table tfoot td,
 .ph-compare-table tfoot th {
   padding: 1.1rem 1rem 1.25rem;
-  border-top: 1px solid var(--daylight-edge);
+  border-top: 1px solid var(--border-default);
 }
 .ph-compare-featured { background: rgb(233 240 230 / 0.55); }
 .ph-tick {
@@ -2004,7 +2004,7 @@
 /* A tier card: the tier's rim and depth, not the generic card shadow. */
 .ph-tier-card {
   border: 1px solid var(--tier-edge);
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   box-shadow: var(--tier-depth);
 }
 
@@ -2093,7 +2093,7 @@
 .ph-ladder-note {
   font-size: 0.6875rem;
   line-height: 1.35;
-  color: var(--muted-grove, #6b6b6b);
+  color: var(--text-muted);
 }
 
 /* ---- tier motion v3 (Design System 3.5) -----------------------------
@@ -2143,7 +2143,7 @@
   overflow: hidden;
   border-radius: var(--radius-lg);
   aspect-ratio: 4 / 3;
-  background: var(--daylight-raised);
+  background: var(--surface-raised);
   box-shadow: var(--ph-art-shadow);
   transition: box-shadow var(--dur-base) var(--ease-out);
 }
@@ -2153,7 +2153,7 @@
   font-family: var(--font-reading);
   font-size: 0.9rem;
   line-height: 1.5;
-  color: var(--muted-grove);
+  color: var(--text-muted);
 }
 @media (min-width: 768px) {
   .ph-gallery {
@@ -2206,9 +2206,9 @@
   font-weight: var(--weight-label);
   letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--green-800);
+  color: var(--text-healing);
 }
-.ph-bento h3 { color: var(--green-900); }
+.ph-bento h3 { color: var(--text-primary); }
 
 /* ---- Mobile performance guards (3.4) --------------------------------
    These three effects are the most expensive things the old page did on
@@ -2221,7 +2221,7 @@
    Below 768px they become still frames. */
 @media (max-width: 767px) {
   .ph-beam::before { animation: none; }
-  .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--daylight); }
+  .ph-header { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--surface-base); }
   /* A live blur filter on two off-screen covers is a GPU cost on every
      frame of the carousel animation. The depth still reads from the
      scale, the rotation and the opacity. */
@@ -2324,3 +2324,52 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
     --glass-bg: rgb(255 253 246 / 0.94);
   }
 }
+
+
+/* =======================================================================
+   DESIGN SYSTEM 3.7 — "DARK GROVE"
+   The storefront and the research admin now live on the forest-night
+   stage by default (<body class="ph-nightlight">). Ivory stays as the
+   .ph-daylight scope for PDFs, print and the eBook pages.
+   Layout reference: raycast.com — near-black ground, hairline borders,
+   one soft glow behind the hero, big tight display type, bento cards,
+   one bright call to action per screen. Palette stays brand green + gold.
+   Same rules as 3.4: CSS only, nothing that scrolls on a phone uses
+   backdrop-filter, motion is transform/opacity and stops under
+   prefers-reduced-motion.
+   ======================================================================= */
+:root {
+  --ph-glow-green: radial-gradient(60% 55% at 22% 8%, rgb(63 145 103 / 0.28), transparent 70%);
+  --ph-glow-gold: radial-gradient(45% 45% at 88% 4%, rgb(201 168 106 / 0.16), transparent 70%);
+  --ph-hairline-dark: linear-gradient(90deg, transparent, rgb(157 225 193 / 0.28) 30%, rgb(201 168 106 / 0.32) 70%, transparent);
+}
+.ph-nightlight,
+[data-theme="nightlight"] {
+  --ph-hairline: var(--ph-hairline-dark);
+  --ph-veil: linear-gradient(180deg, rgb(7 20 13 / 0) 0%, rgb(7 20 13 / 0.82) 58%, var(--forest-night) 100%);
+  --ph-veil-sage: linear-gradient(180deg, rgb(13 33 23 / 0) 0%, rgb(13 33 23 / 0.82) 58%, var(--forest-raised) 100%);
+  --ph-art-edge: rgb(157 225 193 / 0.14);
+  --ph-art-edge-strong: rgb(201 168 106 / 0.4);
+  --ph-art-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 0 0 1px var(--ph-art-edge), 0 24px 60px -28px rgb(0 0 0 / 0.7);
+  --ph-art-shadow-lift: inset 0 1px 0 rgb(255 255 255 / 0.08), 0 0 0 1px var(--ph-art-edge-strong), 0 32px 70px -26px rgb(0 0 0 / 0.8);
+}
+/* Page grounds. Sections alternate between the two so the page has rhythm
+   without a single light band. */
+.ph-dark-section { background-color: var(--forest-night); color: var(--text-on-dark); }
+.ph-dark-section-raised { background-color: var(--forest-raised); color: var(--text-on-dark); }
+.ph-dark-section-raised::before, .ph-dark-section::before { content: none !important; }
+.ph-day-stage { background-color: var(--surface-base); background-image: var(--ph-glow-green), var(--ph-glow-gold); }
+.ph-nightlight .ph-title, .ph-nightlight .ph-hero { color: var(--text-on-dark); }
+.ph-nightlight .ph-caps { color: var(--gold-light); }
+.ph-nightlight .ph-hero-eyebrow { color: var(--green-300); background: var(--forest-soft); }
+/* Header: translucent dark with a hairline. Blur only on wide screens. */
+.ph-nightlight .ph-header { background: rgb(7 20 13 / 0.82); border-color: var(--forest-edge); }
+/* Cards: raised ground, hairline, lift on hover by transform only. */
+.ph-nightlight .ph-card, .ph-nightlight .ph-chapter-card, .ph-nightlight .ph-bento > * {
+  border-color: var(--forest-edge);
+}
+.ph-nightlight .ph-bento h3, .ph-nightlight .ph-bento-tag { color: var(--green-300); }
+.ph-nightlight input, .ph-nightlight textarea, .ph-nightlight select {
+  background-color: var(--forest-soft); color: var(--text-on-dark); border-color: var(--forest-edge);
+}
+.ph-nightlight ::placeholder { color: var(--text-muted-on-dark); opacity: 1; }

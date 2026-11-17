@@ -19,7 +19,7 @@ export default async function Beli({ params }: { params: Promise<{ id: string }>
   return (
     <PageShell title={`Beli ${p.name}`} intro={tier.subcopy}>
       <div className="mx-auto mb-6 max-w-reading">
-        <Link href="/#edisi" className="text-sm text-green-800 underline underline-offset-4 hover:text-green-900">
+        <Link href="/#edisi" className="text-sm text-fg-healing underline underline-offset-4 hover:text-fg">
           ← Kembali ke semua edisi
         </Link>
       </div>

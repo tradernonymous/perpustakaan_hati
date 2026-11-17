@@ -47,8 +47,8 @@ export function SuratHatiForm() {
   if (status === "sent") {
     return (
       <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-6" role="status" aria-live="polite">
-        <p className="font-display text-2xl text-green-900">Surat kamu sudah diterima.</p>
-        <p className="text-ink-grove">
+        <p className="font-display text-2xl text-fg">Surat kamu sudah diterima.</p>
+        <p className="text-fg">
           Terima kasih kerana sudi berkongsi. Nama samaran kamu sudah disembunyikan secara automatik daripada teks luahan sebelum disimpan.
         </p>
         <div className="flex flex-wrap gap-3">
@@ -88,12 +88,12 @@ export function SuratHatiForm() {
         />
       </div>
 
-      <label htmlFor={`${id}-name`} className="flex flex-col gap-1 text-sm text-green-900">
+      <label htmlFor={`${id}-name`} className="flex flex-col gap-1 text-sm text-fg">
         Nama samaran (pilihan)
         <input
           id={`${id}-name`}
           name="name"
-          className="min-h-tap rounded border border-daylight-edge bg-sage px-3 text-ink-grove"
+          className="min-h-tap rounded border border-line bg-surface-soft px-3 text-fg"
           placeholder="cth: Aina"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -101,7 +101,7 @@ export function SuratHatiForm() {
         />
       </label>
 
-      <label htmlFor={`${id}-dilemma`} className="flex flex-col gap-1 text-sm text-green-900">
+      <label htmlFor={`${id}-dilemma`} className="flex flex-col gap-1 text-sm text-fg">
         Luahan kamu
         <textarea
           ref={dilemmaRef}
@@ -111,7 +111,7 @@ export function SuratHatiForm() {
           required
           aria-invalid={status === "error" || undefined}
           aria-describedby={dilemmaErrorId}
-          className="rounded border border-daylight-edge bg-sage px-3 py-2 text-ink-grove"
+          className="rounded border border-line bg-surface-soft px-3 py-2 text-fg"
           placeholder="Tulis di sini, nama kamu akan disembunyikan..."
           value={dilemma}
           onChange={(e) => {
@@ -122,7 +122,7 @@ export function SuratHatiForm() {
         />
       </label>
 
-      <div className="flex items-start gap-2.5 text-sm text-green-900">
+      <div className="flex items-start gap-2.5 text-sm text-fg">
         <input
           id={`${id}-publish`}
           type="checkbox"
@@ -130,7 +130,7 @@ export function SuratHatiForm() {
           checked={consentPublish}
           onChange={(e) => setConsentPublish(e.target.checked)}
         />
-        <label htmlFor={`${id}-publish`} className="text-muted-grove">
+        <label htmlFor={`${id}-publish`} className="text-fg-muted">
           Benarkan luahan anonim ini dijadikan inspirasi breakdown psikologi (tanpa identiti) di Threads atau eBook.
         </label>
       </div>
@@ -144,7 +144,7 @@ export function SuratHatiForm() {
       <button type="submit" className="ph-cta min-h-tap" disabled={status === "sending"}>
         {status === "sending" ? "Sedang menghantar..." : "Hantar Surat"}
       </button>
-      <p className="text-xs text-muted-grove">
+      <p className="text-xs text-fg-muted">
         Surat anonim disimpan untuk terbitan dan siri Threads. Tiada perkongsian dengan pihak ketiga.
       </p>
     </form>

@@ -27,13 +27,13 @@ export default async function Pustaka({ searchParams }: { searchParams: Promise<
         <ul className="mx-auto flex max-w-reading flex-col gap-3">
           {lib.items.map((i) => (
             <li key={i.name} className="ph-card flex flex-wrap items-center justify-between gap-3 p-4">
-              <span className="font-display text-xl text-green-900">{i.name}</span>
+              <span className="font-display text-xl text-fg">{i.name}</span>
               <a href={i.url} className="ph-cta min-h-tap">Muat turun PDF</a>
             </li>
           ))}
         </ul>
       )}
-      <p className="mx-auto mt-6 max-w-reading text-center text-sm text-muted-grove">Setiap salinan ditandakan dengan nama pembeli. Mohon jangan kongsi.</p>
+      <p className="mx-auto mt-6 max-w-reading text-center text-sm text-fg-muted">Setiap salinan ditandakan dengan nama pembeli. Mohon jangan kongsi.</p>
     </PageShell>
   );
 }

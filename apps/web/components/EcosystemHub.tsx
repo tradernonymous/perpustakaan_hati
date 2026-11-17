@@ -105,11 +105,11 @@ export function EcosystemHub() {
             <div className="flex flex-col gap-2">
               <span className="ph-bento-tag">{item.tag}</span>
               <h3 className="font-display text-xl">{item.title}</h3>
-              <p className="text-sm leading-relaxed text-ink-grove">{item.description}</p>
+              <p className="text-sm leading-relaxed text-fg">{item.description}</p>
             </div>
             <span
               className={`inline-flex items-center gap-1.5 text-sm font-semibold ${
-                item.feature ? "text-gold-light" : "text-green-800"
+                item.feature ? "text-gold-light" : "text-fg-healing"
               }`}
             >
               <span>{item.cta}</span>

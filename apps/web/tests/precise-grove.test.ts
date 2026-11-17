@@ -131,14 +131,14 @@ describe("3.6 escape hatches", () => {
 
 describe("3.6 release bookkeeping", () => {
   it("is the current version in both copies", () => {
-    expect(css).toContain("--ph-system-version: '3.6.0'");
+    expect(css).toContain("--ph-system-version: '3.7.0'");
     expect(css).toBe(docsCss);
   });
 
   it("is described in the docs and the Doop guideline", () => {
     const design = readFileSync(path.join(import.meta.dirname, "../../../docs/brand/DESIGN-SYSTEM.md"), "utf8");
     expect(design).toContain('Design System 3.6 "Precise Grove"');
-    expect(design).toContain("--ph-system-version: '3.6.0'");
+    expect(design).toContain("--ph-system-version: '3.7.0'");
     expect(guideline).toContain('Design System 3.6 "Precise Grove"');
     expect(guideline).toContain("--focus-color:var(--green-300)");
   });

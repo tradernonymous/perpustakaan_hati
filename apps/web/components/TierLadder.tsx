@@ -19,7 +19,7 @@ export function TierLadder() {
     <ol className="ph-ladder mx-auto max-w-grid list-none px-5" aria-label="Tiga edisi, dari yang paling ringkas ke yang paling lengkap">
       {TIERS.map((tier, i) => (
         <li key={tier.id} className="ph-ladder-step" data-tier={tier.id}>
-          <span className="ph-caps text-[0.6rem] text-muted-grove">
+          <span className="ph-caps text-[0.6rem] text-fg-muted">
             {String(i + 1).padStart(2, "0")}
           </span>
           <span className="ph-ladder-medal ph-tier-medal ph-tier-rise" aria-hidden="true" />
