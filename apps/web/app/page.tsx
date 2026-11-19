@@ -7,7 +7,6 @@ import { ClosingCta } from "@/components/ClosingCta";
 import { SafetyFooter } from "@/components/SafetyFooter";
 import { StickyCta } from "@/components/StickyCta";
 import { Reveal } from "@/components/Reveal";
-import { Testimonials } from "@/components/Testimonials";
 import { EbookDeck } from "@/components/EbookDeck";
 import { TierCompare } from "@/components/TierCompare";
 import { TierLadder } from "@/components/TierLadder";
@@ -69,9 +68,6 @@ export default function Home() {
         </Section>
         <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
           <PlateGallery />
-        </Section>
-        <Section index="06" id="pembaca" title="Suara pembaca">
-          <Testimonials />
         </Section>
         <Section index="07" id="soalan" tone="soft" title="Soalan lazim">
           <Faq />

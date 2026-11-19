@@ -1,5 +1,6 @@
 "use client";
 
+import { temanHatiEnabled } from "@/src/feature-flags";
 import { useState, type FormEvent } from "react";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -139,7 +140,7 @@ export function OptInForm() {
             </a>
             <a href="/kad-jujur-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Kad Jujur Hati</a>
             <a href="/cermin-pasangan" className="btn-ghost min-h-tap px-4 py-2 text-xs">Cermin Pasangan</a>
-            <a href="/teman-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Teman Hati AI</a>
+            {temanHatiEnabled && (<a href="/teman-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Teman Hati AI</a>)}
           </div>
         </div>
       )}

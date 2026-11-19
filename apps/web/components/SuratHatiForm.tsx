@@ -1,5 +1,6 @@
 "use client";
 
+import { temanHatiEnabled } from "@/src/feature-flags";
 import Link from "next/link";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { acceptsSurat } from "@/src/games/surat";
@@ -63,9 +64,9 @@ export function SuratHatiForm() {
           >
             Hantar surat lain
           </button>
-          <Link href="/teman-hati" className="ph-cta min-h-tap">
+          {temanHatiEnabled && (<Link href="/teman-hati" className="ph-cta min-h-tap">
             Cuba Teman Hati sekarang
-          </Link>
+          </Link>)}
         </div>
       </div>
     );
