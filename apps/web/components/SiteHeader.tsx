@@ -34,7 +34,7 @@ export function SiteHeader({ base = "" }: { base?: string }) {
         </a>
 
         <nav aria-label="Utama" className="hidden items-center gap-1 lg:flex">
-          {NAV.filter(({ href }) => href !== "#pembaca").map((n) => (
+          {NAV.map((n) => (
             <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg-muted transition-colors hover:text-fg">
               {n.label}
             </a>
@@ -66,7 +66,7 @@ export function SiteHeader({ base = "" }: { base?: string }) {
       {open && (
         <nav id="menu-mudah-alih" aria-label="Menu mudah alih" className="border-t border-line bg-surface-raised px-5 pb-4 lg:hidden">
           <ul className="flex flex-col">
-            {NAV.filter(({ href }) => href !== "#pembaca").map((n) => (
+            {NAV.map((n) => (
               <li key={n.href}>
                 <a href={`${base}${n.href}`} onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">
                   {n.label}
