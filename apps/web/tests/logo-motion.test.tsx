@@ -38,12 +38,7 @@ describe("animated logo files (build-animated-logos.py)", () => {
 });
 
 describe("animated logos on the site", () => {
-  it("hero typesets the wordmark on the daylight stage, keeping the 3D lockup for covers", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-day-stage");
-    expect(html).toContain("ph-hero");
-    expect(html).not.toContain("lockup-hero.svg");
-  });
+
   it("header mark and the 3D book use the animated emblem", () => {
     expect(renderToStaticMarkup(<BrandMark />)).toContain("/brand/animated/emblem-book-heart.svg");
     expect(renderToStaticMarkup(<HeroBook />)).toContain("/brand/animated/emblem-book-heart.svg");

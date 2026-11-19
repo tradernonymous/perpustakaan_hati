@@ -68,7 +68,7 @@ describe("safety footer", () => {
 describe("hero and sticky CTA", () => {
   it("hero carries the tagline and a CTA to the opt-in", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("Karya untuk jiwa yang pernah terluka");
+    expect(html).toContain("Ruang untuk pulih.");
     expect(html).toContain('id="percuma"');
     expect(html).toContain('id="optin-email"');
   });

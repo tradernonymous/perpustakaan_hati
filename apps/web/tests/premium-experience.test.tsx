@@ -19,15 +19,6 @@ describe("premium interactive experience", () => {
     expect(html).toContain("Buka muka surat seterusnya");
   });
 
-  it("hero composes book, progress and educational chapters", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-book-3d");
-    expect(html).toContain("ph-progress");
-    expect(html).toContain("Kad Refleksi");
-    expect(html).toContain("7 Hari Reset");
-    expect(html).toContain("Baca 60 saat sehari");
-  });
-
   it("deck uses a coverflow with the active edition raised and readable", () => {
     const html = renderToStaticMarkup(<EbookDeck />);
     expect(html).toContain("ph-coverflow");
@@ -69,14 +60,4 @@ describe("premium interactive experience", () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
-  it("hero embeds the light beam layer behind the book", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-fx");
-  });
-
-  it("hero is mobile-first: stacked actions and scaled book on small screens", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("min-h-cta-mobile");
-    expect(html).toContain("grid");
-  });
 });

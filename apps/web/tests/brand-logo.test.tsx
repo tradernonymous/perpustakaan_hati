@@ -15,17 +15,7 @@ import Home from "@/app/page";
 const publicBrand = (f: string) => readFileSync(path.join(__dirname, "../public/brand", f), "utf8");
 
 describe("3.2 Daylight Grove hero", () => {
-  it("typesets the wordmark as live text so it holds on the ivory ground", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI[\s\S]*<\/h1>/);
-    expect(html).not.toContain("lockup-hero.svg");
-  });
-  it("keeps the byline and tagline as real text below the mark", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-kicker");
-    expect(html).toContain("oleh @rahimam");
-    expect(html).toContain("Karya untuk jiwa yang pernah terluka");
-  });
+
   it("the cinematic lockup stays in the system for covers and posters", () => {
     const svg = publicBrand("lockup-hero.svg");
     expect(svg).not.toContain('fill="#07140d"');

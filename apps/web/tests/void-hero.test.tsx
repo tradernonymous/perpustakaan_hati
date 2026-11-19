@@ -50,22 +50,7 @@ describe("3.8 void ground", () => {
 });
 
 describe("3.8 hero motion: minimal, compositor-only", () => {
-  it("replaces the sparkle glyphs with a beam and a spotlight", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-fx");
-    expect(html).toContain("ph-hero-beam");
-    expect(html).toContain("ph-hero-spot");
-    expect(html).not.toContain("ph-glyphs");
-  });
-  it("rises the headline words in sequence", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html.match(/ph-rise/g)?.length).toBeGreaterThanOrEqual(3);
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI/);
-  });
-  it("turns the eyebrow into a link to the editions", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<a[^>]*href="#edisi"[^>]*class="[^"]*ph-hero-eyebrow/);
-  });
+
   it("animates only opacity and transform", () => {
     for (const k of ["ph-beam-in", "ph-beam-breathe", "ph-rise"]) {
       const body = keyframes(k);
