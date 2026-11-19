@@ -2,6 +2,18 @@
 
 **Status: current version as of 2026-11-18.** The storefront ground goes one step darker, like raycast.com: a near-black with a trace of green. Same palette, same fonts, same assets. Version token: `--ph-system-version: '3.8.0'` in `design-tokens.css`.
 
+## Shared foundations layer (added 2026-11-19, still 3.8)
+
+Three additions on top of Void Grove, all additive — no existing token changed value.
+
+| Piece | Token / class | Why |
+|---|---|---|
+| Scoped ebook-tier tokens | `.ph-ebook-poket`, `.ph-ebook-membangun`, `.ph-ebook-teman-hidup` → `--ebook-<tier>-{page,ink,heading,rule,ornament,field,field-ink}` | Each edition gets its own page ground and ink. Declared **only** inside the scoped class, never in `:root`, so a white Edisi Membangun PDF cannot turn the storefront white. The renderer opts in by putting the class on its page root. |
+| Motion roles | `--motion-feedback-dur/ease`, `--motion-entrance-dur/ease`, `--motion-scene-dur/ease`, `--motion-reduced-dur` | A component names the role it plays (feedback / entrance / scene) instead of picking a curve. Values reference `--dur-*`/`--ease-*`, and the `prefers-reduced-motion` block zeroes the durations explicitly. |
+| Specimen sheet | `docs/brand/specimens/foundations.html` | Review sheet: buttons, forms, navigation, cards, dialogs, loading/empty/success/error states and the three tier specimens. Uses `design-tokens.css` only — the test suite fails the sheet if a raw hex colour appears. |
+
+Pinned by `packages/brand-tools/tests/test_phase1_foundations.py`: token presence, scoping (not in `:root`), reduced-motion zeroing, byte-identical CSS copies, `design-tokens.json` ↔ CSS version and value sync, WCAG contrast on the new tier pairs (text ≥4.5:1, graphics ≥3:1), and the specimen sections.
+
 ## Void Grove (3.8)
 
 | Piece | Token / class | Why |

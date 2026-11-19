@@ -418,6 +418,20 @@
   --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1); /* arriving: enter, reveal */
   --ease-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15); /* leaving: exit, dismiss */
 
+  /* 3.9 shared-foundations motion ROLES. A component names the role it
+     plays (feedback / entrance / scene) and inherits duration + curve.
+     Values reference the --dur-* and --ease-* scales, so the
+     prefers-reduced-motion block below zeroes them automatically.
+     --motion-reduced-dur is the explicit no-motion duration for code
+     that cannot read a media query (canvas, JS timelines). */
+  --motion-feedback-dur: var(--dur-fast);              /* 140ms — press, hover, toast */
+  --motion-feedback-ease: var(--ease-standard);
+  --motion-entrance-dur: var(--dur-base);             /* 240ms — reveal, first paint */
+  --motion-entrance-ease: var(--ease-decelerate);
+  --motion-scene-dur: var(--dur-slow);                /* 400ms — section / scene change */
+  --motion-scene-ease: var(--ease-standard);
+  --motion-reduced-dur: 0ms;
+
   /* =====================================================================
      3.1 "Warmer Grove" extension — three-layer discipline, charts locked,
      Teman Hati companion surface, read-first guardrails.
@@ -611,6 +625,64 @@
     0 1px 1px rgb(0 0 0 / 0.5),
     0 18px 40px -8px rgb(0 0 0 / 0.6);
 }
+  /* =====================================================================
+     SCOPED EBOOK-TIER TOKENS — shared-foundations layer (2026-11-19)
+
+     Seven roles per tier for the *page* of each edition:
+
+       --ebook-<t>-page       page ground
+       --ebook-<t>-ink        body text on that ground
+       --ebook-<t>-heading    chapter / section headings
+       --ebook-<t>-rule       hairlines and paragraph rules
+       --ebook-<t>-ornament   restrained decoration (foil-like detail)
+       --ebook-<t>-field      reflection / writing field ground
+       --ebook-<t>-field-ink  text inside the writing field
+
+     Every value is declared inside a scoped class (.ph-ebook-<t>), never
+     in :root, so a white Edisi Membangun PDF cannot turn the storefront
+     white. The renderer (packages/ebook-builder) opts in by putting the
+     class on its page root; the website does not.
+
+     Edition identities (locked by the upgrade brief):
+       Edisi Poket      cream page, green ink, gold detail — intimate
+       Edisi Membangun  white page, black ink, green + gold support — workbook
+       Teman Hidup      black page, cream ink, gold detail — premium
+
+     Measured with packages/brand-tools/check-contrast.py:
+       ink / heading / field-ink on page: >= 4.5:1 for all three tiers
+       rule / ornament on page:            >= 3:1 (WCAG 1.4.11 graphics)
+     ===================================================================== */
+
+  .ph-ebook-poket {
+    --ebook-poket-page: #fdfee6;        /* cream */
+    --ebook-poket-ink: #12251b;         /* green-black — 15.66:1 */
+    --ebook-poket-heading: #1d5a3d;     /* green-800 — 7.86:1 */
+    --ebook-poket-rule: #2d7954;        /* green-700 — 5.16:1 */
+    --ebook-poket-ornament: #a07b45;    /* gold-deep — 3.81:1 */
+    --ebook-poket-field: #e4f4e9;       /* green tint */
+    --ebook-poket-field-ink: #12251b;   /* 14.10:1 on field */
+  }
+
+  .ph-ebook-membangun {
+    --ebook-membangun-page: #ffffff;    /* white — the workbook page */
+    --ebook-membangun-ink: #0a0a0c;     /* near-black — 19.60:1 */
+    --ebook-membangun-heading: #1d5a3d; /* green-800 — 8.12:1 */
+    --ebook-membangun-rule: #a07b45;    /* gold-deep — 3.90:1 */
+    --ebook-membangun-ornament: #2d7954;/* green-700 — 5.29:1 */
+    --ebook-membangun-field: #f7efdd;   /* warm paper */
+    --ebook-membangun-field-ink: #0a0a0c; /* 18.06:1 on field */
+  }
+
+  .ph-ebook-teman-hidup {
+    --ebook-teman-hidup-page: #0a0a0c;  /* black — the collector page */
+    --ebook-teman-hidup-ink: #e6e2da;   /* 15.34:1 */
+    --ebook-teman-hidup-heading: #fdfee6; /* cream — 18.3:1 */
+    --ebook-teman-hidup-rule: #c9a86a;  /* gold — 8.73:1 */
+    --ebook-teman-hidup-ornament: #e9cea2; /* gold-light — 13.6:1 */
+    --ebook-teman-hidup-field: #142c20; /* forest-soft */
+    --ebook-teman-hidup-field-ink: #fdfee6; /* 14.53:1 on field */
+  }
+
 
 /* =======================================================================
    DAYLIGHT GROVE — theme scope
@@ -777,6 +849,10 @@
     --dur-base: 0ms;
     --dur-slow: 0ms;
     --dur-glint: 0ms;
+    --motion-feedback-dur: 0ms;
+    --motion-entrance-dur: 0ms;
+    --motion-scene-dur: 0ms;
+    --motion-reduced-dur: 0ms;
   }
 }
 

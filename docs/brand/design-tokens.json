@@ -1,10 +1,11 @@
 {
   "$meta": {
-    "name": "Perpustakaan Hati — Design System 3.6 Precise Grove",
-    "version": "3.6.0",
-    "date": "2026-11-17",
+    "name": "Perpustakaan Hati — Design System 3.8 Void Grove",
+    "version": "3.8.0",
+    "date": "2026-11-19",
     "source": "docs/brand/design-tokens.css",
-    "share": "green 50 / gold 40 / ruby + cream 10"
+    "share": "green 50 / gold 40 / ruby + cream 10",
+    "note": "Shared-foundations layer added 2026-11-19: scoped ebook-tier tokens (.ph-ebook-*) and motion role tokens. Mirrored by hand from design-tokens.css; packages/brand-tools/tests/test_phase1_foundations.py pins the sync."
   },
   "primitive": {
     "color": {
@@ -88,5 +89,45 @@
     "tilt-perspective": "1200px",
     "tilt-max": "6deg",
     "particle-count": 42
+  },
+  "motion": {
+    "motion-feedback-dur": "var(--dur-fast)",
+    "motion-feedback-ease": "var(--ease-standard)",
+    "motion-entrance-dur": "var(--dur-base)",
+    "motion-entrance-ease": "var(--ease-decelerate)",
+    "motion-scene-dur": "var(--dur-slow)",
+    "motion-scene-ease": "var(--ease-standard)",
+    "motion-reduced-dur": "0ms",
+    "$note": "Declared on scoped classes and zeroed under prefers-reduced-motion. See packages/brand-tools/tests/test_phase1_foundations.py."
+  },
+  "ebook": {
+    "$note": "Scoped ebook-tier page tokens. Declared inside .ph-ebook-<tier>, never :root, so an edition ground cannot leak into the storefront.",
+    "poket": {
+      "page": "#fdfee6",
+      "ink": "#12251b",
+      "heading": "#1d5a3d",
+      "rule": "#2d7954",
+      "ornament": "#a07b45",
+      "field": "#e4f4e9",
+      "field-ink": "#12251b"
+    },
+    "membangun": {
+      "page": "#ffffff",
+      "ink": "#0a0a0c",
+      "heading": "#1d5a3d",
+      "rule": "#a07b45",
+      "ornament": "#2d7954",
+      "field": "#f7efdd",
+      "field-ink": "#0a0a0c"
+    },
+    "teman-hidup": {
+      "page": "#0a0a0c",
+      "ink": "#e6e2da",
+      "heading": "#fdfee6",
+      "rule": "#c9a86a",
+      "ornament": "#e9cea2",
+      "field": "#142c20",
+      "field-ink": "#fdfee6"
+    }
   }
 }
