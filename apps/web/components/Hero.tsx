@@ -1,11 +1,14 @@
 import { OptInForm } from "@/components/OptInForm";
+import { HeroAtmosphere } from "./HeroAtmosphere";
+import styles from "./HeroAtmosphere.module.css";
 
 /** A short introduction, followed by the existing free-edition signup. */
 export function Hero() {
   return (
     <>
       <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden border-b border-line px-5 py-14 sm:py-20">
-        <div className="relative mx-auto max-w-3xl text-center">
+        <HeroAtmosphere />
+        <div className={`${styles.copy} mx-auto max-w-3xl text-center`}>
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-fg-accent">Perpustakaan Hati · Bahasa Melayu</p>
           <h1 id="hero-heading" className="font-display text-[clamp(2.5rem,6vw,4.75rem)] leading-[1.08] tracking-tight text-fg">
             Bacaan kecil.<br /><span className="text-fg-healing">Ruang untuk pulih.</span>
