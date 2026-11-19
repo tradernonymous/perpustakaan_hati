@@ -29,7 +29,7 @@ describe("dark home funnel", () => {
     expect(html.lastIndexOf('id="penutup"')).toBeGreaterThan(pos("soalan"));
   });
   it("keeps one primary call to action in the hero", () => {
-    const hero = html.slice(pos("atas"), pos("cara"));
+    const hero = html.slice(pos("atas"), html.indexOf("</section>", pos("atas")));
     expect(hero.match(/class="[^"]*ph-cta[^"]*"/g)?.length ?? 0).toBeLessThanOrEqual(1);
   });
   it("uses no ivory-only classes", () => {

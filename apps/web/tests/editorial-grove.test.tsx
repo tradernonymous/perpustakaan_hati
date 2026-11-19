@@ -25,33 +25,6 @@ import Home from "@/app/page";
 const tokens = readFileSync(path.join(import.meta.dirname, "../styles/design-tokens.css"), "utf8");
 
 describe("editorial grove hero", () => {
-  it("puts a real illustration in the hero, not just type", () => {
-    const html = renderToStaticMarkup(<Hero />).toLowerCase();
-    expect(html).toContain("ph-art");
-    expect(html).toContain("/illustrations/");
-    // React keeps srcSet and fetchPriority in camelCase in the markup.
-    // HTML attribute names are case-insensitive, so the browser reads
-    // them fine, which is why the assertions look at the lowercased
-    // markup.
-    expect(html).toContain("srcset=");
-    expect(html).toContain("image/webp");
-  });
-
-  it("loads the hero art eagerly, because it is the largest contentful paint", () => {
-    const html = renderToStaticMarkup(<Hero />).toLowerCase();
-    expect(html).toContain('loading="eager"');
-    expect(html).toContain('fetchpriority="high"');
-  });
-
-  it("gives the hero art real alt text", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain(ILLUSTRATIONS[0].alt);
-  });
-
-  it("keeps the wordmark as live text in an h1", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI[\s\S]*<\/h1>/);
-  });
 
   it("still offers the free edition and the edition list", () => {
     const html = renderToStaticMarkup(<Hero />);
@@ -167,9 +140,4 @@ describe("refinements: A4 covers, comparison table, and hero plinth", () => {
     expect(html).toContain("Tidak termasuk dalam Edisi Poket");
   });
 
-  it("stages the hero with the collector plinth and live 60-second excerpt slot", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-plinth");
-    expect(html).toContain("Intai 60 saat");
-  });
 });

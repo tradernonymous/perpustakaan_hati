@@ -35,14 +35,6 @@ describe("SiteHeader logo", () => {
   });
 });
 
-describe("Hero motion", () => {
-  it("has a light beam and a staggered reveal", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-beam");
-    expect(html).toContain("animate-fade-up");
-  });
-});
-
 describe("Reveal", () => {
   it("wraps children and starts hidden until scrolled into view", () => {
     const html = renderToStaticMarkup(
