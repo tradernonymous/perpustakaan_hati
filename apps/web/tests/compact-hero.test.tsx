@@ -13,7 +13,7 @@ describe("compact hero", () => {
   it("keeps registration reachable outside the compact introduction", () => {
     expect(intro).not.toContain("<form");
     expect(html).toContain('id="percuma"');
-    expect(html).toContain('id="optin-email"');
+    expect(html).toContain('id="lib-email"');
     expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
   });
   it("does not load decorative media or book previews in the intro", () => {
