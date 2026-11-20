@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { TESTIMONIALS } from "@/src/content";
+import styles from "./Testimonials.module.css";
 
 const ROTATION_MS = 9000;
 const COUNT = TESTIMONIALS.length;
@@ -55,7 +56,7 @@ export function Testimonials() {
 
   return (
     <div ref={carousel} role="region" aria-label="Maklum balas di Threads" aria-roledescription="karusel"
-      className="mx-auto max-w-reading"
+      className={`mx-auto max-w-reading ${styles.socialType}`}
       onPointerEnter={(event) => {
         if (event.pointerType !== "mouse") return;
         setHovered(true);
@@ -83,17 +84,22 @@ export function Testimonials() {
           </button>
         )}
       </div>
-      <div className="ph-card grid border-l-2 border-l-gold-deep">
+      <div className="ph-card grid border-t-2 border-t-gold-deep">
         {TESTIMONIALS.map((item, index) => (
           <a key={item.url} href={item.url} target="_blank" rel="noopener noreferrer"
             aria-hidden={index !== active || undefined} tabIndex={index === active ? undefined : -1}
-            className={`col-start-1 row-start-1 flex min-w-0 rounded p-5 sm:p-7 ${index === active ? "" : "invisible pointer-events-none"}`}>
-            <figure className="flex w-full flex-col justify-between gap-5">
-              <blockquote className="break-words font-reading text-lg leading-relaxed text-fg sm:text-xl">“{item.quote}”</blockquote>
-              <figcaption className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-sm">
-                <span className="break-all font-medium text-fg-muted">{item.who}</span>
-                <span className="text-fg-healing underline underline-offset-4">Baca di Threads <span aria-hidden="true">↗</span></span>
+            className={`group col-start-1 row-start-1 min-w-0 rounded p-4 transition-colors hover:bg-surface-soft sm:p-6 ${index === active ? "" : "invisible pointer-events-none"}`}>
+            <figure className={styles.post}>
+              <figcaption className="flex min-w-0 items-center gap-2">
+                <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line-gilt bg-surface-soft text-sm font-semibold text-fg-accent">
+                  {item.who.charAt(1).toUpperCase()}
+                </span>
+                <span className="break-all text-[0.9375rem] font-semibold leading-tight text-fg">{item.who}</span>
               </figcaption>
+              <span className="text-right text-xs font-medium text-fg-healing group-hover:underline group-focus-visible:underline">
+                <span className="sr-only">Buka balasan di </span>Threads <span aria-hidden="true">↗</span>
+              </span>
+              <blockquote className={`${styles.quote} text-fg`}>{item.quote}</blockquote>
             </figure>
           </a>
         ))}
