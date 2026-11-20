@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 
 import httpx
 
+from .avatars import MAX_AVATAR_URL_LENGTH
 from .config import Settings
 
 GRAPH = "https://graph.threads.com"
@@ -204,14 +205,16 @@ class ThreadsClient:
         except (KeyError, ValueError, TypeError):
             raise ThreadsError("Threads returned an invalid token refresh response; reconnect.") from None
 
-    def fetch_profile(self, access_token: str) -> dict:
-        payload = self._request("GET", "/v1.0/me", access_token, params={"fields": PROFILE_FIELDS})
+    def fetch_profile(self, access_token: str, *, timeout: float | None = None) -> dict:
+        options = {"timeout": timeout} if timeout is not None else {}
+        payload = self._request("GET", "/v1.0/me", access_token, params={"fields": PROFILE_FIELDS}, **options)
+        avatar_url = str(payload.get("threads_profile_picture_url") or "").strip()
         return {
             "id": str(payload.get("id", "")).strip()[:80],
             "username": str(payload.get("username", "")).strip().lstrip("@")[:60],
             "name": str(payload.get("name", "")).strip()[:120],
             "biography": str(payload.get("threads_biography", "")).strip()[:500],
-            "profile_picture_url": str(payload.get("threads_profile_picture_url", "")).strip()[:500],
+            "profile_picture_url": avatar_url if len(avatar_url) <= MAX_AVATAR_URL_LENGTH else "",
         }
 
     @staticmethod

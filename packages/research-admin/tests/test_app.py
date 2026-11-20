@@ -56,6 +56,47 @@ def test_status_shows_connection_state(client):
     assert body["expires_at"] > NOW
 
 
+@respx.mock
+def test_avatar_refreshes_expired_url_and_serves_photo_from_admin(client, tmp_path):
+    previous = "https://scontent.cdninstagram.com/avatar.jpg?expired=1"
+    fresh = "https://scontent.cdninstagram.com/avatar.jpg?signature=" + "a" * 520
+    picture = b"\xff\xd8\xff\xe0sample-photo"
+    client.app.state.store.save_graph_audience(
+        profile={"id": "42", "username": "rahimam", "profile_picture_url": previous},
+    )
+    stale_request = respx.get(previous).respond(403)
+    graph_request = respx.get(GRAPH + "/v1.0/me").respond(
+        200, json={"id": "42", "username": "rahimam", "threads_profile_picture_url": fresh},
+    )
+    photo_request = respx.get(fresh).respond(200, content=picture)
+
+    html = client.get("/").text
+    assert '<img src="/assets/threads-avatar" alt="" width="22" height="22"' in html
+    assert previous not in html
+    assert make_app(tmp_path / "anonymous").get("/assets/threads-avatar").status_code == 401
+
+    first = client.get("/assets/threads-avatar")
+    second = client.get("/assets/threads-avatar")
+    assert first.status_code == 200
+    assert first.headers["content-type"] == "image/jpeg"
+    assert first.content == second.content == picture
+    assert stale_request.call_count == graph_request.call_count == photo_request.call_count == 1
+    assert "authorization" not in photo_request.calls[0].request.headers
+
+
+@respx.mock
+def test_avatar_uses_initial_if_cdn_redirects(client):
+    url = "https://cdn.threads.net/avatar.jpg"
+    client.app.state.store.save_graph_audience(profile={"id": "42", "username": "rahimam", "profile_picture_url": url})
+    respx.get(url).respond(302, headers={"location": "https://example.org/avatar"})
+    respx.get(GRAPH + "/v1.0/me").respond(200, json={"id": "42", "username": "rahimam", "threads_profile_picture_url": url})
+
+    response = client.get("/assets/threads-avatar")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/svg+xml"
+    assert ">R</text>" in response.text
+
+
 def test_protected_routes_require_password(tmp_path):
     anon = make_app(tmp_path)
     assert anon.get("/auth/status").status_code == 401
