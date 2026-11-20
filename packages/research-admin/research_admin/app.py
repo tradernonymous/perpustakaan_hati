@@ -19,6 +19,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 
 from .audiences import build_audiences
+from .avatars import AVATAR_PATH, ThreadsAvatar
 from .cards import build_publish_pack, draft_to_ebook_markdown, render_quote_card_html
 from .config import Settings
 from .content import (
@@ -202,6 +203,7 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     store.init_schema()
     store.recover_interrupted_jobs()
     app.state.store = store
+    avatar = ThreadsAvatar()
 
     def sealed(response: Response, *, csp_nonce: str = "") -> Response:
         for key, value in SAFE_RESPONSE_HEADERS.items():
@@ -882,6 +884,22 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         if not target.is_file():
             return error(404, "Font file missing.")
         return FileResponse(target, media_type="font/woff2", headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+    @app.get(AVATAR_PATH)
+    def threads_avatar():
+        profile = (store.get_graph_audience() or {}).get("profile") or {}
+
+        def refresh_profile() -> dict:
+            token = store.get_token()
+            if not token or token.expires_at <= time.time():
+                return {}
+            try:
+                return ThreadsClient(settings, app.state.http, max_retries=0).fetch_profile(token.access_token, timeout=3.0)
+            except ThreadsError:
+                return {}
+
+        body, media_type = avatar.resolve(app.state.http, profile, refresh_profile)
+        return Response(body, media_type=media_type)
 
     @app.get("/favicon.ico")
     def favicon():

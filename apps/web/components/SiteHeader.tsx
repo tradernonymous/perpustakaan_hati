@@ -1,17 +1,22 @@
 "use client";
 
 import { temanHatiEnabled } from "@/src/feature-flags";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NAV } from "@/src/content";
 import { BrandMark } from "@/components/BrandMark";
 import { OPEN_PALETTE_EVENT } from "@/components/CommandPalette";
 
 export function SiteHeader({ base = "" }: { base?: string }) {
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || event.defaultPrevented) return;
+      setOpen(false);
+      menuButton.current?.focus();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
@@ -22,14 +27,14 @@ export function SiteHeader({ base = "" }: { base?: string }) {
     <header className="ph-header sticky top-0 z-header border-b border-line">
       {/* First tab stop on every page: jumps the sticky header entirely. */}
       <a
-        href={`${base}#utama`}
+        href="#utama"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-2 focus:z-toast focus:rounded focus:bg-surface-raised focus:px-4 focus:py-2 focus:text-fg"
       >
         Lompat ke kandungan
       </a>
-      <div className="mx-auto flex max-w-grid items-center justify-between gap-4 px-5 py-2">
-        <a href={homeHref} className="flex min-h-tap items-center gap-3 font-display text-lg text-fg">
-          <BrandMark size={48} className="h-12 w-12 shrink-0" />
+      <div className="mx-auto flex max-w-grid items-center justify-between gap-3 px-4 py-2 sm:px-5 lg:gap-4">
+        <a href={homeHref} onClick={() => setOpen(false)} className="flex min-h-tap min-w-0 items-center gap-2 font-display text-base leading-tight text-fg sm:gap-3 sm:text-lg">
+          <BrandMark size={48} className="h-9 w-9 shrink-0 sm:h-12 sm:w-12" />
           <span>Perpustakaan Hati</span>
         </a>
 
@@ -52,8 +57,9 @@ export function SiteHeader({ base = "" }: { base?: string }) {
         </nav>
 
         <button
+          ref={menuButton}
           type="button"
-          className="flex min-h-tap min-w-tap cursor-pointer items-center justify-center rounded border border-line text-fg lg:hidden"
+          className="flex min-h-tap min-w-tap shrink-0 cursor-pointer items-center justify-center rounded border border-line text-fg lg:hidden"
           aria-expanded={open}
           aria-controls="menu-mudah-alih"
           aria-label={open ? "Tutup menu" : "Buka menu"}
@@ -64,7 +70,7 @@ export function SiteHeader({ base = "" }: { base?: string }) {
       </div>
 
       {open && (
-        <nav id="menu-mudah-alih" aria-label="Menu mudah alih" className="border-t border-line bg-surface-raised px-5 pb-4 lg:hidden">
+        <nav id="menu-mudah-alih" aria-label="Menu mudah alih" className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain border-t border-line bg-surface-raised px-4 pb-4 sm:px-5 lg:hidden">
           <ul className="flex flex-col">
             {NAV.map((n) => (
               <li key={n.href}>
@@ -78,11 +84,11 @@ export function SiteHeader({ base = "" }: { base?: string }) {
                 Ruang Interaktif
               </a>
             </li>
-            <li>
-              {temanHatiEnabled && (<a href="/teman-hati" onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">
+            {temanHatiEnabled && <li>
+              <a href="/teman-hati" onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">
                 Teman Hati AI
-              </a>)}
-            </li>
+              </a>
+            </li>}
             <li>
               <a href="/kad-jujur-hati" onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">
                 Kad Jujur Hati

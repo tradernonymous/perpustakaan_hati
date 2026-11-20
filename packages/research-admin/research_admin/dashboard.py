@@ -4,6 +4,7 @@ import html
 from dataclasses import dataclass, field
 from urllib.parse import quote
 
+from .avatars import AVATAR_PATH
 from .content import DRAFT_KINDS, DRAFT_LANGUAGES, DRAFT_TONES
 from .discovery import score_posts
 from .followers import (
@@ -880,8 +881,10 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 
     profile = (data.graph_audience or {}).get("profile") or {}
     acct_handle = str(profile.get("username") or "rahimam").lstrip("@")
-    acct_avatar = str(profile.get("profile_picture_url") or "").strip()
-    avatar_img = f'<img src="{_e(acct_avatar)}" alt="@{_e(acct_handle)}" style="width:22px;height:22px;border-radius:50%;object-fit:cover">' if acct_avatar.startswith("https://") else ""
+    avatar_img = (
+        f'<img src="{AVATAR_PATH}" alt="" width="22" height="22" '
+        'style="border-radius:50%;object-fit:cover;display:block;flex-shrink:0">'
+    )
     account_badge = f'<span class="account"><i class="dot {status_class}"></i>{avatar_img}<span class="ph-at">@{_e(acct_handle)}</span> Threads</span>'
 
     graph_summary = ""

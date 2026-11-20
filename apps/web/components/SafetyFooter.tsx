@@ -4,7 +4,7 @@ import { NAV } from "@/src/content";
 
 export function SafetyFooter({ base = "" }: { base?: string }) {
   return (
-    <footer className="bg-surface-soft px-5 py-10 pb-28 text-sm text-fg md:pb-10">
+    <footer id="kaki-laman" className="bg-surface-soft px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-10 text-sm text-fg sm:px-5">
       <div className="mx-auto flex max-w-grid flex-col gap-8">
         <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr]">
           <div className="flex max-w-reading flex-col gap-3">

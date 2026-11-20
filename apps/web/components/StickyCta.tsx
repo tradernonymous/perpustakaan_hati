@@ -2,19 +2,24 @@
 
 import { useEffect, useState } from "react";
 
-/**
- * Mobile sticky CTA: steps aside while the opt-in form (#percuma) is on screen,
- * and respects bottom safe-area insets in mobile in-app webviews (Threads / iOS).
- */
+const INLINE_ACTION_SECTIONS = ["atas", "percuma", "edisi", "katalog", "penutup", "kaki-laman"];
+
 export function StickyCta() {
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
-    const target = document.getElementById("percuma");
-    if (!target || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setHidden(Boolean(e?.isIntersecting)), { threshold: 0.15 });
-    io.observe(target);
-    return () => io.disconnect();
+    if (typeof IntersectionObserver === "undefined") return;
+    const sections = INLINE_ACTION_SECTIONS.map((id) => document.getElementById(id)).filter((section) => section !== null);
+    const inView = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) inView.add(entry.target);
+        else inView.delete(entry.target);
+      }
+      setHidden(inView.size > 0);
+    });
+    for (const section of sections) observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -22,10 +27,10 @@ export function StickyCta() {
       data-sticky-cta
       data-hidden={hidden}
       aria-hidden={hidden || undefined}
-      className="ph-sticky-cta fixed inset-x-0 bottom-0 z-sticky border-t border-line bg-surface px-3 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:hidden"
+      className="ph-sticky-cta fixed inset-x-0 bottom-0 z-sticky border-t border-line bg-surface px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 md:hidden"
     >
-      <a href="#percuma" tabIndex={hidden ? -1 : undefined} className="ph-cta flex min-h-cta-mobile w-full items-center justify-center">
-        Dapatkan Edisi Poket, percuma
+      <a href="#percuma" tabIndex={hidden ? -1 : undefined} className="ph-cta mx-auto flex min-h-tap w-full max-w-xs justify-center px-3 py-2 text-center text-sm">
+        Edisi Poket percuma
       </a>
     </div>
   );

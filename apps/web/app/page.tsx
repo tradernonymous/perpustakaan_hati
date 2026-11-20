@@ -24,14 +24,14 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
   id?: string; index?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`ph-section-warm ${tone === "soft" ? "ph-dark-section-raised" : "ph-dark-section"} scroll-mt-14 overflow-x-clip px-5 py-14 md:py-24`}>
-      <div className="mx-auto mb-10 max-w-reading text-center">
-        {index && <span className="ph-sec-index">{index}</span>}
-        <h2 className="ph-title ph-ink-in text-3xl text-fg md:text-5xl">{title}</h2>
-        <SectionOrnament className="mt-4" />
+    <section id={id} className={`ph-section-warm ${tone === "soft" ? "ph-dark-section-raised" : "ph-dark-section"} px-4 py-10 sm:px-5 md:overflow-x-clip md:py-24`}>
+      <div className="mx-auto mb-6 max-w-reading text-center md:mb-10">
+        {index && <span className="ph-sec-index hidden md:inline-block">{index}</span>}
+        <h2 className="ph-title ph-ink-in text-balance text-3xl text-fg md:text-5xl">{title}</h2>
+        <SectionOrnament className="mt-3 md:mt-4" />
         {intro && <p className="mt-3 text-fg-muted">{intro}</p>}
       </div>
-      <Reveal>{children}</Reveal>
+      <Reveal className="ph-home-reveal">{children}</Reveal>
     </section>
   );
 }
@@ -43,7 +43,7 @@ export default function Home() {
     <>
       <SiteHeader />
       <OrganizationSchema />
-      <main id="utama">
+      <main id="utama" tabIndex={-1}>
         <Hero />
         <StatsStrip />
         <Ticker />
@@ -54,12 +54,7 @@ export default function Home() {
           <EcosystemHub />
         </Section>
         <Section index="03" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
-          <div className="flex flex-col gap-12">
-            <div>
-              <h3 className="mb-6 text-center font-display text-2xl text-fg">Bandingkan semua edisi</h3>
-              <TierCompare />
-            </div>
-          </div>
+          <TierCompare />
         </Section>
         <Section index="04" id="bab" title="Intai beberapa bab" intro="Pratonton kulit edisi A4 terkini dan tujuh bab utama seperti mana ia ditulis.">
           <ChapterPreview />

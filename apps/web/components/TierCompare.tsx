@@ -111,16 +111,13 @@ export function TierCompare() {
     price: tier.id === "poket" ? "Percuma" : formatRM(priceSen(tier.id)),
     href: tier.id === "poket" ? "#percuma" : `/beli/${tier.id}`,
   }));
-  const rows = [
-    { label: "Harga hari ini", values: Object.fromEntries(editions.map(({ id, price }) => [id, price])) },
-    ...COMPARE_ROWS.map((row) => ({
-      label: row.feature,
-      values: Object.fromEntries(TIERS.map(({ id }) => [id, typeof row[id] === "boolean" ? (row[id] ? "Termasuk" : "Tidak termasuk") : row[id]])),
-    })),
-  ];
+  const rows = COMPARE_ROWS.map((row) => ({
+    label: row.feature,
+    values: Object.fromEntries(TIERS.map(({ id }) => [id, typeof row[id] === "boolean" ? (row[id] ? "Termasuk" : "Tidak termasuk") : row[id]])),
+  }));
   return (
     <div className="mx-auto max-w-grid">
-      <ul className="mb-6 hidden grid-cols-3 gap-4 md:grid" aria-label="Kulit tiga edisi">
+      <ul className="ph-compare-desktop ph-compare-covers mb-6 grid-cols-3 gap-4" aria-label="Kulit tiga edisi">
         {editions.map((edition) => (
           <li key={edition.id} className="ph-card grid content-start gap-3 p-4 text-center">
             <div className="mx-auto w-full max-w-[145px]">
@@ -133,7 +130,7 @@ export function TierCompare() {
         ))}
       </ul>
       <MobileTierCompare editions={editions} rows={rows} />
-      <div className="ph-compare-wrap hidden md:block">
+      <div className="ph-compare-wrap ph-compare-desktop">
       <table className="ph-compare-table">
         <caption className="sr-only">Perbandingan kandungan antara tiga edisi Perpustakaan Hati</caption>
         <thead>
