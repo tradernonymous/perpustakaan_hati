@@ -48,6 +48,7 @@ export default async function AdminPage() {
     <main className="ph-daylight mx-auto flex min-h-screen max-w-reading flex-col gap-6 px-5 py-16">
       <p className="ph-kicker">Perpustakaan Hati</p>
       <h1 className="font-display text-3xl text-fg">Admin</h1>
+      <a href="/admin/suara-pembaca" className="btn-ghost min-h-tap">Semak Suara Pembaca</a>
       <AdminPanel threads={threads} />
     </main>
   );

@@ -1,3 +1,4 @@
+import { SuaraPembaca } from "@/components/SuaraPembaca";
 import { Faq } from "@/components/Faq";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -70,6 +71,7 @@ export default function Home() {
         <Section index="07" id="soalan" tone="soft" title="Soalan lazim">
           <Faq />
         </Section>
+        <SuaraPembaca />
         <ClosingCta />
       </main>
       <SafetyFooter />
