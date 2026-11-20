@@ -12,11 +12,12 @@
   touch-action: pan-y pinch-zoom;
   display: grid;
   gap: 2px;
+  grid-template-columns: minmax(0, 420px);
   justify-content: center;
 }
 
 .sheet {
-  width: min(100%, 420px);
+  width: 100%;
   justify-self: center;
   min-width: 0;
   border-radius: 3px;
@@ -29,6 +30,7 @@
 }
 
 .art {
+  width: 100%;
   aspect-ratio: 4 / 5;
   background-image: url("/api/baca/tips-artwork");
   background-size: 500% 200%;
