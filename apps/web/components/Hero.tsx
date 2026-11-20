@@ -1,3 +1,6 @@
+import { TipsFlipbook } from "./TipsFlipbook";
+import { SignupDialog } from "./SignupDialog";
+import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ReaderSignup } from "@/components/ReaderSignup";
 import { HeroAtmosphere } from "./HeroAtmosphere";
 import styles from "./HeroAtmosphere.module.css";
@@ -23,12 +26,17 @@ export function Hero() {
           <p className="mt-4 text-xs text-fg-muted">Mulakan dengan Edisi Poket. Baca mengikut rentak kamu.</p>
         </div>
       </section>
-      <section id="percuma" aria-labelledby="percuma-heading" className="scroll-mt-20 px-5 py-10 sm:py-12">
-        <div className="mx-auto max-w-[520px]">
-          <h2 id="percuma-heading" className="mb-5 text-center font-display text-2xl text-fg">Edisi Poket, percuma</h2>
-          <ReaderSignup />
-          <p className="mt-4 text-center text-sm"><a className="text-fg-healing underline" href="/baca/tips-psikologi-suami-isteri">Baca Tips Psikologi Suami Isteri percuma tanpa daftar</a></p>
+      <section id="percuma" aria-labelledby="percuma-heading" className="scroll-mt-24 px-5 py-10 sm:py-14">
+        <div className="mx-auto mb-6 max-w-reading text-center">
+          <h2 id="percuma-heading" className="font-display text-3xl">Tips Psikologi Suami Isteri</h2>
+          <p className="mt-2 text-fg-muted">Selak buku percuma. Daftar bila kamu mahu membuka koleksi Edisi Poket.</p>
         </div>
+        <TipsFlipbook artwork={hasTipsArtwork()} signup={
+          <div className="mx-auto grid w-full max-w-md gap-3 text-center">
+            <SignupDialog><ReaderSignup /></SignupDialog>
+            <a href="/pustaka" className="text-sm text-fg-healing underline">Buka halaman daftar atau log masuk</a>
+          </div>
+        } />
       </section>
     </>
   );

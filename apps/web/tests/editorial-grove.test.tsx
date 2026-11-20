@@ -116,10 +116,9 @@ describe("editorial grove layer", () => {
 });
 
 describe("refinements: A4 covers, comparison table, and hero plinth", () => {
-  it("renders the member A4 ebook covers inside #bab with A4 dimensions", () => {
+  it("keeps chapter artwork and sends readers to the private Poket shelf", () => {
     const html = renderToStaticMarkup(<ChapterPreview />);
-    expect(html).toContain("ph-ebook-shelf");
-    expect(html).toContain("ph-a4-cover");
+    expect(html).toContain('href="/pustaka"');
     expect(html).toContain('width="560"');
     expect(html).toContain('height="792"');
     for (const cover of EBOOK_COVERS) {
