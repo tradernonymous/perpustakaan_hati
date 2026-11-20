@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 
-export function LibraryLogin() {
+export function LibraryLogin({ returnPage }: { returnPage?: number | null } = {}) {
   const [msg, setMsg] = useState("");
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -28,7 +28,7 @@ export function LibraryLogin() {
     const email = new FormData(el).get("email");
     setBusy(true);
     try {
-      const res = await fetch("/api/pustaka", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email }) });
+      const res = await fetch("/api/pustaka", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, halaman: returnPage }) });
       const data = (await res.json().catch(() => ({}))) as { message?: string; error?: string };
       setOk(res.ok);
       setMsg(data.message ?? data.error ?? "Maaf, ada masalah. Cuba lagi sebentar.");
@@ -41,7 +41,7 @@ export function LibraryLogin() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-5 md:p-8">
-      <label htmlFor="lib-email" className="text-sm font-semibold text-fg">E-mel yang kamu guna semasa membeli</label>
+      <label htmlFor="lib-email" className="text-sm font-semibold text-fg">Alamat e-mel</label>
       <input id="lib-email" name="email" type="email" required autoComplete="email" inputMode="email" placeholder="nama@contoh.com"
         aria-invalid={emailError ? "true" : "false"}
         aria-describedby="lib-email-error"

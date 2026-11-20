@@ -7,9 +7,7 @@ import { ClosingCta } from "@/components/ClosingCta";
 import { SafetyFooter } from "@/components/SafetyFooter";
 import { StickyCta } from "@/components/StickyCta";
 import { Reveal } from "@/components/Reveal";
-import { EbookDeck } from "@/components/EbookDeck";
 import { TierCompare } from "@/components/TierCompare";
-import { TierLadder } from "@/components/TierLadder";
 import { EcosystemHub } from "@/components/EcosystemHub";
 import { PlateGallery } from "@/components/PlateGallery";
 import { SectionOrnament } from "@/components/SectionOrnament";
@@ -38,6 +36,8 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
   );
 }
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return (
     <>
@@ -45,6 +45,15 @@ export default function Home() {
       <OrganizationSchema />
       <main id="utama">
         <Hero />
+        <Section index="" id="baca-percuma" title="Tips Psikologi Suami Isteri" intro="Baca percuma tanpa daftar.">
+          <div className="ph-card mx-auto grid max-w-reading gap-5 p-5 sm:grid-cols-[120px_1fr] sm:items-center">
+            <img src="/ebooks/tips-psikologi-suami-isteri-a4.webp" alt="Kulit Tips Psikologi Suami Isteri" width={560} height={792} className="mx-auto w-28 rounded" loading="lazy" />
+            <div className="space-y-3">
+              <p>Baca panduan ringkas untuk mendengar dan memahami pasangan.</p>
+              <a href="/baca/tips-psikologi-suami-isteri" className="ph-cta inline-flex min-h-tap items-center">Baca buku percuma</a>
+            </div>
+          </div>
+        </Section>
         <StatsStrip />
         <Ticker />
         <Section index="01" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
@@ -55,8 +64,6 @@ export default function Home() {
         </Section>
         <Section index="03" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
           <div className="flex flex-col gap-12">
-            <TierLadder />
-            <EbookDeck />
             <div>
               <h3 className="mb-6 text-center font-display text-2xl text-fg">Bandingkan semua edisi</h3>
               <TierCompare />

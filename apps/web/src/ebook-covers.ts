@@ -63,16 +63,4 @@ export const EBOOK_COVERS: EbookCover[] = [
     "webp": "/ebooks/cuma-kawan-pejabat-a4.webp",
     "jpg": "/ebooks/cuma-kawan-pejabat-a4.jpg"
   },
-  {
-    "slug": "tips-psikologi-suami-isteri",
-    "title": "Tips Psikologi Suami Isteri",
-    "edition": "Edisi Poket",
-    "pages": "10 muka surat · A4",
-    "tagline": "Karya untuk jiwa yang pernah terluka: “Tulisan yang memulihkan.”",
-    "summary": "Kompilasi prinsip psikologi perkahwinan untuk meredakan konflik dan membina rasa selamat.",
-    "width": 560,
-    "height": 792,
-    "webp": "/ebooks/tips-psikologi-suami-isteri-a4.webp",
-    "jpg": "/ebooks/tips-psikologi-suami-isteri-a4.jpg"
-  }
 ];

@@ -29,7 +29,7 @@ describe("editorial grove hero", () => {
   it("still offers the free edition and the edition list", () => {
     const html = renderToStaticMarkup(<Hero />);
     expect(html).toContain('id="percuma"');
-    expect(html).toContain('id="optin-email"');
+    expect(html).toContain('id="lib-email"');
     expect(html).toContain('href="#edisi"');
   });
 });
@@ -116,7 +116,7 @@ describe("editorial grove layer", () => {
 });
 
 describe("refinements: A4 covers, comparison table, and hero plinth", () => {
-  it("renders all five real A4 ebook covers inside #bab with A4 dimensions", () => {
+  it("renders the member A4 ebook covers inside #bab with A4 dimensions", () => {
     const html = renderToStaticMarkup(<ChapterPreview />);
     expect(html).toContain("ph-ebook-shelf");
     expect(html).toContain("ph-a4-cover");

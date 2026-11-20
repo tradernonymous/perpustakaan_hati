@@ -40,7 +40,7 @@ describe("LibraryLogin accessibility", () => {
     render(<LibraryLogin />);
     fireEvent.submit(screen.getByRole("button", { name: /hantar pautan/i }).closest("form")!);
     expect(await screen.findByText(/masukkan e-mel/i)).toBeTruthy();
-    const email = screen.getByLabelText(/e-mel yang kamu guna semasa membeli/i);
+    const email = screen.getByLabelText(/alamat e-mel/i);
     expect(email.getAttribute("aria-invalid")).toBe("true");
     expect(document.activeElement).toBe(email);
     expect(fetch).not.toHaveBeenCalled();

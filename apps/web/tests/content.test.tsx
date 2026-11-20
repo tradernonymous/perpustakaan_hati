@@ -1,3 +1,4 @@
+import { formatRM, priceSen } from "@/src/catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { TIERS, CHAPTERS, TESTIMONIALS } from "@/src/content";
@@ -28,7 +29,7 @@ describe("tier ladder matches docs/brand/tier-naming.md", () => {
     const html = renderToStaticMarkup(<TierCompare />);
     for (const t of TIERS) {
       expect(html).toContain(t.name);
-      expect(html).toContain(t.price);
+      expect(html).toContain(t.id === "poket" ? "Percuma" : formatRM(priceSen(t.id)));
     }
   });
 });
@@ -70,7 +71,7 @@ describe("hero and sticky CTA", () => {
     const html = renderToStaticMarkup(<Hero />);
     expect(html).toContain("Ruang untuk pulih.");
     expect(html).toContain('id="percuma"');
-    expect(html).toContain('id="optin-email"');
+    expect(html).toContain('id="lib-email"');
   });
   it("sticky CTA links to the opt-in", () => {
     expect(renderToStaticMarkup(<StickyCta />)).toContain('href="#percuma"');

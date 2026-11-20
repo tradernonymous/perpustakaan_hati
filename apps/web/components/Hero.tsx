@@ -1,8 +1,8 @@
-import { OptInForm } from "@/components/OptInForm";
+import { ReaderSignup } from "@/components/ReaderSignup";
 import { HeroAtmosphere } from "./HeroAtmosphere";
 import styles from "./HeroAtmosphere.module.css";
 
-/** A short introduction, followed by the existing free-edition signup. */
+/** A short introduction, followed by the Edisi Poket signup. */
 export function Hero() {
   return (
     <>
@@ -26,7 +26,8 @@ export function Hero() {
       <section id="percuma" aria-labelledby="percuma-heading" className="scroll-mt-20 px-5 py-10 sm:py-12">
         <div className="mx-auto max-w-[520px]">
           <h2 id="percuma-heading" className="mb-5 text-center font-display text-2xl text-fg">Edisi Poket, percuma</h2>
-          <OptInForm />
+          <ReaderSignup />
+          <p className="mt-4 text-center text-sm"><a className="text-fg-healing underline" href="/baca/tips-psikologi-suami-isteri">Baca Tips Psikologi Suami Isteri percuma tanpa daftar</a></p>
         </div>
       </section>
     </>
