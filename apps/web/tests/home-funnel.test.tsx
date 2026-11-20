@@ -36,3 +36,11 @@ describe("dark home funnel", () => {
     expect(html).not.toMatch(/bg-daylight|text-green-900|text-ink-grove/);
   });
 });
+
+
+it("opens a private Suara Pembaca form on the homepage", () => {
+  const html = renderToStaticMarkup(<Home />);
+  expect(html).toContain('id="pembaca"');
+  expect(html).toContain('action="/api/suara-pembaca"');
+  expect(html).toContain("Sebarang petikan awam memerlukan izin berasingan.");
+});
