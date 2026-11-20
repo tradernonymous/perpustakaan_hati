@@ -45,15 +45,6 @@ export default function Home() {
       <OrganizationSchema />
       <main id="utama">
         <Hero />
-        <Section index="" id="baca-percuma" title="Tips Psikologi Suami Isteri" intro="Baca percuma tanpa daftar.">
-          <div className="ph-card mx-auto grid max-w-reading gap-5 p-5 sm:grid-cols-[120px_1fr] sm:items-center">
-            <img src="/ebooks/tips-psikologi-suami-isteri-a4.webp" alt="Kulit Tips Psikologi Suami Isteri" width={560} height={792} className="mx-auto w-28 rounded" loading="lazy" />
-            <div className="space-y-3">
-              <p>Baca panduan ringkas untuk mendengar dan memahami pasangan.</p>
-              <a href="/baca/tips-psikologi-suami-isteri" className="ph-cta inline-flex min-h-tap items-center">Baca buku percuma</a>
-            </div>
-          </div>
-        </Section>
         <StatsStrip />
         <Ticker />
         <Section index="01" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
