@@ -1,3 +1,4 @@
+import { temanHatiEnabled } from "@/src/feature-flags";
 import { AuthorByline } from "@/components/AuthorByline";
 import { NAV } from "@/src/content";
 
@@ -46,7 +47,7 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
               <nav aria-label="Pautan interaktif" className="mt-2 flex flex-col">
                 <a href="/kad-jujur-hati" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Kad Jujur Hati</a>
                 <a href="/cermin-pasangan" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Cermin Pasangan</a>
-                <a href="/teman-hati" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Teman Hati AI</a>
+                {temanHatiEnabled && (<a href="/teman-hati" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Teman Hati AI</a>)}
                 <a href="/cabaran-7-hari" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Cabaran 7 Hari</a>
               </nav>
             </div>

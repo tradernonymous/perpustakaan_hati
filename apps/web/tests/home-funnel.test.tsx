@@ -17,8 +17,8 @@ describe("dark home funnel", () => {
     expect(html.match(/id="percuma"/g)?.length).toBe(1);
     expect(html).toContain('id="optin-email"');
   });
-  it("orders the funnel: how it works, features, tiers, chapters, plates, readers, faq", () => {
-    const order = ["cara", "interaktif", "edisi", "bab", "plat", "pembaca", "soalan"].map(pos);
+  it("orders the funnel: how it works, features, tiers, chapters, plates, and faq", () => {
+    const order = ["cara", "interaktif", "edisi", "bab", "plat", "soalan"].map(pos);
     expect(order.every((n) => n > -1)).toBe(true);
     expect([...order].sort((a, b) => a - b)).toEqual(order);
   });

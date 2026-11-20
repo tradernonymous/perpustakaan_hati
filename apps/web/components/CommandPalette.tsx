@@ -1,15 +1,15 @@
 "use client";
 
+import { temanHatiEnabled } from "@/src/feature-flags";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 export const PALETTE_ITEMS = [
   { label: "Edisi Poket, percuma", hint: "Bahagian", href: "#percuma" },
   { label: "Tiga edisi dan harga", hint: "Bahagian", href: "#edisi" },
   { label: "Intai beberapa bab", hint: "Bahagian", href: "#bab" },
-  { label: "Suara pembaca", hint: "Bahagian", href: "#pembaca" },
   { label: "Soalan lazim", hint: "Bahagian", href: "#soalan" },
   { label: "Pustaka Saya", hint: "Halaman", href: "/pustaka" },
-  { label: "Teman Hati AI", hint: "Halaman", href: "/teman-hati" },
+  ...(temanHatiEnabled ? [{ label: "Teman Hati AI", hint: "Halaman", href: "/teman-hati" }] : []),
   { label: "Cermin Pasangan (kuiz 2 minit)", hint: "Halaman", href: "/cermin-pasangan" },
   { label: "Kad Jujur Hati", hint: "Halaman", href: "/kad-jujur-hati" },
   { label: "7 Hari Cabaran Pulih Hati", hint: "Halaman", href: "/cabaran-7-hari" },

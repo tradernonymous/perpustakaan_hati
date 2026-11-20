@@ -84,7 +84,6 @@ describe("bento ecosystem", () => {
     for (const href of [
       "/kad-jujur-hati",
       "/cermin-pasangan",
-      "/teman-hati",
       "/cabaran-7-hari",
       "/hadiah-hati",
       "/surat-hati",

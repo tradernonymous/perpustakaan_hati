@@ -69,12 +69,11 @@ describe("CerminPasangan", () => {
 });
 
 describe("EcosystemHub", () => {
-  it("links all 8 interactive and community routes", () => {
+  it("links the enabled interactive and community routes", () => {
     render(<EcosystemHub />);
     const expectedHrefs = [
       "/kad-jujur-hati",
       "/cermin-pasangan",
-      "/teman-hati",
       "/cabaran-7-hari",
       "/hadiah-hati",
       "/surat-hati",

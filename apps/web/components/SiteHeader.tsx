@@ -1,5 +1,6 @@
 "use client";
 
+import { temanHatiEnabled } from "@/src/feature-flags";
 import { useEffect, useState } from "react";
 import { NAV } from "@/src/content";
 import { BrandMark } from "@/components/BrandMark";
@@ -78,9 +79,9 @@ export function SiteHeader({ base = "" }: { base?: string }) {
               </a>
             </li>
             <li>
-              <a href="/teman-hati" onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">
+              {temanHatiEnabled && (<a href="/teman-hati" onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">
                 Teman Hati AI
-              </a>
+              </a>)}
             </li>
             <li>
               <a href="/kad-jujur-hati" onClick={() => setOpen(false)} className="flex min-h-tap items-center border-b border-line text-fg">

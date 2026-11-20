@@ -92,7 +92,6 @@ export const NAV = [
   { href: "#percuma", label: "Percuma" },
   { href: "#edisi", label: "Edisi" },
   { href: "#bab", label: "Bab" },
-  { href: "#pembaca", label: "Pembaca" },
   { href: "#soalan", label: "Soalan" },
 ] as const;
 

@@ -9,7 +9,9 @@ afterEach(cleanup);
 describe("quick-jump palette", () => {
   it("lists the home sections and the key pages with real hrefs", () => {
     const hrefs = PALETTE_ITEMS.map((i) => i.href);
-    for (const h of ["#percuma", "#edisi", "#bab", "#pembaca", "#soalan", "/pustaka", "/teman-hati", "/booking"]) {
+    expect(hrefs).not.toContain("/teman-hati");
+    expect(hrefs).not.toContain("#pembaca");
+    for (const h of ["#percuma", "#edisi", "#bab", "#soalan", "/pustaka", "/booking"]) {
       expect(hrefs).toContain(h);
     }
   });
