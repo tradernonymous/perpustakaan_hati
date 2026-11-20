@@ -8,6 +8,7 @@ import { SafetyFooter } from "@/components/SafetyFooter";
 import { StickyCta } from "@/components/StickyCta";
 import { Reveal } from "@/components/Reveal";
 import { TierCompare } from "@/components/TierCompare";
+import { Testimonials } from "@/components/Testimonials";
 import { EcosystemHub } from "@/components/EcosystemHub";
 import { PlateGallery } from "@/components/PlateGallery";
 import { SectionOrnament } from "@/components/SectionOrnament";
@@ -61,6 +62,9 @@ export default function Home() {
         </Section>
         <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
           <PlateGallery />
+        </Section>
+        <Section id="suara-pembaca" title="Suara Pembaca" intro="Maklum balas komuniti tentang perkongsian kami di Threads.">
+          <Testimonials />
         </Section>
         <Section index="07" id="soalan" tone="soft" title="Soalan lazim">
           <Faq />

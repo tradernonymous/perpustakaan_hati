@@ -46,14 +46,17 @@ describe("chapter previews", () => {
   });
 });
 
-describe("testimonials are honest placeholders", () => {
-  it("every placeholder quote is flagged and visibly labelled", () => {
+describe("approved Threads feedback", () => {
+  it("renders eight distinct quotes with their original reply URLs", () => {
     const html = renderToStaticMarkup(<Testimonials />);
+    expect(TESTIMONIALS).toHaveLength(8);
+    expect(new Set(TESTIMONIALS.map((item) => item.url)).size).toBe(8);
     for (const t of TESTIMONIALS) {
-      if (t.quote.startsWith("[CONTOH]")) expect(t.placeholder).toBe(true);
+      expect(t.url).toMatch(/^https:\/\/www\.threads\.com\/@[^/]+\/post\/[\w-]+$/);
+      expect(t.url).toContain(`/${t.who}/post/`);
+      expect(html).toContain(`href="${t.url}"`);
     }
-    expect(TESTIMONIALS.some((t) => t.placeholder)).toBe(true);
-    expect(html).toContain("CONTOH");
+    expect(html).not.toContain("CONTOH");
   });
 });
 
