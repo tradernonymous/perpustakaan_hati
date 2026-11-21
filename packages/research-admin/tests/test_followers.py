@@ -440,6 +440,15 @@ def test_followers_sync_endpoint_pulls_from_graph_without_manual_json(client):
     assert "10,800" in html or "10800" in html
     assert "@aisyah_my" in html
     assert "MY" in html
+    assert html.index("Graph followers &amp; active community") < html.index("FOLLOW-BACK LISTS")
+    assert 'aria-label="Search active community"' in html
+    source_link = 'href="https://www.threads.com/@aisyah_my/post/R1" target="_blank" rel="noreferrer">Open source on Threads'
+    assert source_link in html
+    assert source_link in client.get("/", params={"view": "followers", "graph_q": "@AISYAH_MY"}).text
+    no_matches = client.get("/", params={"view": "followers", "graph_q": "missing-account"}).text
+    assert source_link not in no_matches
+    assert "No community replies recorded for this filter yet." in no_matches
+    assert source_link in client.get("/", params={"view": "followers", "q": "missing-imported-account"}).text
 
     # Graph CSV export is formula-safe and includes discovered repliers
     csv_text = client.get("/followers/graph.csv").text

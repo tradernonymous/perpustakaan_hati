@@ -74,10 +74,10 @@ The Followers page now operates in two complementary modes:
      - Account-level insights (`/v1.0/me/threads_insights`: `followers_count` with growth delta vs. the previous sync, plus `views`, `likes`, `replies`, `reposts`, `quotes`).
      - Follower demographics (`/v1.0/me/threads_insights?metric=follower_demographics&breakdown=country|city|age|gender`, automatically skipped when a profile has `<100` followers).
      - **Active Community Roster**: every non-owner account that replies to your sampled Threads posts or is cited in your saved research insights is indexed automatically with their reply count, cited insight IDs, themes, latest quote, and direct shortcuts to filter their evidence in Research or draft from their insights in Studio.
-   - Three filterable community views (**All active community**, **Insight contributors**, **Frequent repliers (2+)**) and a formula-safe CSV export at `GET /followers/graph.csv`.
+   - The live roster appears first on the Followers page. Search by `@username`, reply excerpt, or theme in **Active repliers**, **Insight contributors**, or **Frequent engagers (2+)**. Use **Open source on Threads** when the roster has a direct permalink. Export the matching list at `GET /followers/graph.csv`.
    - Every insight card across Overview, Research, and Studio automatically displays community engagement badges (`N replies` or `Active replier`) alongside any follow-back badge.
 2. **Optional Follow-back Diff & Unfollow Planner (`followers.json` + `following.json` export):**
-   - Because Meta's Graph API does not expose passive follower usernames who have never replied, you can still optionally upload `followers.json` and `following.json` from **Accounts Center → Your information and permissions → Download your information → Threads (JSON)** (comparison approach credited to [Threads-Follower](https://github.com/Xiang511/Threads-Follower)).
+   - The Threads API provides aggregate follower insights and public repliers on sampled posts. Exact follower and following lists, follow-back status, and follow dates require `followers.json` and `following.json` from **Accounts Center → Your information and permissions → Download your information → Threads (JSON)** (comparison approach credited to [Threads-Follower](https://github.com/Xiang511/Threads-Follower)).
    - **Follow-Back & Unfollow Insights Board**: computes reciprocity rate (`mutuals / following`), follower-to-following ratio, one-way fan share, **Ghost non-followers** (`0` Graph replies + doesn't follow back) vs. **Engaged non-followers** (replied to your posts despite not following back), follow tenure buckets (`≥90d`, `≥30d`, `<30d`, median wait days, oldest non-follower), and top non-reciprocated follow cohorts (`YYYY-MM`).
    - **Filter `Following` to Unfollow Later**: five list tabs (**Not following back**, **Following**, **Unfollow later**, **Fans**, **Mutuals**), 8 unfollow sub-filters (`?uf=all|not_following_back|ghosts|older_90d|older_30d|recent_30d|engaged|unfollow_later`), and 3 sort orders (`?sort=newest|oldest|az`).
    - **Unfollow Queue (`POST /followers/unfollow`)**: select accounts in **Following** or **Not following back** to **Save to Unfollow Later** (`action=later`), copy `@usernames`, export a filtered CSV at `GET /followers/export.csv`, open their Threads profile (`Open to unfollow ↗`), and click **Mark selected as Unfollowed ✓** (`action=unfollowed`) to remove them from your active `following` list without re-downloading `following.json`.
@@ -155,3 +155,15 @@ Token refresh: long-lived Threads tokens last ~60 days. When `/auth/status` says
 ```bash
 uv run --project packages/research-admin pytest packages/research-admin/tests -q
 ```
+
+## Import an approved publication into the storefront
+
+A release editor downloads one published revision from the research publication workspace. On Linux or macOS, run the following from the repository root with that reviewed export.
+
+```sh
+python3 apps/web/scripts/import-publication.py /path/to/reviewed-export.json
+```
+
+Review the resulting change to `apps/web/src/publication/catalog.json` and include it in the next storefront build and release. Each of the three products can receive its own title, summary, approved cover and optional chapter-preview link. An empty catalog uses the existing storefront copy. Product prices, checkout links and access rules come from the storefront.
+
+The command reports `Already imported` on an identical retry. A stale or conflicting revision leaves the current file intact. Download the latest published revision and retry. To restore older copy, roll back in the research workspace and import its newly published revision. The import updates the build input. After deployment, verify the live storefront card, then confirm that revision in the research workspace to mark it synchronized.
