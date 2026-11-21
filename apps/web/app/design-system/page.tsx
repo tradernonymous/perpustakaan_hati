@@ -220,7 +220,7 @@ export default function DesignSystem() {
             </figure>
             <div className="ph-card self-stretch p-5">
               <h3 className="ph-title text-2xl">Maklum balas dan peralihan</h3>
-              <p className="mt-2 text-fg-muted">Tekan butang, buka dialog, halakan penuding pada kulit atau selak buku. Latar di atas boleh dijeda pada skrin lebar.</p>
+              <p className="mt-2 text-fg-muted">Tiga lencana di atas mempamerkan kemasan emas, lambang buku dan hati asal, serta kemasan grid berinspirasikan fintech. Jeda latar untuk menghentikan lencana dan orbit. Halakan penuding pada kulit bab untuk melihat kilauan, atau selak buku di bawah.</p>
             </div>
           </div>
           <div id="percuma" className="scroll-mt-8">

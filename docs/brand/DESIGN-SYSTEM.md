@@ -15,6 +15,12 @@ The 3D reference is the local Ezymap design system, particularly its perspective
 
 Visit the [live design system](https://perpustakaanhati.biz/design-system) to try the storefront components. Open [the foundations specimen](specimens/foundations.html) to review the current type, cover depth, motion, and component states. [Instrument Serif](https://github.com/Instrument/instrument-serif) and [Geist](https://github.com/vercel/geist-font) are self-hosted under `apps/web/public/fonts/` with their SIL Open Font License notices. The legacy static brand board is [archived here](preview/design-system-3-1.png).
 
+## Hero marks and cover motion
+
+- The hero and the public specimen use the same three treatments of Perpustakaan Hati’s marks. The foil heart uses a warm gold rim, the original book-and-heart sits on an emerald medallion, and the fintech treatment uses a mint grid and a rounded-square edge.
+- On wide screens the medallions turn in perspective at different tempos. Light sweeps across each face and traces the orbit. These loops run only while the hero is in view and share the hero pause control. Narrow screens play a short entrance and keep the resting pose. Reduced motion displays the resting pose immediately.
+- Chapter and catalog covers with a picture face get one gold sweep on fine-pointer hover. The movement is decorative and adds no control or new tab stop.
+
 ## Shared foundations layer (added 2026-11-19, still 3.8)
 
 The shared foundations provide ebook palettes, motion roles, and a specimen sheet.
