@@ -142,6 +142,17 @@ export default function DesignSystem() {
               <p className="ph-nums">RM 29.00 · RM 79.00</p>
             </article>
           </div>
+          <div className="ph-card mt-4 p-5">
+            <h3 className="ph-title mb-3 text-2xl">Kemas kini kejelasan</h3>
+            <dl className="grid gap-2 text-sm sm:grid-cols-2">
+              <div><dt className="text-fg-accent">Saiz hero</dt><dd><code>clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)</code></dd></div>
+              <div><dt className="text-fg-accent">Surat headline hero</dt><dd><code>−0.02em · leading 0.98</code></dd></div>
+              <div><dt className="text-fg-accent">Surat headline seksyen</dt><dd><code>−0.012em · leading 1.05</code></dd></div>
+              <div><dt className="text-fg-accent">Badan</dt><dd><code>Geist Sans 17px · leading 1.55 · optical sizing auto</code></dd></div>
+              <div><dt className="text-fg-accent">Tindakan utama</dt><dd><code>bayang kabur lembut, tekan scale(0.98), tanpa tepi 3D</code></dd></div>
+              <div><dt className="text-fg-accent">Kad</dt><dd><code>radius 16px, bayang lebih tenang, hairline border</code></dd></div>
+            </dl>
+          </div>
         </Section>
 
         <Section index={2}>

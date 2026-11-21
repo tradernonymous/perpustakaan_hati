@@ -38,9 +38,10 @@ Phase 1 deliverable covering three output surfaces from one token source
 | Footer | bg `sage`, top 1px `gold-ink-soft` rule, `muted-grove` text |
 
 ### Typography in web
-- Hero `Instrument Serif` regular, 46–96px fluid, line-height 0.96
+- Hero `Instrument Serif` regular, 44–120px fluid, line-height 0.98, tracking −0.02em
 - Headings and pull quotes use `Instrument Serif`. Pull quotes use the italic face.
-- Body `Geist Sans` 16px, `text-on-dark`, line-height 1.65
+- Section titles tighten to −0.012em tracking, line-height 1.05
+- Body `Geist Sans` 17px, `text-on-dark`, line-height 1.55, optical sizing auto
 - Labels `Geist Sans` 12–14px, weight 500–600
 - Reading sample body `Source Serif 4` 17px, line-height 1.7
 
