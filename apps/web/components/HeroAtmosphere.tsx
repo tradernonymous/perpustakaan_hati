@@ -3,6 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./HeroAtmosphere.module.css";
 
+const marks = [
+  { material: "foil", src: "/brand/ph-mark-flat.svg" },
+  { material: "original", src: "/brand/emblem-book-heart.svg" },
+  { material: "signal", src: "/brand/ph-mark-flat.svg" },
+] as const;
+
 export function HeroAtmosphere() {
   const backdrop = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -34,6 +40,19 @@ export function HeroAtmosphere() {
           <i />
         </div>
         <div className={styles.leaves} />
+        <div className={styles.collection}>
+          <span className={styles.orbit} />
+          {marks.map(({ material, src }) => (
+            <span key={material} className={styles.pedestal} data-material={material}>
+              <span className={styles.medallion}>
+                <span className={styles.face}>
+                  <img src={src} alt="" width={60} height={42} />
+                  <span className={styles.sheen} />
+                </span>
+              </span>
+            </span>
+          ))}
+        </div>
       </div>
       <button
         type="button"

@@ -16,7 +16,13 @@ describe("compact hero", () => {
     expect(html).toContain('id="lib-email"');
     expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
   });
-  it("does not load decorative media or book previews in the intro", () => {
-    expect(intro).not.toMatch(/<img|<svg|ph-hero-plinth|ph-hero-fx|ph-art/);
+  it("uses only local brand-mark images in the intro", () => {
+    const images = [...intro.matchAll(/<img[^>]*src="([^"]+)"/g)].map((match) => match[1]);
+    expect(images).toEqual([
+      "/brand/ph-mark-flat.svg",
+      "/brand/emblem-book-heart.svg",
+      "/brand/ph-mark-flat.svg",
+    ]);
+    expect(intro).not.toMatch(/<video|<canvas|ph-hero-plinth|ph-hero-fx|ph-art/);
   });
 });

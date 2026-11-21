@@ -30,6 +30,10 @@ it("runs the decorative loop in view, respects pause, and stops as the hero exit
   const backdrop = observe.mock.calls[0][0] as HTMLElement;
   expect(backdrop.getAttribute("aria-hidden")).toBe("true");
   expect(backdrop.dataset.visible).toBe("false");
+  expect([...backdrop.querySelectorAll("[data-material]")].map((mark) => mark.getAttribute("data-material"))).toEqual([
+    "foil", "original", "signal",
+  ]);
+  expect([...backdrop.querySelectorAll("img")].every((image) => image.alt === "")).toBe(true);
 
   act(() => setIntersection(0.7));
   expect(backdrop.dataset.visible).toBe("true");
