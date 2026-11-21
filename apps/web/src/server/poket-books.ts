@@ -16,19 +16,23 @@ function bookDirectories() {
   return [assets, path.resolve("private/ebooks"), path.resolve("../../docs/brand/preview")];
 }
 
-export async function availablePocketBooks() {
-  const available = await Promise.all(POKET_BOOKS.map(async (book) => {
-    for (const dir of bookDirectories()) {
-      try {
-        await access(path.join(dir, book.file));
-        return book;
-      } catch {
-        continue;
-      }
+async function hasPocketFile(file: string): Promise<boolean> {
+  for (const dir of bookDirectories()) {
+    try {
+      await access(path.join(dir, file));
+      return true;
+    } catch {
+      continue;
     }
-    return null;
-  }));
-  return available.filter((book) => book !== null);
+  }
+  return false;
+}
+
+export async function listPocketBooks() {
+  return Promise.all(POKET_BOOKS.map(async (book) => ({
+    ...book,
+    available: await hasPocketFile(book.file),
+  })));
 }
 
 export async function pocketDownload(slug: string): Promise<Response> {
