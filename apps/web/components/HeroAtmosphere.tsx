@@ -40,6 +40,7 @@ export function HeroAtmosphere() {
           <i />
         </div>
         <div className={styles.leaves} />
+        <span className={styles.ring} />
         <div className={styles.collection}>
           <span className={styles.orbit} />
           {marks.map(({ material, src }) => (
