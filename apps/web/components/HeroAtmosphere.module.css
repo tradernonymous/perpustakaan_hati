@@ -79,6 +79,17 @@
   --tone: color-mix(in srgb, var(--gold) 38%, var(--green-800));
 }
 
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: min(72vmin, 30rem);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--gold) 30%, transparent);
+  transform: translate(-50%, -50%);
+}
+
 .leaves {
   position: absolute;
   inset: 45% -12% -37%;
@@ -277,11 +288,12 @@
 @media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
   .collection { top: 1.5rem; }
   .fan { animation: drift 12s ease-in-out infinite; animation-play-state: paused; }
+  .ring { animation: spin-ring 38s linear infinite; animation-play-state: paused; }
   .medallion { animation: turn-medallion var(--drift) ease-in-out var(--delay) infinite; }
   .sheen { animation: sweep-medallion var(--drift) ease-in-out var(--delay) infinite; }
   .orbit::after { animation: trace-orbit 9s linear infinite; }
-  .medallion, .sheen, .orbit::after { animation-play-state: paused; }
-  .backdrop[data-visible="true"][data-paused="false"] :is(.fan, .medallion, .sheen),
+  .medallion, .sheen, .orbit::after, .ring { animation-play-state: paused; }
+  .backdrop[data-visible="true"][data-paused="false"] :is(.fan, .medallion, .sheen, .ring),
   .backdrop[data-visible="true"][data-paused="false"] .orbit::after {
     animation-play-state: running;
   }
@@ -329,4 +341,8 @@
 
 @keyframes trace-orbit {
   to { transform: rotateY(360deg); }
+}
+
+@keyframes spin-ring {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
 }

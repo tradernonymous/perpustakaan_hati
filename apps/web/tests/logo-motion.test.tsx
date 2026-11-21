@@ -88,4 +88,14 @@ describe("website_sam ports", () => {
     expect(html).toContain("ph-ink-in");
     expect(html).toContain("ph-page-in");
   });
+  it("hero carries the Sam-style motion set: glyphs, ring, CTA sheen and 3D page turn", () => {
+    const html = renderToStaticMarkup(<Home />);
+    expect(html).toContain("ph-glyphs");
+    const heroCss = readFileSync(path.join(__dirname, "../components/HeroAtmosphere.module.css"), "utf8");
+    expect(heroCss).toContain("@keyframes spin-ring");
+    const tokens = readFileSync(path.join(__dirname, "../styles/design-tokens.css"), "utf8");
+    expect(tokens).toContain("@keyframes ph-cta-sheen");
+    const flipCss = readFileSync(path.join(__dirname, "../components/TipsFlipbook.module.css"), "utf8");
+    expect(flipCss).toContain("rotateX(6deg)");
+  });
 });

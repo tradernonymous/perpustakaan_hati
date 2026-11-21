@@ -1106,6 +1106,23 @@
 }
 /* 3.6: the ring steps out past the filled button onto the page ground, so
    it is measured against the ground it actually sits on. */
+.ph-cta { position: relative; }
+.ph-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(112deg, transparent 42%, rgb(255 255 255 / 0.14) 50%, transparent 58%);
+  transform: translateX(-130%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .ph-cta::after { animation: ph-cta-sheen 7s var(--ease-standard) infinite; }
+}
+@keyframes ph-cta-sheen {
+  0%, 58% { transform: translateX(-130%); }
+  82%, 100% { transform: translateX(130%); }
+}
 .ph-cta:focus-visible { outline: var(--focus-width) solid var(--focus-color); outline-offset: var(--focus-offset-wide); }
 
 /* Teman Hati glass sheet + tilt card (opt-in, marketing/companion only).

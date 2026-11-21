@@ -124,8 +124,8 @@
 }
 
 @keyframes turn {
-  from { opacity: .55; transform: rotateY(-19deg) translateX(7px); }
-  to { opacity: 1; transform: rotateY(0); }
+  from { opacity: .55; transform: perspective(1200px) rotateX(6deg) rotateY(-19deg) translateX(7px); }
+  to { opacity: 1; transform: perspective(1200px) rotateX(0) rotateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {

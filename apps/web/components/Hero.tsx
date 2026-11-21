@@ -1,4 +1,5 @@
 import { TipsFlipbook } from "./TipsFlipbook";
+import { HeroGlyphs } from "./HeroGlyphs";
 import { SignupDialog } from "./SignupDialog";
 import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ReaderSignup } from "@/components/ReaderSignup";
@@ -11,6 +12,7 @@ export function Hero() {
     <>
       <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden border-b border-line px-4 py-10 sm:px-5 sm:py-20">
         <HeroAtmosphere />
+        <HeroGlyphs />
         <div className={`${styles.copy} mx-auto max-w-3xl text-center`}>
           <p className="mb-5 text-xs font-semibold tracking-wide text-fg-accent">Perpustakaan Hati · Bahasa Melayu</p>
           <h1 id="hero-heading" className="ph-display-hero text-balance font-display text-fg">
