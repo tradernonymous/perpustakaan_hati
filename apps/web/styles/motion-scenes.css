@@ -1,6 +1,7 @@
-/* Scene flow: each home section's heading rises as it scrolls into view.
-   Scroll-linked, so it needs no JavaScript. Without animation-timeline
-   support, or with reduced motion, headings render in their final state. */
+/* Scene flow: section headings, the closing title and the edition covers
+   rise as they scroll into view. Scroll-linked, so it needs no JavaScript.
+   Without animation-timeline support, or with reduced motion, every element
+   renders in its final state. */
 
 @keyframes ph-scene-rise {
   from {
@@ -10,6 +11,17 @@
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ph-cover-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
@@ -25,6 +37,20 @@
       animation: ph-scene-rise linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 50%;
+    }
+
+    .ph-compare-covers > li {
+      animation: ph-cover-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+
+    .ph-compare-covers > li:nth-child(2) {
+      animation-range: entry 8% entry 53%;
+    }
+
+    .ph-compare-covers > li:nth-child(3) {
+      animation-range: entry 16% entry 61%;
     }
   }
 }
