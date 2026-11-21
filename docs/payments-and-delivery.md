@@ -68,3 +68,11 @@ Safety rules, all enforced in code:
 | No product PDF | Put `edisi-membangun.pdf` and `teman-hidup.pdf` in `ASSETS_DIR`. The placeholder PDF stops being used the moment the real file is there. |
 
 None of these need a redesign. Each one is a value swap in a file or an env variable.
+
+
+### Rebuild the three ebook masters
+
+From the repository root, run `uv run --project packages/ebook-builder ebook-builder build-editions --out dist/editions`.
+The command uses the individual product manuscripts and produces anonymous PDF masters. Only
+`edisi-poket.pdf` is public. The delivery service reads the other two filenames from its private assets directory
+and applies the buyer watermark after it validates the download token.

@@ -127,3 +127,15 @@ def test_block_dataclass_carries_its_payload():
     block = Block(kind=BlockKind.BODY, text="hello")
     assert block.kind is BlockKind.BODY
     assert block.text == "hello"
+
+
+def test_workbook_chapter_owns_question_paragraphs_until_next_chapter():
+    doc = parse_markdown("# Kit Refleksi\n\n## Soalan 1\n\nApa rasanya?\n\n# Penutup\n\n## Nota\n")
+    sheets = [b for b in doc.blocks if b.kind is BlockKind.WORKSHEET]
+    assert [(b.title, b.text) for b in sheets] == [("Soalan 1", "<p>Apa rasanya?</p>")]
+
+
+def test_backmatter_preserves_markdown_and_preceding_prose():
+    doc = parse_markdown("Penutup.\n::: backmatter\n**Nota**\n:::\n")
+    assert doc.blocks[0].text == "<p>Penutup.</p>"
+    assert doc.blocks[1].text == "<p><strong>Nota</strong></p>"

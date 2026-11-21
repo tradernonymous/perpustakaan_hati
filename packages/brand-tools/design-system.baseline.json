@@ -1,5 +1,10 @@
 {
-  "docs/brand/DESIGN-SYSTEM.md": "7ea50368d354d27f3d0c1322f1eb53d1b6179512d5db5097c3cb1c1f6e4102cf",
+  "apps/web/public/fonts/Geist-OFL.txt": "930853ee1daa68554d9e35c8a9175affb74f699fad9a5da6ee5ebe76379d9137",
+  "apps/web/public/fonts/GeistSans.woff2": "a369fcf5628ea2aa4e1b9e2ec6a5b3624e365bda588e1f0f2f12b564f728fbb8",
+  "apps/web/public/fonts/InstrumentSerif-Italic.woff2": "9551932b5730d9afacdd112dfc5343bdc33b4ba605dd767e6e969956e24d9465",
+  "apps/web/public/fonts/InstrumentSerif-OFL.txt": "b6b2292aa580937fb63796878d65a027a27f8c3db2d97601d0c34d9031f4ca17",
+  "apps/web/public/fonts/InstrumentSerif-Regular.woff2": "0b16c7177051dd15dc47ae9a7b9d667a741fe48648f72a1bc40240cc78ed6c3f",
+  "docs/brand/DESIGN-SYSTEM.md": "311c41797ca8f88bbfc257843de02e02591994f4dc1a853d97719dee59f7a5b9",
   "docs/brand/aje.md": "a196c44ac41409ecb0243ad8362af717a8f201827f26bb75182a8fdec80b67c7",
   "docs/brand/assets/aje/aje-turtle-emerald.svg": "faeaf2a886ee3a2615bcd113084ccb20d1192e0297ce8ee1dde0b4c0f710acd1",
   "docs/brand/assets/aje/aje-turtle-noir.svg": "084a8e6f2b69b478041a868075793bbf277d9e00ed67871164c43a70cc6fa1b8",
@@ -7,15 +12,18 @@
   "docs/brand/assets/emblem-book-heart.svg": "b3681b62213aefbb8409a065bb32de348ad206cacd543e43f4661a547d6dc5ed",
   "docs/brand/assets/lockup-cinematic.svg": "9444c41b43a664cf9dc05aa5a1474dae12c180dfc86936e46a9359bf55143e97",
   "docs/brand/assets/monogram-stamp.svg": "7bd442c8088016a63ba82eace89fb1ad2e310514d653c6c3d1127566fca40e14",
+  "docs/brand/assets/refresh-2026-11/manifest.md": "5dcc5b2a058790d81cdcf79a404a7deff6237f2456bc027eccd52dacecfad670",
   "docs/brand/assets/seal-edisi-membangun.svg": "0f23c31c7a83f80f3e400d8fce8b6d0209a38979565d8186c34c9a459e087f9c",
   "docs/brand/assets/seal-edisi-poket.svg": "8c70a6159a810f43c2e14c4aae5705b9e4c8c6c2d975d2534888c61cc4314221",
   "docs/brand/assets/seal-teman-hidup.svg": "bdf5ab5f6989ac59bee28fa1da832a04cbb6607906d8e759f6236c78927650f4",
-  "docs/brand/design-tokens.css": "26ed1f175ea5ecba61f0af38ca7e53c5e2e10c3eff228566a673f1426d296c0b",
-  "docs/brand/doop-guideline.md": "fd17140ab8e0cb95f324cbcb4f7c78f5313ba760bb4a6619ae79734f55599424",
+  "docs/brand/design-tokens.css": "317378337c313769bf114a1309e4406cdc0c4547b39fcf7e7b1efeca3aab5b17",
+  "docs/brand/design-tokens.json": "153a7d7e1783e5eab9758ddebcbf855a001d960da2f37412977dfd03c0f5b2fc",
+  "docs/brand/doop-guideline.md": "34054312a98a26378aae5a82f425c55a3490eb3b50b70eb377755d81b56322ed",
+  "docs/brand/specimens/foundations.html": "bb642fc6f40cae64428b7b2f804065ca1f8ecc3006cac6bcd66ff828e90433e8",
   "packages/brand-tools/fonts/FrauncesDisplay.woff2": "9b2eb34781c59629bad929ed671b6b9a57385ede5d2e97fa1bd1623f29d898a1",
   "packages/brand-tools/fonts/FrauncesDisplayItalic.woff2": "81003a060af22f6806c44e89e0f8147a9f3654cdfe7161be2d95a2ffc257189d",
   "packages/brand-tools/fonts/InterUI.woff2": "11ecf6f358700710c050185e127ce52421e2073af3b4cdfc9080be1f544a68d5",
   "packages/brand-tools/fonts/SourceSerifText.woff2": "81a469d85dab1172283d8d40e27365c2c5e3e15a1fa33de69d546de672ffa36a",
   "packages/ui/shadcn-theme.css": "510ea4d00fd7efc1b4a993ffdb9d5b9e2e920e0c0534a70a3d42de3b89c561a8",
-  "packages/ui/tailwind.config.js": "7eb6919482fc516ba7a3283509587743f519364aae8f69461fa8c85bdeb406cc"
+  "packages/ui/tailwind.config.js": "31b4fb9b5a90d22b63bed3e32264e63edc3803ba09c4c9a321004d4d1e7bda3c"
 }

@@ -64,6 +64,21 @@ def _build(args: argparse.Namespace) -> int:
     return 0
 
 
+def _build_editions(output: Path) -> int:
+    """Build the three storefront masters with the delivery service's filenames."""
+    sources = Path(__file__).resolve().parents[3] / "content" / "ebooks"
+    for directory, tier in TIER_BY_DIRECTORY.items():
+        slug = "teman-hidup" if tier == "teman-hidup" else f"edisi-{tier}"
+        source = sources / directory / "manuscript" / f"{slug}.md"
+        manuscript = parse_markdown(source.read_text(encoding="utf-8"))
+        if manuscript.tier != tier:
+            raise ManuscriptError(f"Expected tier {tier!r} in {source.name}")
+        target = output / f"{slug}.pdf"
+        render_pdf(manuscript, target)
+        print(f"built {target}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="ebook-builder", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -75,8 +90,13 @@ def main(argv: list[str] | None = None) -> int:
     build.add_argument("--name", default="", help="buyer name for the watermark")
     build.add_argument("--email", default="", help="buyer email for the watermark")
 
+    editions = sub.add_parser("build-editions", help="build the three product PDFs from this checkout")
+    editions.add_argument("--out", default="dist/editions", help="private output directory for delivery masters")
+
     args = parser.parse_args(argv)
     try:
+        if args.command == "build-editions":
+            return _build_editions(Path(args.out))
         if args.command == "build":
             return _build(args)
     except (ManuscriptError, RenderError, ValueError) as exc:

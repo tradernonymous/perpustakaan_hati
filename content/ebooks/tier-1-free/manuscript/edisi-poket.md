@@ -15,8 +15,6 @@ Aku tulis buku ini untuk satu sebab sahaja: supaya ada sesuatu di dalam
 dompet yang boleh dibuka bila dalam bas, atau dalam train, atau pada waktu
 kamu rasa sunyi.
 
-> Bukan kamu yang rosak. Kamu cuma belum belajar bereaksi.
-
 Buku ini tidak akan mengubah hidup kamu dalam semalam. Ia cuma satu tempat
 untuk berhenti enam puluh saat, bernafas dalam kepala, dan bertanya soalan
 yang betul.
@@ -86,20 +84,15 @@ belum fikir sampai habis."
 "Aku boleh sambung nanti. Kalau kamu perlukan aku secepat itu, beritahu aku — tapi
 biarkan aku siapkan ayat dulu."
 
-## Buku Kerja 30 Hari
+## Catatan Hari Ini
 
-Buku kerja ini untuk kamu yang dah baca habis, atau untuk kamu yang tinggal
-separuh. Tiga puluh hari, satu ayat setiap hari, satu muka surat setiap satu.
-
-Tulis dengan tangan. Telefon tidak sesuai, sebab telefon ingat semua ayat lama
-kamu, dan kamu tidak perlukan itu.
-
-Kadang-kadang kata yang paling menjengukkan ialah keheningan yang kau pilih.
+Tulis satu ayat yang kamu mahu ingat esok. Kamu boleh kembali kepada
+soalan yang sama bila-bila masa.
 
 ::: backmatter
+## Sudut Keselamatan
+
 Talian HEAL 15555 · Befrienders KL: 03-7627 2929
 Jika kamu berada dalam keadaan tidak selamat, hubungi 999.
 
-Data kamu disimpan di bawah PDPA Malaysia, tidak dikongsi dengan pihak lain,
-dan boleh dipadam atas permintaan.
 :::

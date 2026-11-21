@@ -8,7 +8,7 @@ Phase 1 deliverable covering three output surfaces from one token source
 ### Layout
 - Mobile-first, single column, max content width `--content-reading: 640px` for reading, `--content-grid: 1200px` for landing grids, `--content-chat: 760px` for Teman Hati.
 - Warmer share: green 50 / gold 40 / ruby + cream 10. Green still leads; gold warmth rises.
-- Base ground: `daylight` (`<body class="ph-daylight">`). Section alternation: `daylight` → `sage` → `daylight`; the final CTA band closes on `sage`. Book covers, seals and posters stay on `.ph-stage` (`forest-night`) because they are objects, not page grounds. AJE surfaces use `.aje-surface` (black + gold) and never mix with the green system in one band.
+- The web shell uses `ph-nightlight ph-void ph-storefront`. Raised bands and cards use `--surface-raised`. Covers, seals and posters use their edition-specific treatments.
 - Sticky bottom CTA on mobile (checkout, tier selection) — 56px tall, green gradient fill, `forest-night` label.
 
 ### 3.6 utilities (web)
@@ -24,12 +24,13 @@ Phase 1 deliverable covering three output surfaces from one token source
 ### Components
 | Component | Spec |
 |---|---|
-| Button primary | bg `green-cta` gradient `#3f9167→#5b9b7d`, text `ink`, radius 2px, `shadow-depth-1`, uppercase Inter 12px tracking 0.14em |
+| Button primary | `.ph-cta` uses the green gradient, pill radius, Geist Sans 600, and a raised edge that compresses on press |
 | Button secondary | 1px `gold` border, text `gold-light`, bg transparent |
 | Button tier-select | 1px tier-colour border, tier-colour label, `gold` fill on selected |
 | Card | bg `daylight-raised`, 1px `daylight-edge`, radius 8px, `shadow-depth-1` on hover → `shadow-depth-2` (dark-stage cards keep `forest-raised` + gold hairline) |
 | Featured card | bg `forest-soft`, `shadow-depth-2`, top 1px `green-700` highlight rule |
-| Tier card | left 3px tier-colour rule, title `gold-light` Fraunces, price `cream`, tier shape (circle / hexagon / arch) beside the badge |
+| Tier card | Tier rim, Instrument Serif title and price, and a tier shape (circle / hexagon / arch) beside the badge |
+| Catalog cover | Pair `.ph-book-stage` and `.ph-book-object` around the cover artwork. The object projects from a paper edge with the edition’s bevel. Fine pointers get a hover tilt. |
 | Chapter preview | bg `cream`, text `ink`, serif body for the reading sample |
 | Trust badge | 1px `gold-deep` border, `gold` text, 11px uppercase |
 | Input | bg `daylight-soft`, 1px `daylight-edge`, focus 2px `green-700` ring, error 1px `burgundy-light` |
@@ -37,29 +38,26 @@ Phase 1 deliverable covering three output surfaces from one token source
 | Footer | bg `sage`, top 1px `gold-ink-soft` rule, `muted-grove` text |
 
 ### Typography in web
-- H1 `Fraunces` 32–40px, `gold-light`, line-height 1.15
-- H2 `Fraunces` 24–28px, `gold-light`
-- Body `Inter` 16px, `text-on-dark`, line-height 1.65
-- Kicker `Inter` 12px uppercase 0.18em, `gold`
-- Pull quote `Fraunces` italic 20px, `gold-light`, 1px `gold-deep` left rule
+- Hero `Instrument Serif` regular, 46–96px fluid, line-height 0.96
+- Headings and pull quotes use `Instrument Serif`. Pull quotes use the italic face.
+- Body `Geist Sans` 16px, `text-on-dark`, line-height 1.65
+- Labels `Geist Sans` 12–14px, weight 500–600
 - Reading sample body `Source Serif 4` 17px, line-height 1.7
 
 ### Brand fonts
-Load `packages/ui/fonts.css` before Tailwind's base layer in
-`apps/web/app/globals.css` (Phase 3):
+The storefront loads `apps/web/styles/fonts.css` before Tailwind in
+`apps/web/app/globals.css`. Font files and notices live in `apps/web/public/fonts/`.
 
 ```css
-@import '@perpustakaan-hati/ui/fonts.css';
+@import "../styles/fonts.css";
 ```
-
-Self-hosted woff2 in `packages/brand-tools/fonts/` — never a Google Fonts CDN
-link. Three faces, three jobs:
 
 | role | family | where |
 |---|---|---|
-| Display | Fraunces (variable) | H1–H3, wordmark, pull quotes, cover titles, tier names |
-| Body / UI | Inter (variable) | body copy, buttons, kickers, labels, folios, form fields |
-| Reading | Source Serif 4 (variable) | long-form eBook body, chapter previews |
+| Display | Instrument Serif | Storefront headings, pull quotes and tier names |
+| Body / UI | Geist Sans (variable) | Storefront copy, buttons, labels and form fields |
+| Reading | Source Serif 4 (variable) | Long-form eBook body and chapter previews |
+| Publishing display and UI | Fraunces and Inter (variable) | Cover titles, publishing templates and folios |
 
 ### shadcn/ui mapping
 shadcn default tokens are neutral-light. Override in `globals.css`:
@@ -92,23 +90,18 @@ shadcn default tokens are neutral-light. Override in `globals.css`:
 ## 2. eBook Layout Templates
 
 ### Page geometry
-- Trim 6×9 in (152×229mm). Margins: inner 20mm, outer 15mm, top 18mm, bottom 20mm.
-- Baseline grid 12pt; body 11.5pt Source Serif 4 (serif reading) / 10.5pt Inter for exercises.
-- Display type (titles, chapter openers, pull quotes) Fraunces.
-- Folio: outer bottom corner, 9pt Inter, `gold-deep` on ink pages, `sepia-deep` on cream pages.
 
-### Master layouts
-| Layout | Description |
-|---|---|
-| `cover` | Full-bleed `ink`, gold wordmark, tier-colour bar, `by @rahimam` handle (lowercase, rainbow-ring `@`), title Fraunces 28pt `gold-light` |
-| `title-page` | Cream, centered wordmark, tagline, tier badge |
-| `chapter-opener` | Ink page, oversized chapter numeral in `gold` outline, chapter title Fraunces 24pt, one-line epigraph in `gold-light` italic |
-| `body` | Cream page, serif body, drop cap in `sepia`, first-line indent 5mm, no hyphenation |
-| `pull-quote` | Ink page, centered Fraunces italic 22pt `gold-light`, thin `gold-deep` rules above/below |
-| `worksheet` | Cream page, dotted 4mm write-on rules in `sepia-deep` 30% opacity, checkbox column 6mm |
-| `reflection-card` | Ink card, 90×50mm, gold border, `green` healing-tier marker, rounded 4mm, quote + prompt |
-| `script-page` | Cream page, two columns: left "Saya mahu kata" (terracotta), right "Cara aku kata" (sepia), for *Skrip Bincang Hati ke Hati* |
-| `back-matter` | Helpline page, `cream`, Talian HEAL 15555 / Befrienders in `sepia`, PDPA note 8pt |
+The edition masters use a 152 × 229 mm trim with 16 mm side margins, a 19 mm top margin, and an 18 mm bottom margin. Source Serif 4 sets the body at 11.25 pt. Fraunces sets the display text, and Inter sets the running header, folios and labels.
+
+| Edition | Ground and cover | Reading and writing elements |
+|---|---|---|
+| Edisi Poket | Forest-green wash, double gilt arch, book-heart emblem and circular seal | Cream type, sage numerals, gold rules, checkbox list, seven-day sequence, reflection and note panels |
+| Edisi Membangun | White paper, green binding stripe, emblem and hexagonal seal | Green headings, warm writing panels, one question per worksheet page |
+| Teman Hidup | Near-black ground, double gold frame, emblem and arched seal | Roman chapter dividers, green journal and reflection fields, bordered scripts that stay together |
+
+All three use linked contents with folios, a running edition label and recurring page-number placement. Each cover is rendered directly from its manuscript and master template. See the [provenance manifest](assets/refresh-2026-11/manifest.md) for derivative paths.
+
+The next PDF review proofs add botanical linework and a three-step reading panel to Poket. Membangun uses a linked exercise index and lined, fillable worksheets. Teman Hidup uses orbital vector artwork, a linked 30-day map, a day-position strip and separate journal and next-step fields. Form fields are standard AcroForm text widgets. Their writing lines are printed as page artwork, so the pages work on paper as well as in PDF readers that support forms.
 
 ### Watermark
 - Every paid page: `Cop Perpustakaan Hati` diagonal at −20°, 10% opacity, `gold-deep`, bottom-right.
