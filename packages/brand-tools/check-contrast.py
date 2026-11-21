@@ -342,14 +342,16 @@ TIER_PAIRS = [
 DELTA_E_MIN = 10.0
 
 
-def grade(ratio: float) -> str:
+def grade(ratio: float, required: float) -> str:
+    if ratio < required:
+        return "FAIL"
     if ratio >= 7:
         return "AAA"
     if ratio >= 4.5:
         return "AA"
     if ratio >= 3:
         return "AA-large"
-    return "FAIL"
+    return "ok"
 
 
 def main() -> int:
@@ -367,7 +369,7 @@ def main() -> int:
                 "bg": bg,
                 "ratio": round(ratio, 2),
                 "required": need,
-                "grade": grade(ratio),
+                "grade": grade(ratio, need),
                 "pass": ok,
                 "note": why,
             }
