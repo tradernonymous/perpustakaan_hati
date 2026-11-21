@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { HeroAtmosphere } from "@/components/HeroAtmosphere";
 import atmosphere from "@/components/HeroAtmosphere.module.css";
+import { HeroGlyphs } from "@/components/HeroGlyphs";
+import { HeroBook } from "@/components/HeroBook";
+import { StatsStrip } from "@/components/StatsStrip";
+import { Ticker } from "@/components/Ticker";
 import { SectionOrnament } from "@/components/SectionOrnament";
 import { TierCompare } from "@/components/TierCompare";
 import { ProductCover } from "@/components/ProductCover";
@@ -72,6 +76,7 @@ export default function DesignSystem() {
       <main id="panduan" className="mx-auto max-w-grid px-4 pb-16 sm:px-6">
         <div className="relative isolate my-6 overflow-hidden rounded-lg border border-line px-6 py-12 sm:my-10 sm:px-12 sm:py-20">
           <HeroAtmosphere />
+          <HeroGlyphs />
           <div className={atmosphere.copy}>
             <p className="mb-2 text-sm font-semibold text-fg-accent">Sistem Reka Bentuk 3.9</p>
             <h1 className="ph-display-hero font-display">Void Grove</h1>
@@ -213,6 +218,25 @@ export default function DesignSystem() {
         </Section>
 
         <Section index={7}>
+          <div className="mb-6 grid gap-4 lg:grid-cols-2">
+            <figure className="ph-card m-0 grid content-start gap-3 p-5">
+              <HeroBook
+                name="Teman Hidup"
+                cover={TIERS[2].cover ?? "/ebooks/cover-teman-hidup.png"}
+                seal={TIERS[2].seal.replace("/brand/", "/brand/animated/")}
+                pages={[
+                  { title: "Bab Pembukaan", text: "Teman Hidup menemani langkah harian dengan kad refleksi dan buku kerja." },
+                  { title: "Kad Refleksi", text: "Apa yang berubah dalam dirimu minggu ini?" },
+                  { title: "Nota Suara", text: "Rakamkan satu isi hati untuk didengar semula nanti." },
+                ]}
+              />
+              <figcaption className="text-sm text-fg-muted">Buku 3D interaktif — klik kulit untuk membuka, anak panah untuk menukar muka surat.</figcaption>
+            </figure>
+            <div className="grid content-start gap-4">
+              <StatsStrip />
+              <Ticker />
+            </div>
+          </div>
           <div className="mb-4 grid gap-4 md:grid-cols-2">
             <figure className="ph-card m-0 grid justify-items-center gap-2 p-5">
               <img src="/brand/animated/emblem-book-heart.svg" width={110} height={80} alt="" />
@@ -220,7 +244,7 @@ export default function DesignSystem() {
             </figure>
             <div className="ph-card self-stretch p-5">
               <h3 className="ph-title text-2xl">Maklum balas dan peralihan</h3>
-              <p className="mt-2 text-fg-muted">Tiga lencana di atas mempamerkan kemasan emas, lambang buku dan hati asal, serta kemasan grid berinspirasikan fintech. Jeda latar untuk menghentikan lencana dan orbit. Halakan penuding pada kulit bab untuk melihat kilauan, atau selak buku di bawah.</p>
+              <p className="mt-2 text-fg-muted">Tiga lencana di atas mempamerkan kemasan emas, lambang buku dan hati asal, serta kemasan grid berinspirasikan fintech. Jeda latar untuk menghentikan lencana dan orbit. Halakan penuding pada kulit bab untuk melihat kilauan, atau selak buku di bawah. Lapisan gerakan terkini: medan glif terapung dengan paralaks penuding, gelang putar di belakang medali, kilauan diagonal pada setiap <code>ph-cta</code>, dan kemasukan muka surat 3D secara berperingkat. Semua dilumpuhkan di bawah <code>prefers-reduced-motion</code>.</p>
             </div>
           </div>
           <div id="percuma" className="scroll-mt-8">
