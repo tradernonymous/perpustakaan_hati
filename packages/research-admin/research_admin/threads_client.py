@@ -342,24 +342,7 @@ class ThreadsClient:
         profile = self.fetch_profile(access_token)
         insights = self.fetch_user_insights(access_token, include_demographics=True)
         posts = self.fetch_my_posts(access_token, min(max(int(post_limit), 1), 50))
-        replies = []
-        target_posts = [p for p in posts[:10] if str(p.get("id", "")).isdecimal()]
-        if target_posts:
-            cap = min(max(int(replies_per_post), 1), 100)
-
-            def _fetch_one(post_item: dict) -> list[dict]:
-                mid = str(post_item["id"])
-                return [
-                    {**reply, "source_type": "reply", "parent_id": mid, "parent_permalink": post_item.get("permalink", "")}
-                    for reply in self._collection(f"/v1.0/{mid}/replies", access_token, cap)
-                ]
-
-            if len(target_posts) == 1:
-                replies.extend(_fetch_one(target_posts[0]))
-            else:
-                with ThreadPoolExecutor(max_workers=4) as pool:
-                    for batch in pool.map(_fetch_one, target_posts):
-                        replies.extend(batch)
+        replies = self.fetch_post_replies(access_token, posts[:10], replies_per_post)
         return {
             "profile": profile,
             "followers_count": insights["followers_count"],
@@ -502,6 +485,24 @@ class ThreadsClient:
 
     def fetch_my_posts(self, access_token: str, limit: int = 50) -> list[dict]:
         return self._collection("/v1.0/me/threads", access_token, min(max(limit, 1), 150))
+
+    def fetch_post_replies(self, access_token: str, posts: list[dict], replies_per_post: int) -> list[dict]:
+        target_posts = [post for post in posts if str(post.get("id", "")).isdecimal()]
+        if not target_posts:
+            return []
+        limit = min(max(int(replies_per_post), 1), 100)
+
+        def fetch_one(post: dict) -> list[dict]:
+            media_id = str(post["id"])
+            return [
+                {**reply, "source_type": "reply", "parent_id": media_id, "parent_permalink": post.get("permalink", "")}
+                for reply in self._collection(f"/v1.0/{media_id}/replies", access_token, limit)
+            ]
+
+        if len(target_posts) == 1:
+            return fetch_one(target_posts[0])
+        with ThreadPoolExecutor(max_workers=4) as pool:
+            return [reply for batch in pool.map(fetch_one, target_posts) for reply in batch]
 
     def _enrich_post_metrics(self, access_token: str, post: dict) -> dict:
         media_id = str(post["id"])

@@ -54,9 +54,11 @@ from .followers import (
 )
 from .jobs import JobCancelled
 from .knowledge import compile_fact_sheet, ensure_default_knowledge, extract_wiki_links
+from .publications import PublicationError, Publications
 from .research import ResearchError, mine_keyword_sources, mine_pain_points
 from .store import Store, StoreError, build_vault
 from .telegram_ops import build_draft_keyboard, format_digest_html, send_telegram_alert
+from .theme import RAISED, SOFT, VOID
 from .threads_client import (
     EXPANDED_SCOPES,
     POST_TEXT_MAX,
@@ -203,6 +205,7 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
     store.init_schema()
     store.recover_interrupted_jobs()
     app.state.store = store
+    publications = Publications(store._connect)
     avatar = ThreadsAvatar()
 
     def sealed(response: Response, *, csp_nonce: str = "") -> Response:
@@ -621,13 +624,13 @@ def create_app(settings: Settings, *, vault_factory=None) -> FastAPI:
         note = f"<p class=err role=alert>{html_module.escape(message)}</p>" if message else ""
         return f"""<!doctype html><html lang=ms><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Masuk — Threads research admin</title>
 <style>
-:root{{--ink:#e6e2da;--muted:#a49c8d;--line:#24402f;--gold:#e9cea2;--green:#9de1c1;--bg:#07140d;--card:#0d2117;color-scheme:dark}}
+:root{{--ink:#e6e2da;--muted:#a49c8d;--line:#24402f;--gold:#e9cea2;--green:#9de1c1;--bg:{VOID};--card:{RAISED};color-scheme:dark}}
 *{{box-sizing:border-box}}body{{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;padding:24px}}
 main{{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:28px;box-shadow:0 18px 40px -24px rgb(0 0 0/.7)}}
 .kicker{{display:flex;align-items:center;gap:.7em;margin:0 0 6px;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}}
 .kicker::before,.kicker::after{{content:'';flex:1 1 2em;height:1px;background:var(--line)}}
 h1{{font-family:Georgia,serif;font-weight:600;font-size:24px;margin:6px 0 4px}}p.sub{{margin:0 0 18px;color:var(--muted);font-size:14px}}
-label{{display:block;font-size:13px;font-weight:600;margin:0 0 6px}}input{{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:0 12px;font-size:16px}}
+label{{display:block;font-size:13px;font-weight:600;margin:0 0 6px}}input{{width:100%;min-height:44px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:0 12px;font-size:16px}}
 input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{width:100%;min-height:48px;margin-top:14px;border:0;border-radius:999px;background:linear-gradient(180deg,#7db895,#5b9b7d 50%,#3f9167);color:#07140d;font:600 16px/1 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 3px 0 #1d5a3d}}
 .err{{margin:12px 0 0;color:#f0a3a0;font-size:14px}}footer{{margin-top:16px;font-size:12px;color:var(--muted)}}
 </style></head><body><main>
@@ -710,6 +713,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         follow_list = request.query_params.get("list", "") if view == "followers" else ""
         graph_list = request.query_params.get("glist", "") if view == "followers" else ""
         follow_query = request.query_params.get("q", "") if view == "followers" else ""
+        graph_query = request.query_params.get("graph_q", follow_query if graph_list else "") if view == "followers" else ""
         follow_uf = request.query_params.get("uf", "") if view == "followers" else ""
         follow_sort = request.query_params.get("sort", "newest") if view == "followers" else "newest"
         ac_seed = request.query_params.get("ac", "").strip() if view == "research" else ""
@@ -747,20 +751,22 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         err_param = request.query_params.get("err", "")
         page = render_dashboard(DashboardData(
             view=view, connection=connection, expiry=expiry, insights=insights, runs=runs,
+            calendar_mode=request.query_params.get("mode", "week"),
+            calendar_date=request.query_params.get("date", ""),
             audiences=audiences, drafts=drafts, query=search,
             selection=selection, status_filter=status, csrf=csrf, limits=limits,
             jobs=store.list_jobs(),
             focus=focus,
             audience=audience, graph_audience=graph_audience,
             unfollow_queue=store.list_unfollow_queue(),
-            follow_list=follow_list, graph_list=graph_list, follow_query=follow_query,
+            follow_list=follow_list, graph_list=graph_list, follow_query=follow_query, graph_query=graph_query,
             follow_uf=follow_uf, follow_sort=follow_sort,
             model=settings.openrouter_model,
             error=err_param, notice=notice_param,
             configured=ai_configured, threads_configured=not settings.missing_threads(),
             snapshot_diff=snapshot_diff,
             graph_history=store.list_graph_metric_history(),
-            inbox_items=store.list_inbox_items(status="" if inbox_status == "all" else inbox_status),
+            inbox_items=store.list_inbox_items(status="" if inbox_status == "all" else inbox_status) if view == "inbox" else [],
             inbox_status=inbox_status,
             knowledge_nodes=store.list_knowledge_nodes() if view == "knowledge" else [],
             knowledge_edges=store.list_knowledge_edges() if view == "knowledge" else [],
@@ -773,12 +779,44 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
             external_signals=store.list_external_signals() if view in ("settings", "overview", "research") else [],
             mini_app_url=settings.mini_app_url,
             scopes=list(token_meta.get("scopes") or []),
+            publications=publications.workspace() if view == "publications" else [],
             csp_nonce=csp_nonce,
         ), logout_action=f'<form method=post action=/logout><input type=hidden name=csrf value="{html_module.escape(csrf, quote=True)}"><button class=signout>Sign out</button></form>')
         response = HTMLResponse(page)
         if not request.cookies.get(CSRF_COOKIE):
             response.set_cookie(CSRF_COOKIE, csrf, httponly=True, secure=settings.secure_cookies, samesite="lax", max_age=SESSION_TTL)
         return response
+
+    @app.get("/publications/{tier}/preview")
+    def preview_publication(tier: str):
+        try:
+            return publications.get(tier, published=False)
+        except PublicationError as exc:
+            return error(exc.code, str(exc))
+
+    @app.get("/publications/{tier}/export")
+    def export_publication(tier: str):
+        try:
+            item = publications.get(tier, published=True)
+        except PublicationError as exc:
+            return error(exc.code, str(exc))
+        name = f"{tier}-r{item['revision']}.json"
+        return JSONResponse(item, headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+    @app.post("/publications/{tier}/{action}")
+    async def change_publication(request: Request, tier: str, action: str):
+        try:
+            form = await request.form()
+            if len(form.multi_items()) != len(form):
+                raise PublicationError("Duplicate fields are invalid.")
+            item = publications.change(tier, action, dict(form))
+        except PublicationError as exc:
+            if _wants_html(request):
+                return RedirectResponse(f"/?view=publications&err={quote(str(exc))}", status_code=303)
+            return error(exc.code, str(exc))
+        if _wants_html(request):
+            return RedirectResponse("/?view=publications", status_code=303)
+        return item
 
     @app.get("/auth/start")
     def auth_start(request: Request):
@@ -1283,8 +1321,9 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         try:
             client = ThreadsClient(settings, app.state.http)
             profile = client.fetch_profile(token.access_token)
-            sample = client.collect_engagement_sample(token.access_token, SampleLimits(15, 5, 40))
-            added = _sync_inbox_from_replies(sample.get("texts", []), str(profile.get("username", "")))
+            posts = client.fetch_my_posts(token.access_token, limit=15)
+            replies = client.fetch_post_replies(token.access_token, posts, replies_per_post=40)
+            added = _sync_inbox_from_replies(replies, str(profile.get("username", "")))
         except ThreadsError as exc:
             return RedirectResponse(f"/?view=inbox&notice={quote(str(exc))}", status_code=303) if is_html else error(502, str(exc))
         if is_html:
@@ -1735,7 +1774,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         csrf = request.cookies.get(CSRF_COOKIE) or secrets.token_urlsafe(24)
         drafts = [d for d in store.list_drafts(limit=20) if d["status"] in ("draft", "approved", "scheduled")]
         cards = "".join(
-            f"<article style='background:#0d2117;border:1px solid #24402f;border-radius:12px;padding:14px;margin-bottom:12px'>"
+            f"<article style='background:{RAISED};border:1px solid #24402f;border-radius:12px;padding:14px;margin-bottom:12px'>"
             f"<div style='font-size:12px;color:#e9cea2'>{html_module.escape(d['kind'])} · {html_module.escape(d['status'])}</div>"
             f"<h3 style='margin:6px 0'>{html_module.escape(d['title'])}</h3>"
             f"<p style='font-size:14px;color:#a9b2a6'>{html_module.escape(str((d.get('content') or {}).get('post', (d.get('content') or {}).get('premise', '')))[:220])}</p>"
@@ -1746,7 +1785,7 @@ input:focus-visible{{outline:2px solid var(--green);outline-offset:2px}}button{{
         ) or "<p>No pending drafts.</p>"
         return HTMLResponse(
             f"<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
-            f"<title>PH Mini Studio</title><meta name=color-scheme content=dark></head><body style='margin:0;padding:16px;background:#07140d;color:#e6e2da;font-family:Inter,system-ui,sans-serif'>"
+            f"<title>PH Mini Studio</title><meta name=color-scheme content=dark></head><body style='margin:0;padding:16px;background:{VOID};color:#e6e2da;font-family:Inter,system-ui,sans-serif'>"
             f"<h1 style='margin:0 0 12px'>Perpustakaan Hati · Mini Review</h1>{cards}</body></html>"
         )
 
