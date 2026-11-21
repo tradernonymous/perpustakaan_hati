@@ -15,16 +15,15 @@ import Home from "@/app/page";
 const publicBrand = (f: string) => readFileSync(path.join(__dirname, "../public/brand", f), "utf8");
 
 describe("3.2 Daylight Grove hero", () => {
-  it("typesets the wordmark as live text so it holds on the ivory ground", () => {
+  it("renders the compact headline as live text", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI[\s\S]*<\/h1>/);
-    expect(html).not.toContain("lockup-hero.svg");
+    expect(html).toContain('id="hero-heading"');
+    expect(html).toContain("Bacaan kecil.");
   });
-  it("keeps the byline and tagline as real text below the mark", () => {
+  it("identifies the publisher and reading language", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-kicker");
-    expect(html).toContain("oleh @rahimam");
-    expect(html).toContain("Karya untuk jiwa yang pernah terluka");
+    expect(html).toContain("Perpustakaan Hati · Bahasa Melayu");
+    expect(html).toContain("pemulihan diri");
   });
   it("the cinematic lockup stays in the system for covers and posters", () => {
     const svg = publicBrand("lockup-hero.svg");
@@ -47,10 +46,10 @@ describe("original book-heart emblem", () => {
     expect(html).toContain("/brand/animated/emblem-book-heart.svg");
     expect(html).toContain('width="48"');
   });
-  it("the 3D book cover carries the emblem and the Edisi Poket seal", () => {
+  it("the 3D book shows the exported cover with the emblem and seal", () => {
     const html = renderToStaticMarkup(<HeroBook name="Edisi Poket" />);
-    expect(html).toContain("/brand/animated/emblem-book-heart.svg");
-    expect(html).toContain("/brand/animated/seal-edisi-poket.svg");
+    expect(html).toContain("/ebooks/cover-poket.png");
+    expect(html).toContain('alt="Kulit Edisi Poket"');
   });
   it("footer signs off with the emblem", () => {
     expect(renderToStaticMarkup(<SafetyFooter />)).toContain("/brand/emblem-book-heart.svg");

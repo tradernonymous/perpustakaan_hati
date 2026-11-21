@@ -1,5 +1,6 @@
 "use client";
 
+import { temanHatiEnabled } from "@/src/feature-flags";
 import { useState, type FormEvent } from "react";
 
 type Status = "idle" | "submitting" | "success" | "error";
@@ -128,18 +129,18 @@ export function OptInForm() {
 
       {status === "success" && (
         <div className="rounded border border-line bg-surface-soft p-4 text-sm text-fg">
-          <p className="font-semibold text-fg">Edisi Poket kamu sudah sedia. Muat turun sekarang atau teruskan ke ruang interaktif:</p>
+          <p className="font-semibold text-fg">Buka Pustaka Saya dan sahkan e-mel untuk memuat turun buku percuma:</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <a
-              href="/api/edisi-poket/pdf"
+              href="/pustaka"
               download="edisi-poket-perpustakaan-hati.pdf"
               className="ph-cta min-h-tap inline-flex items-center px-4 py-2 text-xs"
             >
-              Muat turun PDF Edisi Poket
+              Buka Pustaka Saya
             </a>
             <a href="/kad-jujur-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Kad Jujur Hati</a>
             <a href="/cermin-pasangan" className="btn-ghost min-h-tap px-4 py-2 text-xs">Cermin Pasangan</a>
-            <a href="/teman-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Teman Hati AI</a>
+            {temanHatiEnabled && (<a href="/teman-hati" className="btn-ghost min-h-tap px-4 py-2 text-xs">Teman Hati AI</a>)}
           </div>
         </div>
       )}

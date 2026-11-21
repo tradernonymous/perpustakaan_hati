@@ -1,3 +1,4 @@
+import { formatRM, priceSen } from "@/src/catalog";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { TIERS, CHAPTERS, TESTIMONIALS } from "@/src/content";
@@ -28,7 +29,7 @@ describe("tier ladder matches docs/brand/tier-naming.md", () => {
     const html = renderToStaticMarkup(<TierCompare />);
     for (const t of TIERS) {
       expect(html).toContain(t.name);
-      expect(html).toContain(t.price);
+      expect(html).toContain(t.id === "poket" ? "Percuma" : formatRM(priceSen(t.id)));
     }
   });
 });
@@ -45,14 +46,17 @@ describe("chapter previews", () => {
   });
 });
 
-describe("testimonials are honest placeholders", () => {
-  it("every placeholder quote is flagged and visibly labelled", () => {
+describe("approved Threads feedback", () => {
+  it("renders eight distinct quotes with their original reply URLs", () => {
     const html = renderToStaticMarkup(<Testimonials />);
+    expect(TESTIMONIALS).toHaveLength(8);
+    expect(new Set(TESTIMONIALS.map((item) => item.url)).size).toBe(8);
     for (const t of TESTIMONIALS) {
-      if (t.quote.startsWith("[CONTOH]")) expect(t.placeholder).toBe(true);
+      expect(t.url).toMatch(/^https:\/\/www\.threads\.com\/@[^/]+\/post\/[\w-]+$/);
+      expect(t.url).toContain(`/${t.who}/post/`);
+      expect(html).toContain(`href="${t.url}"`);
     }
-    expect(TESTIMONIALS.some((t) => t.placeholder)).toBe(true);
-    expect(html).toContain("CONTOH");
+    expect(html).not.toContain("CONTOH");
   });
 });
 
@@ -68,9 +72,9 @@ describe("safety footer", () => {
 describe("hero and sticky CTA", () => {
   it("hero carries the tagline and a CTA to the opt-in", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("Karya untuk jiwa yang pernah terluka");
+    expect(html).toContain("Ruang untuk pulih.");
     expect(html).toContain('id="percuma"');
-    expect(html).toContain('id="optin-email"');
+    expect(html).toContain('id="lib-email"');
   });
   it("sticky CTA links to the opt-in", () => {
     expect(renderToStaticMarkup(<StickyCta />)).toContain('href="#percuma"');

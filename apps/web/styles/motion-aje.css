@@ -1,0 +1,93 @@
+/* AJE (Armazas Jaya Enterprise) surface and motion.
+   AJE is always black + gold and never shares a palette with Perpustakaan
+   Hati (docs/brand/aje.md). Everything here is scoped under .aje-surface so
+   the tokens cannot leak into the green storefront. Motion never rotates or
+   crops the turtle; it only lifts it and moves light across gold. */
+
+.aje-surface {
+  --aje-ground: #0a0a0a;
+  --aje-gold: #c9a86a;
+  --aje-gold-light: #e9cea2;
+  --aje-gold-deep: #8a6224;
+  --aje-cream: #fdfee6;
+  background: var(--aje-ground);
+  color: var(--aje-cream);
+}
+
+.aje-surface :focus-visible {
+  outline: 2px solid var(--aje-gold-light);
+  outline-offset: 2px;
+}
+
+/* Gold type: one gradient, built only from the gold ramp. */
+.aje-gold-text {
+  color: var(--aje-gold);
+  background-image: linear-gradient(
+    100deg,
+    var(--aje-gold-deep) 0%,
+    var(--aje-gold) 30%,
+    var(--aje-gold-light) 50%,
+    var(--aje-gold) 70%,
+    var(--aje-gold-deep) 100%
+  );
+  background-size: 220% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Hairline rule between AJE bands. */
+.aje-rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, transparent, var(--aje-gold) 20%, var(--aje-gold) 80%, transparent);
+  transform-origin: center;
+}
+
+.aje-turtle {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 18px rgb(201 168 106 / 0.18));
+}
+
+@keyframes aje-turtle-lift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes aje-gold-glint {
+  0% { background-position: 100% 0; }
+  60%, 100% { background-position: 0% 0; }
+}
+
+@keyframes aje-rule-draw {
+  from { transform: scaleX(0); opacity: 0; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .aje-turtle {
+    animation: aje-turtle-lift 7s ease-in-out infinite;
+  }
+  .aje-gold-text {
+    animation: aje-gold-glint 6s ease-in-out infinite alternate;
+  }
+  @supports (animation-timeline: view()) {
+    .aje-rule {
+      animation: aje-rule-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .aje-gold-text {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+  }
+  .aje-rule { background: CanvasText; }
+}

@@ -79,7 +79,7 @@ export function HeroExcerptPreview() {
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-green-300">
         <span>Baca 1 kad sehari · Percuma</span>
-        <a href="#bab" className="font-semibold text-gold-light underline decoration-gold-light/40 underline-offset-4 hover:text-cream">
+        <a href="#katalog" className="font-semibold text-gold-light underline decoration-gold-light/40 underline-offset-4 hover:text-cream">
           Lihat semua koleksi A4
         </a>
       </div>

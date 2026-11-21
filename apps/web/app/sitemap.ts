@@ -1,3 +1,4 @@
+import { temanHatiEnabled } from "@/src/feature-flags";
 import type { MetadataRoute } from "next";
 import { siteUrl } from "@/src/site";
 
@@ -5,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 const PUBLIC_ROUTES = [
   { path: "/", changeFrequency: "weekly" as const, priority: 1 },
-  { path: "/teman-hati", changeFrequency: "weekly" as const, priority: 0.8 },
+  { path: "/baca/tips-psikologi-suami-isteri", changeFrequency: "monthly" as const, priority: 0.8 },
+  ...(temanHatiEnabled ? [{ path: "/teman-hati", changeFrequency: "weekly" as const, priority: 0.8 }] : []),
   { path: "/kad-jujur-hati", changeFrequency: "weekly" as const, priority: 0.8 },
   { path: "/cermin-pasangan", changeFrequency: "weekly" as const, priority: 0.8 },
   { path: "/cabaran-7-hari", changeFrequency: "weekly" as const, priority: 0.7 },

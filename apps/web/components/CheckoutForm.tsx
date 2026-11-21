@@ -61,8 +61,8 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
   const field = "min-h-tap w-full rounded border border-line bg-surface-soft px-3 text-base text-fg placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-green-700";
 
   return (
-    <form onSubmit={onSubmit} noValidate className="ph-card mx-auto flex max-w-reading flex-col gap-5 p-5 md:p-8">
-      <div className="flex items-baseline justify-between gap-4 border-b border-line pb-4">
+    <form onSubmit={onSubmit} noValidate className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-4 sm:gap-5 md:p-8">
+      <div className="flex flex-col gap-1 border-b border-line pb-4 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
         <h2 className="font-display text-2xl text-fg">{name}</h2>
         <p className="text-sm text-fg-muted">Harga ditunjuk di laman: {priceLabel}</p>
       </div>

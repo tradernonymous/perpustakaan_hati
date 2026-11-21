@@ -18,13 +18,13 @@ export default async function Beli({ params }: { params: Promise<{ id: string }>
   const teman = TIERS.find((t) => t.id === "teman-hidup")!;
   return (
     <PageShell title={`Beli ${p.name}`} intro={tier.subcopy}>
-      <div className="mx-auto mb-6 max-w-reading">
-        <Link href="/#edisi" className="text-sm text-fg-healing underline underline-offset-4 hover:text-fg">
+      <div className="mx-auto mb-3 max-w-reading md:mb-6">
+        <Link href="/#edisi" className="inline-flex min-h-tap items-center text-sm text-fg-healing underline underline-offset-4 hover:text-fg">
           ← Kembali ke semua edisi
         </Link>
       </div>
-      <div className="mx-auto mb-8 max-w-reading">
-        <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} tier={tier.id} className="mx-auto max-w-[220px]" />
+      <div className="mx-auto mb-5 max-w-reading md:mb-8">
+        <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} tier={tier.id} className="mx-auto max-w-[120px] md:max-w-[220px]" />
       </div>
       <CheckoutForm
         product={id}

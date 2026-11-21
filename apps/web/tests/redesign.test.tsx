@@ -45,7 +45,7 @@ describe("flow", () => {
   it("hero has an inline opt-in as primary action and a link to the editions", () => {
     const html = renderToStaticMarkup(<Hero />);
     expect(html).toContain('id="percuma"');
-    expect(html).toContain('id="optin-email"');
+    expect(html).toContain('id="lib-email"');
     expect(html).toContain('href="#edisi"');
   });
 });

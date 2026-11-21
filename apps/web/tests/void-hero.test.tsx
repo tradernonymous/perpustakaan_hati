@@ -1,18 +1,14 @@
-// @vitest-environment jsdom
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { cleanup, render } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ChapterPreview } from "@/components/ChapterPreview";
 import { EbookDeck } from "@/components/EbookDeck";
 import { Hero } from "@/components/Hero";
-import { HeroBeam } from "@/components/HeroBeam";
 
 const root = join(__dirname, "..");
 const css = readFileSync(join(root, "styles/design-tokens.css"), "utf8");
 const layout = readFileSync(join(root, "app/layout.tsx"), "utf8");
-afterEach(cleanup);
 
 /** The CSS text of one top-level @keyframes block. */
 function keyframes(name: string): string {
@@ -28,7 +24,7 @@ function keyframes(name: string): string {
 
 describe("3.8 void ground", () => {
   it("puts the void layer on the body next to nightlight, with a black themeColor", () => {
-    expect(layout).toContain('className="ph-nightlight ph-void"');
+    expect(layout).toContain('className="ph-nightlight ph-void ph-storefront"');
     expect(layout).toContain('themeColor: "#030604"');
   });
   it("defines a near-black scope that re-points the surface roles", () => {
@@ -49,48 +45,39 @@ describe("3.8 void ground", () => {
   });
 });
 
-describe("3.8 hero motion: minimal, compositor-only", () => {
-  it("replaces the sparkle glyphs with a beam and a spotlight", () => {
+describe("minimal hero motion", () => {
+  it("keeps the beam and spotlight out of the new hero", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-fx");
-    expect(html).toContain("ph-hero-beam");
-    expect(html).toContain("ph-hero-spot");
+    expect(html).not.toContain("ph-hero-fx");
+    expect(html).not.toContain("ph-hero-beam");
+    expect(html).not.toContain("ph-hero-spot");
     expect(html).not.toContain("ph-glyphs");
   });
-  it("rises the headline words in sequence", () => {
+  it("renders the compact headline immediately", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html.match(/ph-rise/g)?.length).toBeGreaterThanOrEqual(3);
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI/);
+    expect(html).toContain("Bacaan kecil.");
+    expect(html).toContain("Ruang untuk pulih.");
+    expect(html).not.toContain("hero-rise");
   });
-  it("turns the eyebrow into a link to the editions", () => {
+  it("links the secondary action to the editions", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<a[^>]*href="#edisi"[^>]*class="[^"]*ph-hero-eyebrow/);
+    expect(html).toContain('href="#edisi"');
+    expect(html).toContain("Lihat koleksi");
   });
   it("animates only opacity and transform", () => {
-    for (const k of ["ph-beam-in", "ph-beam-breathe", "ph-rise"]) {
-      const body = keyframes(k);
-      expect(body, k).not.toMatch(/filter|margin|width|height|top:|left:|letter-spacing|background/);
-    }
+    const body = keyframes("ph-rise");
+    expect(body).not.toMatch(/filter|margin|width|height|top:|left:|letter-spacing|background/);
   });
-  it("stops the breathing loop on phones and shows the spotlight only with a real pointer", () => {
-    expect(css).toMatch(/@media \(max-width: 767px\)\s*\{[\s\S]*?\.ph-hero-beam\s*\{[^}]*animation:\s*ph-beam-in[^;]*forwards;/);
-    expect(css).toMatch(/\.ph-hero-spot\s*\{[^}]*display:\s*none/);
-    expect(css).toMatch(/@media \(hover: hover\)[^{]*\{\s*\.ph-hero-spot\s*\{\s*display:\s*block/);
+  it("removes the beam CSS entirely", () => {
+    expect(css).not.toContain(".ph-hero-fx");
+    expect(css).not.toContain("@keyframes ph-beam-in");
+    expect(css).not.toContain("@keyframes ph-beam-breathe");
+    expect(css).not.toContain(".ph-hero-beam");
+    expect(css).not.toContain(".ph-hero-spot");
   });
-  it("writes the pointer position onto the fx layer and ignores touch", async () => {
-    const ptr = (init: MouseEventInit & { pointerType: string }) => {
-      const e = new MouseEvent("pointermove", init);
-      Object.defineProperty(e, "pointerType", { value: init.pointerType });
-      return e;
-    };
-    const { container } = render(<HeroBeam />);
-    const fx = container.querySelector<HTMLElement>(".ph-hero-fx")!;
-    window.dispatchEvent(ptr({ clientX: 10, clientY: 10, pointerType: "touch" }));
-    await new Promise((r) => setTimeout(r, 40));
-    expect(fx.style.getPropertyValue("--hx")).toBe("");
-    window.dispatchEvent(ptr({ clientX: 20, clientY: 30, pointerType: "mouse" }));
-    await new Promise((r) => setTimeout(r, 40));
-    expect(fx.style.getPropertyValue("--hx")).toMatch(/px$/);
+  it("keeps keyboard focus clear of the sticky header and the mobile action", () => {
+    expect(css).toMatch(/:focus-visible\s*\{[\s\S]*?scroll-margin-top:\s*5rem/);
+    expect(css).toMatch(/:focus-visible\s*\{[\s\S]*?scroll-margin-bottom:\s*5rem/);
   });
 });
 
@@ -120,17 +107,5 @@ describe("3.8 review fixes: css", () => {
   });
   it("prints headings in a solid colour (background clipping is dropped in print)", () => {
     expect(css).toMatch(/@media print\s*\{[\s\S]*?\.ph-void :is\(\.ph-title\)[\s\S]*?-webkit-text-fill-color:\s*currentColor/);
-  });
-  it("hides the spotlight until the pointer has moved once", async () => {
-    expect(css).toMatch(/\.ph-hero-spot\s*\{[^}]*opacity:\s*0/);
-    expect(css).toMatch(/\.ph-hero-fx\[data-live\] \.ph-hero-spot\s*\{\s*opacity:\s*1/);
-    const { container } = render(<HeroBeam />);
-    const fx = container.querySelector<HTMLElement>(".ph-hero-fx")!;
-    expect(fx.hasAttribute("data-live")).toBe(false);
-    const e = new MouseEvent("pointermove", { clientX: 5, clientY: 5 });
-    Object.defineProperty(e, "pointerType", { value: "mouse" });
-    window.dispatchEvent(e);
-    await new Promise((r) => setTimeout(r, 40));
-    expect(fx.hasAttribute("data-live")).toBe(true);
   });
 });

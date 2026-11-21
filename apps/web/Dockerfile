@@ -23,6 +23,7 @@ ENV NODE_ENV=production \
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
+COPY --from=build /app/private/ebooks ./private/ebooks
 # Railway mounts the persistent volume at /data (signups live in /data/subscribers.db).
 EXPOSE 8080
 CMD ["node", "server.js"]

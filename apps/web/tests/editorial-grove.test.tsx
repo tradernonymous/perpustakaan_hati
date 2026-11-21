@@ -3,6 +3,7 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { Hero } from "@/components/Hero";
+import { Catalog } from "@/components/Catalog";
 import { PlateGallery } from "@/components/PlateGallery";
 import { ChapterPreview } from "@/components/ChapterPreview";
 import { TierCompare } from "@/components/TierCompare";
@@ -25,38 +26,22 @@ import Home from "@/app/page";
 const tokens = readFileSync(path.join(import.meta.dirname, "../styles/design-tokens.css"), "utf8");
 
 describe("editorial grove hero", () => {
-  it("puts a real illustration in the hero, not just type", () => {
-    const html = renderToStaticMarkup(<Hero />).toLowerCase();
-    expect(html).toContain("ph-art");
-    expect(html).toContain("/illustrations/");
-    // React keeps srcSet and fetchPriority in camelCase in the markup.
-    // HTML attribute names are case-insensitive, so the browser reads
-    // them fine, which is why the assertions look at the lowercased
-    // markup.
-    expect(html).toContain("srcset=");
-    expect(html).toContain("image/webp");
-  });
-
-  it("loads the hero art eagerly, because it is the largest contentful paint", () => {
-    const html = renderToStaticMarkup(<Hero />).toLowerCase();
-    expect(html).toContain('loading="eager"');
-    expect(html).toContain('fetchpriority="high"');
-  });
-
-  it("gives the hero art real alt text", () => {
+  it("keeps the compact introduction text-led", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain(ILLUSTRATIONS[0].alt);
+    expect(html).toContain("Bacaan kecil.");
+    expect(html).not.toMatch(/hero-book|ph-book-plinth|HeroBeam/);
   });
 
-  it("keeps the wordmark as live text in an h1", () => {
+  it("sets the introduction headline in an h1", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/<h1[^>]*>[\s\S]*Perpustakaan[\s\S]*HATI[\s\S]*<\/h1>/);
+    expect(html).toMatch(/<h1[^>]*id="hero-heading"/);
+    expect(html).toContain("Ruang untuk pulih.");
   });
 
   it("still offers the free edition and the edition list", () => {
     const html = renderToStaticMarkup(<Hero />);
     expect(html).toContain('id="percuma"');
-    expect(html).toContain('id="optin-email"');
+    expect(html).toContain('id="lib-email"');
     expect(html).toContain('href="#edisi"');
   });
 });
@@ -78,8 +63,8 @@ describe("plate gallery", () => {
     }
   });
 
-  it("is on the homepage", () => {
-    expect(renderToStaticMarkup(<Home />)).toContain("ph-gallery");
+  it("stays off the compact homepage but remains available as a component", () => {
+    expect(renderToStaticMarkup(<Home />)).not.toContain("ph-gallery");
   });
 });
 
@@ -111,7 +96,6 @@ describe("bento ecosystem", () => {
     for (const href of [
       "/kad-jujur-hati",
       "/cermin-pasangan",
-      "/teman-hati",
       "/cabaran-7-hari",
       "/hadiah-hati",
       "/surat-hati",
@@ -132,7 +116,7 @@ describe("editorial grove layer", () => {
   });
 
   it("bumps the system version to the current release", () => {
-    expect(tokens).toContain("--ph-system-version: '3.8.0'");
+    expect(tokens).toContain("--ph-system-version: '3.9.0'");
   });
 
   it("stops the three expensive effects on a phone", () => {
@@ -144,8 +128,8 @@ describe("editorial grove layer", () => {
 });
 
 describe("refinements: A4 covers, comparison table, and hero plinth", () => {
-  it("renders all five real A4 ebook covers inside #bab with A4 dimensions", () => {
-    const html = renderToStaticMarkup(<ChapterPreview />);
+  it("renders the member A4 ebook covers in the catalog with A4 dimensions", () => {
+    const html = renderToStaticMarkup(<Catalog />);
     expect(html).toContain("ph-ebook-shelf");
     expect(html).toContain("ph-a4-cover");
     expect(html).toContain('width="560"');
@@ -167,9 +151,9 @@ describe("refinements: A4 covers, comparison table, and hero plinth", () => {
     expect(html).toContain("Tidak termasuk dalam Edisi Poket");
   });
 
-  it("stages the hero with the collector plinth and live 60-second excerpt slot", () => {
+  it("links to the free edition from the compact hero", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-plinth");
-    expect(html).toContain("Intai 60 saat");
+    expect(html).toContain('href="#percuma"');
+    expect(html).toContain('id="percuma"');
   });
 });

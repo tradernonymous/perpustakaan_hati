@@ -36,10 +36,10 @@ describe("SiteHeader logo", () => {
 });
 
 describe("Hero motion", () => {
-  it("has a light beam and a staggered reveal", () => {
+  it("shows the headline without an animation or light beam", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-beam");
-    expect(html).toContain("animate-fade-up");
+    expect(html).toContain("Bacaan kecil.");
+    expect(html).not.toMatch(/hero-rise|hero-beam/);
   });
 });
 

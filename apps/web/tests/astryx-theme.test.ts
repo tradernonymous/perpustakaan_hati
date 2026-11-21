@@ -39,9 +39,9 @@ describe("astryx brand bridge", () => {
     expect(bridge).toMatch(/--color-success:\s*var\(--green-700\)/);
   });
 
-  it("keeps the brand type faces", () => {
-    expect(bridge).toMatch(/--font-family-heading:\s*"Fraunces",\s*Georgia,\s*serif/);
-    expect(bridge).toMatch(/--font-family-body:\s*"Inter",\s*system-ui,\s*sans-serif/);
+  it("inherits the active brand typography", () => {
+    expect(bridge).toMatch(/--font-family-heading:\s*var\(--font-display\)/);
+    expect(bridge).toMatch(/--font-family-body:\s*var\(--font-body\)/);
   });
 
   it("keeps status errors on the burgundy already in the system", () => {

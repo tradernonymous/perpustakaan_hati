@@ -19,13 +19,10 @@ describe("premium interactive experience", () => {
     expect(html).toContain("Buka muka surat seterusnya");
   });
 
-  it("hero composes book, progress and educational chapters", () => {
+  it("puts the two edition links in the introduction", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-book-3d");
-    expect(html).toContain("ph-progress");
-    expect(html).toContain("Kad Refleksi");
-    expect(html).toContain("7 Hari Reset");
-    expect(html).toContain("Baca 60 saat sehari");
+    expect(html).toContain("Mulakan percuma");
+    expect(html).toContain("Lihat koleksi");
   });
 
   it("deck uses a coverflow with the active edition raised and readable", () => {
@@ -69,14 +66,14 @@ describe("premium interactive experience", () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
-  it("hero embeds the light beam layer behind the book", () => {
+  it("keeps the compact introduction free of the light layer", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-hero-fx");
+    expect(html).toContain("ph-day-stage");
+    expect(html).not.toMatch(/hero-book|ph-book-plinth|HeroBeam/);
   });
 
-  it("hero is mobile-first: stacked actions and scaled book on small screens", () => {
+  it("stacks compact hero actions on phones", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("min-h-cta-mobile");
-    expect(html).toContain("grid");
+    expect(html).toMatch(/flex-col[^"]*sm:flex-row/);
   });
 });

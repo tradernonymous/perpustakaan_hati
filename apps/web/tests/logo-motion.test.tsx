@@ -38,20 +38,17 @@ describe("animated logo files (build-animated-logos.py)", () => {
 });
 
 describe("animated logos on the site", () => {
-  it("hero typesets the wordmark on the daylight stage, keeping the 3D lockup for covers", () => {
+  it("sets the compact headline on the daylight stage", () => {
     const html = renderToStaticMarkup(<Hero />);
     expect(html).toContain("ph-day-stage");
-    expect(html).toContain("ph-hero");
-    expect(html).not.toContain("lockup-hero.svg");
+    expect(html).toContain("Bacaan kecil.");
+    expect(html).not.toContain("ph-logo-lockup");
   });
-  it("header mark and the 3D book use the animated emblem", () => {
+  it("the header animates the emblem and the 3D book uses the exported cover", () => {
     expect(renderToStaticMarkup(<BrandMark />)).toContain("/brand/animated/emblem-book-heart.svg");
-    expect(renderToStaticMarkup(<HeroBook />)).toContain("/brand/animated/emblem-book-heart.svg");
+    expect(renderToStaticMarkup(<HeroBook />)).toContain("/ebooks/cover-poket.png");
   });
   it("seals are animated, 3D coins, and at least the 96px brand minimum", () => {
-    const book = renderToStaticMarkup(<HeroBook />);
-    expect(book).toContain("/brand/animated/seal-edisi-poket.svg");
-    expect(book).toMatch(/ph-book-seal[^>]*width="96"|width="96"[^>]*ph-book-seal/);
     const cover = renderToStaticMarkup(<ProductCover name="Teman Hidup" src={null} seal="/brand/animated/seal-teman-hidup.svg" />);
     expect(cover).toContain("ph-coin");
     expect(cover).toContain("h-24 w-24");
@@ -83,10 +80,10 @@ describe("website_sam ports", () => {
   it("glyphs carry a parallax depth each", () => {
     expect(renderToStaticMarkup(<HeroGlyphs />).match(/--depth:/g)?.length).toBeGreaterThanOrEqual(6);
   });
-  it("homepage wires stats, ticker, cursor spotlight cards, ink-in titles and page-in chapters", () => {
+  it("homepage drops stats and ticker but keeps spotlight cards, ink-in titles and page-in chapters", () => {
     const html = renderToStaticMarkup(<Home />);
-    expect(html).toContain("ph-stats");
-    expect(html).toContain("ph-ticker");
+    expect(html).not.toContain("ph-stats");
+    expect(html).not.toContain("ph-ticker");
     expect(html).toContain("ph-lux");
     expect(html).toContain("ph-ink-in");
     expect(html).toContain("ph-page-in");

@@ -45,9 +45,9 @@
   --color-error-muted: color-mix(in srgb, var(--burgundy) 12%, var(--cream));
   --color-on-error: var(--cream);
 
-  /* type — Fraunces display, Inter UI, exactly as the system sets them */
-  --font-family-heading: "Fraunces", Georgia, serif;
-  --font-family-body: "Inter", system-ui, sans-serif;
+  /* Inherit the active brand typography scope. */
+  --font-family-heading: var(--font-display);
+  --font-family-body: var(--font-body);
 
   /* shape */
   --radius-element: 8px;

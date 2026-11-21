@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import "./globals.css";
 import { siteUrl } from "@/src/site";
 import { CommandPalette } from "@/components/CommandPalette";
+import { BackToTop } from "@/components/BackToTop";
 
 const title = "Perpustakaan Hati | Karya untuk jiwa yang pernah terluka";
 const description =
@@ -43,9 +44,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await headers();
   return (
     <html lang="ms">
-      <body className="ph-nightlight ph-void">
+      <body className="ph-nightlight ph-void ph-storefront">
         {children}
         <CommandPalette />
+        <BackToTop />
       </body>
     </html>
   );
