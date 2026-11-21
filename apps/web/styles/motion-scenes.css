@@ -1,0 +1,30 @@
+/* Scene flow: each home section's heading rises as it scrolls into view.
+   Scroll-linked, so it needs no JavaScript. Without animation-timeline
+   support, or with reduced motion, headings render in their final state. */
+
+@keyframes ph-scene-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .ph-section-warm > div:first-child {
+      animation: ph-scene-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+
+    .ph-closing-title {
+      animation: ph-scene-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 50%;
+    }
+  }
+}
