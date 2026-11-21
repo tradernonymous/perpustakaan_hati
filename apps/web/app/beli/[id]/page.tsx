@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CheckoutForm } from "@/components/CheckoutForm";
+import { HeroBook } from "@/components/HeroBook";
 import { PageShell } from "@/components/PageShell";
 import { ProductCover } from "@/components/ProductCover";
 import { bumpPriceSen, isProductId, PRODUCTS, priceSen } from "@/src/catalog";
@@ -24,7 +25,16 @@ export default async function Beli({ params }: { params: Promise<{ id: string }>
         </Link>
       </div>
       <div className="mx-auto mb-5 max-w-reading md:mb-8">
-        <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} tier={tier.id} className="mx-auto max-w-[120px] md:max-w-[220px]" />
+        {tier.cover ? (
+          <HeroBook
+            name={tier.name}
+            cover={tier.cover}
+            seal={`/brand/animated/seal-edisi-${id}.svg`}
+            pages={tier.includes.slice(0, 3).map((text, i) => ({ title: `Petikan ${i + 1}`, text }))}
+          />
+        ) : (
+          <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} tier={tier.id} className="mx-auto max-w-[120px] md:max-w-[220px]" />
+        )}
       </div>
       <CheckoutForm
         product={id}
