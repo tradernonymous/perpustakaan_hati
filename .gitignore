@@ -268,3 +268,6 @@ packages/brand-tools/fonts/source/
 # ---------------------------------------------------------------------------
 /docs/brand/illustrations/
 /videos/
+
+# Paid ebook files. This repo is public, so these must never be committed.
+/apps/web/private/
