@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perpustakaan Hati — specimen asas (Design System 3.9)</title>
+<link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../../../apps/web/styles/fonts.css">
+<style>
+  /* Specimen-only layout. Every colour, radius, space and duration comes
+     from design-tokens.css — no raw colour values in this file. */
+  body {
+    margin: 0;
+    background: var(--surface-base);
+    color: var(--text-primary);
+    font-family: var(--font-body, system-ui, sans-serif);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 20px 96px; }
+  h1 { font-size: 32px; line-height: 1.15; margin: 0 0 8px; }
+  h2 {
+    font-size: 20px; margin: 48px 0 4px; padding-top: 16px;
+    border-top: 1px solid var(--border-default);
+  }
+  h3 { font-size: 15px; margin: 24px 0 8px; color: var(--text-healing); }
+  p.lede { color: var(--text-muted); margin: 0 0 24px; max-width: 62ch; }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .note { color: var(--text-muted); font-size: 14px; }
+  .book-demo { display: grid; grid-template-columns: minmax(100px, 160px) minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+  .book-demo img { display: block; width: 100%; height: auto; border-radius: var(--radius-sm); }
+  .book-demo .reading { font-family: var(--font-reading); }
+
+  /* ---- buttons ---- */
+  .btn {
+    min-height: 44px; padding: 10px 20px; border-radius: var(--radius-md);
+    font: inherit; font-weight: 600; cursor: pointer; display: inline-flex;
+    align-items: center; gap: 8px; text-decoration: none;
+    transition: transform var(--motion-feedback-dur) var(--motion-feedback-ease),
+                opacity var(--motion-feedback-dur) var(--motion-feedback-ease);
+  }
+  .btn:focus-visible { outline: 2px solid var(--focus-color); outline-offset: var(--focus-offset-wide); }
+  .btn-primary { background: var(--action-primary-bg); color: var(--action-primary-fg); border: 0; }
+  .btn-secondary { background: transparent; color: var(--action-secondary-fg); border: 1px solid var(--action-secondary-border); }
+  .btn-quiet { background: var(--surface-soft); color: var(--text-primary); border: 1px solid var(--border-default); }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: var(--state-disabled-opacity); cursor: not-allowed; }
+  .btn-loading { position: relative; }
+  .btn-loading::after {
+    content: ""; width: 14px; height: 14px; border-radius: var(--radius-pill);
+    border: 2px solid currentColor; border-top-color: transparent;
+    animation: specimen-spin var(--motion-entrance-dur) linear infinite;
+  }
+  @keyframes specimen-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .btn-loading::after { animation: none; border-top-color: currentColor; opacity: var(--state-disabled-opacity); }
+    .btn { transition: none; }
+  }
+
+  /* ---- forms ---- */
+  label { display: block; font-size: 14px; margin-bottom: 6px; color: var(--text-primary); }
+  input, textarea, select {
+    width: 100%; min-height: 44px; padding: 10px 12px; font: inherit;
+    background: var(--surface-soft); color: var(--text-primary);
+    border: 1px solid var(--border-default); border-radius: var(--radius-md);
+    transition: border-color var(--motion-feedback-dur) var(--motion-feedback-ease);
+  }
+  textarea { min-height: 88px; }
+  input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1; }
+  input:focus-visible, textarea:focus-visible, select:focus-visible {
+    outline: 2px solid var(--focus-color); outline-offset: var(--focus-offset);
+    border-color: var(--focus-color);
+  }
+  .field { margin-bottom: 16px; max-width: 420px; }
+  .helper { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+  .error input, input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--text-danger); }
+  .error .helper { color: var(--text-danger); }
+  .success input { border-color: var(--text-healing); }
+  .success .helper { color: var(--text-healing); }
+
+  /* ---- navigation ---- */
+  .spec-nav {
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+    background: var(--surface-raised); border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg); padding: 12px 16px;
+  }
+  .spec-nav a {
+    color: var(--text-primary); text-decoration: none; min-height: 44px;
+    display: inline-flex; align-items: center; padding: 0 4px;
+    border-bottom: 2px solid transparent;
+  }
+  .spec-nav a:hover { color: var(--text-accent); }
+  .spec-nav a[aria-current="page"] { color: var(--text-healing); border-bottom-color: var(--text-healing); }
+  .spec-nav a:focus-visible { outline: 2px solid var(--focus-color); outline-offset: var(--focus-offset); }
+  .spec-nav .nav-spacer { flex: 1; }
+
+  /* ---- cards ---- */
+  .card {
+    background: var(--card-v3-bg); border: 1px solid var(--card-v3-border);
+    border-radius: var(--radius-lg); padding: 20px; color: var(--text-primary);
+    box-shadow: var(--card-v3-shadow);
+  }
+  .card h4 { margin: 0 0 8px; font-size: 17px; }
+  .card p { margin: 0; color: var(--text-muted); font-size: 14px; }
+
+  /* ---- dialogs ---- */
+  .dialog {
+    background: var(--surface-raised); border: 1px solid var(--border-gilt);
+    border-radius: var(--radius-lg); padding: 24px; max-width: 460px;
+    box-shadow: var(--elevation-4);
+  }
+  .dialog h4 { margin: 0 0 8px; font-size: 18px; }
+  .dialog p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; }
+  .dialog-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+
+  /* ---- status blocks ---- */
+  .status {
+    border: 1px solid var(--border-default); border-left-width: 4px;
+    border-radius: var(--radius-md); padding: 14px 16px; background: var(--surface-raised);
+  }
+  .status strong { display: block; margin-bottom: 4px; font-size: 14px; }
+  .status p { margin: 0; font-size: 14px; color: var(--text-muted); }
+  .status-loading { border-left-color: var(--text-accent); }
+  .status-empty { border-left-color: var(--border-default); }
+  .status-success { border-left-color: var(--text-healing); }
+  .status-error { border-left-color: var(--text-danger); }
+  .status-error strong { color: var(--text-danger); }
+  .skeleton {
+    height: 14px; border-radius: var(--radius-pill);
+    background: linear-gradient(90deg, var(--surface-soft), var(--surface-raised), var(--surface-soft));
+    background-size: 200% 100%;
+    animation: specimen-sweep var(--motion-scene-dur) linear infinite;
+  }
+  .skeleton + .skeleton { margin-top: 10px; }
+  .skeleton.w60 { width: 60%; }
+  .skeleton.w40 { width: 40%; }
+  @keyframes specimen-sweep { to { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton { animation: none; }
+  }
+
+  /* ---- tier specimens (scoped — these classes never touch :root) ---- */
+  .tier-specimen {
+    border: 1px solid var(--border-default); border-radius: var(--radius-lg);
+    overflow: hidden; display: grid; grid-template-columns: 1fr; gap: 0;
+  }
+  .tier-page { padding: 28px 24px; min-height: 260px; }
+  .tier-page .tier-eyebrow {
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .tier-page h4 { font-size: 24px; line-height: 1.2; margin: 0 0 12px; }
+  .tier-page p { font-size: 15px; margin: 0 0 16px; }
+  .tier-rule { height: 2px; width: 72px; margin: 0 0 18px; }
+  .tier-field {
+    border-radius: var(--radius-md); padding: 14px 16px; font-size: 14px;
+    min-height: 84px;
+  }
+  .tier-label {
+    padding: 10px 16px; font-size: 13px; display: flex; justify-content: space-between;
+    gap: 8px; flex-wrap: wrap; background: var(--surface-raised); color: var(--text-muted);
+    border-top: 1px solid var(--border-default);
+  }
+  .tier-label b { color: var(--text-primary); font-weight: 600; }
+
+  .ph-ebook-poket .tier-page {
+    background: radial-gradient(ellipse at 48% 34%, var(--ebook-poket-wash), var(--ebook-poket-page) 80%); color: var(--ebook-poket-ink);
+  }
+  .ph-ebook-poket .tier-page h4, .ph-ebook-poket .tier-page .tier-eyebrow { color: var(--ebook-poket-heading); }
+  .ph-ebook-poket .tier-rule { background: var(--ebook-poket-ornament); }
+  .ph-ebook-poket .tier-field { background: var(--ebook-poket-field); color: var(--ebook-poket-field-ink); }
+
+  .ph-ebook-membangun .tier-page {
+    background: radial-gradient(ellipse at 48% 34%, var(--ebook-membangun-wash), var(--ebook-membangun-page) 80%); color: var(--ebook-membangun-ink);
+  }
+  .ph-ebook-membangun .tier-page h4, .ph-ebook-membangun .tier-page .tier-eyebrow { color: var(--ebook-membangun-heading); }
+  .ph-ebook-membangun .tier-rule { background: var(--ebook-membangun-ornament); }
+  .ph-ebook-membangun .tier-field { background: var(--ebook-membangun-field); color: var(--ebook-membangun-field-ink); }
+
+  .ph-ebook-teman-hidup .tier-page {
+    background: radial-gradient(ellipse at 48% 34%, var(--ebook-teman-hidup-wash), var(--ebook-teman-hidup-page) 80%); color: var(--ebook-teman-hidup-ink);
+  }
+  .ph-ebook-teman-hidup .tier-page h4, .ph-ebook-teman-hidup .tier-page .tier-eyebrow { color: var(--ebook-teman-hidup-heading); }
+  .ph-ebook-teman-hidup .tier-rule { background: var(--ebook-teman-hidup-ornament); }
+  .ph-ebook-teman-hidup .tier-field { background: var(--ebook-teman-hidup-field); color: var(--ebook-teman-hidup-field-ink); }
+</style>
+</head>
+<body class="ph-nightlight ph-void ph-storefront">
+<main>
+  <h1 class="ph-title">Specimen asas — Design System 3.9</h1>
+  <p class="lede">Helaian semakan untuk tapak kaji selidik dan kedai. Semua warna,
+    jarak dan gerakan diambil daripada <code>design-tokens.css</code>. Tiada nilai
+    warna mentah dalam fail ini.</p>
+
+  <section data-specimen="book-depth">
+    <h2>Tipografi dan kulit buku 3D</h2>
+    <p class="ph-title ph-display-hero">Ruang untuk pulih.</p>
+    <div class="book-demo" data-tier="poket">
+      <div class="ph-book-stage">
+        <div class="ph-book-object">
+          <img src="../preview/cover-poket.png" alt="Kulit Edisi Poket">
+        </div>
+      </div>
+      <div>
+        <p>Instrument Serif untuk tajuk. Geist Sans untuk teks antara muka.</p>
+        <p class="reading">Source Serif 4 untuk bacaan panjang. Ambil masa untuk membaca sehalaman demi sehalaman.</p>
+        <p class="note">Halakan penuding pada kulit untuk melihat kesan angkat dan condong.</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-specimen="buttons">
+    <h2>Butang</h2>
+    <div class="row">
+      <button class="btn btn-primary" type="button">Mulakan Edisi Poket</button>
+      <button class="btn btn-secondary" type="button">Lihat edisi</button>
+      <button class="btn btn-quiet" type="button">Simpan draf</button>
+      <button class="btn btn-primary" type="button" disabled>Permintaan</button>
+      <button class="btn btn-primary btn-loading" type="button" aria-busy="true">Menghantar…</button>
+    </div>
+    <p class="note">Keadaan: biasa, sekunder, tenang, dilumpuhkan, memuat. Sasaran sentuh
+      minimum 44px. Fokus kelihatan pada <code>:focus-visible</code>.</p>
+  </section>
+
+  <section data-specimen="forms">
+    <h2>Borang</h2>
+    <div class="grid">
+      <div class="field">
+        <label for="sp-email">E-mel</label>
+        <input id="sp-email" type="email" placeholder="nama@contoh.my" autocomplete="email">
+        <p class="helper">Kami hantar pautan muat turun, tiada spam.</p>
+      </div>
+      <div class="field error">
+        <label for="sp-phone">Nombor telefon</label>
+        <input id="sp-phone" type="tel" aria-invalid="true" aria-describedby="sp-phone-err" value="012">
+        <p class="helper" id="sp-phone-err">Masukkan nombor Malaysia 10 digit, contoh 0123456789.</p>
+      </div>
+      <div class="field success">
+        <label for="sp-code">Kod baucar</label>
+        <input id="sp-code" type="text" aria-describedby="sp-code-ok" value="HATI15">
+        <p class="helper" id="sp-code-ok">Kod sah — potongan RM15.</p>
+      </div>
+    </div>
+  </section>
+
+  <section data-specimen="navigation">
+    <h2>Navigasi</h2>
+    <nav class="spec-nav" aria-label="Specimen navigasi">
+      <a href="#edisi" aria-current="page">Edisi</a>
+      <a href="#cara">Cara ia berfungsi</a>
+      <a href="#soalan">Soalan</a>
+      <span class="nav-spacer"></span>
+      <a href="#pustaka">Pustaka saya</a>
+    </nav>
+    <p class="note">Pautan memegang ketinggian 44px, status aktif dibezakan dengan
+      warna <em>dan</em> garis bawah, bukan warna sahaja.</p>
+  </section>
+
+  <section data-specimen="cards">
+    <h2>Kad</h2>
+    <div class="grid">
+      <article class="card">
+        <h4>Edisi Poket</h4>
+        <p>Pendamping bacaan ringkas — bab pendek, satu idea satu halaman.</p>
+      </article>
+      <article class="card">
+        <h4>Edisi Membangun</h4>
+        <p>Buku kerja editorial dengan latihan berstruktur dan ruang menulis.</p>
+      </article>
+      <article class="card">
+        <h4>Teman Hidup</h4>
+        <p>Edisi pengumpul dengan tipografi lapang dan detail emas terkawal.</p>
+      </article>
+    </div>
+  </section>
+
+  <section data-specimen="dialogs">
+    <h2>Dialog</h2>
+    <div class="dialog" role="dialog" aria-modal="false" aria-labelledby="sp-dialog-title">
+      <h4 id="sp-dialog-title">Sahkan penerbitan?</h4>
+      <p>Item ini akan menjadi awam pada kedai. Draf peribadi dan nota dalaman tidak
+        akan disertakan.</p>
+      <div class="dialog-actions">
+        <button class="btn btn-quiet" type="button">Batal</button>
+        <button class="btn btn-primary" type="button">Terbitkan</button>
+      </div>
+    </div>
+  </section>
+
+  <section data-specimen="states-loading">
+    <h2>Keadaan: memuat</h2>
+    <div class="status status-loading">
+      <strong>Menyegerakkan katalog…</strong>
+      <div class="skeleton w60"></div>
+      <div class="skeleton w40"></div>
+      <p>Jangan tunjukkan keadaan kosong semasa data belum sampai.</p>
+    </div>
+  </section>
+
+  <section data-specimen="states-empty">
+    <h2>Keadaan: kosong</h2>
+    <div class="status status-empty">
+      <strong>Belum ada item dalam senarai ini.</strong>
+      <p>Cipta draf pertama, atau tapis mengikut edisi lain.</p>
+    </div>
+  </section>
+
+  <section data-specimen="states-success">
+    <h2>Keadaan: berjaya</h2>
+    <div class="status status-success">
+      <strong>Penerbitan berjaya.</strong>
+      <p>Revisi 12 kini disahkan dan dipaparkan di kedai. Versi sebelumnya kekal
+        tersimpan untuk pemulihan.</p>
+    </div>
+  </section>
+
+  <section data-specimen="states-error">
+    <h2>Keadaan: ralat</h2>
+    <div class="status status-error">
+      <strong>Penerbitan gagal — versi awam terakhir dikekalkan.</strong>
+      <p>Semak medan yang bertanda merah, kemudian cuba semula. Tiada data hilang.</p>
+    </div>
+  </section>
+
+  <h2>Spesimen tiga edisi</h2>
+  <p class="lede">Setiap edisi hidup dalam skopnya sendiri. Kelas <code>.ph-ebook-…</code>
+    hanya diletak pada akar halaman edisi itu.</p>
+
+  <div class="grid">
+    <section class="tier-specimen ph-ebook-poket" data-specimen="tier-poket">
+      <div class="tier-page">
+        <p class="tier-eyebrow">Edisi Poket</p>
+        <div class="tier-rule"></div>
+        <h4>Ruang untuk berhenti sejenak</h4>
+        <p>Bacaan ringkas, ceklis dan ruang menulis pada latar hijau.</p>
+        <div class="tier-field">Kad refleksi: Apa yang anda perlu lepaskan hari ini?</div>
+      </div>
+      <div class="tier-label"><b>Hijau + emas</b><span>pendamping bacaan intim</span></div>
+    </section>
+
+    <section class="tier-specimen ph-ebook-membangun" data-specimen="tier-membangun">
+      <div class="tier-page">
+        <p class="tier-eyebrow">Edisi Membangun</p>
+        <div class="tier-rule"></div>
+        <h4>Bina semula, satu latihan satu langkah</h4>
+        <p>Halaman putih editorial dengan latihan berstruktur dan ruang menulis
+          yang lapang.</p>
+        <div class="tier-field">Ruang menulis: Tiga langkah pertama minggu ini…</div>
+      </div>
+      <div class="tier-label"><b>Putih utama</b><span>buku kerja editorial</span></div>
+    </section>
+
+    <section class="tier-specimen ph-ebook-teman-hidup" data-specimen="tier-teman-hidup">
+      <div class="tier-page">
+        <p class="tier-eyebrow">Teman Hidup</p>
+        <div class="tier-rule"></div>
+        <h4>Pendamping sepanjang perjalanan</h4>
+        <p>Halaman hitam, tipografi lapang dan detail emas terkawal — edisi
+          pengumpul yang perlahan dibaca.</p>
+        <div class="tier-field">Catatan peribadi: Simpan yang ini untuk bila-bila masa anda perlu.</div>
+      </div>
+      <div class="tier-label"><b>Hitam utama</b><span>edisi pengumpul premium</span></div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

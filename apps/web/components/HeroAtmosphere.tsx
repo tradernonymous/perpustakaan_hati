@@ -33,6 +33,7 @@ export function HeroAtmosphere() {
           <i />
           <i />
         </div>
+        <div className={styles.leaves} />
       </div>
       <button
         type="button"

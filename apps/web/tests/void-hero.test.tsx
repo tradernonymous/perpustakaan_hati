@@ -28,7 +28,7 @@ function keyframes(name: string): string {
 
 describe("3.8 void ground", () => {
   it("puts the void layer on the body next to nightlight, with a black themeColor", () => {
-    expect(layout).toContain('className="ph-nightlight ph-void"');
+    expect(layout).toContain('className="ph-nightlight ph-void ph-storefront"');
     expect(layout).toContain('themeColor: "#030604"');
   });
   it("defines a near-black scope that re-points the surface roles", () => {

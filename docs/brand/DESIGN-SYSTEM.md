@@ -1,8 +1,33 @@
-# Design System 3.8 "Void Grove" (builds on 3.7 "Dark Grove" and 3.6 "Precise Grove")
+# Design System 3.9 "Void Grove"
 
-**Status: current version as of 2026-11-18.** The storefront ground goes one step darker, like raycast.com: a near-black with a trace of green. Same palette, same fonts, same assets. Version token: `--ph-system-version: '3.8.0'` in `design-tokens.css`.
+**Current storefront release, 2026-11-21.** Version token `--ph-system-version: '3.9.0'` in `design-tokens.css`.
 
-## Void Grove (3.8)
+| Role | Recipe |
+|---|---|
+| Display | Instrument Serif regular for headlines and italic for editorial emphasis. The hero uses a 46–96px fluid scale, 0.96 leading, and −0.015em tracking. |
+| Interface | Variable Geist Sans for navigation, labels, controls, and body copy. |
+| Reading and publishing | Source Serif 4 for reading text. The publishing templates use their established Fraunces and Inter roles for covers and labels. |
+| Dimensional covers | `.ph-book-stage` sets perspective and reserves space for the edges. Its `.ph-book-object` child uses a right paper edge, a bottom edge, a tier-tinted bevel, and a cast shadow. Hover on a fine pointer tilts and lifts the cover. |
+| Hero and reader | The hero layers light above a projected spread of ruled pages. Its atmosphere pauses offscreen and has a visible pause control on wider screens. The reader uses the shared perspective and page-stack shadow with a page-turn entrance. |
+| Interaction | Use the feedback duration for disclosure and the entrance duration for turning and lifting. Touch shows the resting book pose. Reduced motion shows flat covers and disables the hero, hover, and reader transitions. |
+
+The 3D reference is the local Ezymap design system, particularly its perspective staging and beveled objects. Void Grove applies those ideas to paper, binding, and gilt instead of using trading imagery.
+
+Visit the [live design system](https://perpustakaanhati.biz/design-system) to try the storefront components. Open [the foundations specimen](specimens/foundations.html) to review the current type, cover depth, motion, and component states. [Instrument Serif](https://github.com/Instrument/instrument-serif) and [Geist](https://github.com/vercel/geist-font) are self-hosted under `apps/web/public/fonts/` with their SIL Open Font License notices. The legacy static brand board is [archived here](preview/design-system-3-1.png).
+
+## Shared foundations layer (added 2026-11-19, still 3.8)
+
+The shared foundations provide ebook palettes, motion roles, and a specimen sheet.
+
+| Piece | Token / class | Why |
+|---|---|---|
+| Scoped ebook-tier tokens | `.ph-ebook-poket`, `.ph-ebook-membangun`, `.ph-ebook-teman-hidup` → `--ebook-<tier>-{page,ink,heading,rule,ornament,field,field-ink,wash}` | Each edition gets its own page ground and ink. Declared **only** inside the scoped class, never in `:root`, so a white Edisi Membangun PDF cannot turn the storefront white. The renderer opts in by putting the class on its page root. |
+| Motion roles | `--motion-feedback-dur/ease`, `--motion-entrance-dur/ease`, `--motion-scene-dur/ease`, `--motion-reduced-dur` | A component names the role it plays (feedback / entrance / scene) instead of picking a curve. Values reference `--dur-*`/`--ease-*`, and the `prefers-reduced-motion` block zeroes the durations explicitly. |
+| Specimen sheet | `docs/brand/specimens/foundations.html` | Review sheet: buttons, forms, navigation, cards, dialogs, loading/empty/success/error states and the three tier specimens. Uses `design-tokens.css` only — the test suite fails the sheet if a raw hex colour appears. |
+
+Pinned by `packages/brand-tools/tests/test_phase1_foundations.py`: token presence, scoping (not in `:root`), reduced-motion zeroing, byte-identical CSS copies, `design-tokens.json` ↔ CSS version and value sync, WCAG contrast on the new tier pairs (text ≥4.5:1, graphics ≥3:1), and the specimen sections.
+
+## Earlier: Design System 3.8 "Void Grove"
 
 | Piece | Token / class | Why |
 |---|---|---|
@@ -16,7 +41,7 @@
 
 ## Earlier: Dark Grove (3.7), built on Design System 3.6 "Precise Grove"
 
-**Status: current version as of 2026-11-18.** The storefront and the research admin now live on the dark forest-night stage by default (`<body class="ph-nightlight">`). Ivory (`.ph-daylight`) stays for PDFs, print and the eBook pages. Layout reference: raycast.com (near-black ground, hairline borders, one soft glow behind the hero, big tight display type, bento cards, one bright call to action per screen). The palette is unchanged: green leads, gold carries the luxury detail.
+Introduced the dark forest-night stage for the storefront and the research admin (`<body class="ph-nightlight">`). Ivory (`.ph-daylight`) is used for print and light eBook templates. Green leads the palette and gold carries the detail.
 Version token: `--ph-system-version: '3.7.0'` in `design-tokens.css`.
 
 ## Dark Grove (3.7)

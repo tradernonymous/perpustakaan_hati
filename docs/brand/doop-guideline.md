@@ -1,10 +1,10 @@
-# Perpustakaan Hati — Design System 3.6 "Precise Grove"
+# Perpustakaan Hati — Design System 3.9 "Void Grove"
 
 Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "Karya untuk jiwa yang pernah terluka".
 Mood: a sunlit reading room with a lantern still lit in the corner. Editorial, foil-stamped, calm. **GREEN LEADS.**
 Colour share per frame: **green 55 / gold 30 / cream + ruby 15** on light surfaces; green 50 / gold 40 / ruby + cream 10 on the dark stage (covers, seals, posters). Never invent a new colour. Never use neutral black as a ground outside the AJE branch.
 
-**Surface rule (3.2).** The storefront runs on warm ivory (`--daylight`), alternating with sage (`--sage`). The cinematic forest stage is now reserved for objects: book covers, seals, posters and the 3D book. On light, gold is *detail* (`--gold-ink` for text, `--gold-ink-soft` for hairlines); green carries headings and CTAs. Never put `--gold-light` text on ivory. When a design needs the wordmark on light, typeset it — gilt small caps above a deep-green Fraunces word — instead of using the dark lockup SVG.
+**Surface rule.** Use the near-black green `--ph-void` ground for storefront frames. Place covers and seals on a forest stage with gilt details. For light publishing frames, use `--gold-ink` for gold text and `--gold-ink-soft` for hairlines.
 Charts (locked): `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-light, `--chart-4` lantern, `--chart-5` mint-glass. Pair with label/shape. Teman Hati companion surface uses `--companion-*`, `.ph-glass`, `.ph-tilt`.
 
 **Refinement rules (3.6 "Precise Grove").** The look does not change; the details get exact.
@@ -17,7 +17,9 @@ Charts (locked): `--chart-1` green-500, `--chart-2` gold, `--chart-3` burgundy-l
 - For a poster frame there is no focus or selection, so none of the above changes a still design.
 
 ## Fonts
-Use Fraunces for display, Inter for UI and labels, and Source Serif 4 for long reading. Shipped templates load the self-hosted files in `packages/brand-tools/fonts/`; never add Google Fonts runtime links. In Doop, use these family names with `Georgia`/`system-ui` fallbacks when local font files are unavailable.
+Storefront frames use Instrument Serif for display, Geist Sans for interface copy, and Source Serif 4 for long reading. The web fonts ship in `apps/web/public/fonts/`. The publishing recipes below use Fraunces for display and Inter for labels.
+
+For a storefront cover mockup, use a visible paper edge, a foil bevel tied to the edition, and a grounded shadow. For motion previews, use a brief lift on hover and keep a flat frame for reduced motion.
 
 Weights per role: display caps 560, hero word 660, titles 520, italic script 400, Inter labels 600, bylines 500. Never use 800/900. Fraunces = display, Source Serif 4 = long reading, Inter = UI and labels.
 

@@ -238,7 +238,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.8.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.9.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -417,6 +417,20 @@
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);        /* hover, press, state change */
   --ease-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1); /* arriving: enter, reveal */
   --ease-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15); /* leaving: exit, dismiss */
+
+  /* 3.9 shared-foundations motion ROLES. A component names the role it
+     plays (feedback / entrance / scene) and inherits duration + curve.
+     Values reference the --dur-* and --ease-* scales, so the
+     prefers-reduced-motion block below zeroes them automatically.
+     --motion-reduced-dur is the explicit no-motion duration for code
+     that cannot read a media query (canvas, JS timelines). */
+  --motion-feedback-dur: var(--dur-fast);              /* 140ms — press, hover, toast */
+  --motion-feedback-ease: var(--ease-standard);
+  --motion-entrance-dur: var(--dur-base);             /* 240ms — reveal, first paint */
+  --motion-entrance-ease: var(--ease-decelerate);
+  --motion-scene-dur: var(--dur-slow);                /* 400ms — section / scene change */
+  --motion-scene-ease: var(--ease-standard);
+  --motion-reduced-dur: 0ms;
 
   /* =====================================================================
      3.1 "Warmer Grove" extension — three-layer discipline, charts locked,
@@ -611,6 +625,67 @@
     0 1px 1px rgb(0 0 0 / 0.5),
     0 18px 40px -8px rgb(0 0 0 / 0.6);
 }
+  /* =====================================================================
+     SCOPED EBOOK-TIER TOKENS — shared-foundations layer (2026-11-19)
+
+     Seven roles per tier for the *page* of each edition:
+
+       --ebook-<t>-page       page ground
+       --ebook-<t>-ink        body text on that ground
+       --ebook-<t>-heading    chapter / section headings
+       --ebook-<t>-rule       hairlines and paragraph rules
+       --ebook-<t>-ornament   restrained decoration (foil-like detail)
+       --ebook-<t>-field      reflection / writing field ground
+       --ebook-<t>-field-ink  text inside the writing field
+
+     Every value is declared inside a scoped class (.ph-ebook-<t>), never
+     in :root, so a white Edisi Membangun PDF cannot turn the storefront
+     white. The renderer (packages/ebook-builder) opts in by putting the
+     class on its page root; the website does not.
+
+     Edition identities (locked by the upgrade brief):
+       Edisi Poket      cream page, green ink, gold detail — intimate
+       Edisi Membangun  white page, black ink, green + gold support — workbook
+       Teman Hidup      black page, cream ink, gold detail — premium
+
+     Measured with packages/brand-tools/check-contrast.py:
+       ink / heading / field-ink on page: >= 4.5:1 for all three tiers
+       rule / ornament on page:            >= 3:1 (WCAG 1.4.11 graphics)
+     ===================================================================== */
+
+  .ph-ebook-poket {
+    --ebook-poket-page: #fdfee6;        /* cream */
+    --ebook-poket-ink: #12251b;         /* green-black — 15.66:1 */
+    --ebook-poket-heading: #1d5a3d;     /* green-800 — 7.86:1 */
+    --ebook-poket-rule: #2d7954;        /* green-700 — 5.16:1 */
+    --ebook-poket-ornament: #a07b45;    /* gold-deep — 3.81:1 */
+    --ebook-poket-field: #e4f4e9;       /* green tint */
+    --ebook-poket-field-ink: #12251b;   /* 14.10:1 on field */
+    --ebook-poket-wash: var(--ebook-poket-page);
+  }
+
+  .ph-ebook-membangun {
+    --ebook-membangun-page: #ffffff;    /* white — the workbook page */
+    --ebook-membangun-ink: #0a0a0c;     /* near-black — 19.60:1 */
+    --ebook-membangun-heading: #1d5a3d; /* green-800 — 8.12:1 */
+    --ebook-membangun-rule: #a07b45;    /* gold-deep — 3.90:1 */
+    --ebook-membangun-ornament: #2d7954;/* green-700 — 5.29:1 */
+    --ebook-membangun-field: #f7efdd;   /* warm paper */
+    --ebook-membangun-field-ink: #0a0a0c; /* 18.06:1 on field */
+    --ebook-membangun-wash: var(--ebook-membangun-page);
+  }
+
+  .ph-ebook-teman-hidup {
+    --ebook-teman-hidup-page: #0a0a0c;  /* black — the collector page */
+    --ebook-teman-hidup-ink: #e6e2da;   /* 15.34:1 */
+    --ebook-teman-hidup-heading: #fdfee6; /* cream — 18.3:1 */
+    --ebook-teman-hidup-rule: #c9a86a;  /* gold — 8.73:1 */
+    --ebook-teman-hidup-ornament: #e9cea2; /* gold-light — 13.6:1 */
+    --ebook-teman-hidup-field: #142c20; /* forest-soft */
+    --ebook-teman-hidup-field-ink: #fdfee6; /* 14.53:1 on field */
+    --ebook-teman-hidup-wash: var(--ebook-teman-hidup-page);
+  }
+
 
 /* =======================================================================
    DAYLIGHT GROVE — theme scope
@@ -777,6 +852,10 @@
     --dur-base: 0ms;
     --dur-slow: 0ms;
     --dur-glint: 0ms;
+    --motion-feedback-dur: 0ms;
+    --motion-entrance-dur: 0ms;
+    --motion-scene-dur: 0ms;
+    --motion-reduced-dur: 0ms;
   }
 }
 
@@ -2519,3 +2598,81 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .ph-palette-empty { margin: 0; padding: 1.2rem; color: var(--text-muted); text-align: center; }
 .ph-palette-foot { margin: 0; padding: 0.6rem 1rem; display: flex; gap: 0.4rem; align-items: center; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid rgb(157 225 193 / 0.1); }
 @media (max-width: 1023px) { .ph-kbd-hint { display: none; } }
+
+/* 3.9 storefront typography and book materials */
+.ph-storefront {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Geist Sans', system-ui, sans-serif;
+  --font-script: var(--font-display);
+  --weight-title: 400;
+  --type-hero-size: clamp(2.875rem, 7vw, 6rem);
+  --type-hero-leading: 0.96;
+  --type-hero-tracking: -0.015em;
+}
+.ph-storefront :is(.font-display, .ph-title) { font-synthesis-weight: none; }
+.ph-display-hero {
+  font-size: var(--type-hero-size);
+  line-height: var(--type-hero-leading);
+  letter-spacing: var(--type-hero-tracking);
+}
+
+:root {
+  --book-perspective: 960px;
+  --book-thickness: clamp(0.625rem, 1.5vw, 1.125rem);
+  --book-stack-shadow: 7px 15px 25px -9px rgb(0 0 0 / 0.72);
+  --book-paper-edge:
+    linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 40%, rgb(0 0 0 / 0.12)),
+    repeating-linear-gradient(90deg, var(--linen) 0 1px, var(--paper) 1px 3px);
+}
+.ph-book-stage {
+  --book-cover-bevel: color-mix(in srgb, var(--tier-rim, var(--gold-light)) 45%, transparent);
+  perspective: var(--book-perspective);
+  padding-inline: 4% 9%;
+  padding-block: 2% 5%;
+}
+.ph-book-object {
+  position: relative;
+  border-radius: var(--radius-sm);
+  transform: rotateX(6deg) rotateY(-18deg);
+  transform-style: preserve-3d;
+  box-shadow: var(--book-stack-shadow);
+}
+.ph-book-object::before,
+.ph-book-object::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid var(--book-cover-bevel);
+  background: var(--book-paper-edge);
+}
+.ph-book-object::before {
+  inset: 1px auto 1px 100%;
+  width: var(--book-thickness);
+  transform: rotateY(90deg);
+  transform-origin: left;
+}
+.ph-book-object::after {
+  inset: 100% 1px auto;
+  height: var(--book-thickness);
+  background:
+    linear-gradient(var(--linen), transparent 40%, rgb(0 0 0 / 0.25)),
+    repeating-linear-gradient(var(--linen) 0 1px, var(--paper) 1px 3px);
+  transform: rotateX(-90deg);
+  transform-origin: top;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .ph-book-object {
+    transition: transform var(--motion-entrance-dur) var(--motion-entrance-ease);
+  }
+  .ph-book-stage:hover .ph-book-object {
+    transform: translateY(-5px) rotateX(9deg) rotateY(-27deg);
+  }
+}
+@media (prefers-reduced-motion: reduce), (forced-colors: active), print {
+  .ph-book-object { transform: none; }
+  .ph-book-object::before, .ph-book-object::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-storefront .ph-cta:is(:hover, :active) { transform: none; }
+}

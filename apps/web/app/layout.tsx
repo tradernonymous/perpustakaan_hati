@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   await headers();
   return (
     <html lang="ms">
-      <body className="ph-nightlight ph-void">
+      <body className="ph-nightlight ph-void ph-storefront">
         {children}
         <CommandPalette />
       </body>
