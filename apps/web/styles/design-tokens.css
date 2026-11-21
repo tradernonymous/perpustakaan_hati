@@ -238,7 +238,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.8.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.9.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -654,33 +654,36 @@
      ===================================================================== */
 
   .ph-ebook-poket {
-    --ebook-poket-page: #fdfee6;        /* cream */
-    --ebook-poket-ink: #12251b;         /* green-black — 15.66:1 */
-    --ebook-poket-heading: #1d5a3d;     /* green-800 — 7.86:1 */
-    --ebook-poket-rule: #2d7954;        /* green-700 — 5.16:1 */
-    --ebook-poket-ornament: #a07b45;    /* gold-deep — 3.81:1 */
-    --ebook-poket-field: #e4f4e9;       /* green tint */
-    --ebook-poket-field-ink: #12251b;   /* 14.10:1 on field */
+    --ebook-poket-page: #09160f;
+    --ebook-poket-ink: #f4efdf;
+    --ebook-poket-heading: #fdfee6;
+    --ebook-poket-rule: #c9a86a;
+    --ebook-poket-ornament: #a7d3b6;
+    --ebook-poket-field: #173826;
+    --ebook-poket-field-ink: #f4efdf;
+    --ebook-poket-wash: #153421;
   }
 
   .ph-ebook-membangun {
-    --ebook-membangun-page: #ffffff;    /* white — the workbook page */
-    --ebook-membangun-ink: #0a0a0c;     /* near-black — 19.60:1 */
-    --ebook-membangun-heading: #1d5a3d; /* green-800 — 8.12:1 */
-    --ebook-membangun-rule: #a07b45;    /* gold-deep — 3.90:1 */
-    --ebook-membangun-ornament: #2d7954;/* green-700 — 5.29:1 */
-    --ebook-membangun-field: #f7efdd;   /* warm paper */
-    --ebook-membangun-field-ink: #0a0a0c; /* 18.06:1 on field */
+    --ebook-membangun-page: #ffffff;
+    --ebook-membangun-ink: #0a0a0c;
+    --ebook-membangun-heading: #1d5a3d;
+    --ebook-membangun-rule: #a07b45;
+    --ebook-membangun-ornament: #2d7954;
+    --ebook-membangun-field: #f7efdd;
+    --ebook-membangun-field-ink: #0a0a0c;
+    --ebook-membangun-wash: #ffffff;
   }
 
   .ph-ebook-teman-hidup {
-    --ebook-teman-hidup-page: #0a0a0c;  /* black — the collector page */
-    --ebook-teman-hidup-ink: #e6e2da;   /* 15.34:1 */
-    --ebook-teman-hidup-heading: #fdfee6; /* cream — 18.3:1 */
-    --ebook-teman-hidup-rule: #c9a86a;  /* gold — 8.73:1 */
-    --ebook-teman-hidup-ornament: #e9cea2; /* gold-light — 13.6:1 */
-    --ebook-teman-hidup-field: #142c20; /* forest-soft */
-    --ebook-teman-hidup-field-ink: #fdfee6; /* 14.53:1 on field */
+    --ebook-teman-hidup-page: #0a0a0c;
+    --ebook-teman-hidup-ink: #e6e2da;
+    --ebook-teman-hidup-heading: #fdfee6;
+    --ebook-teman-hidup-rule: #c9a86a;
+    --ebook-teman-hidup-ornament: #e9cea2;
+    --ebook-teman-hidup-field: #142c20;
+    --ebook-teman-hidup-field-ink: #fdfee6;
+    --ebook-teman-hidup-wash: #151917;
   }
 
 
@@ -1225,7 +1228,7 @@
 }
 .ph-book-3d {
   position: relative;
-  aspect-ratio: 3 / 4;
+  aspect-ratio: 152 / 229;
   transform-style: preserve-3d;
   transform: rotateY(-18deg) rotateX(4deg);
   animation: ph-book-float 7s ease-in-out infinite;
@@ -1247,27 +1250,15 @@
 .ph-book-cover {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 1.5rem;
   border-radius: 4px 10px 10px 4px;
-  background:
-    radial-gradient(120% 90% at 50% 20%, rgb(242 184 92 / 0.16), transparent 60%),
-    linear-gradient(160deg, var(--green-900), var(--forest-night) 70%);
+  background: var(--forest-night);
   border: 1px solid rgb(201 168 106 / 0.35);
   box-shadow: inset 4px 0 12px rgb(0 0 0 / 0.45), 0 30px 60px rgb(0 0 0 / 0.5);
   transform: translateZ(26px);
   overflow: hidden;
   text-align: center;
 }
-.ph-book-emblem { filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.5)); }
-.ph-book-kicker { font-size: 0.65rem; letter-spacing: 0.32em; text-transform: uppercase; color: var(--green-300); }
-.ph-book-title { font-family: var(--font-display); font-size: 1.9rem; line-height: 1.05; color: var(--cream); }
-.ph-book-subtitle { font-family: var(--font-script); font-style: italic; color: var(--gold-light); }
-.ph-book-serial { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-muted-on-dark); }
+.ph-book-art { display: block; width: 100%; height: 100%; object-fit: contain; }
 .ph-book-sheen {
   position: absolute;
   inset: 0;
@@ -1370,7 +1361,6 @@
 /* Mobile-first hero tuning — full-width 56px CTAs, scaled book, tighter type. */
 @media (max-width: 639px) {
   .ph-book-scene { max-width: 290px; }
-  .ph-book-title { font-size: 1.5rem; }
   .ph-glyph { opacity: 0.7; }
 }
 
@@ -1407,18 +1397,6 @@
     inset 0 0 0 7px var(--forest-night),
     inset 0 0 0 8px var(--gold-deep),
     inset 0 0 60px rgb(0 0 0 / 0.55);
-}
-
-/* 3D book: emblem scales with the cover; the tier seal is a corner sticker
-   so it never pushes the title out on a 290px phone cover. */
-.ph-book-emblem { width: 58%; height: auto; }
-.ph-book-seal {
-  position: absolute;
-  top: -0.75rem;
-  right: -0.5rem;
-  z-index: 3;
-  width: 6rem;   /* seals: 96px brand minimum */
-  height: 6rem;
 }
 
 /* Gilt section ornament (the lockup's flanked diamond rule). */
@@ -1860,11 +1838,6 @@
     0 14px 30px -16px rgb(7 20 13 / 0.52);
   transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
 }
-.ph-a4-cover:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--ph-art-shadow-lift);
-}
-
 .ph-chapter-grid {
   display: grid;
   gap: 1rem;
@@ -2344,6 +2317,10 @@
 :focus-visible {
   outline: var(--focus-width) solid var(--focus-color);
   outline-offset: var(--focus-offset);
+  /* The sticky header and the mobile action bar never cover a focused
+     target when a link or field is scrolled into view. */
+  scroll-margin-top: 5rem;
+  scroll-margin-bottom: 5rem;
 }
 
 /* 7. Forced colours: the brand outline colour is overridden by the OS, so
@@ -2509,31 +2486,6 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .ph-void :is(input, textarea, select):not(.ph-daylight *) { background-color: var(--ph-void-soft); border-color: rgb(157 225 193 / 0.14); }
 .ph-void .ph-hero-eyebrow { background: var(--ph-void-soft); border-color: rgb(157 225 193 / 0.18); }
 
-/* ---- Hero light ---------------------------------------------------- */
-.ph-hero-fx { --hx: 50%; --hy: 20%; position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.ph-hero-beam {
-  position: absolute; left: 50%; top: -12%; width: min(980px, 130vw); height: 82%;
-  margin-left: calc(min(980px, 130vw) / -2);
-  background:
-    radial-gradient(50% 70% at 50% 0%, rgb(125 184 149 / 0.5), transparent 72%),
-    radial-gradient(26% 48% at 50% 0%, rgb(233 206 162 / 0.3), transparent 78%);
-  transform-origin: 50% 0;
-  opacity: 0;
-  animation: ph-beam-in 1.4s var(--ease-decelerate) 0.1s forwards, ph-beam-breathe 8s ease-in-out 1.5s infinite;
-}
-.ph-hero-spot {
-  display: none; position: absolute; left: 0; top: 0; width: 520px; height: 520px; margin: -260px 0 0 -260px;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(201 168 106 / 0.1), transparent);
-  transform: translate3d(var(--hx), var(--hy), 0);
-  opacity: 0;
-  transition: transform 160ms var(--ease-decelerate), opacity 400ms var(--ease-decelerate);
-}
-.ph-hero-fx[data-live] .ph-hero-spot { opacity: 1; }
-@media (hover: hover) and (pointer: fine) { .ph-hero-spot { display: block; } }
-@keyframes ph-beam-in { from { opacity: 0; transform: scaleY(0.6); } to { opacity: 1; transform: scaleY(1); } }
-@keyframes ph-beam-breathe { 0%, 100% { opacity: 1; } 50% { opacity: 0.62; } }
-.ph-hero-fx ~ * { position: relative; z-index: 1; }
 /* Headline words rise one after another. */
 .ph-rise { opacity: 0; transform: translateY(14px); animation: ph-rise 700ms var(--ease-decelerate) forwards; }
 @keyframes ph-rise { to { opacity: 1; transform: translateY(0); } }
@@ -2562,11 +2514,7 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   opacity: 0; transition: opacity var(--dur-base) var(--ease-out);
 }
 .ph-void .ph-lux:not(.ph-beam):hover::before { opacity: 1; }
-@media (max-width: 767px) {
-  .ph-hero-beam { animation: ph-beam-in 1.4s var(--ease-decelerate) 0.1s forwards; }
-}
 @media (prefers-reduced-motion: reduce) {
-  .ph-hero-beam { animation: none; opacity: 0.85; }
   .ph-rise { animation: none; opacity: 1; transform: none; }
 }
 
@@ -2595,3 +2543,81 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .ph-palette-empty { margin: 0; padding: 1.2rem; color: var(--text-muted); text-align: center; }
 .ph-palette-foot { margin: 0; padding: 0.6rem 1rem; display: flex; gap: 0.4rem; align-items: center; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid rgb(157 225 193 / 0.1); }
 @media (max-width: 1023px) { .ph-kbd-hint { display: none; } }
+
+/* 3.9 storefront typography and book materials */
+.ph-storefront {
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-body: 'Geist Sans', system-ui, sans-serif;
+  --font-script: var(--font-display);
+  --weight-title: 400;
+  --type-hero-size: clamp(2.875rem, 7vw, 6rem);
+  --type-hero-leading: 0.96;
+  --type-hero-tracking: -0.015em;
+}
+.ph-storefront :is(.font-display, .ph-title) { font-synthesis-weight: none; }
+.ph-display-hero {
+  font-size: var(--type-hero-size);
+  line-height: var(--type-hero-leading);
+  letter-spacing: var(--type-hero-tracking);
+}
+
+:root {
+  --book-perspective: 960px;
+  --book-thickness: clamp(0.625rem, 1.5vw, 1.125rem);
+  --book-stack-shadow: 7px 15px 25px -9px rgb(0 0 0 / 0.72);
+  --book-paper-edge:
+    linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 40%, rgb(0 0 0 / 0.12)),
+    repeating-linear-gradient(90deg, var(--linen) 0 1px, var(--paper) 1px 3px);
+}
+.ph-book-stage {
+  --book-cover-bevel: color-mix(in srgb, var(--tier-rim, var(--gold-light)) 45%, transparent);
+  perspective: var(--book-perspective);
+  padding-inline: 4% 9%;
+  padding-block: 2% 5%;
+}
+.ph-book-object {
+  position: relative;
+  border-radius: var(--radius-sm);
+  transform: rotateX(6deg) rotateY(-18deg);
+  transform-style: preserve-3d;
+  box-shadow: var(--book-stack-shadow);
+}
+.ph-book-object::before,
+.ph-book-object::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid var(--book-cover-bevel);
+  background: var(--book-paper-edge);
+}
+.ph-book-object::before {
+  inset: 1px auto 1px 100%;
+  width: var(--book-thickness);
+  transform: rotateY(90deg);
+  transform-origin: left;
+}
+.ph-book-object::after {
+  inset: 100% 1px auto;
+  height: var(--book-thickness);
+  background:
+    linear-gradient(var(--linen), transparent 40%, rgb(0 0 0 / 0.25)),
+    repeating-linear-gradient(var(--linen) 0 1px, var(--paper) 1px 3px);
+  transform: rotateX(-90deg);
+  transform-origin: top;
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .ph-book-object {
+    transition: transform var(--motion-entrance-dur) var(--motion-entrance-ease);
+  }
+  .ph-book-stage:hover .ph-book-object {
+    transform: translateY(-5px) rotateX(9deg) rotateY(-27deg);
+  }
+}
+@media (prefers-reduced-motion: reduce), (forced-colors: active), print {
+  .ph-book-object { transform: none; }
+  .ph-book-object::before, .ph-book-object::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ph-storefront .ph-cta:is(:hover, :active) { transform: none; }
+}

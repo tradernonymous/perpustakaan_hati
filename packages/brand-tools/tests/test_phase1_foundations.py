@@ -37,7 +37,7 @@ TOKENS_JSON = ROOT / "docs" / "brand" / "design-tokens.json"
 SPECIMEN = ROOT / "docs" / "brand" / "specimens" / "foundations.html"
 
 TIERS = ("poket", "membangun", "teman-hidup")
-EBOOK_ROLES = ("page", "ink", "heading", "rule", "ornament", "field", "field-ink")
+EBOOK_ROLES = ("page", "ink", "heading", "rule", "ornament", "field", "field-ink", "wash")
 MOTION_TOKENS = (
     "motion-feedback-dur",
     "motion-feedback-ease",
@@ -48,6 +48,7 @@ MOTION_TOKENS = (
     "motion-reduced-dur",
 )
 SPECIMEN_SECTIONS = (
+    "book-depth",
     "buttons",
     "forms",
     "navigation",
@@ -165,6 +166,20 @@ def test_json_declares_current_version_and_new_groups() -> None:
         assert name in data["motion"], f"design-tokens.json missing motion.{name}"
 
 
+def test_storefront_type_and_book_material_match_css() -> None:
+    data = json.loads(TOKENS_JSON.read_text(encoding="utf-8"))
+    css = css_text()
+    scope = data["storefrontType"]["$scope"]
+    block = re.search(rf"{re.escape(scope)}\s*\{{([^}}]+)\}}", css)
+    assert block, f"missing typography scope {scope}"
+    for group, stylesheet in (("storefrontType", block.group(1)), ("bookMaterial", css)):
+        for name, value in data[group].items():
+            if not name.startswith("$"):
+                actual = token_value(stylesheet, name)
+                assert actual, f"missing token {name}"
+                assert " ".join(actual.split()) == str(value)
+
+
 def test_json_ebook_values_match_css_values() -> None:
     data = json.loads(TOKENS_JSON.read_text(encoding="utf-8"))
     css = css_text()
@@ -213,6 +228,15 @@ def test_ebook_tier_text_pairs_meet_wcag(tier: str) -> None:
         assert ratio >= 3.0, (
             f"ebook {tier}: {role} {fg} on page {page} = {ratio:.2f}:1, needs 3.0"
         )
+
+
+@pytest.mark.parametrize("tier", TIERS)
+def test_ebook_wash_and_field_contrast(tier: str) -> None:
+    css = css_text()
+    for role, ground in (("ink", "wash"), ("heading", "wash"), ("field-ink", "field")):
+        fg = token_value(css, f"ebook-{tier}-{role}")
+        bg = token_value(css, f"ebook-{tier}-{ground}")
+        assert fg and bg and check_contrast.contrast(fg, bg) >= 4.5
 
 
 # --------------------------------------------------------------------------

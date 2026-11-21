@@ -1,11 +1,28 @@
 {
   "$meta": {
-    "name": "Perpustakaan Hati — Design System 3.8 Void Grove",
-    "version": "3.8.0",
-    "date": "2026-11-19",
+    "name": "Perpustakaan Hati — Design System 3.9 Void Grove",
+    "version": "3.9.0",
+    "date": "2026-11-21",
     "source": "docs/brand/design-tokens.css",
     "share": "green 50 / gold 40 / ruby + cream 10",
-    "note": "Shared-foundations layer added 2026-11-19: scoped ebook-tier tokens (.ph-ebook-*) and motion role tokens. Mirrored by hand from design-tokens.css; packages/brand-tools/tests/test_phase1_foundations.py pins the sync."
+    "note": "Mirrors design-tokens.css, including scoped eBook tiers, motion roles and the storefront typography and book materials."
+  },
+  "storefrontType": {
+    "$scope": ".ph-storefront",
+    "font-display": "'Instrument Serif', Georgia, serif",
+    "font-body": "'Geist Sans', system-ui, sans-serif",
+    "font-script": "'Instrument Serif', Georgia, serif",
+    "weight-title": 400,
+    "type-hero-size": "clamp(2.875rem, 7vw, 6rem)",
+    "type-hero-leading": 0.96,
+    "type-hero-tracking": "-0.015em"
+  },
+  "bookMaterial": {
+    "book-perspective": "960px",
+    "book-thickness": "clamp(0.625rem, 1.5vw, 1.125rem)",
+    "book-cover-bevel": "color-mix(in srgb, var(--tier-rim, var(--gold-light)) 45%, transparent)",
+    "book-stack-shadow": "7px 15px 25px -9px rgb(0 0 0 / 0.72)",
+    "book-paper-edge": "linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 40%, rgb(0 0 0 / 0.12)), repeating-linear-gradient(90deg, var(--linen) 0 1px, var(--paper) 1px 3px)"
   },
   "primitive": {
     "color": {
@@ -103,13 +120,14 @@
   "ebook": {
     "$note": "Scoped ebook-tier page tokens. Declared inside .ph-ebook-<tier>, never :root, so an edition ground cannot leak into the storefront.",
     "poket": {
-      "page": "#fdfee6",
-      "ink": "#12251b",
-      "heading": "#1d5a3d",
-      "rule": "#2d7954",
-      "ornament": "#a07b45",
-      "field": "#e4f4e9",
-      "field-ink": "#12251b"
+      "page": "#09160f",
+      "ink": "#f4efdf",
+      "heading": "#fdfee6",
+      "rule": "#c9a86a",
+      "ornament": "#a7d3b6",
+      "field": "#173826",
+      "field-ink": "#f4efdf",
+      "wash": "#153421"
     },
     "membangun": {
       "page": "#ffffff",
@@ -118,7 +136,8 @@
       "rule": "#a07b45",
       "ornament": "#2d7954",
       "field": "#f7efdd",
-      "field-ink": "#0a0a0c"
+      "field-ink": "#0a0a0c",
+      "wash": "#ffffff"
     },
     "teman-hidup": {
       "page": "#0a0a0c",
@@ -127,7 +146,8 @@
       "rule": "#c9a86a",
       "ornament": "#e9cea2",
       "field": "#142c20",
-      "field-ink": "#fdfee6"
+      "field-ink": "#fdfee6",
+      "wash": "#151917"
     }
   }
 }

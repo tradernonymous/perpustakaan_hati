@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Perpustakaan Hati — specimen asas (Design System 3.8)</title>
+<title>Perpustakaan Hati — specimen asas (Design System 3.9)</title>
 <link rel="stylesheet" href="../design-tokens.css">
+<link rel="stylesheet" href="../../../apps/web/styles/fonts.css">
 <style>
   /* Specimen-only layout. Every colour, radius, space and duration comes
      from design-tokens.css — no raw colour values in this file. */
@@ -27,6 +28,9 @@
   .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
   .note { color: var(--text-muted); font-size: 14px; }
+  .book-demo { display: grid; grid-template-columns: minmax(100px, 160px) minmax(0, 1fr); gap: var(--space-4); align-items: center; }
+  .book-demo img { display: block; width: 100%; height: auto; border-radius: var(--radius-sm); }
+  .book-demo .reading { font-family: var(--font-reading); }
 
   /* ---- buttons ---- */
   .btn {
@@ -160,33 +164,50 @@
   .tier-label b { color: var(--text-primary); font-weight: 600; }
 
   .ph-ebook-poket .tier-page {
-    background: var(--ebook-poket-page); color: var(--ebook-poket-ink);
+    background: radial-gradient(ellipse at 48% 34%, var(--ebook-poket-wash), var(--ebook-poket-page) 80%); color: var(--ebook-poket-ink);
   }
   .ph-ebook-poket .tier-page h4, .ph-ebook-poket .tier-page .tier-eyebrow { color: var(--ebook-poket-heading); }
   .ph-ebook-poket .tier-rule { background: var(--ebook-poket-ornament); }
   .ph-ebook-poket .tier-field { background: var(--ebook-poket-field); color: var(--ebook-poket-field-ink); }
 
   .ph-ebook-membangun .tier-page {
-    background: var(--ebook-membangun-page); color: var(--ebook-membangun-ink);
+    background: radial-gradient(ellipse at 48% 34%, var(--ebook-membangun-wash), var(--ebook-membangun-page) 80%); color: var(--ebook-membangun-ink);
   }
   .ph-ebook-membangun .tier-page h4, .ph-ebook-membangun .tier-page .tier-eyebrow { color: var(--ebook-membangun-heading); }
   .ph-ebook-membangun .tier-rule { background: var(--ebook-membangun-ornament); }
   .ph-ebook-membangun .tier-field { background: var(--ebook-membangun-field); color: var(--ebook-membangun-field-ink); }
 
   .ph-ebook-teman-hidup .tier-page {
-    background: var(--ebook-teman-hidup-page); color: var(--ebook-teman-hidup-ink);
+    background: radial-gradient(ellipse at 48% 34%, var(--ebook-teman-hidup-wash), var(--ebook-teman-hidup-page) 80%); color: var(--ebook-teman-hidup-ink);
   }
   .ph-ebook-teman-hidup .tier-page h4, .ph-ebook-teman-hidup .tier-page .tier-eyebrow { color: var(--ebook-teman-hidup-heading); }
   .ph-ebook-teman-hidup .tier-rule { background: var(--ebook-teman-hidup-ornament); }
   .ph-ebook-teman-hidup .tier-field { background: var(--ebook-teman-hidup-field); color: var(--ebook-teman-hidup-field-ink); }
 </style>
 </head>
-<body class="ph-nightlight ph-void">
+<body class="ph-nightlight ph-void ph-storefront">
 <main>
-  <h1>Specimen asas — Design System 3.8</h1>
+  <h1 class="ph-title">Specimen asas — Design System 3.9</h1>
   <p class="lede">Helaian semakan untuk tapak kaji selidik dan kedai. Semua warna,
     jarak dan gerakan diambil daripada <code>design-tokens.css</code>. Tiada nilai
     warna mentah dalam fail ini.</p>
+
+  <section data-specimen="book-depth">
+    <h2>Tipografi dan kulit buku 3D</h2>
+    <p class="ph-title ph-display-hero">Ruang untuk pulih.</p>
+    <div class="book-demo" data-tier="poket">
+      <div class="ph-book-stage">
+        <div class="ph-book-object">
+          <img src="../preview/cover-poket.png" alt="Kulit Edisi Poket">
+        </div>
+      </div>
+      <div>
+        <p>Instrument Serif untuk tajuk. Geist Sans untuk teks antara muka.</p>
+        <p class="reading">Source Serif 4 untuk bacaan panjang. Ambil masa untuk membaca sehalaman demi sehalaman.</p>
+        <p class="note">Halakan penuding pada kulit untuk melihat kesan angkat dan condong.</p>
+      </div>
+    </div>
+  </section>
 
   <section data-specimen="buttons">
     <h2>Butang</h2>
@@ -311,8 +332,7 @@
         <p class="tier-eyebrow">Edisi Poket</p>
         <div class="tier-rule"></div>
         <h4>Ruang untuk berhenti sejenak</h4>
-        <p>Bab pendek yang boleh dibaca dalam sepuluh minit, dengan kad refleksi
-          di hujung setiap bab.</p>
+        <p>Bacaan ringkas, ceklis dan ruang menulis pada latar hijau.</p>
         <div class="tier-field">Kad refleksi: Apa yang anda perlu lepaskan hari ini?</div>
       </div>
       <div class="tier-label"><b>Hijau + emas</b><span>pendamping bacaan intim</span></div>
