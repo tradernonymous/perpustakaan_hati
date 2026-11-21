@@ -3,9 +3,11 @@
 ## Git ops and GitHub accounts
 
 - This repo is `tradernonymous/perpustakaan_hati` (private). Use the **github-work** MCP for all PR/CI/merge operations.
-- `printezy247` resources (e.g. private `website_sam` reference repo) use the **github** MCP — different account.
+- `printezy247` resources (e.g. private `website_sam` reference repo) use the **github** MCP or the `gh` CLI — different account.
+- Account routing for builds: `tradernonymous/*` repos → **github-work** MCP only, called through cce-bridge. `printezy247/*` repos → **github** MCP (via cce-bridge) or `gh` CLI. The `gh` CLI is logged in as `printezy247`, so never use it for PR/CI/merge on this repo. If github-work MCP is unavailable, stop and ask instead of falling back to `gh` or switching credentials.
 - Flow that works with Railway auto-deploy: feature branch → push → MCP `create_pull_request` → `pull_request_read get_check_runs` until green → `merge_pull_request` → sync local `main` → delete merged branch. Merging to `main` triggers Railway deploys for both `web` and `perpustakaan_hati` (research-admin) services.
 - Railway occasionally parks deploys as `NEEDS_APPROVAL`; approve via `railway api 'mutation { deploymentApprove(id:"...") }'` or the dashboard.
+- CI failing only because of a GitHub billing issue (jobs blocked by payment or spending limit, not by test or build errors): squash merge anyway, as Jack said. Check the check-run output first to confirm the failure is billing-only, and say so in the PR and the report. Any other CI failure still blocks the merge.
 
 ## Private content — never commit
 
