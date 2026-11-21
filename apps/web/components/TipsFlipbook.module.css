@@ -2,7 +2,6 @@
   display: grid;
   gap: .65rem;
   padding: clamp(.65rem, 2vw, 1.5rem);
-  perspective: 1300px;
 }
 
 .fullscreenDialog {
@@ -75,6 +74,7 @@
   gap: 2px;
   grid-template-columns: minmax(0, 420px);
   justify-content: center;
+  perspective: var(--book-perspective);
 }
 
 .sheet {
@@ -85,8 +85,12 @@
   overflow: hidden;
   background: #f3ebd9;
   color: #14281d;
-  box-shadow: 0 12px 30px #0006;
-  animation: turn .38s ease-out both;
+  box-shadow:
+    0 1px 0 var(--linen),
+    0 3px 0 var(--paper),
+    0 4px 0 var(--gold-deep),
+    var(--book-stack-shadow);
+  animation: turn var(--motion-entrance-dur) var(--motion-entrance-ease) both;
   transform-origin: left center;
 }
 
@@ -102,6 +106,7 @@
   padding: clamp(1rem, 3vw, 2.2rem);
   white-space: pre-line;
   overflow-wrap: anywhere;
+  font-family: var(--font-reading);
   line-height: 1.7;
 }
 

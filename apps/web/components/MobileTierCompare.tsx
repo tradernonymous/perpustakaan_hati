@@ -29,7 +29,13 @@ export function MobileTierCompare({ editions, rows }: { editions: Edition[]; row
                 ))}
               </select>
             </label>
-            {edition.cover && <img src={edition.cover} alt="" width={72} height={101} className="h-auto w-[64px] rounded" loading="lazy" />}
+            {edition.cover && (
+              <div className="ph-book-stage w-[72px]" data-tier={edition.id}>
+                <div className="ph-book-object">
+                  <img src={edition.cover} alt="" width={72} height={101} className="h-auto w-[64px] rounded" loading="lazy" />
+                </div>
+              </div>
+            )}
             <p className="text-center text-sm font-semibold text-fg-healing">{edition.price}</p>
           </div>
         ))}

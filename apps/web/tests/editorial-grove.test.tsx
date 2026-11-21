@@ -104,7 +104,7 @@ describe("editorial grove layer", () => {
   });
 
   it("bumps the system version to the current release", () => {
-    expect(tokens).toContain("--ph-system-version: '3.8.0'");
+    expect(tokens).toContain("--ph-system-version: '3.9.0'");
   });
 
   it("stops the three expensive effects on a phone", () => {

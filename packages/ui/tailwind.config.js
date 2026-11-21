@@ -102,9 +102,9 @@ module.exports = {
     extend: {
       colors: brandColors,
       fontFamily: {
-        display: ['Fraunces', 'Georgia', 'serif'],
-        body: ['Inter', 'system-ui', 'sans-serif'],
-        reading: ['Source Serif 4', 'Georgia', 'serif'],
+        display: 'var(--font-display, Fraunces, Georgia, serif)',
+        body: 'var(--font-body, Inter, system-ui, sans-serif)',
+        reading: "var(--font-reading, 'Source Serif 4', Georgia, serif)",
       },
       // weights per role — fonts are variable 400-700 (build-fonts.py);
       // these match the SVG outline weights in build-logos.py

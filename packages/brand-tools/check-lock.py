@@ -31,16 +31,23 @@ ASSETS = {
     "seal-teman-hidup.svg", "aje",
 }
 TRACKED = [
+    "apps/web/public/fonts/Geist-OFL.txt",
+    "apps/web/public/fonts/GeistSans.woff2",
+    "apps/web/public/fonts/InstrumentSerif-Italic.woff2",
+    "apps/web/public/fonts/InstrumentSerif-OFL.txt",
+    "apps/web/public/fonts/InstrumentSerif-Regular.woff2",
     "docs/brand/design-tokens.css",
+    "docs/brand/design-tokens.json",
     "docs/brand/DESIGN-SYSTEM.md",
     "docs/brand/doop-guideline.md",
+    "docs/brand/specimens/foundations.html",
     "packages/ui/tailwind.config.js",
     "packages/ui/shadcn-theme.css",
     "packages/brand-tools/fonts/FrauncesDisplay.woff2",
     "packages/brand-tools/fonts/FrauncesDisplayItalic.woff2",
     "packages/brand-tools/fonts/InterUI.woff2",
     "packages/brand-tools/fonts/SourceSerifText.woff2",
-    *[f"docs/brand/assets/{a}" for a in sorted(ASSETS) if a != "aje"],
+    *[f"docs/brand/assets/{a}" for a in sorted(ASSETS) if a.endswith(".svg")],
     "docs/brand/assets/aje/aje-turtle-emerald.svg",
     "docs/brand/assets/aje/aje-turtle-noir.svg",
     "docs/brand/aje.md",
@@ -55,9 +62,9 @@ SKIP = {".git", "node_modules", ".claude", ".idea", ".vscode", ".ruff_cache",
 SELF = {"check-lock.py", BASELINE_NAME, "DESIGN-SYSTEM.md"}
 # Files that deliberately name retired assets to say "do not bring these back".
 RETIREMENT_DOCS = {"DESIGN-SYSTEM.md", "visual-identity.md"}
-CURRENT_VERSION = "3.8"
-CURRENT_SHOWCASE = "docs/brand/preview/design-system-3-1.png"
-CURRENT_SHOWCASE_REFERENCE = "preview/design-system-3-1.png"
+CURRENT_VERSION = "3.9"
+CURRENT_SHOWCASE_REFERENCE = "specimens/foundations.html"
+CURRENT_SHOWCASE = f"docs/brand/{CURRENT_SHOWCASE_REFERENCE}"
 ACTIVE_TEMPLATES = (
     "content/threads/templates/quote-card.html",
     "content/threads/templates/quote-card-b.html",

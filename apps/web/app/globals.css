@@ -110,3 +110,12 @@ body:has(#menu-mudah-alih) .ph-sticky-cta { display: none; }
     50% { opacity: 0.8; transform: translateY(-6px); }
   }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .ph-faq[open] .ph-faq-answer {
+    animation: ph-disclose var(--motion-feedback-dur) var(--motion-feedback-ease);
+  }
+}
+@keyframes ph-disclose {
+  from { opacity: 0; transform: translateY(-4px); }
+}

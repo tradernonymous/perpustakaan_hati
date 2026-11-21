@@ -79,6 +79,29 @@
   --tone: color-mix(in srgb, var(--gold) 38%, var(--green-800));
 }
 
+.leaves {
+  position: absolute;
+  inset: 45% -12% -37%;
+  transform: perspective(var(--book-perspective)) rotateX(43deg);
+  mask-image: linear-gradient(90deg, transparent, #000 14% 86%, transparent);
+}
+
+.leaves::before,
+.leaves::after {
+  content: "";
+  position: absolute;
+  inset: 0 50% 0 0;
+  transform-origin: right center;
+  transform: skewY(9deg);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, color-mix(in srgb, var(--mint-glass) 16%, transparent) 23px 24px),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 12%, transparent));
+}
+
+.leaves::after {
+  transform: scaleX(-1) skewY(9deg);
+}
+
 .copy {
   position: relative;
   z-index: 1;
@@ -88,10 +111,9 @@
   animation: settle var(--motion-scene-dur) var(--motion-entrance-ease) both;
 }
 
-.copy > :nth-child(2) { animation-delay: 45ms; }
-.copy > :nth-child(3) { animation-delay: 85ms; }
-.copy > :nth-child(4) { animation-delay: 120ms; }
-.copy > :nth-child(5) { animation-delay: 145ms; }
+.copy > :nth-child(2) { animation-delay: 65ms; }
+.copy > :nth-child(3) { animation-delay: 125ms; }
+.copy > :nth-child(4) { animation-delay: 185ms; }
 
 .pause {
   display: none;

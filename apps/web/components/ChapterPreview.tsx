@@ -23,18 +23,22 @@ export function ChapterPreview() {
               className={`ph-chapter-card ph-lux ph-page-in ${isTrailingOdd ? "ph-chapter-card-full" : ""}`}
               data-pending={c.pending ? "true" : "false"}
             >
-              <div className="ph-chapter-art">
-                <picture>
-                  <source srcSet={cover.webp} type="image/webp" />
-                  <img
-                    src={cover.jpg}
-                    alt={`Kulit rujukan A4 ${cover.title}`}
-                    width={cover.width}
-                    height={cover.height}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </picture>
+              <div className="ph-book-stage">
+                <div className="ph-book-object">
+                  <div className="ph-chapter-art">
+                    <picture>
+                      <source srcSet={cover.webp} type="image/webp" />
+                      <img
+                        src={cover.jpg}
+                        alt={`Kulit rujukan A4 ${cover.title}`}
+                        width={cover.width}
+                        height={cover.height}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </picture>
+                  </div>
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <p className="ph-chapter-num">Bab {c.no}</p>

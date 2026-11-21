@@ -12,8 +12,8 @@ export function Hero() {
       <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden border-b border-line px-4 py-10 sm:px-5 sm:py-20">
         <HeroAtmosphere />
         <div className={`${styles.copy} mx-auto max-w-3xl text-center`}>
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.18em] text-fg-accent">Perpustakaan Hati · Bahasa Melayu</p>
-          <h1 id="hero-heading" className="text-balance font-display text-[clamp(2.125rem,9vw,2.75rem)] leading-[1.08] tracking-tight text-fg sm:text-[clamp(2.5rem,6vw,4.75rem)]">
+          <p className="mb-5 text-xs font-semibold tracking-wide text-fg-accent">Perpustakaan Hati · Bahasa Melayu</p>
+          <h1 id="hero-heading" className="ph-display-hero text-balance font-display text-fg">
             Bacaan kecil.<br /><span className="text-fg-healing">Ruang untuk pulih.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-fg-muted sm:mt-5 sm:text-lg">

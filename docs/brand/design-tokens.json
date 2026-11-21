@@ -1,10 +1,28 @@
 {
   "$meta": {
-    "name": "Perpustakaan Hati — Design System 3.6 Precise Grove",
-    "version": "3.6.0",
-    "date": "2026-11-17",
+    "name": "Perpustakaan Hati — Design System 3.9 Void Grove",
+    "version": "3.9.0",
+    "date": "2026-11-21",
     "source": "docs/brand/design-tokens.css",
-    "share": "green 50 / gold 40 / ruby + cream 10"
+    "share": "green 50 / gold 40 / ruby + cream 10",
+    "note": "Mirrors design-tokens.css, including scoped eBook tiers, motion roles and the storefront typography and book materials."
+  },
+  "storefrontType": {
+    "$scope": ".ph-storefront",
+    "font-display": "'Instrument Serif', Georgia, serif",
+    "font-body": "'Geist Sans', system-ui, sans-serif",
+    "font-script": "'Instrument Serif', Georgia, serif",
+    "weight-title": 400,
+    "type-hero-size": "clamp(2.875rem, 7vw, 6rem)",
+    "type-hero-leading": 0.96,
+    "type-hero-tracking": "-0.015em"
+  },
+  "bookMaterial": {
+    "book-perspective": "960px",
+    "book-thickness": "clamp(0.625rem, 1.5vw, 1.125rem)",
+    "book-cover-bevel": "color-mix(in srgb, var(--tier-rim, var(--gold-light)) 45%, transparent)",
+    "book-stack-shadow": "7px 15px 25px -9px rgb(0 0 0 / 0.72)",
+    "book-paper-edge": "linear-gradient(90deg, rgb(0 0 0 / 0.28), transparent 40%, rgb(0 0 0 / 0.12)), repeating-linear-gradient(90deg, var(--linen) 0 1px, var(--paper) 1px 3px)"
   },
   "primitive": {
     "color": {
@@ -28,23 +46,61 @@
       "lantern": "#f2b85c",
       "mint-glass": "#9de1c1"
     },
-    "radius": { "sm": "2px", "md": "4px", "lg": "8px", "pill": "999px" },
-    "space": { "1": "0.25rem", "2": "0.5rem", "4": "1rem", "8": "2rem", "12": "3rem" }
+    "radius": {
+      "sm": "2px",
+      "md": "4px",
+      "lg": "8px",
+      "pill": "999px"
+    },
+    "space": {
+      "1": "0.25rem",
+      "2": "0.5rem",
+      "4": "1rem",
+      "8": "2rem",
+      "12": "3rem"
+    }
   },
   "semantic": {
-    "surface-base": { "ref": "color.forest-night" },
-    "surface-raised": { "ref": "color.forest-raised" },
-    "surface-light": { "ref": "color.cream" },
+    "surface-base": {
+      "ref": "color.forest-night"
+    },
+    "surface-raised": {
+      "ref": "color.forest-raised"
+    },
+    "surface-light": {
+      "ref": "color.cream"
+    },
     "text-primary": "#e6e2da",
     "text-muted": "#a49c8d",
-    "text-accent": { "ref": "color.gold-light" },
-    "text-healing": { "ref": "color.green-300" },
-    "chart-1": { "ref": "color.green-500", "locked": true },
-    "chart-2": { "ref": "color.gold", "locked": true },
-    "chart-3": { "ref": "color.burgundy-light", "locked": true },
-    "chart-4": { "ref": "color.lantern", "locked": true },
-    "chart-5": { "ref": "color.mint-glass", "locked": true },
-    "chart-track": { "ref": "color.forest-soft" },
+    "text-accent": {
+      "ref": "color.gold-light"
+    },
+    "text-healing": {
+      "ref": "color.green-300"
+    },
+    "chart-1": {
+      "ref": "color.green-500",
+      "locked": true
+    },
+    "chart-2": {
+      "ref": "color.gold",
+      "locked": true
+    },
+    "chart-3": {
+      "ref": "color.burgundy-light",
+      "locked": true
+    },
+    "chart-4": {
+      "ref": "color.lantern",
+      "locked": true
+    },
+    "chart-5": {
+      "ref": "color.mint-glass",
+      "locked": true
+    },
+    "chart-track": {
+      "ref": "color.forest-soft"
+    },
     "focus-ring": "0 0 0 2px #07140d, 0 0 0 4px #7db895",
     "content-reading": "640px",
     "content-grid": "1200px",
@@ -62,31 +118,109 @@
     "focus-width": "2px",
     "focus-offset": "2px",
     "focus-offset-wide": "3px",
-    "focus-color": { "dark": "#a7d3b6", "light": "#1d5a3d" },
-    "selection-bg": { "dark": "#1d5a3d", "light": "#cbe8d5" },
-    "selection-fg": { "dark": "#fdfee6", "light": "#12251b" },
-    "caret-color": { "dark": "#7db895", "light": "#2d7954" },
-    "accent-color": { "dark": "#7db895", "light": "#2d7954" },
+    "focus-color": {
+      "dark": "#a7d3b6",
+      "light": "#1d5a3d"
+    },
+    "selection-bg": {
+      "dark": "#1d5a3d",
+      "light": "#cbe8d5"
+    },
+    "selection-fg": {
+      "dark": "#fdfee6",
+      "light": "#12251b"
+    },
+    "caret-color": {
+      "dark": "#7db895",
+      "light": "#2d7954"
+    },
+    "accent-color": {
+      "dark": "#7db895",
+      "light": "#2d7954"
+    },
     "ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
     "ease-decelerate": "cubic-bezier(0.05, 0.7, 0.1, 1)",
     "ease-accelerate": "cubic-bezier(0.3, 0, 0.8, 0.15)",
-    "elevation-1": { "dark": "0 1px 2px rgb(0 0 0 / 0.22)", "light": "0 1px 2px rgb(60 45 20 / 0.08)" },
-    "elevation-2": { "dark": "0 4px 10px -2px rgb(0 0 0 / 0.28)", "light": "0 4px 10px -2px rgb(60 45 20 / 0.12)" },
-    "elevation-3": { "dark": "0 12px 28px -6px rgb(0 0 0 / 0.32)", "light": "0 12px 28px -6px rgb(60 45 20 / 0.16)" },
-    "elevation-4": { "dark": "0 28px 60px -12px rgb(0 0 0 / 0.42)", "light": "0 28px 60px -12px rgb(60 45 20 / 0.22)" }
+    "elevation-1": {
+      "dark": "0 1px 2px rgb(0 0 0 / 0.22)",
+      "light": "0 1px 2px rgb(60 45 20 / 0.08)"
+    },
+    "elevation-2": {
+      "dark": "0 4px 10px -2px rgb(0 0 0 / 0.28)",
+      "light": "0 4px 10px -2px rgb(60 45 20 / 0.12)"
+    },
+    "elevation-3": {
+      "dark": "0 12px 28px -6px rgb(0 0 0 / 0.32)",
+      "light": "0 12px 28px -6px rgb(60 45 20 / 0.16)"
+    },
+    "elevation-4": {
+      "dark": "0 28px 60px -12px rgb(0 0 0 / 0.42)",
+      "light": "0 28px 60px -12px rgb(60 45 20 / 0.22)"
+    }
   },
   "component": {
     "button-primary-bg": "linear-gradient(180deg, #7db895, #5b9b7d 50%, #3f9167)",
-    "button-primary-fg": { "ref": "color.forest-night" },
+    "button-primary-fg": {
+      "ref": "color.forest-night"
+    },
     "card-bg": "linear-gradient(180deg, #0d2117, #07140d)",
     "card-border": "rgb(157 225 193 / 0.14)",
     "glass-bg": "rgb(13 33 23 / 0.62)",
     "glass-blur": "18px",
-    "companion-bg": { "ref": "semantic.surface-base" },
-    "companion-assistant": { "ref": "semantic.surface-raised" },
-    "companion-user": { "ref": "component.button-primary-bg" },
+    "companion-bg": {
+      "ref": "semantic.surface-base"
+    },
+    "companion-assistant": {
+      "ref": "semantic.surface-raised"
+    },
+    "companion-user": {
+      "ref": "component.button-primary-bg"
+    },
     "tilt-perspective": "1200px",
     "tilt-max": "6deg",
     "particle-count": 42
+  },
+  "motion": {
+    "motion-feedback-dur": "var(--dur-fast)",
+    "motion-feedback-ease": "var(--ease-standard)",
+    "motion-entrance-dur": "var(--dur-base)",
+    "motion-entrance-ease": "var(--ease-decelerate)",
+    "motion-scene-dur": "var(--dur-slow)",
+    "motion-scene-ease": "var(--ease-standard)",
+    "motion-reduced-dur": "0ms",
+    "$note": "Declared on scoped classes and zeroed under prefers-reduced-motion. See packages/brand-tools/tests/test_phase1_foundations.py."
+  },
+  "ebook": {
+    "$note": "Scoped ebook-tier page tokens. Declared inside .ph-ebook-<tier>, never :root, so an edition ground cannot leak into the storefront.",
+    "poket": {
+      "page": "#fdfee6",
+      "ink": "#12251b",
+      "heading": "#1d5a3d",
+      "rule": "#2d7954",
+      "ornament": "#a07b45",
+      "field": "#e4f4e9",
+      "field-ink": "#12251b",
+      "wash": "#fdfee6"
+    },
+    "membangun": {
+      "page": "#ffffff",
+      "ink": "#0a0a0c",
+      "heading": "#1d5a3d",
+      "rule": "#a07b45",
+      "ornament": "#2d7954",
+      "field": "#f7efdd",
+      "field-ink": "#0a0a0c",
+      "wash": "#ffffff"
+    },
+    "teman-hidup": {
+      "page": "#0a0a0c",
+      "ink": "#e6e2da",
+      "heading": "#fdfee6",
+      "rule": "#c9a86a",
+      "ornament": "#e9cea2",
+      "field": "#142c20",
+      "field-ink": "#fdfee6",
+      "wash": "#0a0a0c"
+    }
   }
 }

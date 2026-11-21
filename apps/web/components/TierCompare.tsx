@@ -120,8 +120,10 @@ export function TierCompare() {
       <ul className="ph-compare-desktop ph-compare-covers mb-6 grid-cols-3 gap-4" aria-label="Kulit tiga edisi">
         {editions.map((edition) => (
           <li key={edition.id} className="ph-card grid content-start gap-3 p-4 text-center">
-            <div className="mx-auto w-full max-w-[145px]">
-              {edition.cover && <img src={edition.cover} alt={`Kulit ${edition.name}`} width={145} height={205} className="h-auto w-full rounded" loading="lazy" />}
+            <div className="ph-book-stage mx-auto w-full max-w-[145px]" data-tier={edition.id}>
+              <div className="ph-book-object">
+                {edition.cover && <img src={edition.cover} alt={`Kulit ${edition.name}`} width={145} height={205} className="h-auto w-full rounded" loading="lazy" />}
+              </div>
             </div>
             <p className="font-display text-lg">{edition.name}</p>
             <p className="text-fg-healing">{edition.price}</p>
@@ -159,8 +161,10 @@ export function TierCompare() {
                         {t.id === "poket" ? "Permulaan" : "Lengkap"}
                       </span>
                     )}
-                    <div className="mx-auto w-[52px]">
-                      <ProductCover name={t.name} src={t.cover} seal={t.seal} tier={t.id} className="rounded-sm" />
+                    <div className="ph-book-stage mx-auto w-[52px]">
+                      <div className="ph-book-object">
+                        <ProductCover name={t.name} src={t.cover} seal={t.seal} tier={t.id} className="rounded-sm" />
+                      </div>
                     </div>
                     <span className="ph-tier-badge" data-tier={t.id}>{t.name}</span>
                     <span className="font-display text-lg font-semibold ph-tier-ink">{price}</span>
