@@ -56,6 +56,73 @@ def test_status_shows_connection_state(client):
     assert body["expires_at"] > NOW
 
 
+@respx.mock
+def test_avatar_refreshes_expired_url_and_serves_photo_from_admin(client, tmp_path):
+    previous = "https://scontent.cdninstagram.com/avatar.jpg?expired=1"
+    fresh = "https://scontent.cdninstagram.com/avatar.jpg?signature=" + "a" * 520
+    picture = b"\xff\xd8\xff\xe0sample-photo"
+    client.app.state.store.save_graph_audience(
+        profile={"id": "42", "username": "rahimam", "profile_picture_url": previous},
+    )
+    stale_request = respx.get(previous).respond(403)
+    graph_request = respx.get(GRAPH + "/v1.0/me").respond(
+        200, json={"id": "42", "username": "rahimam", "threads_profile_picture_url": fresh},
+    )
+    photo_request = respx.get(fresh).respond(200, content=picture)
+
+    html = client.get("/").text
+    assert '<img src="/assets/threads-avatar" alt="" width="22" height="22"' in html
+    assert previous not in html
+    assert make_app(tmp_path / "anonymous").get("/assets/threads-avatar").status_code == 401
+
+    first = client.get("/assets/threads-avatar")
+    second = client.get("/assets/threads-avatar")
+    assert first.status_code == 200
+    assert first.headers["content-type"] == "image/jpeg"
+    assert first.content == second.content == picture
+    assert stale_request.call_count == graph_request.call_count == photo_request.call_count == 1
+    assert "authorization" not in photo_request.calls[0].request.headers
+
+
+@respx.mock
+def test_avatar_uses_initial_if_cdn_redirects(client):
+    url = "https://cdn.threads.net/avatar.jpg"
+    client.app.state.store.save_graph_audience(profile={"id": "42", "username": "rahimam", "profile_picture_url": url})
+    respx.get(url).respond(302, headers={"location": "https://example.org/avatar"})
+    respx.get(GRAPH + "/v1.0/me").respond(200, json={"id": "42", "username": "rahimam", "threads_profile_picture_url": url})
+
+    response = client.get("/assets/threads-avatar")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "image/svg+xml"
+    assert ">R</text>" in response.text
+
+
+@respx.mock
+def test_inbox_sync_imports_recent_replies_from_other_accounts(client):
+    post_url = "https://www.threads.com/@owner/post/1"
+    respx.get(GRAPH + "/v1.0/me").respond(200, json={"username": "owner"})
+    respx.get(GRAPH + "/v1.0/me/threads").respond(200, json={"data": [
+        {"id": "1", "permalink": post_url},
+        {"id": "2"},
+    ]})
+    respx.get(GRAPH + "/v1.0/1/replies").respond(200, json={"data": [
+        {"id": "11", "username": "reader", "text": "Thank you for sharing."},
+        {"id": "12", "username": "OWNER", "text": "Thanks for reading."},
+    ]})
+    respx.get(GRAPH + "/v1.0/2/replies").respond(200, json={"data": []})
+
+    response = client.post("/inbox/sync", headers={"Accept": "text/html"})
+    assert response.status_code == 200
+    assert "Synced 1 reply item" in response.text
+    assert "Thank you for sharing." in response.text
+
+    assert client.post("/inbox/sync").json() == {"synced": 1}
+    items = client.get("/inbox?status=all").json()["items"]
+    assert [(item["reply_id"], item["post_id"], item["post_permalink"]) for item in items] == [
+        ("11", "1", post_url),
+    ]
+
+
 def test_protected_routes_require_password(tmp_path):
     anon = make_app(tmp_path)
     assert anon.get("/auth/status").status_code == 401
@@ -576,15 +643,15 @@ def test_draft_edit_and_publish_to_threads_flow(client):
 
 
 
-def test_dashboard_login_and_mini_review_use_the_dark_grove_ground(client):
+def test_dashboard_login_and_mini_review_use_the_void_grove_ground(client):
     login(client)
     dash = client.get("/").text
-    assert "--bg:#07140d" in dash
+    assert "--bg:#030604" in dash
     assert 'content="dark"' in dash
     assert "background:#FBF7F0" not in dash and "--bg:#FBF7F0" not in dash
     assert "outline:2px solid #9de1c1" in dash
     anon = TestClient(client.app, base_url="http://testserver")
-    assert "--bg:#07140d" in anon.get("/login").text
+    assert "--bg:#030604" in anon.get("/login").text
 
 
 def test_dark_dashboard_keeps_nowrap_and_readable_button_text(client):

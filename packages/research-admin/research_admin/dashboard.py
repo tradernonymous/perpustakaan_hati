@@ -1,9 +1,13 @@
-"""Server-rendered Daylight Grove research studio dashboard."""
+"""Server-rendered Void Grove research studio dashboard."""
 
 import html
+from calendar import monthrange
 from dataclasses import dataclass, field
+from datetime import UTC, date, datetime, timedelta
 from urllib.parse import quote
+from zoneinfo import ZoneInfo
 
+from .avatars import AVATAR_PATH
 from .content import DRAFT_KINDS, DRAFT_LANGUAGES, DRAFT_TONES
 from .discovery import score_posts
 from .followers import (
@@ -19,11 +23,13 @@ from .followers import (
     UNFOLLOW_FILTERS,
     AudienceIndex,
     build_preimport_analysis,
+    community_source_url,
     count_unfollow_filters,
     filter_graph_people,
     filter_people,
     since_date,
 )
+from .theme import RAISED, SOFT, VOID
 from .threads_client import POST_LIMIT_MAX, POST_TEXT_MAX, REPLIES_PER_POST_MAX, TOP_POSTS_MAX, SampleLimits
 
 
@@ -51,6 +57,7 @@ class DashboardData:
     graph_audience: dict | None = None
     follow_list: str = ""
     graph_list: str = ""
+    graph_query: str = ""
     follow_query: str = ""
     follow_uf: str = ""
     follow_sort: str = "newest"
@@ -71,8 +78,11 @@ class DashboardData:
     notifications: list[dict] = field(default_factory=list)
     external_signals: list[dict] = field(default_factory=list)
     mini_app_url: str = ""
+    publications: list[dict] = field(default_factory=list)
     scopes: list[str] = field(default_factory=list)
     csp_nonce: str = ""
+    calendar_mode: str = "week"
+    calendar_date: str = ""
 
 
 def _e(value) -> str:
@@ -106,7 +116,7 @@ def _draft_controls(*, kinds=None, tone: str = "empathetic", language: str = "ma
     )
 
 
-def _svg_sparkline(values: list[int | float], *, label: str = "Trend", stroke: str = "#2F4B3B") -> str:
+def _svg_sparkline(values: list[int | float], *, label: str = "Trend", stroke: str = "#9de1c1") -> str:
     nums = [float(v) for v in values if v is not None]
     if len(nums) < 2:
         return ""
@@ -264,7 +274,7 @@ def _follow_insights_board(analysis: dict) -> str:
         '<section class="board">'
         '<article class="card board-card"><p class="eyebrow">UNFOLLOW TRIAGE · GRAPH SYNC</p>'
         f'<b>{int(ins.get("ghost_non_followers", 0))} ghost · {int(ins.get("engaged_non_followers", 0))} engaged</b>'
-        '<p>Ghosts neither follow back nor reply on Threads · <a class="text-link" href="/?view=followers&amp;list=following&amp;uf=ghosts">Filter ghosts →</a></p></article>'
+        '<p>Accounts that did not follow back in the export and have no replies in the collected sample · <a class="text-link" href="/?view=followers&amp;list=following&amp;uf=ghosts">Filter ghosts →</a></p></article>'
         '<article class="card board-card"><p class="eyebrow">FOLLOW TENURE · WAITING TIME</p>'
         f'<b>{int(ins.get("older_90d_count", 0))} ≥90d · {int(ins.get("older_30d_count", 0))} ≥30d · {int(ins.get("recent_30d_count", 0))} &lt;30d</b>'
         f'<p>{_e(median_text)}{oldest_text} · <a class="text-link" href="/?view=followers&amp;list=not_following_back&amp;sort=oldest">Oldest first →</a></p></article>'
@@ -313,7 +323,7 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
     sort = data.follow_sort if data.follow_sort in FOLLOW_SORTS else "newest"
     graph_section = _graph_followers_section(data, follow_index, csrf_input, connected=is_connected)
     download_help = (
-        '<p class="help">Instagram does not expose full follower lists through the Threads API, so this view reads the files from '
+        '<p class="help">Exact followers, following, and follow-back status come from a Threads data export. Download both files from '
         '<b>Accounts Center → Your information and permissions → Download your information → Threads → JSON</b>. '
         'The upload stays in this admin’s local database and is never sent to the AI provider.</p>'
         '<p class="help">Comparison approach credited to <a class="text-link" href="https://github.com/Xiang511/Threads-Follower" target="_blank" rel="noreferrer">Threads-Follower</a>.</p>'
@@ -325,8 +335,9 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
     sort_qs = f"&amp;sort={quote(sort, safe='')}" if sort != "newest" else ""
     q_qs = f"&amp;q={exported}" if exported else ""
     glist_qs = f"&amp;glist={quote(data.graph_list, safe='')}" if data.graph_list else ""
+    graph_qs = f"&amp;graph_q={quote(data.graph_query, safe='')}" if data.graph_query or data.graph_list else ""
     pills = "".join(
-        f'<a class="{"selected" if key == list_key else ""}" href="/?view=followers&amp;list={key}{uf_qs}{sort_qs}{q_qs}{glist_qs}">'
+        f'<a class="{"selected" if key == list_key else ""}" href="/?view=followers&amp;list={key}{uf_qs}{sort_qs}{q_qs}{glist_qs}{graph_qs}">'
         f'{_e(AUDIENCE_LIST_LABELS[key])} · {len(analysis.get(key, []))}</a>'
         for key in FOLLOW_VIEW_LISTS
     )
@@ -334,12 +345,12 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
     if list_key in ("not_following_back", "following", "unfollow_later"):
         uf_Counts = count_unfollow_filters(analysis, list_key)
         uf_pills = "".join(
-            f'<a class="{"selected" if fkey == uf else ""}" href="/?view=followers&amp;list={list_key}&amp;uf={fkey}{sort_qs}{q_qs}{glist_qs}">'
+            f'<a class="{"selected" if fkey == uf else ""}" href="/?view=followers&amp;list={list_key}&amp;uf={fkey}{sort_qs}{q_qs}{glist_qs}{graph_qs}">'
             f'{_e(UNFOLLOW_FILTER_LABELS[fkey])} · {uf_Counts[fkey]}</a>'
             for fkey in UNFOLLOW_FILTERS
         )
         sort_pills = "".join(
-            f'<a class="{"selected" if skey == sort else ""}" href="/?view=followers&amp;list={list_key}{uf_qs}&amp;sort={skey}{q_qs}{glist_qs}">'
+            f'<a class="{"selected" if skey == sort else ""}" href="/?view=followers&amp;list={list_key}{uf_qs}&amp;sort={skey}{q_qs}{glist_qs}{graph_qs}">'
             f'{_e(FOLLOW_SORT_LABELS[skey])}</a>'
             for skey in FOLLOW_SORTS
         )
@@ -390,12 +401,20 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
         f'{tag_totals["mutual"] + tag_totals["follower"] + tag_totals["following_only"]} of {len(data.insights)} saved insights '
         'come from accounts already linked to this import.</p>'
     ) if follow_index.enabled and data.insights else ""
+    clear_follow_q = (
+        f'<a class="button ghost small" href="/?view=followers&amp;list={_e(list_key)}{uf_qs}{sort_qs}{glist_qs}{graph_qs}">Clear</a>'
+        if follow_q
+        else ""
+    )
     search_form = (
         f'<form class="search" method="get"><input type="hidden" name="view" value="followers">'
         f'<input type="hidden" name="list" value="{_e(list_key)}">'
         f'<input type="hidden" name="uf" value="{_e(uf)}">'
         f'<input type="hidden" name="sort" value="{_e(sort)}">'
-        f'<input name="q" value="{_e(follow_q)}" placeholder="Search @username or YYYY-MM"><button class="button ghost small">Search</button></form>'
+        f'<input type="hidden" name="glist" value="{_e(data.graph_list)}">'
+        f'<input type="hidden" name="graph_q" value="{_e(data.graph_query)}">'
+        f'<input name="q" value="{_e(follow_q)}" placeholder="Search @username or YYYY-MM">'
+        f'<button class="button ghost small">Search</button>{clear_follow_q}</form>'
     )
     stats_and_board = (
         f'<div class="stats">'
@@ -407,7 +426,7 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
         f'{_follow_insights_board(analysis)}'
         f'{_snapshot_diff_banner(data.snapshot_diff)}'
         f'{tie_in}'
-    ) if has_import else _follow_insights_board(analysis)
+    ) if has_import else ""
     import_panel = (
         f'<section class="panel"><div class="section-head"><div><p class="eyebrow">REFRESH</p><h2>Re-import or clear</h2></div>'
         f'<form method="post" action="/followers/clear">{csrf_input}<button class="button ghost small" data-confirm="Clear the saved follower import and unfollow queue?">Clear import</button></form></div>{_import_form(csrf_input)}{download_help}</section>'
@@ -421,13 +440,13 @@ def _render_followers_view(data: DashboardData, follow_index: AudienceIndex, csr
     )
     return (
         f'<div class="page-head"><div><p class="eyebrow">FOLLOW-BACK INSIGHT &amp; UNFOLLOW PLANNER</p><h1>Followers</h1>'
-        f'<p class="lead">Filter your following list by non-followers, ghost accounts (0 replies), or follow age to unfollow them later, synchronized with live Threads Graph telemetry.</p></div>'
+        '<p class="lead">Browse active repliers and follower insights from Threads. Import a data export when you need exact follow-back lists.</p></div>'
         f'{header_right}</div>'
+        f'{graph_section}'
         f'{stats_and_board}'
-        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">LISTS &amp; UNFOLLOW FILTERS</p><h2>{_e(AUDIENCE_LIST_LABELS[list_key])}</h2></div>{search_form}</div>'
+        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">FOLLOW-BACK LISTS · DATA EXPORT</p><h2>{_e(AUDIENCE_LIST_LABELS[list_key])}</h2></div>{search_form}</div>'
         f'<div class="filter-pills">{pills}</div>{subfilter_bar}{rows}{page_note}</section>'
         f'{import_panel}'
-        f'{graph_section}'
     )
 
 
@@ -502,6 +521,8 @@ def _graph_community_row(person: dict, follow_index: AudienceIndex) -> str:
     follow_tag = follow_index.tag(href)
     follow_badge = _follow_chip(follow_tag) if follow_tag and follow_tag != "none" else ""
     actions = f'<a class="text-link" href="/?view=research&amp;q={quote(str(person.get("username", "")), safe="")}">Search replies →</a>'
+    if source_url := community_source_url(person):
+        actions = f'<a class="text-link" href="{_e(source_url)}" target="_blank" rel="noreferrer">Open source on Threads ↗</a> · {actions}'
     if insight_ids:
         sel = ",".join(str(i) for i in insight_ids[:10])
         actions += f' · <a class="text-link" href="/?view=studio&amp;select={sel}">Draft in Studio →</a>'
@@ -514,7 +535,7 @@ def _graph_community_row(person: dict, follow_index: AudienceIndex) -> str:
 def _graph_followers_section(data: DashboardData, follow_index: AudienceIndex, csrf_input: str, *, connected: bool = False) -> str:
     graph = data.graph_audience
     glist = data.graph_list
-    query = data.follow_query
+    query = data.graph_query
     sync_btn = (
         f'<form method="post" action="/followers/sync">{csrf_input}'
         f'<input type="hidden" name="queue" value="on">'
@@ -542,10 +563,27 @@ def _graph_followers_section(data: DashboardData, follow_index: AudienceIndex, c
     list_qs = f"&amp;list={quote(data.follow_list, safe='')}" if data.follow_list else ""
     uf_qs = f"&amp;uf={quote(data.follow_uf, safe='')}" if data.follow_uf and data.follow_uf != "all" else ""
     sort_qs = f"&amp;sort={quote(data.follow_sort, safe='')}" if data.follow_sort and data.follow_sort != "newest" else ""
+    follow_qs = f"&amp;q={quote(data.follow_query, safe='')}" if data.follow_query else ""
     pills = "".join(
-        f'<a class="{"selected" if key == gkey else ""}" href="/?view=followers&amp;glist={key}{list_qs}{uf_qs}{sort_qs}{f"&amp;q={exported_q}" if exported_q else ""}">'
+        f'<a class="{"selected" if key == gkey else ""}" href="/?view=followers&amp;glist={key}{list_qs}{uf_qs}{sort_qs}{follow_qs}&amp;graph_q={exported_q}#active-community">'
         f'{_e(GRAPH_COMMUNITY_LABELS[key])} · {len(graph.get(key, []))}</a>'
         for key in GRAPH_COMMUNITY_LISTS
+    )
+    clear_graph_q = (
+        f'<a class="button ghost small" href="/?view=followers&amp;glist={_e(gkey)}{list_qs}{uf_qs}{sort_qs}{follow_qs}#active-community">Clear</a>'
+        if query
+        else ""
+    )
+    search_form = (
+        '<form class="search" action="/#active-community" method="get">'
+        '<input type="hidden" name="view" value="followers">'
+        f'<input type="hidden" name="glist" value="{_e(gkey)}">'
+        f'<input type="hidden" name="list" value="{_e(data.follow_list)}">'
+        f'<input type="hidden" name="uf" value="{_e(data.follow_uf)}">'
+        f'<input type="hidden" name="sort" value="{_e(data.follow_sort)}">'
+        f'<input type="hidden" name="q" value="{_e(data.follow_query)}">'
+        f'<input name="graph_q" value="{_e(query)}" aria-label="Search active community" placeholder="@username, reply or theme">'
+        f'<button class="button ghost small">Search</button>{clear_graph_q}</form>'
     )
     people, shown_total = filter_graph_people(graph, gkey, query, limit=100)
     rows = "".join(_graph_community_row(p, follow_index) for p in people) or '<div class="empty">No community replies recorded for this filter yet. Run research or click Sync from Threads Graph.</div>'
@@ -566,7 +604,8 @@ def _graph_followers_section(data: DashboardData, follow_index: AudienceIndex, c
         f'<article class="stat card"><span>Account engagement</span><b>{reach:,}</b><small>Views · {likes:,} likes across insights window</small></article>'
         f'</div>'
         f'{demographics_block}'
-        f'<div class="filter-pills">{pills}</div>{rows}{more_note}</section>'
+        f'<div id="active-community"><p class="help">Repliers come from sampled Threads posts. Search the roster without uploading any files.</p>'
+        f'{search_form}<div class="filter-pills">{pills}</div>{rows}{more_note}</div></section>'
     )
 
 
@@ -680,7 +719,7 @@ def _draft_card(draft: dict, csrf: str = "", *, connected: bool = False) -> str:
 
     sched_form = (
         f'<form class="actions" method="post" action="/content/drafts/{did}/schedule" style="margin-top:8px">{token}'
-        f'<input type="datetime-local" name="scheduled_at" value="{_e(str(draft.get("scheduled_at", ""))[:16])}" style="min-height:34px;border:1px solid var(--line);border-radius:8px;padding:4px 8px">'
+        f'<input class="field-input" type="datetime-local" name="scheduled_at" value="{_e(str(draft.get("scheduled_at", ""))[:16])}">'
         f'<button class="button ghost small" type="submit">Schedule</button></form>'
     ) if not published else ""
 
@@ -727,7 +766,7 @@ def _render_discovery_panel(data: DashboardData, csrf_input: str, *, is_connecte
         f'<input name="ac" value="{seed}" placeholder="Google MY seed, e.g. tenang hati, boundaries"><button class="button ghost small">Expand Demand</button></form>'
         f'<form class="search" method="post" action="/research/keyword">{csrf_input}'
         f'<input name="keyword" placeholder="Threads keyword_search, e.g. penat hubungan">'
-        f'<select name="mode" style="min-height:40px;border:1px solid var(--line);border-radius:8px;padding:6px 8px"><option value="KEYWORD">Keyword</option><option value="TAG">Tag</option></select>'
+        f'<select class="field-select" name="mode"><option value="KEYWORD">Keyword</option><option value="TAG">Tag</option></select>'
         f'<button class="button small" {"" if is_connected and configured else "disabled"}>Mine Threads Search</button></form>'
         f'</div>{ac_table}</section>'
     )
@@ -807,23 +846,178 @@ def _render_knowledge_view(data: DashboardData, csrf_input: str) -> str:
 
 
 def _render_calendar_view(data: DashboardData) -> str:
-    scheduled = [d for d in data.drafts if d.get("scheduled_at") or d.get("status") in ("scheduled", "approved", "published")]
-    scheduled.sort(key=lambda d: (0 if d.get("scheduled_at") else 1, str(d.get("scheduled_at") or d.get("created_at") or "")))
-    rows = "".join(
-        f'<tr><td>{_e(str(d.get("scheduled_at") or d.get("created_at", ""))[:16].replace("T", " "))}</td>'
-        f'<td><b>{_e(d.get("title", ""))}</b></td><td>{_e(d.get("kind", ""))}</td>'
-        f'<td><span class="status {_e(d.get("status", "draft"))}">{_e(d.get("status", "draft"))}</span></td>'
-        f'<td><a class="text-link" href="/content/drafts/{int(d["id"])}/card.html" target="_blank" rel="noreferrer">Card ↗</a> · '
-        f'<a class="text-link" href="/content/drafts/{int(d["id"])}/ebook.md">.md ↓</a></td></tr>'
-        for d in scheduled
-    ) or '<tr><td colspan="5" class="muted">No approved or scheduled drafts yet. Schedule items from the Draft Library.</td></tr>'
+    myt = ZoneInfo("Asia/Kuala_Lumpur")
+    today = datetime.now(myt).date()
+    try:
+        selected = date.fromisoformat(data.calendar_date)
+        if not 1970 <= selected.year <= 9990:
+            selected = today
+    except ValueError:
+        selected = today
+    mode = data.calendar_mode if data.calendar_mode in ("day", "week", "month") else "week"
+    if mode == "day":
+        first, last = selected, selected
+        range_label = f"{first:%a, %d %b %Y}"
+    elif mode == "week":
+        first = selected - timedelta(days=selected.weekday())
+        last = first + timedelta(days=6)
+        range_label = f"{first:%d %b %Y} – {last:%d %b %Y}"
+    else:
+        first = selected.replace(day=1)
+        last = first.replace(day=monthrange(first.year, first.month)[1])
+        range_label = f"{first:%B %Y}"
+    before = first - timedelta(days=1)
+    after = last + timedelta(days=1)
+    scheduled = {}
+    unscheduled = []
+    for draft in data.drafts:
+        stamp = draft.get("scheduled_at")
+        if not stamp:
+            if draft.get("status") == "approved":
+                unscheduled.append(draft)
+            continue
+        try:
+            when = datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            continue
+        local = (when if when.tzinfo else when.replace(tzinfo=UTC)).astimezone(myt)
+        if first <= local.date() <= last:
+            scheduled.setdefault(local.date(), []).append((local, draft))
+
+    def link(day, label, view=mode, current=False, extra_cls=""):
+        marker = ' aria-current="page"' if current else ""
+        cls = f"button ghost small {extra_cls}".strip()
+        return f'<a class="{cls}" href="/?view=calendar&amp;mode={view}&amp;date={day.isoformat()}"{marker}>{label}</a>'
+
+    def item(draft, time=""):
+        ident = int(draft["id"])
+        status = str(draft.get("status", "draft"))
+        time_chip = f'<span class="cal-time">{_e(time)}</span>' if time else ""
+        return (
+            f'<li class="cal-item"><div class="cal-item-main">{time_chip}<b>{_e(draft.get("title", ""))}</b>'
+            f'<span class="status {_e(status)}">{_e(status)}</span></div>'
+            f'<div class="actions"><a class="text-link" href="/?view=library&amp;status={quote(status, safe="")}">Open in library →</a>'
+            f'<a class="text-link" href="/content/drafts/{ident}/ebook.md">Export .md</a></div></li>'
+        )
+
+    groups = []
+    if mode == "month":
+        weekdays = "".join(f'<div class="cal-weekday">{wd}</div>' for wd in ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+        leading = '<div class="cal-cell is-pad" aria-hidden="true"></div>' * first.weekday()
+        cells = []
+        for offset in range((last - first).days + 1):
+            day = first + timedelta(days=offset)
+            entries = sorted(scheduled.get(day, []), key=lambda entry: entry[0])
+            cell_cls = "cal-cell"
+            if day == today:
+                cell_cls += " is-today"
+            if entries:
+                cell_cls += " has-items"
+            badge = f'<span class="cal-count">{len(entries)}</span>' if entries else '<span class="cal-count is-zero">0</span>'
+            cells.append(
+                f'<div class="{cell_cls}">'
+                f'<a href="/?view=calendar&amp;mode=day&amp;date={day.isoformat()}"{" aria-current=\"date\"" if day == today else ""}>'
+                f'<span class="cal-daynum">{day.day}</span>{badge}</a></div>'
+            )
+        calendar_body = f'<div class="calendar-month-wrap"><div class="calendar-month">{weekdays}{leading}{"".join(cells)}</div></div>'
+    else:
+        for offset in range((last - first).days + 1):
+            day = first + timedelta(days=offset)
+            entries = sorted(scheduled.get(day, []), key=lambda entry: entry[0])
+            entries_html = "".join(item(draft, when.strftime("%H:%M")) for when, draft in entries)
+            today_tag = ' <span class="tag">Today</span>' if day == today else ""
+            count_note = f'<span class="muted">{len(entries)} scheduled</span>' if entries else ""
+            groups.append(
+                f'<section class="panel cal-day-panel{" is-today" if day == today else ""}">'
+                f'<div class="section-head"><h2>{day:%a %d %b}{today_tag}</h2>{count_note}</div>'
+                + (f'<ul class="cal-list">{entries_html}</ul>' if entries_html else '<p class="muted">Nothing scheduled.</p>')
+                + '</section>'
+            )
+        calendar_body = f'<div class="calendar-{mode}">{"".join(groups)}</div>'
+    modes = "".join(link(selected, name.title(), name, current=name == mode) for name in ("day", "week", "month"))
+    ready = "".join(item(draft) for draft in unscheduled)
+    ready_html = f'<ul class="cal-list">{ready}</ul>' if ready else '<p class="muted">No approved drafts waiting for a date.</p>'
     return (
-        '<div class="page-head"><div><p class="eyebrow">QUEUE &amp; PUBLISHING SCHEDULE</p><h1>Publishing calendar</h1>'
-        '<p class="lead">Upcoming scheduled Threads posts, approved drafts, and ebook handoff packs.</p></div>'
+        '<div class="page-head"><div><p class="eyebrow">PUBLISHING SCHEDULE · MALAYSIA TIME (MYT)</p>'
+        '<h1>Publishing calendar</h1><p class="lead">Review scheduled posts in Malaysia time (MYT) or pick a date for approved drafts.</p></div>'
         '<div class="actions"><a class="button ghost small" href="/content/export/publish-pack?format=md">Download Publish Pack (.md)</a>'
         '<a class="button small" href="/content/export/publish-pack?format=ics">Export .ics Calendar</a></div></div>'
-        f'<section class="panel"><div class="table-wrap"><table class="metrics"><thead><tr><th>When (UTC)</th><th>Title</th><th>Kind</th><th>Status</th><th>Exports</th></tr></thead><tbody>{rows}</tbody></table></div></section>'
+        '<div class="calendar-toolbar panel">'
+        f'<nav class="actions" aria-label="Calendar view">{modes}</nav>'
+        f'<h2 class="cal-range">{_e(range_label)}</h2>'
+        f'<nav class="actions" aria-label="Calendar dates">{link(before, "← Previous")}{link(today, "Today")}{link(after, "Next →")}</nav>'
+        '</div>'
+        f'{calendar_body}'
+        f'<section class="panel"><div class="section-head"><div><p class="eyebrow">UNSCHEDULED QUEUE</p><h2>Ready to schedule</h2></div>'
+        f'<span class="tag">{len(unscheduled)} approved</span></div>{ready_html}</section>'
     )
+
+
+def _publication_workspace(records, csrf_input):
+    step_order = ("draft", "review", "approved", "published")
+    cards = []
+    for record in records:
+        tier, label = record["tier"], record["label"]
+        row, history = record["latest"] or {}, record["history"]
+        revision, status = row.get("revision", 0), row.get("status", "empty")
+        hidden = csrf_input + f'<input type="hidden" name="expected" value="{revision}">'
+        prefix = f"/publications/{tier}"
+        actions = []
+        next_step = {"draft": ("review", "Submit for review"), "review": ("approve", "Approve this copy"),
+                     "approved": ("publish", "Publish for export")}.get(status)
+        if next_step:
+            action, text = next_step
+            actions.append(f'<form method="post" action="{prefix}/{action}">{hidden}<button class="button small">{text}</button></form>')
+        sync_status = ""
+        if history:
+            if record["confirmed"] == history[0]:
+                sync_status = f'<p class="help">Revision {history[0]} · Synchronization confirmed by editor</p>'
+            else:
+                sync_status = f'<p class="help">Revision {history[0]} · Pending storefront confirmation</p>'
+                if status == "published":
+                    actions.append(f'<form method="post" action="{prefix}/confirm-live">{hidden}'
+                                   '<button class="button ghost small">I verified this revision on the live storefront</button></form>')
+            actions.append(f'<a class="button ghost small" href="{prefix}/export">Export revision {history[0]}</a>')
+        if len(history) > 1:
+            options = "".join(f'<option value="{rev}">Revision {rev}</option>' for rev in history[1:])
+            superseded = '<p class="help">Restoring supersedes the current unpublished revision.</p>' if status != "published" else ""
+            actions.append(
+                f'<form class="pub-rollback" method="post" action="{prefix}/rollback">{hidden}{superseded}'
+                f'<label class="pub-rollback-label"><span>Restore published copy</span>'
+                f'<select class="field-select" name="target">{options}</select></label>'
+                '<button class="button ghost small">Restore as new revision</button></form>'
+            )
+        last = record["event"]
+        failure = f'<p class="notice error" role="alert">Last action failed. {_e(last[1])}</p>' if last and last[1] != "ok" else ""
+        preview = (
+            f'<div class="pub-preview"><p class="pub-title"><strong>{_e(row["title"])}</strong></p>'
+            f'<p class="draft-body">{_e(row["summary"])}</p>'
+            f'<p class="help">Artwork · <code>/ebooks/cover-{tier}.png</code> · Sample · <code>{_e(row["sample"] or "None")}</code></p>'
+            f'<a class="text-link" href="{prefix}/preview">Preview all fields (JSON) →</a></div>'
+        ) if row else ""
+        active_idx = step_order.index(status) if status in step_order else -1
+        stepper = "".join(
+            f'<span class="pub-step{" is-done" if idx < active_idx else (" is-current" if idx == active_idx else "")}">{name.title()}</span>'
+            for idx, name in enumerate(step_order)
+        )
+        state = f'Revision {revision} · {_e(status)}' if row else "No draft yet"
+        status_cls = status if status in ("draft", "review", "approved", "published") else "archived"
+        sample_checked = " checked" if row.get("sample") else ""
+        cards.append(f'''<section class="panel"><div class="section-head"><div><p class="eyebrow">CATALOG EDITION · {_e(tier.upper())}</p><h2>{_e(label)}</h2></div><span class="status {_e(status_cls)}">{state}</span></div>
+            <div class="pub-stepper" aria-label="Publication workflow">{stepper}</div>
+            {failure}{preview}{sync_status}<div class="actions">{''.join(actions)}</div>
+            <details class="edit-drawer"{' open' if not row else ''}><summary class="text-link">Write a new draft</summary>
+            <form class="edit-form" method="post" action="{prefix}/draft">{hidden}
+            <label class="limit-field"><span>Public title</span><input name="title" required maxlength="120" value="{_e(row.get('title', label))}"></label>
+            <label class="focus-field"><span>Public summary</span><textarea name="summary" required maxlength="600">{_e(row.get('summary', ''))}</textarea></label>
+            <label class="check"><input type="checkbox" name="sample" value="/#bab"{sample_checked}>Link to the storefront chapter preview</label>
+            <div class="actions"><button class="button small">Save draft</button></div></form></details></section>''')
+    return ('<div class="page-head"><div><p class="eyebrow">STOREFRONT COPY · VERSIONED WORKFLOW</p><h1>Catalog publications</h1><p class="lead">'
+            'Write the text readers may see. Review and approve each revision before exporting it for storefront import.'
+            '</p></div><div class="actions">'
+            '<a class="button ghost small" href="https://perpustakaanhati.biz/#katalog" target="_blank" rel="noreferrer">Live catalog ↗</a>'
+            '<a class="button ghost small" href="https://perpustakaanhati.biz/#filem" target="_blank" rel="noreferrer">Launch film ↗</a>'
+            '</div></div>' + ''.join(cards))
 
 
 def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
@@ -832,13 +1026,10 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
     query, error, configured = data.query, data.error, data.configured
     selection, status_filter = data.selection, data.status_filter
     csrf = data.csrf
-    model = data.model
     csrf_input = f'<input type="hidden" name="csrf" value="{_e(csrf)}">'
     threads_configured = data.threads_configured
     is_connected = connection.startswith("Connected")
     follow_index = AudienceIndex(data.audience, data.graph_audience)
-    views = {"overview", "research", "followers", "audiences", "studio", "library", "calendar", "inbox", "knowledge", "settings"}
-    view = view if view in views else "overview"
     labels = {
         "overview": "Overview",
         "research": "Research",
@@ -846,11 +1037,13 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
         "audiences": "Audiences",
         "studio": "Studio",
         "library": "Draft library",
+        "publications": "Catalog publications",
         "calendar": "Calendar",
         "inbox": "Inbox",
         "knowledge": "Knowledge",
         "settings": "Connections & settings",
     }
+    view = view if view in labels else "overview"
     nav = "".join(f'<a class="nav-link {"active" if view == key else ""}" href="/?view={key}"><span class="nav-mark"></span>{label}</a>' for key, label in labels.items())
     total_evidence = len(insights)
     latest = runs[0] if runs else None
@@ -880,8 +1073,10 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 
     profile = (data.graph_audience or {}).get("profile") or {}
     acct_handle = str(profile.get("username") or "rahimam").lstrip("@")
-    acct_avatar = str(profile.get("profile_picture_url") or "").strip()
-    avatar_img = f'<img src="{_e(acct_avatar)}" alt="@{_e(acct_handle)}" style="width:22px;height:22px;border-radius:50%;object-fit:cover">' if acct_avatar.startswith("https://") else ""
+    avatar_img = (
+        f'<img src="{AVATAR_PATH}" alt="" width="22" height="22" '
+        'style="border-radius:50%;object-fit:cover;display:block;flex-shrink:0">'
+    )
     account_badge = f'<span class="account"><i class="dot {status_class}"></i>{avatar_img}<span class="ph-at">@{_e(acct_handle)}</span> Threads</span>'
 
     graph_summary = ""
@@ -893,7 +1088,7 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
     engagement_spark = _svg_sparkline(
         [int(h.get("likes", 0)) + 2 * int(h.get("replies", 0)) for h in data.graph_history],
         label="Engagement trend",
-        stroke="#B96444",
+        stroke="#e9cea2",
     )
 
     if view == "overview":
@@ -950,7 +1145,7 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
         last_themes = (_e(" · ".join(latest["themes"][:3]) or "No recurring themes") if latest else "Your first run creates the baseline")
         board = f'''<section class="board">
           <article class="card board-card"><p class="eyebrow">THREADS CONNECTION</p><b>{_e(connection)}</b><p>{"Token saved" if expiry else "No saved token"}<br>Own posts and visible direct replies only</p></article>
-          <article class="card board-card"><p class="eyebrow">AI MODEL</p><b>{_e(model or "not set")}</b><p>{"Fact-Sheet grounded · quotes evidence-checked" if configured else "OPENROUTER_API_KEY not configured"}</p></article>
+          <article class="card board-card"><p class="eyebrow">AI MODEL</p><b>{_e(data.model or "not set")}</b><p>{"Fact-Sheet grounded · quotes evidence-checked" if configured else "OPENROUTER_API_KEY not configured"}</p></article>
           <article class="card board-card"><p class="eyebrow">LAST RUN</p><b>{last_run}</b><p>{last_themes}</p></article>
           <article class="card board-card"><p class="eyebrow">LIBRARY</p><b>{total_evidence} evidence · {total_runs} runs · {total_drafts} drafts</b><p>Sources stay clickable; approval never publishes</p></article>
         </section>'''
@@ -1001,7 +1196,12 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
         content = f'''<div class="page-head"><div><p class="eyebrow">02 · UNDERSTAND</p><h1>Audience signals</h1><p class="lead">Evidence-led working segments from sampled language. Each claim links back to source insights; no demographic inference is made.</p></div><div class="actions"><span class="tag">{source_count} evidence points</span><a class="button ghost small" href="/audiences/export.csv">Export evidence CSV</a></div></div><div class="audience-grid">{audience_cards}</div>{seg_form}'''
     elif view == "studio":
         selected = {value for value in selection.split(",") if value.isdigit()}
-        options = "".join(f'<option value="{int(i["id"])}"{" selected" if str(i["id"]) in selected else ""}>#{int(i["id"])} · {_e(i["theme"])}, {_e(i["quote"][:90])}</option>' for i in insights)
+        options = "".join(
+            f'<label class="studio-evidence-option"><input type="checkbox" name="insight_ids" value="{int(i["id"])}"'
+            f'{" checked" if str(i["id"]) in selected else ""}>'
+            f'<span><b>{_e(i["theme"])}</b><span class="help">{_e(i["quote"])}</span></span></label>'
+            for i in insights
+        ) or '<p class="muted">No saved evidence.</p>'
         preview_list = [i for i in insights if str(i["id"]) in selected] or insights[:4]
         source_preview = "".join(_insight_card(i, follow=follow_index.tag(i.get("source_url")), engager=follow_index.engager(i.get("source_url"))) for i in preview_list[:6]) or '<div class="empty">Run research before drafting so every idea can cite evidence.</div>'
         segment_shortcuts = ""
@@ -1017,7 +1217,9 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
             f'<input type="hidden" name="select" value="{_e(selection)}">'
             f'<button class="button ghost small" {"" if insights and configured else "disabled"}>Generate 3 Variants + Hook Lab</button></div></form>'
         )
-        content = f'''<div class="page-head"><div><p class="eyebrow">03 · CREATE</p><h1>Content studio</h1><p class="lead">Choose research evidence; get a small, grounded set of content directions for a human to edit.</p></div><span class="tag">Draft only · no auto-publishing</span></div><div class="studio-layout"><form class="studio-form card" method="post" action="/content/generate">{csrf_input}<label class="field-label" for="source_ids">Evidence to use</label>{segment_shortcuts}<input type="hidden" name="selected_ids" value="{_e(query)}"><select id="source_ids" name="insight_ids" multiple size="10" required>{options}</select><p class="help">Select multiple insights on desktop with Ctrl/Cmd-click. Segment-linked evidence is preselected. Drafts retain the chosen IDs as citations.</p>{_draft_controls()}<label class="consent"><input type="checkbox" name="consent" required><span>I consent to send selected saved insights to the configured AI provider to generate draft content.</span></label><button class="button" {"" if insights and configured else "disabled"}>Generate selected drafts <span>→</span></button><p class="help">Drafts run in the queue below; non-post drafts carry the source Threads links.</p></form><section><h2 class="subhead">Available evidence</h2><div class="stack">{source_preview}</div></section></div>{variants_form}{_queue_panel(data.jobs, csrf)}'''
+        content = f'''<div class="page-head"><div><p class="eyebrow">03 · CREATE</p><h1>Content studio</h1><p class="lead">Choose research evidence; get a small, grounded set of content directions for a human to edit.</p></div><span class="tag">Draft only · no auto-publishing</span></div><div class="studio-layout"><form class="studio-form card" method="post" action="/content/generate">{csrf_input}<fieldset class="studio-fieldset"><legend>Evidence to use</legend>{segment_shortcuts}<label class="field-label" for="studio-evidence-search">Search saved evidence</label><input id="studio-evidence-search" class="studio-evidence-search" type="search" autocomplete="off" placeholder="Filter by theme or quote..."><div class="studio-evidence-bar"><p id="studio-evidence-count" class="help" aria-live="polite"></p><div class="actions"><button class="button ghost small" type="button" data-studio-evidence="visible">Select visible</button><button class="button ghost small" type="button" data-studio-evidence="clear">Clear</button></div></div><div id="studio-evidence-list" class="studio-evidence-list">{options}</div></fieldset><p class="help">Drafts retain the chosen evidence IDs as citations.</p>{_draft_controls()}<label class="consent"><input type="checkbox" name="consent" required><span>I consent to send selected saved insights to the configured AI provider to generate draft content.</span></label><button class="button" {"" if insights and configured else "disabled"}>Generate selected drafts <span>→</span></button><p class="help">Drafts run in the queue below; non-post drafts carry the source Threads links.</p></form><section><h2 class="subhead">Available evidence</h2><div class="stack">{source_preview}</div></section></div>{variants_form}{_queue_panel(data.jobs, csrf)}'''
+    elif view == "publications":
+        content = _publication_workspace(data.publications, csrf_input)
     elif view == "library":
         draft_cards = "".join(_draft_card(d, csrf, connected=is_connected) for d in drafts) or '<div class="empty">No drafts yet. Select evidence in Research or open the Content Studio.</div>'
         content = f'''<div class="page-head"><div><p class="eyebrow">04 · REVIEW &amp; REUSE</p><h1>Draft library</h1><p class="lead">Review, edit inline, rewrite tone, preview Daylight Grove Quote Cards, export Markdown, or publish approved Threads posts.</p></div><div class="actions"><a class="button ghost small" href="/content/export/publish-pack?format=md">Publish Pack (.md)</a><a class="button" href="/?view=studio">New evidence-led drafts →</a></div></div><div class="filter-pills"><a class="{"selected" if not status_filter else ""}" href="/?view=library">All</a><a class="{"selected" if status_filter == "draft" else ""}" href="/?view=library&amp;status=draft">Needs review</a><a class="{"selected" if status_filter == "approved" else ""}" href="/?view=library&amp;status=approved">Approved</a><a class="{"selected" if status_filter == "scheduled" else ""}" href="/?view=library&amp;status=scheduled">Scheduled</a><a class="{"selected" if status_filter == "published" else ""}" href="/?view=library&amp;status=published">Published</a><a class="{"selected" if status_filter == "archived" else ""}" href="/?view=library&amp;status=archived">Archived</a></div><div class="draft-grid">{draft_cards}</div>'''
@@ -1044,7 +1246,7 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
         content = f'''<div class="page-head"><div><p class="eyebrow">WORKSPACE SETTINGS</p><h1>Connections &amp; settings</h1><p class="lead">Private data access, AI provider waterfall, Watchlist automation, Telegram alerts, and SQLite backup.</p></div></div>
         <div class="settings-grid">
           <article class="card settings-card"><p class="eyebrow">THREADS · OFFICIAL API</p><h2>{_e(connection)}</h2><p>{_e(expiry) if expiry else "Connect the authorized Threads profile used by this admin."}</p><p class="help">Granted scopes: <code>{_e(scope_list)}</code></p><div class="actions"><a class="button" href="/auth/start">{"Reconnect Threads" if is_connected else "Connect Threads"}</a>{publish_connect}{refresh_btn}</div></article>
-          <article class="card settings-card"><p class="eyebrow">AI PROVIDER WATERFALL</p><h2>{"Ready for explicit-consent workflows" if configured else "API key not configured"}</h2><p>Primary model <code>{_e(model or "not set")}</code>; reasoning disabled, quotes evidence-checked, zero em dashes enforced.</p><div class="table-wrap"><table class="metrics"><thead><tr><th>Provider</th><th>Calls</th><th>OK</th><th>Tokens (in/out)</th><th>Avg Latency</th></tr></thead><tbody>{provider_rows}</tbody></table></div></article>
+          <article class="card settings-card"><p class="eyebrow">AI PROVIDER WATERFALL</p><h2>{"Ready for explicit-consent workflows" if configured else "API key not configured"}</h2><p>Primary model <code>{_e(data.model or "not set")}</code>; reasoning disabled, quotes evidence-checked, zero em dashes enforced.</p><div class="table-wrap"><table class="metrics"><thead><tr><th>Provider</th><th>Calls</th><th>OK</th><th>Tokens (in/out)</th><th>Avg Latency</th></tr></thead><tbody>{provider_rows}</tbody></table></div></article>
           <article class="card settings-card"><p class="eyebrow">WATCHLIST &amp; SCHEDULE</p><h2>Autonomous monitoring</h2>
             <form class="edit-form" method="post" action="/watchlist/config">{csrf_input}
               <label class="check"><input type="checkbox" name="enabled" value="on" {"checked" if wl.get("enabled") else ""}> Enable periodic watchlist research</label>
@@ -1078,8 +1280,8 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 @font-face{{font-family:"Fraunces";src:url("/assets/fonts/FrauncesDisplayItalic.woff2") format("woff2");font-style:italic;font-weight:100 900;font-display:swap}}
 @font-face{{font-family:"Inter";src:url("/assets/fonts/InterUI.woff2") format("woff2");font-weight:100 900;font-display:swap}}
 @font-face{{font-family:"Source Serif 4";src:url("/assets/fonts/SourceSerifText.woff2") format("woff2");font-weight:200 900;font-display:swap}}
-:root{{--bg:#07140d;--paper:#0d2117;--sage:#142c20;--ink:#e6e2da;--muted:#a9b2a6;--line:#24402f;--gold:#e9cea2;--green:#3f9167;--link:#9de1c1;--deep:#2d7954;--danger:#f0a3a0;--shadow:0 14px 40px -28px rgb(0 0 0/.5)}}*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}}a{{color:inherit}}:focus-visible{{outline:2px solid #9de1c1;outline-offset:2px}}::selection{{background:#1d5a3d;color:#fdfee6}}::placeholder{{color:#a49c8d;opacity:1}}input,select,textarea{{color-scheme:dark}}button,input,select,textarea{{font:inherit}}.shell{{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}}aside{{position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 18px;background:#0b1d14;color:#e6e2da;display:flex;flex-direction:column;gap:20px}}.brand{{display:flex;align-items:center;gap:12px;padding:0 8px}}.brand-mark{{height:38px;width:38px;display:grid;place-items:center;border-radius:12px;background:#C99B6B;color:#1C2D23;font:bold 18px "Fraunces",Georgia,serif}}.brand b{{display:block;font:600 15px "Fraunces",Georgia,serif;letter-spacing:.02em}}.brand small{{display:block;color:#C8D2C9;font-size:11px;margin-top:2px}}.nav-label,.eyebrow{{font-size:10px;letter-spacing:.17em;font-weight:700;color:var(--gold);margin:0 0 8px}}aside .nav-label{{color:#A5B8AA;padding:0 12px}}nav{{display:grid;gap:4px}}.nav-link{{display:flex;align-items:center;gap:11px;padding:9px 12px;text-decoration:none;border-radius:9px;color:#DBE5DC;font-size:13px;min-height:40px}}.nav-link:hover,.nav-link.active{{background:#2d7954;color:#fdfee6}}.nav-link.active{{box-shadow:inset 3px 0 #C99B6B}}.nav-mark{{height:7px;width:7px;border:1px solid #97B19D;border-radius:2px}}.nav-link.active .nav-mark{{background:#C99B6B;border-color:#C99B6B}}.side-bottom{{margin-top:auto;border-top:1px solid #385143;padding:15px 8px 0;color:#B8C8BB;font-size:12px}}.side-bottom a{{color:#F6E0B2}}.signout{{margin-top:12px;padding:0;border:0;background:transparent;color:#DBE5DC;font-size:12px;text-decoration:underline;cursor:pointer}}main{{min-width:0;max-width:1500px;width:100%;margin:auto;padding:34px clamp(20px,4vw,58px) 72px}}.topline{{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;color:var(--muted);font-size:12px;gap:12px;flex-wrap:wrap}}.crumb{{font-weight:600;color:var(--ink)}}.account{{display:flex;align-items:center;gap:8px}}.dot{{width:8px;height:8px;border-radius:50%;background:#d4746f}}.dot.connected{{background:#3B8A5B}}.ph-at{{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:linear-gradient(120deg,#f59e0b,#ef4444,#8b5cf6,#10b981);color:#fff}}h1,h2,h3,p{{margin-top:0}}h1{{font:500 clamp(32px,4vw,48px)/1.08 "Fraunces",Georgia,serif;letter-spacing:-.025em;margin:0 0 12px}}h2{{font:500 23px/1.2 "Fraunces",Georgia,serif;margin:0}}h3{{font:600 16px "Fraunces",Georgia,serif;margin:16px 0 8px}}.lead{{max-width:700px;color:var(--muted);font-size:15px;margin:0}}.welcome,.page-head{{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:27px}}.welcome{{align-items:center;padding:22px 0 30px}}.welcome .eyebrow{{margin-bottom:12px}}.page-head .eyebrow{{margin-bottom:10px}}.button{{display:inline-flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:9px;background:var(--deep);color:#fdfee6;text-decoration:none;font-weight:650;font-size:13px;padding:11px 16px;min-height:42px;cursor:pointer;white-space:nowrap}}.button:hover{{background:#1d5a3d}}.button:disabled{{opacity:.45;cursor:not-allowed}}.button.ghost{{background:transparent;color:var(--link);border:1px solid var(--line)}}.button.small{{padding:7px 11px;font-size:12px;min-height:36px}}.card,.panel{{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}}.card{{padding:18px}}.stats{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}}.stat{{display:flex;flex-direction:column;gap:6px}}.stat>span{{color:var(--muted);font-size:12px}}.stat>b{{font:500 34px "Fraunces",Georgia,serif}}.stat small{{color:var(--muted);font-size:11px;line-height:1.45}}.spark{{width:100%;max-width:140px;height:28px;margin-top:2px}}.workflow,.panel{{padding:22px;margin:16px 0}}.section-head{{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}}.section-head .eyebrow{{margin-bottom:6px}}.step-count,.tag{{display:inline-flex;align-items:center;border:1px solid #4a5b45;border-radius:999px;padding:4px 9px;color:var(--gold);background:#142c20;font-size:10px;font-weight:700;letter-spacing:.07em}}
-.follow-chip{{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.05em;background:#142c20;color:var(--muted);white-space:nowrap}}
+:root{{--bg:{VOID};--paper:{RAISED};--sage:{SOFT};--ink:#e6e2da;--muted:#a9b2a6;--line:#24402f;--gold:#e9cea2;--green:#3f9167;--link:#9de1c1;--deep:#2d7954;--danger:#f0a3a0;--shadow:0 14px 40px -28px rgb(0 0 0/.5)}}*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}}a{{color:inherit}}:focus-visible{{outline:2px solid #9de1c1;outline-offset:2px}}::selection{{background:#1d5a3d;color:#fdfee6}}::placeholder{{color:#a49c8d;opacity:1}}input,select,textarea{{color-scheme:dark}}button,input,select,textarea{{font:inherit}}.shell{{min-height:100vh;display:grid;grid-template-columns:250px minmax(0,1fr)}}aside{{position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 18px;background:#0b1d14;border-right:1px solid var(--line);color:#e6e2da;display:flex;flex-direction:column;gap:20px}}.brand{{display:flex;align-items:center;gap:12px;padding:0 8px}}.brand-mark{{height:38px;width:38px;display:grid;place-items:center;border-radius:12px;background:#C99B6B;color:#1C2D23;font:bold 18px "Fraunces",Georgia,serif}}.brand b{{display:block;font:600 15px "Fraunces",Georgia,serif;letter-spacing:.02em}}.brand small{{display:block;color:#C8D2C9;font-size:11px;margin-top:2px}}.nav-label,.eyebrow{{font-size:10px;letter-spacing:.17em;font-weight:700;color:var(--gold);margin:0 0 8px}}aside .nav-label{{color:#A5B8AA;padding:0 12px}}nav{{display:grid;gap:4px}}.nav-link{{display:flex;align-items:center;gap:11px;padding:9px 12px;text-decoration:none;border-radius:9px;color:#DBE5DC;font-size:13px;min-height:40px;transition:background .15s,color .15s}}.nav-link:hover,.nav-link.active{{background:#2d7954;color:#fdfee6}}.nav-link.active{{box-shadow:inset 3px 0 #C99B6B}}.nav-mark{{height:7px;width:7px;border:1px solid #97B19D;border-radius:2px}}.nav-link.active .nav-mark{{background:#C99B6B;border-color:#C99B6B}}.side-bottom{{margin-top:auto;border-top:1px solid #385143;padding:15px 8px 0;color:#B8C8BB;font-size:12px}}.side-bottom a{{color:#F6E0B2}}.signout{{margin-top:12px;padding:0;border:0;background:transparent;color:#DBE5DC;font-size:12px;text-decoration:underline;cursor:pointer}}main{{min-width:0;max-width:1500px;width:100%;margin:0 auto;padding:34px clamp(20px,4vw,58px) 72px}}.topline{{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px;color:var(--muted);font-size:12px;gap:12px;flex-wrap:wrap}}.crumb{{font-weight:600;color:var(--ink)}}.account{{display:flex;align-items:center;gap:8px}}.dot{{width:8px;height:8px;border-radius:50%;background:#d4746f}}.dot.connected{{background:#3B8A5B}}.ph-at{{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;background:linear-gradient(120deg,#f59e0b,#ef4444,#8b5cf6,#10b981);color:#fff}}h1,h2,h3,p{{margin-top:0}}h1{{font:500 clamp(32px,4vw,48px)/1.08 "Fraunces",Georgia,serif;letter-spacing:-.025em;margin:0 0 12px}}h2{{font:500 23px/1.2 "Fraunces",Georgia,serif;margin:0}}h3{{font:600 16px "Fraunces",Georgia,serif;margin:16px 0 8px}}.lead{{max-width:700px;color:var(--muted);font-size:15px;margin:0}}.welcome,.page-head{{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:27px}}.welcome{{align-items:center;padding:22px 0 30px}}.welcome .eyebrow{{margin-bottom:12px}}.page-head .eyebrow{{margin-bottom:10px}}.actions{{display:flex;align-items:center;gap:8px;flex-wrap:wrap}}.actions form{{margin:0}}.button{{display:inline-flex;justify-content:center;align-items:center;gap:10px;border:0;border-radius:9px;background:var(--deep);color:#fdfee6;text-decoration:none;font-weight:650;font-size:13px;padding:11px 16px;min-height:42px;cursor:pointer;white-space:nowrap;transition:background .15s,border-color .15s,color .15s}}.button:hover{{background:#1d5a3d}}.button:disabled{{opacity:.45;cursor:not-allowed}}.button.ghost{{background:transparent;color:var(--link);border:1px solid var(--line)}}.button.ghost:hover{{background:var(--sage);border-color:#3a644b}}.button[aria-current="page"]{{background:var(--deep);color:#fdfee6;border-color:var(--deep)}}.button.small{{padding:7px 11px;font-size:12px;min-height:36px}}.field-input,.field-select{{min-height:36px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:6px 10px;font-size:12px}}.card,.panel{{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}}.card{{padding:18px}}.stats{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}}.stat{{display:flex;flex-direction:column;gap:6px}}.stat>span{{color:var(--muted);font-size:12px}}.stat>b{{font:500 34px "Fraunces",Georgia,serif}}.stat small{{color:var(--muted);font-size:11px;line-height:1.45}}.spark{{width:100%;max-width:140px;height:28px;margin-top:2px}}.workflow,.panel{{padding:22px;margin:16px 0}}.section-head{{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:16px}}.section-head .eyebrow{{margin-bottom:6px}}.step-count,.tag{{display:inline-flex;align-items:center;border:1px solid #4a5b45;border-radius:999px;padding:4px 9px;color:var(--gold);background:{SOFT};font-size:10px;font-weight:700;letter-spacing:.07em}}
+.follow-chip{{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.05em;background:{SOFT};color:var(--muted);white-space:nowrap}}
 .follow-chip.mutual{{border-color:#2d7954;background:#12301f;color:#9de1c1}}
 .follow-chip.follower{{border-color:#2d7954;background:#12301f;color:var(--link)}}
 .follow-chip.following_only{{border-color:#6f5d2e;background:#2e2a17;color:var(--gold)}}
@@ -1093,25 +1295,33 @@ def render_dashboard(data: DashboardData, *, logout_action: str = "") -> str:
 .edit-drawer{{margin-top:12px;border-top:1px solid #1b3426;padding-top:10px}}
 .edit-drawer summary{{cursor:pointer;list-style:none}}
 .edit-form{{display:grid;gap:10px;margin-top:10px}}
-.edit-form textarea{{min-height:80px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:8px 10px;width:100%}}
+.edit-form textarea{{min-height:80px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:8px 10px;width:100%}}
 .import-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:13px;align-items:end}}
 .file-field{{display:grid;gap:6px;font-size:12px;font-weight:650}}
-.file-field input{{min-height:42px;border:1px dashed var(--line);border-radius:8px;background:#142c20;color:var(--muted);padding:9px 10px;width:100%;font-size:12px;font-weight:400}}
-.file-field input::file-selector-button{{font:inherit;margin-right:10px;padding:6px 11px;border:1px solid var(--line);border-radius:7px;background:#0d2117;color:var(--ink);cursor:pointer}}.steps{{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:12px}}.steps>a{{display:grid;gap:4px;text-decoration:none;padding:12px 4px}}.steps i{{color:var(--gold);font:italic 14px "Fraunces",Georgia,serif}}.steps b{{font:600 16px "Fraunces",Georgia,serif}}.steps small{{font-size:11px;color:var(--muted)}}.step-arrow{{color:#a49c8d}}.two-col{{display:grid;grid-template-columns:1fr 1fr;gap:16px}}.panel{{box-shadow:none}}.panel .section-head{{margin-bottom:14px}}.text-link,.source{{font-size:12px;font-weight:650;color:var(--link);text-decoration:none}}.text-link:hover,.source:hover{{text-decoration:underline}}.segment-row{{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #1b3426;text-decoration:none;font-size:13px}}.segment-row b{{color:var(--gold)}}.status{{font-size:11px;padding:5px 9px;border-radius:999px;background:#3a1c1f;color:var(--danger)}}.status.connected,.status.approved,.status.published,.status.replied{{background:#12301f;color:#9de1c1}}.status.scheduled{{background:#2e2a17;color:#e9cea2}}.status.archived,.status.dismissed{{background:#1b3426;color:#a9b2a6}}.muted,.help{{color:var(--muted);font-size:12px}}.small-copy{{color:var(--muted);font-size:11px;margin:12px 0 0}}.table-wrap{{overflow-x:auto}}.metrics{{width:100%;border-collapse:collapse;font-size:12px;text-align:left}}.metrics th,.metrics td{{padding:10px 8px;border-top:1px solid #1b3426;white-space:nowrap}}.metrics th{{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}}.metrics td:first-child{{max-width:420px;overflow:hidden;text-overflow:ellipsis}}.draft-grid,.audience-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}.draft{{min-width:0}}.card-top,.card-bottom{{display:flex;align-items:center;justify-content:space-between;gap:12px}}.card-top time{{color:var(--muted);font-size:10px}}.evidence blockquote{{font:500 17px/1.4 "Source Serif 4",Georgia,serif;margin:14px 0;color:#e6e2da}}.idea{{font-size:12px;color:var(--muted)}}.card-bottom{{border-top:1px solid #1b3426;padding-top:11px;flex-wrap:wrap}}.select,.consent{{display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:12px}}input[type=checkbox]{{accent-color:var(--green);margin-top:4px}}.page-head{{align-items:center}}.notice{{border:1px solid #5b4f2f;background:#2a2a18;color:#e9cea2;border-radius:10px;padding:12px 15px;font-size:12px;margin:0 0 16px}}.notice.error{{background:#3a1c1f;border-color:#7d3a3d;color:var(--danger)}}.run-bar{{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:16px}}.board{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}}.board-card{{padding:15px}}.board-card b{{display:block;font-size:13px;line-height:1.4;margin:4px 0 5px}}.board-card p{{font-size:11px;color:var(--muted);margin:0}}.run-card{{display:grid;gap:14px;margin-bottom:16px}}.run-card h2{{font-size:20px;margin:2px 0 6px}}.limits-grid{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}.limit-field{{display:grid;gap:5px;font-size:12px;font-weight:650}}.limit-field input,.limit-field select{{min-height:40px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:8px 10px;width:100%}}.limit-field small{{font-weight:400;color:var(--muted);font-size:11px;line-height:1.4}}.focus-field{{display:grid;gap:5px;font-size:12px;font-weight:650;margin-top:12px}}.focus-field textarea{{min-height:64px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:9px 10px;width:100%;resize:vertical;font:inherit}}.focus-field small{{font-weight:400;color:var(--muted);font-size:11px;line-height:1.4}}.draft-controls{{display:grid;gap:11px;margin-top:14px;border-top:1px solid #1b3426;padding-top:14px}}.kind-grid{{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}}.check{{display:flex;align-items:center;gap:6px;font-weight:400}}.select-field{{display:grid;gap:5px;font-size:12px;font-weight:650}}.select-field select{{min-height:40px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:8px 10px;width:100%}}.job-actions{{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}}.queue-panel{{margin:16px 0}}.run-actions{{display:flex;align-items:center;justify-content:space-between;gap:18px}}.evidence-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}.selection-bar{{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:16px;margin-top:18px}}.search{{display:flex;gap:7px;flex-wrap:wrap}}.search input,.studio-form select{{min-height:40px;border:1px solid var(--line);border-radius:8px;background:#142c20;color:var(--ink);padding:8px 10px;min-width:210px}}.run-row{{display:grid;grid-template-columns:250px 1fr;gap:15px;padding:12px 0;border-top:1px solid #1b3426;font-size:12px}}.run-row div{{display:grid;gap:3px}}.run-row span,.run-row p{{color:var(--muted);margin:0}}.audience{{padding:21px}}.audience h2{{margin:13px 0 8px}}.audience .count{{font:500 23px "Fraunces",Georgia,serif;color:var(--link)}}.audience .count small{{font:11px system-ui;color:var(--muted)}}.chips,.filter-pills{{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}}.chips span,.filter-pills a{{font-size:11px;color:var(--muted);background:var(--sage);padding:6px 10px;border-radius:999px;text-decoration:none}}.audience-evidence blockquote{{font:italic 14px "Source Serif 4",Georgia,serif;border-left:2px solid #C99B6B;padding:2px 0 2px 11px;margin:9px 0}}.audience-evidence .source{{display:inline-block;margin-top:5px;font:600 11px system-ui}}.audience ul{{padding-left:18px;color:var(--muted);font-size:12px}}.studio-layout{{display:grid;grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr);gap:22px}}.studio-form{{height:max-content;display:grid;gap:12px}}.field-label{{font-weight:700;font-size:13px}}.studio-form select{{width:100%;height:260px;min-width:0}}.subhead{{font:500 22px "Fraunces",Georgia,serif}}.stack{{display:grid;gap:10px}}.draft h3{{font-size:19px;margin:12px 0}}.draft-body{{font-size:13px;color:#d7dfd5}}.draft-copy{{white-space:pre-wrap;background:var(--sage);border-radius:8px;padding:13px;font-size:14px}}.draft-refs{{margin-top:12px;border-top:1px solid #1b3426;padding-top:10px;font-size:12px}}.draft-refs b{{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}}.draft-refs ul{{margin:0;padding-left:16px;display:grid;gap:4px}}.draft-refs a{{color:var(--link);word-break:break-all}}.chapter-list{{padding-left:20px}}.chapter-list li{{padding:5px 0}}.chapter-list span{{display:block;color:var(--muted);font-size:12px}}.draft .actions{{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}}.draft .actions form{{margin:0}}.filter-pills a.selected{{background:var(--deep);color:#fdfee6}}.settings-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}.settings-card h2{{font-size:20px;margin:8px 0}}.settings-card .button{{margin-top:12px}}.empty{{padding:25px;border:1px dashed #365243;border-radius:10px;color:var(--muted);font-size:13px;text-align:center;grid-column:1/-1}}.mobile-bar,.mobile-drawer{{display:none}}
+.file-field input{{min-height:42px;border:1px dashed var(--line);border-radius:8px;background:{SOFT};color:var(--muted);padding:9px 10px;width:100%;font-size:12px;font-weight:400}}
+.file-field input::file-selector-button{{font:inherit;margin-right:10px;padding:6px 11px;border:1px solid var(--line);border-radius:7px;background:{RAISED};color:var(--ink);cursor:pointer}}.steps{{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:center;gap:12px}}.steps>a{{display:grid;gap:4px;text-decoration:none;padding:12px 4px}}.steps i{{color:var(--gold);font:italic 14px "Fraunces",Georgia,serif}}.steps b{{font:600 16px "Fraunces",Georgia,serif}}.steps small{{font-size:11px;color:var(--muted)}}.step-arrow{{color:#a49c8d}}.two-col{{display:grid;grid-template-columns:1fr 1fr;gap:16px}}.panel{{box-shadow:none}}.panel .section-head{{margin-bottom:14px}}.text-link,.source{{font-size:12px;font-weight:650;color:var(--link);text-decoration:none}}.text-link:hover,.source:hover{{text-decoration:underline}}.segment-row{{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #1b3426;text-decoration:none;font-size:13px}}.segment-row b{{color:var(--gold)}}.status{{font-size:11px;padding:5px 9px;border-radius:999px;background:#3a1c1f;color:var(--danger)}}.status.connected,.status.approved,.status.published,.status.replied{{background:#12301f;color:#9de1c1}}.status.scheduled{{background:#2e2a17;color:#e9cea2}}.status.archived,.status.dismissed{{background:#1b3426;color:#a9b2a6}}.muted,.help{{color:var(--muted);font-size:12px}}.small-copy{{color:var(--muted);font-size:11px;margin:12px 0 0}}.table-wrap{{overflow-x:auto}}.metrics{{width:100%;border-collapse:collapse;font-size:12px;text-align:left}}.metrics th,.metrics td{{padding:10px 8px;border-top:1px solid #1b3426;white-space:nowrap}}.metrics th{{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}}.metrics td:first-child{{max-width:420px;overflow:hidden;text-overflow:ellipsis}}.draft-grid,.audience-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}.draft{{min-width:0}}.card-top,.card-bottom{{display:flex;align-items:center;justify-content:space-between;gap:12px}}.card-top time{{color:var(--muted);font-size:10px}}.evidence blockquote{{font:500 17px/1.4 "Source Serif 4",Georgia,serif;margin:14px 0;color:#e6e2da}}.idea{{font-size:12px;color:var(--muted)}}.card-bottom{{border-top:1px solid #1b3426;padding-top:11px;flex-wrap:wrap}}.select,.consent{{display:flex;align-items:flex-start;gap:9px;color:var(--muted);font-size:12px}}input[type=checkbox]{{accent-color:var(--green);margin-top:4px}}.page-head{{align-items:center}}.notice{{border:1px solid #5b4f2f;background:#2a2a18;color:#e9cea2;border-radius:10px;padding:12px 15px;font-size:12px;margin:0 0 16px}}.notice.error{{background:#3a1c1f;border-color:#7d3a3d;color:var(--danger)}}.run-bar{{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:16px}}.board{{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}}.board-card{{padding:15px}}.board-card b{{display:block;font-size:13px;line-height:1.4;margin:4px 0 5px}}.board-card p{{font-size:11px;color:var(--muted);margin:0}}.run-card{{display:grid;gap:14px;margin-bottom:16px}}.run-card h2{{font-size:20px;margin:2px 0 6px}}.limits-grid{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}}.limit-field{{display:grid;gap:5px;font-size:12px;font-weight:650}}.limit-field input,.limit-field select{{min-height:40px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:8px 10px;width:100%}}.limit-field small{{font-weight:400;color:var(--muted);font-size:11px;line-height:1.4}}.focus-field{{display:grid;gap:5px;font-size:12px;font-weight:650;margin-top:12px}}.focus-field textarea{{min-height:64px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:9px 10px;width:100%;resize:vertical;font:inherit}}.focus-field small{{font-weight:400;color:var(--muted);font-size:11px;line-height:1.4}}.draft-controls{{display:grid;gap:11px;margin-top:14px;border-top:1px solid #1b3426;padding-top:14px}}.kind-grid{{display:flex;gap:14px;flex-wrap:wrap;font-size:12px}}.check{{display:flex;align-items:center;gap:6px;font-weight:400}}.select-field{{display:grid;gap:5px;font-size:12px;font-weight:650}}.select-field select{{min-height:40px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:8px 10px;width:100%}}.job-actions{{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}}.queue-panel{{margin:16px 0}}.run-actions{{display:flex;align-items:center;justify-content:space-between;gap:18px}}.evidence-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}.selection-bar{{display:flex;align-items:center;justify-content:space-between;gap:16px;border-top:1px solid var(--line);padding-top:16px;margin-top:18px}}.search{{display:flex;gap:7px;flex-wrap:wrap}}.search input,.studio-form select{{min-height:40px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:8px 10px;min-width:210px}}.run-row{{display:grid;grid-template-columns:250px 1fr;gap:15px;padding:12px 0;border-top:1px solid #1b3426;font-size:12px}}.run-row div{{display:grid;gap:3px}}.run-row span,.run-row p{{color:var(--muted);margin:0}}.audience{{padding:21px}}.audience h2{{margin:13px 0 8px}}.audience .count{{font:500 23px "Fraunces",Georgia,serif;color:var(--link)}}.audience .count small{{font:11px system-ui;color:var(--muted)}}.chips,.filter-pills{{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}}.chips span,.filter-pills a{{font-size:11px;color:var(--muted);background:var(--sage);padding:6px 10px;border-radius:999px;text-decoration:none}}.audience-evidence blockquote{{font:italic 14px "Source Serif 4",Georgia,serif;border-left:2px solid #C99B6B;padding:2px 0 2px 11px;margin:9px 0}}.audience-evidence .source{{display:inline-block;margin-top:5px;font:600 11px system-ui}}.audience ul{{padding-left:18px;color:var(--muted);font-size:12px}}.studio-layout{{display:grid;grid-template-columns:minmax(300px,.8fr) minmax(0,1.2fr);gap:22px}}.studio-form{{height:max-content;display:grid;gap:12px}}.field-label{{font-weight:700;font-size:13px}}.studio-form select{{width:100%;height:260px;min-width:0}}.subhead{{font:500 22px "Fraunces",Georgia,serif}}.stack{{display:grid;gap:10px}}.draft h3{{font-size:19px;margin:12px 0}}.draft-body{{font-size:13px;color:#d7dfd5}}.draft-copy{{white-space:pre-wrap;background:var(--sage);border-radius:8px;padding:13px;font-size:14px}}.draft-refs{{margin-top:12px;border-top:1px solid #1b3426;padding-top:10px;font-size:12px}}.draft-refs b{{display:block;font-size:11px;color:var(--muted);margin-bottom:5px}}.draft-refs ul{{margin:0;padding-left:16px;display:grid;gap:4px}}.draft-refs a{{color:var(--link);word-break:break-all}}.chapter-list{{padding-left:20px}}.chapter-list li{{padding:5px 0}}.chapter-list span{{display:block;color:var(--muted);font-size:12px}}.draft .actions{{display:flex;gap:7px;flex-wrap:wrap;margin-top:14px}}.draft .actions form{{margin:0}}.filter-pills a.selected{{background:var(--deep);color:#fdfee6}}.settings-grid{{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}}.settings-card h2{{font-size:20px;margin:8px 0}}.settings-card .button{{margin-top:12px}}.empty{{padding:25px;border:1px dashed #365243;border-radius:10px;color:var(--muted);font-size:13px;text-align:center;grid-column:1/-1}}.mobile-bar,.mobile-drawer{{display:none}}
+.studio-fieldset{{border:0;padding:0;margin:0;display:grid;gap:8px}}.studio-fieldset legend{{font-weight:700;font-size:13px;margin-bottom:4px;padding:0}}.studio-evidence-search{{width:100%;min-height:40px;border:1px solid var(--line);border-radius:8px;background:{SOFT};color:var(--ink);padding:8px 11px}}.studio-evidence-bar{{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}}.studio-evidence-bar .help{{margin:0}}.studio-evidence-list{{max-height:24rem;overflow:auto;border:1px solid var(--line);border-radius:10px;background:{VOID};padding:4px}}.studio-evidence-option{{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:8px;border-bottom:1px solid #162b1f;cursor:pointer;transition:background .12s}}.studio-evidence-option:last-child{{border-bottom:0}}.studio-evidence-option:hover{{background:{SOFT}}}.studio-evidence-option:has(input:checked){{background:#10291c}}.studio-evidence-option[hidden]{{display:none}}.studio-evidence-option .help{{display:block;margin-top:2px}}
+.calendar-toolbar{{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 18px}}.cal-range{{font-size:18px;margin:0}}.calendar-month-wrap{{overflow-x:auto}}.calendar-month{{display:grid;grid-template-columns:repeat(7,minmax(82px,1fr));gap:6px;margin:14px 0}}.cal-weekday{{text-align:center;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 0}}.cal-cell{{background:var(--paper);border:1px solid var(--line);border-radius:10px;min-height:68px}}.cal-cell.is-pad{{background:transparent;border-style:dashed;border-color:#172b1f;opacity:.45}}.cal-cell.is-today{{border-color:var(--gold);box-shadow:inset 0 0 0 1px rgba(233,206,162,.35)}}.cal-cell.has-items{{border-color:#2d7954;background:#0c1e15}}.cal-cell a{{display:flex;flex-direction:column;justify-content:space-between;height:100%;padding:8px 9px;text-decoration:none;border-radius:9px;transition:background .15s}}.cal-cell a:hover{{background:var(--sage)}}.cal-daynum{{font-weight:700;font-size:13px;color:var(--ink)}}.cal-count{{align-self:flex-end;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:#12301f;color:var(--link)}}.cal-count.is-zero{{background:transparent;color:var(--muted);font-weight:400}}.cal-day-panel.is-today{{border-color:var(--gold)}}.cal-list{{list-style:none;margin:0;padding:0;display:grid;gap:8px}}.cal-item{{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--sage);border:1px solid #1b3426}}.cal-item-main{{display:flex;align-items:center;gap:8px;flex-wrap:wrap}}.cal-time{{font-size:11px;font-weight:700;color:var(--gold);background:#1b2c20;border:1px solid #4a5b45;border-radius:6px;padding:2px 7px}}
+.pub-stepper{{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px}}.pub-step{{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:{VOID}}}.pub-step.is-done{{border-color:#2d7954;background:#12301f;color:var(--link)}}.pub-step.is-current{{border-color:var(--gold);background:#2e2a17;color:var(--gold)}}.pub-preview{{background:var(--sage);border:1px solid #1f392a;border-radius:10px;padding:14px;margin-bottom:12px}}.pub-title{{margin-bottom:6px;font-size:15px}}.pub-rollback{{display:flex;align-items:center;gap:8px;flex-wrap:wrap}}.pub-rollback-label{{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}}.status.review{{background:#2e2a17;color:#e9cea2}}.status.draft{{background:#1b3426;color:#d7dfd5}}#active-community .search{{margin:10px 0}}.filter-pills a:hover{{background:#183324;color:var(--ink)}}.segment-row:hover,.steps>a:hover{{background:rgba(45,121,84,.12);border-radius:8px}}
 @media(max-width:950px){{.shell{{grid-template-columns:205px minmax(0,1fr)}}aside{{padding-inline:12px}}main{{padding-inline:25px}}.stats,.board{{grid-template-columns:repeat(2,minmax(0,1fr))}}.steps{{grid-template-columns:1fr 1fr;gap:5px}}.step-arrow{{display:none}}.steps>a{{border:1px solid #1b3426;border-radius:9px;padding:10px}}.two-col{{grid-template-columns:1fr}}}}
-@media(max-width:680px){{.shell{{display:block;padding-bottom:78px}}aside{{display:none}}.mobile-bar{{position:fixed;z-index:20;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:#1C2D23;border-top:1px solid #385143}}.mobile-bar a,.mobile-bar button{{flex:1;min-height:44px;display:grid;place-items:center;font-size:11px;color:#DBE5DC;text-decoration:none;background:none;border:0;cursor:pointer}}.mobile-bar a.active{{color:#F6E0B2;font-weight:700}}.mobile-drawer.open{{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;z-index:25;left:12px;right:12px;bottom:68px;background:#1C2D23;padding:14px;border-radius:14px;border:1px solid #385143;box-shadow:0 16px 40px rgba(0,0,0,.32)}}.drawer-link{{min-height:44px;display:flex;align-items:center;padding:8px 12px;border-radius:8px;color:#DBE5DC;text-decoration:none;font-size:13px}}.drawer-link.active{{background:#2d7954;color:#fdfee6}}main{{padding:19px 15px 36px}}.topline{{margin-bottom:20px}}.welcome,.page-head{{display:block}}.welcome .button,.page-head>.button{{margin-top:17px}}.welcome{{padding:14px 0 22px}}h1{{font-size:34px}}.stats{{gap:8px}}.stat{{padding:13px}}.stat>b{{font-size:28px}}.stat small{{font-size:10px}}.workflow,.panel{{padding:16px;margin:12px 0}}.steps{{gap:6px}}.steps b{{font-size:14px}}.steps small{{font-size:10px}}.draft-grid,.audience-grid,.evidence-grid,.settings-grid,.studio-layout,.board,.limits-grid{{grid-template-columns:1fr}}.run-bar,.selection-bar,.run-actions{{align-items:stretch;flex-direction:column}}.run-bar .button,.selection-bar .button,.run-card .button{{width:100%}}.section-head{{align-items:flex-start;flex-direction:column}}.search{{width:100%}}.search input{{min-width:0;flex:1}}.run-row{{grid-template-columns:1fr;gap:5px}}.status{{display:inline-flex;margin-top:5px}}.filter-pills{{gap:5px}}}}
+@media(max-width:680px){{.shell{{display:block;padding-bottom:78px}}aside{{display:none}}.mobile-bar{{position:fixed;z-index:20;left:0;right:0;bottom:0;display:flex;justify-content:space-around;align-items:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line)}}.mobile-bar a,.mobile-bar button{{flex:1;min-height:44px;display:grid;place-items:center;font-size:11px;color:#DBE5DC;text-decoration:none;background:none;border:0;cursor:pointer}}.mobile-bar a.active{{color:#F6E0B2;font-weight:700}}.mobile-drawer.open{{display:grid;grid-template-columns:1fr 1fr;gap:8px;position:fixed;z-index:25;left:12px;right:12px;bottom:68px;background:var(--paper);padding:14px;border-radius:14px;border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.55)}}.drawer-link{{min-height:44px;display:flex;align-items:center;padding:8px 12px;border-radius:8px;color:#DBE5DC;text-decoration:none;font-size:13px}}.drawer-link.active{{background:#2d7954;color:#fdfee6}}main{{padding:19px 15px 36px}}.topline{{margin-bottom:20px}}.welcome,.page-head{{display:block}}.welcome .button,.page-head>.button,.page-head .actions{{margin-top:14px}}.welcome{{padding:14px 0 22px}}h1{{font-size:34px}}.stats{{gap:8px}}.stat{{padding:13px}}.stat>b{{font-size:28px}}.stat small{{font-size:10px}}.workflow,.panel{{padding:16px;margin:12px 0}}.steps{{gap:6px}}.steps b{{font-size:14px}}.steps small{{font-size:10px}}.draft-grid,.audience-grid,.evidence-grid,.settings-grid,.studio-layout,.board,.limits-grid{{grid-template-columns:1fr}}.run-bar,.selection-bar,.run-actions{{align-items:stretch;flex-direction:column}}.run-bar .button,.selection-bar .button,.run-card .button{{width:100%}}.section-head{{align-items:flex-start;flex-direction:column}}.search{{width:100%}}.search input{{min-width:0;flex:1}}.run-row{{grid-template-columns:1fr;gap:5px}}.status{{display:inline-flex;margin-top:5px}}.filter-pills{{gap:5px}}.calendar-toolbar{{flex-direction:column;align-items:stretch}}}}
 </style></head><body><div class="shell"><aside><div class="brand"><div class="brand-mark">PH</div><div><b>Perpustakaan Hati</b><small>Research studio</small></div></div><div><p class="nav-label">WORKSPACE</p><nav>{nav}</nav></div><div class="side-bottom">Research is a sample, not a census.<br><a href="/?view=settings">Privacy &amp; connections →</a>{logout_action}</div></aside><main><div class="topline"><span class="crumb">Workspace <span class="muted">/</span> {_e(labels[view])}</span>{account_badge}</div>{notice_banner}{nav_error}{content}</main></div>
-<nav class="mobile-bar"><a class="{"active" if view == "overview" else ""}" href="/?view=overview">Home</a><a class="{"active" if view == "research" else ""}" href="/?view=research">Research</a><a class="{"active" if view == "followers" else ""}" href="/?view=followers">Followers</a><a class="{"active" if view == "library" else ""}" href="/?view=library">Drafts</a><button type="button" data-toggle-more="true">More ☰</button></nav>
+<nav class="mobile-bar" aria-label="Primary mobile navigation"><a class="{"active" if view == "overview" else ""}" href="/?view=overview">Home</a><a class="{"active" if view == "research" else ""}" href="/?view=research">Research</a><a class="{"active" if view == "followers" else ""}" href="/?view=followers">Followers</a><a class="{"active" if view == "library" else ""}" href="/?view=library">Drafts</a><button type="button" data-toggle-more="true" aria-expanded="false" aria-controls="mobile-drawer">More ☰</button></nav>
 <div class="mobile-drawer" id="mobile-drawer">{mobile_more}</div>
 <script{nonce_attr}>
 document.addEventListener('click',async e=>{{
   const cf=e.target.closest('[data-confirm]');if(cf&&!confirm(cf.dataset.confirm)){{e.preventDefault();return;}}
-  const tm=e.target.closest('[data-toggle-more]');if(tm){{const d=document.getElementById('mobile-drawer');if(d)d.classList.toggle('open');return;}}
+  const drawer=document.getElementById('mobile-drawer');
+  const tm=e.target.closest('[data-toggle-more]');if(tm){{if(drawer){{const open=drawer.classList.toggle('open');tm.setAttribute('aria-expanded',String(open));}}return;}}
+  if(drawer&&drawer.classList.contains('open')&&!e.target.closest('#mobile-drawer')){{drawer.classList.remove('open');const btn=document.querySelector('[data-toggle-more]');if(btn)btn.setAttribute('aria-expanded','false');}}
   const b=e.target.closest('[data-copy]');if(b){{const el=document.getElementById(b.dataset.copy);if(!el)return;const text=el.innerText;try{{await navigator.clipboard.writeText(text);b.textContent='Copied';setTimeout(()=>b.textContent='Copy text',1400)}}catch{{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();b.textContent='Copied'}}return}}
   const sa=e.target.closest('[data-select-all]');if(sa){{const v=sa.dataset.selectAll==='true';document.querySelectorAll('input[name="insight_ids"]').forEach(c=>{{c.checked=v}});return}}
   const sf=e.target.closest('[data-select-follow]');if(sf){{const v=sf.dataset.selectFollow==='true';document.querySelectorAll('input[name="usernames"]').forEach(c=>{{c.checked=v}});return}}
   const cu=e.target.closest('[data-copy-usernames]');if(cu){{const checked=[...document.querySelectorAll('input[name="usernames"]:checked')].map(c=>'@'+c.value);const all=[...document.querySelectorAll('input[name="usernames"]')].map(c=>'@'+c.value);const list=checked.length?checked:all;if(!list.length)return;try{{await navigator.clipboard.writeText(list.join('\\n'));cu.textContent='Copied '+list.length;setTimeout(()=>cu.textContent='Copy @usernames',1400)}}catch{{}}return}}
   const os=e.target.closest('[data-open-studio]');if(os){{const ids=[...document.querySelectorAll('input[name="insight_ids"]:checked')].map(c=>c.value);location.href='/?view=studio'+(ids.length?'&select='+ids.join(','):'');return}}
+}});
+document.addEventListener('keydown',e=>{{
+  if(e.key==='Escape'){{const d=document.getElementById('mobile-drawer');if(d&&d.classList.contains('open')){{d.classList.remove('open');const btn=document.querySelector('[data-toggle-more]');if(btn)btn.setAttribute('aria-expanded','false');}}}}
 }});
 document.addEventListener('input',e=>{{
   const src=e.target.closest('[data-char-source]');
@@ -1126,5 +1336,28 @@ if(qEl){{
   }}else{{
     setTimeout(()=>{{if(!document.activeElement||document.activeElement===document.body)location.reload();}},8000);
   }}
+}}
+const evidenceList=document.querySelector('#studio-evidence-list');
+if(evidenceList){{
+  const evidenceSearch=document.querySelector('#studio-evidence-search');
+  const evidenceCount=document.querySelector('#studio-evidence-count');
+  const options=[...evidenceList.querySelectorAll('.studio-evidence-option')];
+  const updateEvidence=()=>{{
+    const query=evidenceSearch.value.trim().toLowerCase();
+    let shown=0;
+    options.forEach(option=>{{const hide=!option.textContent.toLowerCase().includes(query);option.hidden=hide;if(!hide)shown++;}});
+    const selected=options.filter(option=>option.querySelector('input').checked).length;
+    evidenceCount.textContent=query?selected+' selected · '+shown+' of '+options.length+' shown':selected+' selected';
+  }};
+  document.querySelectorAll('[data-studio-evidence]').forEach(btn=>{{
+    btn.addEventListener('click',()=>{{
+      const mode=btn.dataset.studioEvidence;
+      options.forEach(option=>{{const input=option.querySelector('input');if(mode==='clear')input.checked=false;else if(!option.hidden)input.checked=true;}});
+      updateEvidence();
+    }});
+  }});
+  evidenceSearch.addEventListener('input',updateEvidence);
+  evidenceList.addEventListener('change',updateEvidence);
+  updateEvidence();
 }}
 </script></body></html>'''

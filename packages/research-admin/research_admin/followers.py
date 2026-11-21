@@ -60,6 +60,10 @@ GRAPH_COMMUNITY_LABELS = {
 TAG_LABELS = {"mutual": "Mutual", "follower": "Follows Rahimam", "following_only": "Doesn't follow back", "none": "Not connected"}
 
 PERMALINK = re.compile(r"@([A-Za-z0-9._]{1,30})", re.IGNORECASE)
+THREADS_POST_URL = re.compile(
+    r"https://(?:www\.)?threads\.(?:com|net)/@([A-Za-z0-9._]{1,30})/post/[A-Za-z0-9_-]+/?",
+    re.IGNORECASE,
+)
 
 
 class AudienceError(ValueError):
@@ -70,6 +74,15 @@ def author_of(url) -> str:
     """The account a Threads permalink points at, lower-cased, or ''."""
     match = PERMALINK.search(str(url or ""))
     return match.group(1).casefold() if match else ""
+
+
+def community_source_url(person: dict) -> str:
+    """Allow only a direct Threads post or reply owned by this account."""
+    url = str(person.get("last_url") or "")
+    match = THREADS_POST_URL.fullmatch(url)
+    if match and match.group(1).casefold() == str(person.get("username", "")).casefold():
+        return url
+    return ""
 
 
 def since_date(timestamp) -> str:
@@ -674,9 +687,10 @@ def filter_graph_people(graph_analysis: dict, list_key: str, query: str = "", *,
     needle = " ".join(str(query or "").split()).casefold()[:MAX_USERNAME]
     people = graph_analysis.get(key, [])
     if needle:
+        handle = needle.removeprefix("@")
         people = [
             person for person in people
-            if needle in str(person.get("username", "")).casefold()
+            if (handle and handle in str(person.get("username", "")).casefold())
             or needle in str(person.get("sample_quote", "")).casefold()
             or any(needle in str(t).casefold() for t in person.get("themes", []))
         ]
