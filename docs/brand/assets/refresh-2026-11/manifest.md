@@ -55,11 +55,19 @@ Each 599 × 902 px PNG uses one complete page of the final 152 × 229 mm PDF at 
 | Membangun | `edisi-membangun.pdf`, p. 20 | `dist/editions/specimens/edisi-membangun-sample.png` · internal proof | Halaman Soalan 1 dengan ruang menulis. |
 | Teman Hidup | `teman-hidup.pdf`, p. 40 | `dist/editions/specimens/teman-hidup-sample.png` · internal proof | Kad refleksi hijau pada halaman hitam. |
 
+## Rights declarations — 21 November 2026
+
+Declared by the project owner:
+
+- **Score.** `videos/edisi-poket-launch-v2/src/score.rb` is an original composition owned by the project. No third-party composer or music license is required for the launch film or its delivery encodes.
+- **Brand marks.** The three edition seals, book-heart emblem, monogram and copy stamps, lockup, edition rules/frames, and layout geometry are project-owned design. Grant recorded for use on the storefront, inside the edition PDFs, and in the launch film, including free redistribution of the Edisi Poket edition. Paid edition masters remain private delivery assets and are not redistributed.
+- **Poket authorship.** The credited author is @rahimam. A short redistribution-and-artwork permission note is drafted at `docs/brand/assets/refresh-2026-11/poket-author-permission.md` and awaits signature; until countersigned, treat the Poket redistribution grant as pending rather than on file.
+
 ## Launch film, end cards, and posters
 
 The film source is `videos/edisi-poket-launch-v2/src/build_editions.py`. It composes five scenes from the three catalog cover PNGs, the project fonts listed above, and original editorial lettering. The Poket prompt comes from its free manuscript. Its accompanying detail is a crop of the reflection field on page 4 of `content/ebooks/tier-1-free/edisi-poket.pdf`. The Membangun and Teman Hidup cards are original editorial treatments for this film. Highlighted covers retain the full page, with text and art positioned independently for each ratio.
 
-The instrumental score is labeled original in `src/score.rb` within the video project. The production uses its project recording `src/score_render.wav` with a 25-second trim and fades. The individual composer and a separate music license are unrecorded. The launch project supplies the score for this use. No voiceover or external recording was added.
+The instrumental score is labeled original in `src/score.rb` within the video project. The production uses its project recording `src/score_render.wav` with a 25-second trim and fades. The launch project supplies the score for this use. No voiceover or external recording was added. Owner declaration, 21 November 2026: the score is an original composition written for this project (`score.rb`, Sonic Pi) and is owned by the project; no third-party composer or music license applies.
 
 | Surface | Frame and composition | Outputs in `videos/edisi-poket-launch-v2/renders/` |
 |---|---|---|
