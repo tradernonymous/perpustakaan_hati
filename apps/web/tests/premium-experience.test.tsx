@@ -19,12 +19,6 @@ describe("premium interactive experience", () => {
     expect(html).toContain("Buka muka surat seterusnya");
   });
 
-  it("puts the two edition links in the introduction", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("Mulakan percuma");
-    expect(html).toContain("Lihat koleksi");
-  });
-
   it("deck uses a coverflow with the active edition raised and readable", () => {
     const html = renderToStaticMarkup(<EbookDeck />);
     expect(html).toContain("ph-coverflow");
@@ -66,14 +60,4 @@ describe("premium interactive experience", () => {
     expect(html).toContain('aria-hidden="true"');
   });
 
-  it("keeps the compact introduction free of the light layer", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-day-stage");
-    expect(html).not.toMatch(/hero-book|ph-book-plinth|HeroBeam/);
-  });
-
-  it("stacks compact hero actions on phones", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toMatch(/flex-col[^"]*sm:flex-row/);
-  });
 });

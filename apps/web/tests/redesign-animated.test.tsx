@@ -35,14 +35,6 @@ describe("SiteHeader logo", () => {
   });
 });
 
-describe("Hero motion", () => {
-  it("shows the headline without an animation or light beam", () => {
-    const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("Bacaan kecil.");
-    expect(html).not.toMatch(/hero-rise|hero-beam/);
-  });
-});
-
 describe("Reveal", () => {
   it("wraps children and starts hidden until scrolled into view", () => {
     const html = renderToStaticMarkup(

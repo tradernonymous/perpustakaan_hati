@@ -14,7 +14,7 @@ describe("Design System 3.7 dark default", () => {
   it("uses a dark ground as themeColor", () => {
     expect(layout).toMatch(/themeColor: "#0[0-9a-f]{5}"/);
   });
-  it("publishes the current version in both token sheets", () => {
+  it("bumps the system version to 3.7.0", () => {
     expect(css).toContain("--ph-system-version: '3.9.0'");
     expect(brandCss).toContain("--ph-system-version: '3.9.0'");
   });

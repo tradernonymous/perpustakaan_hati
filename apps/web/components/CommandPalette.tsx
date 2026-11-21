@@ -5,10 +5,8 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 export const PALETTE_ITEMS = [
   { label: "Edisi Poket, percuma", hint: "Bahagian", href: "#percuma" },
-  { label: "Intai beberapa bab", hint: "Bahagian", href: "#bab" },
   { label: "Tiga edisi dan harga", hint: "Bahagian", href: "#edisi" },
-  { label: "Katalog edisi dan buku", hint: "Bahagian", href: "#katalog" },
-  { label: "Cara dapatkan buku", hint: "Bahagian", href: "#cara" },
+  { label: "Intai beberapa bab", hint: "Bahagian", href: "#bab" },
   { label: "Soalan lazim", hint: "Bahagian", href: "#soalan" },
   { label: "Pustaka Saya", hint: "Halaman", href: "/pustaka" },
   ...(temanHatiEnabled ? [{ label: "Teman Hati AI", hint: "Halaman", href: "/teman-hati" }] : []),

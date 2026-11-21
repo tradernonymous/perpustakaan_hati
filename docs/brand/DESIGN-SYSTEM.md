@@ -13,7 +13,7 @@
 
 The 3D reference is the local Ezymap design system, particularly its perspective staging and beveled objects. Void Grove applies those ideas to paper, binding, and gilt instead of using trading imagery.
 
-Open [the foundations specimen](specimens/foundations.html) to review the current type, cover depth, motion, and component states. [Instrument Serif](https://github.com/Instrument/instrument-serif) and [Geist](https://github.com/vercel/geist-font) are self-hosted under `apps/web/public/fonts/` with their SIL Open Font License notices. The legacy static brand board is [archived here](preview/design-system-3-1.png).
+Visit the [live design system](https://perpustakaanhati.biz/design-system) to try the storefront components. Open [the foundations specimen](specimens/foundations.html) to review the current type, cover depth, motion, and component states. [Instrument Serif](https://github.com/Instrument/instrument-serif) and [Geist](https://github.com/vercel/geist-font) are self-hosted under `apps/web/public/fonts/` with their SIL Open Font License notices. The legacy static brand board is [archived here](preview/design-system-3-1.png).
 
 ## Hero marks and cover motion
 
@@ -32,10 +32,6 @@ The shared foundations provide ebook palettes, motion roles, and a specimen shee
 | Specimen sheet | `docs/brand/specimens/foundations.html` | Review sheet: buttons, forms, navigation, cards, dialogs, loading/empty/success/error states and the three tier specimens. Uses `design-tokens.css` only — the test suite fails the sheet if a raw hex colour appears. |
 
 Pinned by `packages/brand-tools/tests/test_phase1_foundations.py`: token presence, scoping (not in `:root`), reduced-motion zeroing, byte-identical CSS copies, `design-tokens.json` ↔ CSS version and value sync, WCAG contrast on the new tier pairs (text ≥4.5:1, graphics ≥3:1), and the specimen sections.
-
-## Edition design refinement (2026-11-19)
-
-The local *Perkara Kecil, Hati Kenyang* export associated with the Doop canvas supplied the forest-green wash, gilt framing, narrow running label and compact panel rhythm. The PDF renderer uses those details on the free Edisi Poket, white workbook paper for Edisi Membangun and a near-black collector layout for Teman Hidup. The three covers share the book-heart emblem and retain their individual seals. The `wash` token controls the subtle PDF background transition. The published PNGs reproduce PDF page 1, including the image on the interactive Poket book.
 
 ## Earlier: Design System 3.8 "Void Grove"
 

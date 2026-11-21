@@ -26,7 +26,7 @@ export function Hero() {
         </div>
       </section>
       <section id="percuma" aria-labelledby="percuma-heading" className="px-4 py-8 sm:px-5 sm:py-14">
-        <div className="ph-hero-in mx-auto mb-6 max-w-reading text-center" style={{ animationDelay: "200ms" }}>
+        <div className="mx-auto mb-6 max-w-reading text-center">
           <h2 id="percuma-heading" className="font-display text-3xl">Tips Psikologi Suami Isteri</h2>
           <p className="mt-2 text-fg-muted">Selak buku percuma. Daftar bila kamu mahu membuka koleksi Edisi Poket.</p>
         </div>

@@ -1,5 +1,3 @@
-import { formatRM, priceSen } from "@/src/catalog";
-import { EcosystemHub } from "@/components/EcosystemHub";
 import { Faq } from "@/components/Faq";
 import { HowItWorks } from "@/components/HowItWorks";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -11,9 +9,11 @@ import { StickyCta } from "@/components/StickyCta";
 import { Reveal } from "@/components/Reveal";
 import { TierCompare } from "@/components/TierCompare";
 import { Testimonials } from "@/components/Testimonials";
-import publishedCatalog from "@/src/publication/catalog.json";
-import { Catalog } from "@/components/Catalog";
+import { EcosystemHub } from "@/components/EcosystemHub";
+import { PlateGallery } from "@/components/PlateGallery";
 import { SectionOrnament } from "@/components/SectionOrnament";
+import { StatsStrip } from "@/components/StatsStrip";
+import { Ticker } from "@/components/Ticker";
 import { LuxCursor } from "@/components/LuxCursor";
 import { OrganizationSchema } from "@/components/OrganizationSchema";
 
@@ -37,10 +37,7 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
   );
 }
 
-// Pass only the editorial fields used for rendering across the client boundary.
-const publishedCards = publishedCatalog.map(({ tier, title, summary, artwork, sample }) => ({
-  tier, title, summary, artwork, sample,
-}));
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   return (
@@ -49,47 +46,27 @@ export default function Home() {
       <OrganizationSchema />
       <main id="utama" tabIndex={-1}>
         <Hero />
-        <Section index="01" id="bab" title="Intai beberapa bab" intro="Tujuh bab utama, dalam Bahasa Melayu yang dekat di hati.">
-          <ChapterPreview />
-        </Section>
-        <Section index="02" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
-          <TierCompare />
-        </Section>
-        <Section index="03" id="katalog" title="Katalog edisi dan buku">
-          <Catalog publications={publishedCards} prices={{ poket: "Percuma", membangun: formatRM(priceSen("membangun")), "teman-hidup": formatRM(priceSen("teman-hidup")) }} />
-        </Section>
-        <Section id="filem" tone="soft" title="Filem pelancaran">
-          <figure className="mx-auto max-w-reading">
-            <video
-              aria-label="Filem pelancaran Perpustakaan Hati"
-              className="aspect-video w-full rounded border border-line bg-surface"
-              width={1280}
-              height={720}
-              controls
-              playsInline
-              preload="none"
-              poster="/launch/poster.jpg"
-              src="/launch/editions-16x9.mp4"
-            >
-              <a href="/launch/editions-16x9.mp4">Muat turun filem pelancaran</a>
-            </video>
-            <figcaption className="mt-3 flex flex-wrap items-center gap-x-5 text-sm text-fg-muted">
-              <span>25 saat · Tiga edisi</span>
-              <a className="inline-flex min-h-tap items-center underline" href="/launch/editions-9x16.mp4">Versi 9:16</a>
-              <a className="inline-flex min-h-tap items-center underline" href="/launch/editions-4x5.mp4">Versi 4:5</a>
-            </figcaption>
-          </figure>
-        </Section>
-        <Section index="04" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
+        <StatsStrip />
+        <Ticker />
+        <Section index="01" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
           <HowItWorks />
         </Section>
-        <Section id="interaktif" tone="soft" title="Ruang interaktif dan komuniti">
+        <Section index="02" id="interaktif" title="Ruang interaktif dan komuniti" intro="Kuiz, kad refleksi, Teman Hati AI dan sesi bimbingan yang menyambung perjalanan bacaan kamu.">
           <EcosystemHub />
+        </Section>
+        <Section index="03" id="edisi" tone="soft" title="Tiga edisi, satu perjalanan" intro="Mulakan kecil. Naik bila kamu bersedia.">
+          <TierCompare />
+        </Section>
+        <Section index="04" id="bab" title="Intai beberapa bab" intro="Pratonton kulit edisi A4 terkini dan tujuh bab utama seperti mana ia ditulis.">
+          <ChapterPreview />
+        </Section>
+        <Section index="05" id="plat" tone="soft" title="Enam plat Edisi Poket" intro="Ilustrasi dalam edisi percuma, satu untuk setiap bab yang kamu baca.">
+          <PlateGallery />
         </Section>
         <Section id="suara-pembaca" title="Suara Pembaca" intro="Maklum balas komuniti tentang perkongsian kami di Threads.">
           <Testimonials />
         </Section>
-        <Section index="05" id="soalan" title="Soalan lazim">
+        <Section index="07" id="soalan" tone="soft" title="Soalan lazim">
           <Faq />
         </Section>
         <ClosingCta />

@@ -9,16 +9,12 @@ export function Faq() {
   return (
     <div className="mx-auto flex max-w-reading flex-col gap-3">
       {FAQS.map((f) => (
-        <details key={f.q} className="ph-lux ph-card ph-faq">
-          <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between gap-4 px-4 py-3.5 font-display text-lg text-fg sm:px-5">
+        <details key={f.q} className="ph-lux ph-card ph-faq group p-4">
+          <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between gap-4 font-display text-lg text-fg">
             {f.q}
-            <span aria-hidden="true" className="ph-faq-mark text-fg-healing">+</span>
+            <span aria-hidden="true" className="text-fg-healing transition-transform group-open:rotate-45">+</span>
           </summary>
-          <div className="ph-faq-body">
-            <div className="ph-faq-inner">
-              <p className="px-4 pb-4 text-fg sm:px-5">{f.a}</p>
-            </div>
-          </div>
+          <p className="ph-faq-answer mt-2 text-fg">{f.a}</p>
         </details>
       ))}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />

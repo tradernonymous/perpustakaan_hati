@@ -21,7 +21,7 @@ export const TIERS: Tier[] = [
     id: "poket",
     name: "Edisi Poket",
     price: "Percuma",
-    size: "Bacaan ringkas dan kad refleksi",
+    size: "15 hingga 25 muka surat",
     tone: "green",
     subcopy: "Ringkas, menyentuh, mudah dibawa.",
     includes: [
@@ -37,7 +37,7 @@ export const TIERS: Tier[] = [
     id: "membangun",
     name: "Edisi Membangun",
     price: "RM 29–49",
-    size: "Panduan dan 30 soalan refleksi",
+    size: "60 hingga 90 muka surat",
     tone: "gold",
     subcopy: "Panduan yang paling jujur dan paling mudah diikuti.",
     includes: [
@@ -126,10 +126,8 @@ export const TESTIMONIALS = [
 
 export const NAV = [
   { href: "#percuma", label: "Percuma" },
-  { href: "#bab", label: "Bab" },
   { href: "#edisi", label: "Edisi" },
-  { href: "#katalog", label: "Katalog" },
-  { href: "#cara", label: "Cara" },
+  { href: "#bab", label: "Bab" },
   { href: "#soalan", label: "Soalan" },
 ] as const;
 
