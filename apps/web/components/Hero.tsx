@@ -10,7 +10,7 @@ import styles from "./HeroAtmosphere.module.css";
 export function Hero() {
   return (
     <>
-      <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden border-b border-line px-4 py-10 sm:px-5 sm:py-20">
+      <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden border-b border-line px-4 py-12 sm:px-5 sm:py-24">
         <HeroAtmosphere />
         <HeroGlyphs />
         <div className={`${styles.copy} mx-auto max-w-3xl text-center`}>
@@ -29,7 +29,7 @@ export function Hero() {
       </section>
       <section id="percuma" aria-labelledby="percuma-heading" className="px-4 py-8 sm:px-5 sm:py-14">
         <div className="mx-auto mb-6 max-w-reading text-center">
-          <h2 id="percuma-heading" className="font-display text-3xl">Tips Psikologi Suami Isteri</h2>
+          <h2 id="percuma-heading" className="ph-title font-display text-4xl">Tips Psikologi Suami Isteri</h2>
           <p className="mt-2 text-fg-muted">Selak buku percuma. Daftar bila kamu mahu membuka koleksi Edisi Poket.</p>
         </div>
         <TipsFlipbook artwork={hasTipsArtwork()} signup={

@@ -28,7 +28,7 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
     <section id={id} className={`ph-section-warm ${tone === "soft" ? "ph-dark-section-raised" : "ph-dark-section"} px-4 py-10 sm:px-5 md:overflow-x-clip md:py-24`}>
       <div className="mx-auto mb-6 max-w-reading text-center md:mb-10">
         {index && <span className="ph-sec-index hidden md:inline-block">{index}</span>}
-        <h2 className="ph-title ph-ink-in text-balance text-3xl text-fg md:text-5xl">{title}</h2>
+        <h2 className="ph-title ph-ink-in text-balance text-4xl text-fg md:text-6xl">{title}</h2>
         <SectionOrnament className="mt-3 md:mt-4" />
         {intro && <p className="mt-3 text-fg-muted">{intro}</p>}
       </div>

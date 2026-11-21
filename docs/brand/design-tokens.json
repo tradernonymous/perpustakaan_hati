@@ -13,9 +13,11 @@
     "font-body": "'Geist Sans', system-ui, sans-serif",
     "font-script": "'Instrument Serif', Georgia, serif",
     "weight-title": 400,
-    "type-hero-size": "clamp(2.875rem, 7vw, 6rem)",
-    "type-hero-leading": 0.96,
-    "type-hero-tracking": "-0.015em"
+    "type-hero-size": "clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)",
+    "type-hero-leading": 0.98,
+    "type-hero-tracking": "-0.02em",
+    "type-title-tracking": "-0.012em",
+    "type-title-leading": 1.05
   },
   "bookMaterial": {
     "book-perspective": "960px",
