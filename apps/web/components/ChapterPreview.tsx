@@ -2,53 +2,17 @@ import { CHAPTERS } from "@/src/content";
 import { EBOOK_COVERS } from "@/src/ebook-covers";
 
 /**
- * Chapter & A4 ebook preview section (Section 04).
- *
- * Uses the real A4 ebook cover assets from docs/brand/preview rendered into
- * apps/web/public/ebooks/ at exact A4 portrait aspect ratio (210:297), avoiding
- * duplication with the six charcoal paintings in Section 05.
+ * Real sample section: seven chapter cards with their A4 cover art.
+ * The full A4 shelf lives in the catalog, so this section stays a sample
+ * rather than a second product list.
  */
 export function ChapterPreview() {
   return (
-    <div className="mx-auto flex max-w-grid flex-col gap-10">
-      <div>
-        <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-          <h3 className="font-display text-xl text-fg">Koleksi Ebook Semasa (Pratonton A4)</h3>
-          <span className="text-xs uppercase tracking-caps text-fg-accent">
-            {EBOOK_COVERS.length} judul A4 dalam folder koleksi
-          </span>
-        </div>
-        <div
-          className="ph-ebook-shelf"
-          role="region"
-          aria-label="Pratonton kulit ebook A4 semasa"
-          tabIndex={0}
-        >
-          {EBOOK_COVERS.map((ebook) => (
-            <figure key={ebook.slug} className="flex flex-col gap-2.5">
-              <div className="ph-a4-cover">
-                <picture>
-                  <source srcSet={ebook.webp} type="image/webp" />
-                  <img
-                    src={ebook.jpg}
-                    alt={`Kulit A4 ebook ${ebook.title}`}
-                    width={ebook.width}
-                    height={ebook.height}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </picture>
-              </div>
-              <figcaption className="flex flex-col gap-0.5">
-                <span className="text-[11px] font-semibold uppercase tracking-caps text-fg-accent">{ebook.pages}</span>
-                <span className="font-display text-base leading-snug text-fg">{ebook.title}</span>
-                <span className="text-xs leading-relaxed text-fg-muted">{ebook.summary}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+    <div className="mx-auto flex max-w-grid flex-col gap-6">
+      <div className="ph-card flex flex-wrap items-center justify-between gap-3 p-4">
+        <p className="text-sm text-fg-muted">Koleksi PDF Edisi Poket tersedia di Pustaka Saya selepas daftar.</p>
+        <a href="/pustaka" className="btn-ghost min-h-tap">Buka koleksi Edisi Poket</a>
       </div>
-
       <div className="ph-chapter-grid">
         {CHAPTERS.map((c, i) => {
           const cover = EBOOK_COVERS[i % EBOOK_COVERS.length];

@@ -21,7 +21,7 @@ export const TIERS: Tier[] = [
     id: "poket",
     name: "Edisi Poket",
     price: "Percuma",
-    size: "15 hingga 25 muka surat",
+    size: "Bacaan ringkas dan kad refleksi",
     tone: "green",
     subcopy: "Ringkas, menyentuh, mudah dibawa.",
     includes: [
@@ -37,7 +37,7 @@ export const TIERS: Tier[] = [
     id: "membangun",
     name: "Edisi Membangun",
     price: "RM 29–49",
-    size: "60 hingga 90 muka surat",
+    size: "Panduan dan 30 soalan refleksi",
     tone: "gold",
     subcopy: "Panduan yang paling jujur dan paling mudah diikuti.",
     includes: [
@@ -80,19 +80,56 @@ export const CHAPTERS: Chapter[] = [
   { no: 7, title: "Pulih dengan perlahan", note: "Patah hati dan duka, dalam perjalanan 30 hari.", pending: false },
 ];
 
-// PLACEHOLDERS: no real reader quotes exist yet. Replace with real, anonymised
-// quotes (with permission) before launch, then set placeholder to false.
+// Approved excerpts from public Threads replies to Perpustakaan Hati posts.
 export const TESTIMONIALS = [
-  { quote: "[CONTOH] Ayat pendek tentang apa yang pembaca rasa selepas membaca Edisi Poket.", who: "Pembaca (contoh)", placeholder: true },
-  { quote: "[CONTOH] Ayat pendek tentang satu skrip yang membantu mereka bercakap dengan pasangan.", who: "Pembaca (contoh)", placeholder: true },
-  { quote: "[CONTOH] Ayat pendek tentang rasa ditemani ketika sukar tidur malam.", who: "Pembaca (contoh)", placeholder: true },
+  {
+    who: "@amuizrosli_",
+    quote: "Kadang-kadang kita terlalu sibuk menjadi ibu bapa dan mengurus rumah tangga sampai terlupa untuk menjadi pasangan. Tanggungjawab memang penting, tapi emotional connection pun perlu dijaga.",
+    url: "https://www.threads.com/@amuizrosli_/post/DfpA7_PmFAA",
+  },
+  {
+    who: "@by_kiraaid",
+    quote: '"Anak belajar menyimpan kegembiraan sendiri" tu tusuk sangat. Sbg ayah, saya pun selalu terlepas cakap "sekejap". Terima kasih atas peringatan ni 🙏',
+    url: "https://www.threads.com/@by_kiraaid/post/DfqlNq_n6cs",
+  },
+  {
+    who: "@allisse_khalisya",
+    quote: "sebenarnya itu lah tujuan untuk komunikasi, berbincang cuba selesai, dengar pendapat yang boleh diambil yang boleh diletak tepi..",
+    url: "https://www.threads.com/@allisse_khalisya/post/Df0c0zFnxPd",
+  },
+  {
+    who: "@mentari_nuraura",
+    quote: "MasyaALLAH..tq sharingnya Tuan..penuh makna Tuan..",
+    url: "https://www.threads.com/@mentari_nuraura/post/Df6iLnDkoJw",
+  },
+  {
+    who: "@ir_effy",
+    quote: "silent treatmt is to control dan punish bukan mendidik",
+    url: "https://www.threads.com/@ir_effy/post/DfuQ4xxoIpn",
+  },
+  {
+    who: "@ema_nageeb",
+    quote: "Yes u r right.. Speak a good word or remain silent.. Inn shaa Allah selamat dlm byk sudut..",
+    url: "https://www.threads.com/@ema_nageeb/post/DfvYOOSkjGL",
+  },
+  {
+    who: "@itsamoijoann",
+    quote: "Benar tuan, Provokasi ni makanan nya emosi. When involve emosi akn merancakkan provokasi.",
+    url: "https://www.threads.com/@itsamoijoann/post/Dfuzoo0E2by",
+  },
+  {
+    who: "@idlinsardi",
+    quote: "Kehidupan yang penuh dengan complaint dan ketidak puashatian terhadap manusia,bukanlah kehidupan seorang Muslim yang bahagia",
+    url: "https://www.threads.com/@idlinsardi/post/DfrVfMXCaCg",
+  },
 ] as const;
 
 export const NAV = [
   { href: "#percuma", label: "Percuma" },
-  { href: "#edisi", label: "Edisi" },
   { href: "#bab", label: "Bab" },
-  { href: "#pembaca", label: "Pembaca" },
+  { href: "#edisi", label: "Edisi" },
+  { href: "#katalog", label: "Katalog" },
+  { href: "#cara", label: "Cara" },
   { href: "#soalan", label: "Soalan" },
 ] as const;
 

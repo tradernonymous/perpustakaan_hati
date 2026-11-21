@@ -1,3 +1,4 @@
+import { temanHatiEnabled } from "@/src/feature-flags";
 import Link from "next/link";
 
 type EcosystemItem = {
@@ -85,7 +86,7 @@ const ITEMS: EcosystemItem[] = [
 export function EcosystemHub() {
   return (
     <div className="ph-bento mx-auto max-w-grid">
-      {ITEMS.map((item) => {
+      {ITEMS.filter((item) => temanHatiEnabled || item.href !== "/teman-hati").map((item) => {
         const size =
           item.size === "wide"
             ? "ph-bento-wide"

@@ -1,0 +1,133 @@
+.viewer {
+  display: grid;
+  gap: .65rem;
+  padding: clamp(.65rem, 2vw, 1.5rem);
+}
+
+.fullscreenDialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--text-primary);
+  background: var(--surface-base);
+}
+
+.viewer[data-expanded="true"] {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: .35rem;
+  padding: max(.35rem, env(safe-area-inset-top)) max(.5rem, env(safe-area-inset-right))
+    max(.35rem, env(safe-area-inset-bottom)) max(.5rem, env(safe-area-inset-left));
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: var(--surface-base);
+}
+
+.viewer[data-expanded="true"] .stage {
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.viewer[data-expanded="true"] .stage[data-artwork="true"] {
+  /* Fit the 4:5 artwork to the actual space left between the controls. */
+  container-type: size;
+  overflow: hidden;
+}
+
+.viewer[data-expanded="true"] .stage[data-artwork="true"] .spread {
+  height: 100%;
+  align-items: center;
+  grid-template-columns: minmax(0, min(100cqw, 80cqh));
+}
+
+.viewer[data-expanded="true"] .stage[data-artwork="true"] .sheet {
+  animation: none;
+}
+
+.viewer[data-expanded="true"] .stage[data-artwork="false"] .spread {
+  grid-template-columns: minmax(0, 65ch);
+}
+
+@media (min-width: 720px) {
+  .viewer[data-expanded="true"] .stage[data-artwork="true"] .spread[data-spread="true"] {
+    grid-template-columns: repeat(2, minmax(0, min(calc((100cqw - 2px) / 2), 80cqh)));
+  }
+
+  .viewer[data-expanded="true"] .stage[data-artwork="false"] .spread[data-spread="true"] {
+    grid-template-columns: repeat(2, minmax(0, 65ch));
+  }
+}
+
+.spread {
+  touch-action: pan-y pinch-zoom;
+  display: grid;
+  gap: 2px;
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
+  perspective: var(--book-perspective);
+}
+
+.sheet {
+  width: 100%;
+  justify-self: center;
+  min-width: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #f3ebd9;
+  color: #14281d;
+  box-shadow:
+    0 1px 0 var(--linen),
+    0 3px 0 var(--paper),
+    0 4px 0 var(--gold-deep),
+    var(--book-stack-shadow);
+  animation: turn var(--motion-entrance-dur) var(--motion-entrance-ease) both;
+  transform-origin: left center;
+}
+
+.art {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background-image: url("/api/baca/tips-artwork");
+  background-size: 500% 200%;
+}
+
+.text {
+  min-height: 18rem;
+  padding: clamp(1rem, 3vw, 2.2rem);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  font-family: var(--font-reading);
+  line-height: 1.7;
+}
+
+@media (min-width: 720px) {
+  .spread[data-spread="true"] {
+    grid-template-columns: repeat(2, minmax(0, 420px));
+  }
+  .spread[data-spread="true"] .sheet {
+    width: 100%;
+  }
+}
+
+@media (max-width: 719px) {
+  .second { display: none; }
+}
+
+@keyframes turn {
+  from { opacity: .55; transform: rotateY(-19deg) translateX(7px); }
+  to { opacity: 1; transform: rotateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet { animation: none; }
+}

@@ -1,3 +1,5 @@
+import { formatRM, priceSen } from "@/src/catalog";
+import { MobileTierCompare } from "./MobileTierCompare";
 import { TIERS, type Tier } from "@/src/content";
 import { ProductCover } from "./ProductCover";
 
@@ -66,30 +68,12 @@ const COMPARE_ROWS: CompareRow[] = [
     "teman-hidup": true,
   },
   {
-    feature: "Nota Suara Rahimam: Audio Terapi Hati",
-    poket: false,
-    membangun: false,
-    "teman-hidup": true,
-  },
-  {
-    feature: "12 Kad Refleksi siap cetak (format A4)",
-    poket: false,
-    membangun: false,
-    "teman-hidup": true,
-  },
-  {
-    feature: "Anggaran saiz & format",
-    poket: "15–25 ms",
-    membangun: "60–90 ms",
-    "teman-hidup": "Buku, kerja, skrip & audio",
+    feature: "Format bacaan",
+    poket: "Koleksi PDF Poket",
+    membangun: "Panduan PDF dan kit refleksi",
+    "teman-hidup": "Panduan PDF, jurnal dan skrip",
   },
 ];
-
-const EXACT_LAUNCH_PRICE: Record<string, string | null> = {
-  poket: "Percuma sepenuhnya",
-  membangun: "Pelancaran: RM 29.00",
-  "teman-hidup": "Pelancaran: RM 79.00",
-};
 
 function CellMark({
   value,
@@ -120,8 +104,33 @@ function CellMark({
 }
 
 export function TierCompare() {
+  const editions = TIERS.map((tier) => ({
+    id: tier.id,
+    name: tier.name,
+    cover: tier.cover,
+    price: tier.id === "poket" ? "Percuma" : formatRM(priceSen(tier.id)),
+    href: tier.id === "poket" ? "#percuma" : `/beli/${tier.id}`,
+  }));
+  const rows = COMPARE_ROWS.map((row) => ({
+    label: row.feature,
+    values: Object.fromEntries(TIERS.map(({ id }) => [id, typeof row[id] === "boolean" ? (row[id] ? "Termasuk" : "Tidak termasuk") : row[id]])),
+  }));
   return (
-    <div className="ph-compare-wrap mx-auto max-w-grid">
+    <div className="mx-auto max-w-grid">
+      <ul className="ph-compare-desktop ph-compare-covers mb-6 grid-cols-3 gap-4" aria-label="Kulit tiga edisi">
+        {editions.map((edition) => (
+          <li key={edition.id} className="ph-card grid content-start gap-3 p-4 text-center">
+            <div className="mx-auto w-full max-w-[145px]">
+              {edition.cover && <img src={edition.cover} alt={`Kulit ${edition.name}`} width={145} height={205} className="h-auto w-full rounded" loading="lazy" />}
+            </div>
+            <p className="font-display text-lg">{edition.name}</p>
+            <p className="text-fg-healing">{edition.price}</p>
+            <a className="btn-ghost min-h-tap" href={edition.href}>{edition.id === "poket" ? "Dapatkan percuma" : "Lihat edisi"}</a>
+          </li>
+        ))}
+      </ul>
+      <MobileTierCompare editions={editions} rows={rows} />
+      <div className="ph-compare-wrap ph-compare-desktop">
       <table className="ph-compare-table">
         <caption className="sr-only">Perbandingan kandungan antara tiga edisi Perpustakaan Hati</caption>
         <thead>
@@ -132,7 +141,7 @@ export function TierCompare() {
             </th>
             {TIERS.map((t) => {
               const featured = t.id === "membangun";
-              const launch = EXACT_LAUNCH_PRICE[t.id];
+              const price = editions.find((edition) => edition.id === t.id)?.price;
               return (
                 <th
                   key={t.id}
@@ -154,8 +163,7 @@ export function TierCompare() {
                       <ProductCover name={t.name} src={t.cover} seal={t.seal} tier={t.id} className="rounded-sm" />
                     </div>
                     <span className="ph-tier-badge" data-tier={t.id}>{t.name}</span>
-                    <span className="font-display text-lg font-semibold ph-tier-ink">{t.price}</span>
-                    {launch && <span className="text-[11px] font-medium ph-tier-ink">{launch}</span>}
+                    <span className="font-display text-lg font-semibold ph-tier-ink">{price}</span>
                   </div>
                 </th>
               );
@@ -202,6 +210,7 @@ export function TierCompare() {
           </tr>
         </tfoot>
       </table>
+      </div>
     </div>
   );
 }

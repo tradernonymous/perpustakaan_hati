@@ -1,0 +1,332 @@
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  isolation: isolate;
+  animation: arrive var(--motion-scene-dur) var(--motion-entrance-ease) both;
+}
+
+.backdrop::before,
+.backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.backdrop::before {
+  background:
+    radial-gradient(ellipse at 63% 38%, color-mix(in srgb, var(--green-700) 39%, transparent), transparent 57%),
+    radial-gradient(ellipse at 38% 65%, color-mix(in srgb, var(--gold) 9%, transparent), transparent 52%);
+}
+
+.backdrop::after {
+  background:
+    radial-gradient(ellipse at 50% 48%, color-mix(in srgb, var(--surface-base) 84%, transparent) 9%, color-mix(in srgb, var(--surface-base) 63%, transparent) 30%, transparent 60%),
+    linear-gradient(to bottom, var(--surface-base), transparent 24% 78%, var(--surface-base));
+}
+
+.fan {
+  position: absolute;
+  inset: -18% max(-7%, calc((100% - 76rem) / 2));
+  opacity: .62;
+  transform: translate3d(0, 0, 0);
+  transition: opacity var(--motion-scene-dur) var(--motion-scene-ease);
+  mask-image: radial-gradient(ellipse at 54% 43%, #000 12%, transparent 69%);
+}
+
+.fan i {
+  position: absolute;
+  top: 50%;
+  left: var(--start);
+  width: 115%;
+  height: var(--width);
+  border-radius: 48% 12% 55% 35%;
+  border-top: 1px solid color-mix(in srgb, var(--mint-glass) 55%, transparent);
+  background:
+    repeating-linear-gradient(180deg, transparent 0 9px, color-mix(in srgb, var(--mint-glass) 9%, transparent) 10px, transparent 11px 14px),
+    linear-gradient(162deg, transparent 11%, var(--tone) 34%, color-mix(in srgb, var(--green-900) 48%, transparent) 57%, transparent 76%);
+  box-shadow: 0 -12px 38px color-mix(in srgb, var(--tone) 58%, transparent);
+  transform: translate(-50%, -50%) rotate(var(--angle));
+}
+
+.fan i:nth-child(1) {
+  --start: 28%;
+  --width: clamp(38px, 6vw, 90px);
+  --angle: 41deg;
+  --tone: var(--green-700);
+}
+
+.fan i:nth-child(2) {
+  --start: 43%;
+  --width: clamp(47px, 8vw, 122px);
+  --angle: 38deg;
+  --tone: var(--green-600);
+}
+
+.fan i:nth-child(3) {
+  --start: 57%;
+  --width: clamp(37px, 6vw, 82px);
+  --angle: 35deg;
+  --tone: var(--green-500);
+}
+
+.fan i:nth-child(4) {
+  --start: 72%;
+  --width: clamp(24px, 4vw, 54px);
+  --angle: 32deg;
+  --tone: color-mix(in srgb, var(--gold) 38%, var(--green-800));
+}
+
+.leaves {
+  position: absolute;
+  inset: 45% -12% -37%;
+  transform: perspective(var(--book-perspective)) rotateX(43deg);
+  mask-image: linear-gradient(90deg, transparent, #000 14% 86%, transparent);
+}
+
+.leaves::before,
+.leaves::after {
+  content: "";
+  position: absolute;
+  inset: 0 50% 0 0;
+  transform-origin: right center;
+  transform: skewY(9deg);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, color-mix(in srgb, var(--mint-glass) 16%, transparent) 23px 24px),
+    linear-gradient(90deg, transparent, color-mix(in srgb, var(--gold) 12%, transparent));
+}
+
+.leaves::after {
+  transform: scaleX(-1) skewY(9deg);
+}
+
+.collection {
+  position: absolute;
+  z-index: 1;
+  inset: 1.05rem 0 auto;
+  margin-inline: auto;
+  width: min(85%, 20rem);
+  height: clamp(4.3rem, 8vw, 6.25rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.45rem, 2.4vw, 1rem);
+  perspective: var(--book-perspective);
+}
+
+.orbit {
+  position: absolute;
+  inset: 49% 0 -1%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--gold) 36%, transparent);
+  transform: rotate(-7deg);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--gold) 14%, transparent);
+}
+
+.orbit::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  border-top: 1px solid var(--gold-light);
+  opacity: .38;
+}
+
+.pedestal {
+  --rim: var(--gold-light);
+  --edge: var(--gold-deep);
+  --paint: var(--forest-raised);
+  --tilt: -19deg;
+  --delay: 70ms;
+  --drift: 7.4s;
+  width: clamp(3rem, 6vw, 4.7rem);
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+}
+
+.pedestal[data-material="original"] {
+  --rim: var(--mint-glass);
+  --edge: var(--green-800);
+  --tilt: 0deg;
+  --delay: 0ms;
+  --drift: 6.1s;
+  width: clamp(4.1rem, 8vw, 6.1rem);
+}
+
+.pedestal[data-material="signal"] {
+  --rim: var(--mint-glass);
+  --edge: var(--green-700);
+  --tilt: 19deg;
+  --delay: 140ms;
+  --drift: 8.3s;
+}
+
+.medallion,
+.face,
+.medallion::before {
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+
+.medallion {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: rotateX(13deg) rotateY(var(--tilt));
+  transform-style: preserve-3d;
+}
+
+.medallion::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--edge);
+  transform: translateZ(-5px);
+  box-shadow:
+    0 2px 0 color-mix(in srgb, var(--rim) 54%, var(--edge)),
+    0 5px 0 var(--edge),
+    0 13px 19px rgb(0 0 0 / .48);
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--rim) 65%, var(--edge));
+  background:
+    radial-gradient(ellipse at 35% 10%, color-mix(in srgb, var(--rim) 32%, transparent), transparent 68%),
+    linear-gradient(148deg, var(--paint), var(--surface-base) 75%);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--edge) 54%, transparent);
+}
+
+.face img {
+  z-index: 1;
+  width: 73%;
+  height: 73%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgb(0 0 0 / .58));
+}
+
+.pedestal[data-material="foil"] .face img {
+  filter: grayscale(1) sepia(1) saturate(2.2) brightness(1.28) drop-shadow(0 3px 3px rgb(0 0 0 / .58));
+}
+
+.pedestal[data-material="signal"] .face,
+.pedestal[data-material="signal"] .medallion::before {
+  border-radius: 29%;
+}
+
+.pedestal[data-material="signal"] .face {
+  background-image:
+    linear-gradient(90deg, transparent 87%, color-mix(in srgb, var(--mint-glass) 17%, transparent) 87%),
+    linear-gradient(0deg, transparent 87%, color-mix(in srgb, var(--mint-glass) 17%, transparent) 87%),
+    radial-gradient(ellipse at 30% 24%, var(--green-900), var(--surface-base) 79%);
+  background-size: 9px 9px, 9px 9px, cover;
+}
+
+.sheen {
+  position: absolute;
+  inset: -50% -90%;
+  background: linear-gradient(112deg, transparent 44%, var(--rim) 50%, transparent 56%);
+  opacity: 0;
+  transform: translateX(-35%);
+}
+
+.copy {
+  position: relative;
+  z-index: 1;
+  padding-top: clamp(3.65rem, 6vw, 4.6rem);
+}
+
+.copy > * {
+  animation: settle var(--motion-scene-dur) var(--motion-entrance-ease) both;
+}
+
+.copy > :nth-child(2) { animation-delay: 65ms; }
+.copy > :nth-child(3) { animation-delay: 125ms; }
+.copy > :nth-child(4) { animation-delay: 185ms; }
+
+.pause {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  right: max(1rem, calc((100% - 72rem) / 2));
+  bottom: .75rem;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  color: var(--mint-glass);
+  border: 1px solid var(--forest-edge);
+  border-radius: 50%;
+  background: var(--surface-raised);
+}
+
+.pause:hover { border-color: currentColor; }
+.pause:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+
+.pauseIcon { width: 9px; height: 11px; border-inline: 2px solid currentColor; }
+.playIcon { margin-left: 3px; border-block: 6px solid transparent; border-left: 9px solid currentColor; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .pedestal { animation: set-medallion 680ms var(--motion-entrance-ease) var(--delay) both; }
+}
+
+@media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+  .collection { top: 1.5rem; }
+  .fan { animation: drift 12s ease-in-out infinite; animation-play-state: paused; }
+  .medallion { animation: turn-medallion var(--drift) ease-in-out var(--delay) infinite; }
+  .sheen { animation: sweep-medallion var(--drift) ease-in-out var(--delay) infinite; }
+  .orbit::after { animation: trace-orbit 9s linear infinite; }
+  .medallion, .sheen, .orbit::after { animation-play-state: paused; }
+  .backdrop[data-visible="true"][data-paused="false"] :is(.fan, .medallion, .sheen),
+  .backdrop[data-visible="true"][data-paused="false"] .orbit::after {
+    animation-play-state: running;
+  }
+  .backdrop[data-visible="false"] .fan { opacity: .2; }
+  .backdrop[data-visible="true"] + .pause,
+  .pause:focus-visible { display: grid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .copy > * { animation: none; }
+  .fan { transition: none; opacity: .44; }
+}
+
+@keyframes arrive {
+  from { opacity: .35; }
+  to { opacity: 1; }
+}
+
+@keyframes settle {
+  from { opacity: .76; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(-3%, 2%, 0) scale(1); }
+  48% { transform: translate3d(5%, -4%, 0) scale(1.09) rotate(-3deg); }
+  74% { transform: translate3d(1%, -2%, 0) scale(1.04) rotate(-1deg); }
+}
+
+@keyframes set-medallion {
+  from { opacity: 0; transform: translateY(13px) scale(.84); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes turn-medallion {
+  0%, 100% { transform: rotateX(13deg) rotateY(var(--tilt)); }
+  50% { transform: translateY(-7px) rotateX(3deg) rotateY(calc(var(--tilt) + 14deg)); }
+}
+
+@keyframes sweep-medallion {
+  0%, 29% { opacity: 0; transform: translateX(-36%); }
+  42% { opacity: .2; }
+  55%, 100% { opacity: 0; transform: translateX(36%); }
+}
+
+@keyframes trace-orbit {
+  to { transform: rotateY(360deg); }
+}
