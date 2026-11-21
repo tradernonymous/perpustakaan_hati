@@ -54,7 +54,7 @@ function Section({ index, children }: { index: number; children: ReactNode }) {
   const [id, title] = sections[index];
   return (
     <section id={id} aria-labelledby={`heading-${id}`} className="scroll-mt-8 border-t border-line py-9 sm:py-12">
-      <h2 id={`heading-${id}`} className="ph-title mb-6 text-3xl sm:text-5xl">{title}</h2>
+      <h2 id={`heading-${id}`} className="ph-title mb-6 text-4xl sm:text-6xl">{title}</h2>
       {children}
     </section>
   );
