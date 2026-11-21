@@ -1,0 +1,74 @@
+/* Scene flow: section headings, the closing title, the edition covers and
+   the gilt section ornaments move as they scroll into view. Scroll-linked, so
+   it needs no JavaScript. Without animation-timeline support, or with reduced
+   motion, every element renders in its final state. */
+
+@keyframes ph-scene-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes ph-cover-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes ph-ornament-draw {
+  from {
+    opacity: 0;
+    transform: scaleX(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .ph-section-warm > div:first-child {
+      animation: ph-scene-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 40%;
+    }
+
+    .ph-closing-title {
+      animation: ph-scene-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 50%;
+    }
+
+    .ph-ornament {
+      transform-origin: center;
+      animation: ph-ornament-draw linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+
+    .ph-compare-covers > li {
+      animation: ph-cover-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 45%;
+    }
+
+    .ph-compare-covers > li:nth-child(2) {
+      animation-range: entry 8% entry 53%;
+    }
+
+    .ph-compare-covers > li:nth-child(3) {
+      animation-range: entry 16% entry 61%;
+    }
+  }
+}

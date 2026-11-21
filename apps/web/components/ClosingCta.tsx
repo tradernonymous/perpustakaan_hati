@@ -6,7 +6,7 @@ export function ClosingCta() {
     <section id="penutup" className="ph-dark-section relative overflow-hidden px-5 py-16 text-center md:py-24" aria-labelledby="penutup-h">
       <div className="ph-closing-glow" aria-hidden="true" />
       <div className="relative mx-auto max-w-reading">
-        <h2 id="penutup-h" className="ph-title text-4xl text-fg md:text-6xl">Mulakan dengan satu buku kecil.</h2>
+        <h2 id="penutup-h" className="ph-title ph-closing-title text-4xl text-fg md:text-6xl">Mulakan dengan satu buku kecil.</h2>
         <SectionOrnament className="mt-4" />
         <p className="mx-auto mt-4 max-w-prose text-fg-muted">
           Edisi Poket percuma. Baca 60 saat sehari, naik ke edisi seterusnya bila kamu bersedia.

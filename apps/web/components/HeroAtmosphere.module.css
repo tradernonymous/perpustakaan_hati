@@ -346,3 +346,22 @@
 @keyframes spin-ring {
   to { transform: translate(-50%, -50%) rotate(360deg); }
 }
+
+/* Cinematic opening: the accent line wipes in from the left after the first line lands. */
+@media (prefers-reduced-motion: no-preference) {
+  .accent {
+    display: inline-block;
+    animation: accent-wipe 900ms var(--motion-entrance-ease) 420ms both;
+  }
+}
+
+@keyframes accent-wipe {
+  from { clip-path: inset(0 100% 0 0); transform: translateY(.12em); opacity: 0; }
+  to { clip-path: inset(-10% -10% -10% -10%); transform: translateY(0); opacity: 1; }
+}
+
+/* Mobile paint budget: the large blurred box-shadows on the fan are the costliest
+   layer in the hero on small screens, so they are dropped below the tablet breakpoint. */
+@media (max-width: 47.99rem) {
+  .fan i { box-shadow: none; }
+}

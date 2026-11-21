@@ -16,7 +16,7 @@ export function Hero() {
         <div className={`${styles.copy} mx-auto max-w-3xl text-center`}>
           <p className="mb-5 text-xs font-semibold tracking-wide text-fg-accent">Perpustakaan Hati · Bahasa Melayu</p>
           <h1 id="hero-heading" className="ph-display-hero text-balance font-display text-fg">
-            Bacaan kecil.<br /><span className="text-fg-healing">Ruang untuk pulih.</span>
+            Bacaan kecil.<br /><span className={`text-fg-healing ${styles.accent}`}>Ruang untuk pulih.</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-fg-muted sm:mt-5 sm:text-lg">
             Tulisan tentang hubungan dan pemulihan diri, dalam Bahasa Melayu yang dekat di hati.
