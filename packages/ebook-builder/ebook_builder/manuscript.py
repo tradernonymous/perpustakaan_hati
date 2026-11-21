@@ -18,7 +18,7 @@ from enum import StrEnum
 
 from markdown_it import MarkdownIt
 
-MD = MarkdownIt("commonmark").enable("strikethrough")
+MD = MarkdownIt("commonmark").enable(["strikethrough", "table"])
 
 # A level-2 heading containing one of these switches the section that follows
 # into a special mode, so its level-3 headings become worksheets or scripts.
@@ -131,6 +131,7 @@ def parse_markdown(source: str) -> Manuscript:
 
     blocks: list[Block] = []
     mode = ""
+    chapter_worksheets = False
     index = 0
     chunk: list[str] = []
 
@@ -168,9 +169,11 @@ def parse_markdown(source: str) -> Manuscript:
                 closing += 1
             if closing >= len(body):
                 raise ManuscriptError(f"Marker '::: {marker}' is never closed.")
+            flush()
             inner = "\n".join(body[index + 1:closing]).strip()
             pending = None
-            blocks.append(Block(kind=BlockKind(FENCE_MARKERS[marker]), text=inner))
+            text = _render(inner) if marker == "backmatter" else inner
+            blocks.append(Block(kind=BlockKind(FENCE_MARKERS[marker]), text=text))
             index = closing + 1
             continue
 
@@ -180,6 +183,7 @@ def parse_markdown(source: str) -> Manuscript:
                 closing += 1
             if closing >= len(body):
                 raise ManuscriptError("Code block is never closed.")
+            flush()
             code = "\n".join(body[index + 1:closing])
             pending = None
             blocks.append(Block(kind=BlockKind.BODY, text=f"<pre><code>{_escape(code)}</code></pre>"))
@@ -191,8 +195,13 @@ def parse_markdown(source: str) -> Manuscript:
             level = len(stripped) - len(stripped.lstrip("#"))
             heading = stripped[level:].strip()
             if level == CHAPTER_LEVEL:
+                mode = ""
+                chapter_worksheets = bool(WORKSHEET_SECTION.search(heading))
                 pending = None
                 blocks.append(Block(kind=BlockKind.CHAPTER_OPENER, title=heading))
+            elif level == SECTION_LEVEL and chapter_worksheets:
+                pending = Block(kind=BlockKind.WORKSHEET, title=heading)
+                blocks.append(pending)
             elif level == SECTION_LEVEL:
                 mode = ""
                 pending = None

@@ -6,16 +6,15 @@ This module only decides *which* layout each block gets and fills it in.
 
 Layout rules come from docs/brand/ui-kit.md -> "Master layouts".
 
-Pagination is CSS's job, not this module's: the brand template gives every
-``.page`` a ``page-break-after``, and the watermark lives in ``@page`` margin
-boxes so it repeats on every printed page. This module groups consecutive
-body blocks into a single flowing section so a chapter's prose does not
-break one paragraph per page.
+The template controls page breaks for covers, chapters and worksheets.
+Consecutive paragraphs flow together. Watermarks repeat in page margin boxes.
 """
 
 from __future__ import annotations
 
+import json
 import re
+from functools import cache
 from pathlib import Path
 
 from .manuscript import Block, BlockKind, Manuscript
@@ -40,9 +39,55 @@ TIER_SEALS = {
 }
 
 BRAND_ASSETS = Path(__file__).resolve().parents[3] / "docs" / "brand" / "assets"
+EDITION_NAMES = {"poket": "Edisi Poket", "membangun": "Edisi Membangun", "teman-hidup": "Teman Hidup"}
+POCKET_TREATMENTS = {
+    "Kad Refleksi": ("reflection", 4),
+    "Ceklis Pencetus Attach": ("checklist", 0),
+    "Tujuh Hari Reset": ("seven-days", 0),
+    "Catatan Hari Ini": ("notes", 7),
+}
 
 # Roman numerals for chapter numbers, 1..12 is plenty for these books.
 ROMAN = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
+INDEX_COLUMNS = 5
+
+
+@cache
+def _edition_tokens() -> dict:
+    return json.loads((BRAND_ASSETS.parent / "design-tokens.json").read_text(encoding="utf-8"))["ebook"]
+
+
+def _chart_art(tier: str) -> str:
+    """Tier-specific vector ornaments that render without raster assets."""
+    if tier == "poket":
+        paths = """
+  <path d="M15 59C44 57 55 32 65 9M35 54C20 54 12 42 9 32C24 32 34 40 35 54Z
+    M46 45C44 31 32 22 22 21C23 33 33 45 46 45Z
+    M53 35C59 22 75 18 87 18C83 30 67 38 53 35Z
+    M60 24C57 12 61 5 71 3C75 12 69 21 60 24Z
+    M22 59C34 62 53 61 68 51"/>
+"""
+    elif tier == "membangun":
+        paths = """
+  <path d="M13 59H88M16 59V14M25 48H43V38H57V27H73V16H85
+    M25 52V56M43 42V56M57 32V56M73 20V56" />
+  <circle cx="25" cy="48" r="2.7"/><circle cx="43" cy="38" r="2.7"/>
+  <circle cx="57" cy="27" r="2.7"/><circle cx="73" cy="16" r="2.7"/>
+"""
+    else:
+        paths = """
+  <path d="M8 33H92M50 2V64M18 10H82V56H18Z
+    M50 4L82 33L50 62L18 33Z M50 13L72 33L50 53L28 33Z
+    M50 23L60 33L50 43L40 33Z M8 29V37M92 29V37" />
+  <ellipse cx="50" cy="33" rx="39" ry="13" transform="rotate(-20 50 33)"/>
+  <ellipse cx="50" cy="33" rx="39" ry="13" transform="rotate(20 50 33)"/>
+  <circle cx="18" cy="33" r="2"/><circle cx="82" cy="33" r="2"/>
+"""
+    stroke = _edition_tokens().get(tier, _edition_tokens()["poket"])["rule"]
+    return (
+        '<svg class="chapter-art" viewBox="0 0 100 66" aria-hidden="true" fill="none" '
+        f'stroke="{stroke}">{paths}</svg>'
+    )
 
 
 def _escape(text: str) -> str:
@@ -95,47 +140,74 @@ def _cover(manuscript: Manuscript) -> str:
     title = _escape(manuscript.title or "Edisi Poket")
     subtitle = _escape(manuscript.subtitle)
     seal = BRAND_ASSETS / TIER_SEALS.get(tier, TIER_SEALS["poket"])
+    emblem = (BRAND_ASSETS / "emblem-book-heart.svg").as_uri()
     seal_markup = ""
     if seal.is_file():
         seal_markup = f'<img class="tier-seal" src="{_escape(seal.as_uri())}" alt="" />'
     return f"""
 <section class="page layout-cover {tier_class}">
   <div class="wordmark">Perpustakaan Hati</div>
+  {f'<div class="cover-orbit">{_chart_art(tier)}</div>' if tier == "teman-hidup" else ""}
+  <img class="cover-emblem" src="{_escape(emblem)}" alt="" />
   <div class="tier-bar"></div>
   <h1>{title}</h1>
-  <div class="byline">— by @rahimam —</div>
   <p class="tagline">{subtitle}</p>
+  <div class="byline">@rahimam</div>
   {seal_markup}
 </section>
 """
 
 
 def _title_page(manuscript: Manuscript) -> str:
-    tagline = _escape(manuscript.tagline)
+    links = []
+    chapter = section = 0
+    for block in manuscript.blocks:
+        if block.kind is BlockKind.CHAPTER_OPENER:
+            chapter += 1
+            links.append(f'<li><a href="#bab-{chapter}">{_escape(block.title)}</a></li>')
+        elif manuscript.tier == "poket" and block.kind is BlockKind.BODY and block.text.startswith("<h2>"):
+            section += 1
+            links.append(f'<li><a href="#topik-{section}">{block.text[4:-5]}</a></li>')
+    if any(block.kind is BlockKind.WORKSHEET for block in manuscript.blocks):
+        links.append('<li><a href="#peta-latihan">Peta Latihan</a></li>')
     return f"""
-<section class="page layout-title-page">
-  <div class="wordmark">Perpustakaan Hati</div>
-  <p class="tagline">{tagline}</p>
-  <div class="folio">i</div>
+<section class="page layout-title-page" id="kandungan">
+  <div class="wordmark">{_escape(manuscript.title)}</div>
+  <h2>Kandungan</h2>
+  <ol>{"".join(links)}</ol>
+  <div class="folio"></div>
 </section>
 """
 
 
-def _chapter_opener(number: int, title: str) -> str:
+def _chapter_opener(number: int, title: str, tier: str) -> str:
     numeral = ROMAN[number] if number < len(ROMAN) else str(number)
+    if tier == "poket":
+        numeral = f"{number:02}"
     return f"""
-<section class="page layout-chapter-opener">
+<section class="page layout-chapter-opener" id="bab-{number}">
+  {_chart_art(tier) if tier in TIER_CLASSES else ""}
   <div class="numeral">{numeral}</div>
   <h2>{_escape(title)}</h2>
   <div class="rule"></div>
+  <a class="section-link" href="#kandungan">Kandungan</a>
 </section>
 """
 
 
-def _body(parts: list[str]) -> str:
+def _body(parts: list[str], treatment: str = "", lines: int = 0) -> str:
+    style = f" topic-{treatment}" if treatment else ""
+    reading_path = """
+<div class="reading-path">
+  <p class="field-label">Cara menggunakan edisi ini</p>
+  <ol><li>Baca satu muka surat</li><li>Namakan perasaan</li><li>Tulis satu ayat</li></ol>
+</div>
+""" if treatment == "opening" else ""
     return f"""
-<section class="page layout-body">
+<section class="page layout-body{style}">
   {chr(10).join('  ' + part for part in parts)}
+  {reading_path}
+  {_writing_space(f"poket-{treatment}", "Tulis catatan kamu", lines) if lines else ""}
 </section>
 """
 
@@ -150,13 +222,68 @@ def _pull_quote(text: str) -> str:
 """
 
 
-def _worksheet(title: str, content: str = "") -> str:
-    lines = '<div class="checkbox-column"></div><div class="write-line"></div>' * 4
+def _writing_space(name: str, label: str, lines: int) -> str:
+    rules = '<div class="write-rule"></div>' * lines
     return f"""
-<section class="page layout-worksheet">
-  <h3>{_escape(title)}</h3>
-  {content}
-  {lines}
+<div class="writing-space">
+  <label class="field-label" for="{name}">{_escape(label)}</label>
+  <div class="writing-area" style="--writing-lines: {lines}">
+    <div class="writing-rules" aria-hidden="true">{rules}</div>
+    <textarea id="{name}" name="{name}" title="{_escape(label)}" rows="{lines}"></textarea>
+  </div>
+</div>
+"""
+
+
+def _worksheet_index(total: int, tier: str) -> str:
+    heading = f"Peta {total} Hari" if tier == "teman-hidup" else "Peta Latihan"
+    entry = "Hari" if tier == "teman-hidup" else "Latihan"
+    cells = [
+        f'<td><a href="#latihan-{i}" aria-label="{entry} {i}"><span>{entry}</span>{i:02}</a></td>'
+        for i in range(1, total + 1)
+    ]
+    cells.extend(["<td></td>"] * (-len(cells) % INDEX_COLUMNS))
+    rows = "".join(
+        f'<tr>{"".join(cells[start:start + INDEX_COLUMNS])}</tr>'
+        for start in range(0, len(cells), INDEX_COLUMNS)
+    )
+    return f"""
+<section class="page layout-index" id="peta-latihan">
+  {_chart_art(tier)}
+  <h2>{heading}</h2>
+  <p>Pilih nombor untuk terus ke latihan. Isi dalam pembaca PDF yang menyokong borang, atau cetak untuk menulis.</p>
+  <nav aria-label="{heading}"><table class="index-grid" role="presentation"><tbody>{rows}</tbody></table></nav>
+  <a class="section-link" href="#kandungan">Kandungan</a>
+</section>
+"""
+
+
+def _worksheet(block: Block, number: int, total: int, tier: str) -> str:
+    slug = f"latihan-{number}"
+    title = _escape(block.title)
+    label = "Jurnal" if tier == "teman-hidup" else "Kit Refleksi"
+    next_day = f'<a href="#latihan-{number + 1}">Seterusnya</a>' if number < total else ""
+    progress = ""
+    if tier == "teman-hidup":
+        positions = "".join(
+            '<i class="is-current"></i>' if position == number else "<i></i>"
+            for position in range(1, total + 1)
+        )
+        progress = f'<div class="journal-progress" aria-hidden="true">{positions}</div>'
+    followup = (
+        _writing_space(f"{slug}-langkah", f"Satu langkah kecil — {block.title}", 2)
+        if tier == "teman-hidup" else ""
+    )
+    return f"""
+<section class="page layout-worksheet" id="{slug}">
+  <div class="worksheet-kicker"><span>{label}</span><span>{number:02} / {total:02}</span></div>
+  {progress}
+  <h3>{title}</h3>
+  <div class="rule"></div>
+  <div class="worksheet-prompt">{block.text}</div>
+  {_writing_space(f"{slug}-catatan", f"Catatan — {block.title}", 6 if followup else 8)}
+  {followup}
+  <nav class="worksheet-nav" aria-label="Navigasi latihan"><a href="#peta-latihan">Peta latihan</a>{next_day}</nav>
 </section>
 """
 
@@ -165,9 +292,9 @@ def _reflection_card(text: str) -> str:
     return f"""
 <section class="page layout-reflection-card-page">
   <div class="layout-reflection-card">
-    <div class="healing-marker"></div>
-    <p class="card-quote">"{_escape(text)}"</p>
+    <span class="card-diamond" aria-hidden="true"></span>
     <p class="card-prompt">KAD REFLEKSI · HATI</p>
+    <p class="card-quote">{_escape(text)}</p>
   </div>
 </section>
 """
@@ -200,38 +327,70 @@ def typeset(manuscript: Manuscript, buyer: Buyer | None = None) -> str:
     watermark = Watermark(buyer_label="" if buyer.is_anonymous else label)
 
     pages = [_cover(manuscript), _title_page(manuscript)]
-    chapter = 0
+    chapter = section = 0
+    total_worksheets = sum(block.kind is BlockKind.WORKSHEET for block in manuscript.blocks)
+    worksheet = 0
     body_parts: list[str] = []
+    treatment, lines = "", 0
 
     def flush_body() -> None:
+        nonlocal treatment, lines
         if body_parts:
-            pages.append(_body(list(body_parts)))
+            pages.append(_body(body_parts, treatment, lines))
             body_parts.clear()
+        treatment, lines = "", 0
 
     for block in manuscript.blocks:
         if block.kind is BlockKind.BODY:
             # Consecutive prose flows on one page; a heading or a special
             # layout ends the flow.
-            body_parts.append(block.text)
+            if manuscript.tier == "poket" and block.text.startswith("<h2>"):
+                flush_body()
+                section += 1
+                title = block.text[4:-5]
+                treatment, lines = POCKET_TREATMENTS.get(title, ("", 0))
+                pages.append(f"""
+<section class="page layout-topic" id="topik-{section}">
+  {_chart_art("poket") if treatment in {"reflection", "notes"} else ""}
+  <div class="numeral">{chapter + section:02}</div>
+  <h2>{title}</h2>
+  <div class="rule"></div>
+</section>
+""")
+            else:
+                if manuscript.tier == "teman-hidup" and re.match(r"<h2>Script \d+:", block.text):
+                    flush_body()
+                    treatment = "script"
+                body_parts.append(block.text)
         else:
             flush_body()
             if block.kind is BlockKind.CHAPTER_OPENER:
                 chapter += 1
-                pages.append(_chapter_opener(chapter, block.title))
+                pages.append(_chapter_opener(chapter, block.title, manuscript.tier))
+                if manuscript.tier == "poket" and block.title == "Kenapa Buku Ini":
+                    treatment = "opening"
             elif block.kind is BlockKind.PULL_QUOTE:
                 pages.append(_pull_quote(block.text))
             elif block.kind is BlockKind.WORKSHEET:
-                pages.append(_worksheet(block.title, block.text))
+                worksheet += 1
+                if worksheet == 1:
+                    pages.append(_worksheet_index(total_worksheets, manuscript.tier))
+                pages.append(_worksheet(block, worksheet, total_worksheets, manuscript.tier))
             elif block.kind is BlockKind.REFLECTION_CARD:
                 pages.append(_reflection_card(block.text))
             elif block.kind is BlockKind.SCRIPT_ROW:
                 pages.append(_script_row(block))
             elif block.kind is BlockKind.BACK_MATTER:
                 pages.append(_back_matter(block.text))
-            # PAGE_BREAK ends the flow without adding a page of its own.
+            elif block.kind is BlockKind.PAGE_BREAK:
+                pages.append('<span class="manuscript-break" hidden></span>')
     flush_body()
 
     body = "\n".join(pages)
+    tier = manuscript.tier if manuscript.tier in TIER_CLASSES else "poket"
+    tokens = _edition_tokens()[tier]
+    palette = "; ".join(f"--book-{name}: {value}" for name, value in tokens.items())
+    edition = EDITION_NAMES[tier]
 
     return f"""<!DOCTYPE html>
 <html lang="ms">
@@ -241,10 +400,14 @@ def typeset(manuscript: Manuscript, buyer: Buyer | None = None) -> str:
 <style>
 {_fonts_css()}
 {_style_block()}
+:root {{
+    {palette}; --book-edition: "{edition}";
+    --gold-deep: var(--book-ornament); --sepia-deep: var(--book-ink);
+}}
 {build_watermark_css(watermark)}
 </style>
 </head>
-<body>
+<body class="{TIER_CLASSES[tier]}">
 {body}
 </body>
 </html>

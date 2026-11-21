@@ -28,7 +28,7 @@ BASELINE_NAME = "design-system.baseline.json"
 ASSETS = {
     "cop-stamp.svg", "emblem-book-heart.svg", "lockup-cinematic.svg",
     "monogram-stamp.svg", "seal-edisi-membangun.svg", "seal-edisi-poket.svg",
-    "seal-teman-hidup.svg", "aje",
+    "seal-teman-hidup.svg", "aje", "refresh-2026-11",
 }
 TRACKED = [
     "apps/web/public/fonts/Geist-OFL.txt",
@@ -50,6 +50,7 @@ TRACKED = [
     *[f"docs/brand/assets/{a}" for a in sorted(ASSETS) if a.endswith(".svg")],
     "docs/brand/assets/aje/aje-turtle-emerald.svg",
     "docs/brand/assets/aje/aje-turtle-noir.svg",
+    "docs/brand/assets/refresh-2026-11/manifest.md",
     "docs/brand/aje.md",
 ]
 REMOVED = ["wordmark-primary", "wordmark-3d", "design-system-sheet.html",

@@ -131,6 +131,16 @@ def test_folios_are_numbered():
     assert 'class="folio"' in html
 
 
+def test_poket_contents_only_links_to_chapters_and_reading_topics():
+    source = MANUSCRIPT + "\n\n::: backmatter\n## Sudut Keselamatan\n\nTeks penutup.\n:::\n"
+    html = typeset(parse_markdown(source))
+    contents = html.split('id="kandungan">', 1)[1].split("</section>", 1)[0]
+    assert '<a href="#bab-1">' in contents
+    assert '<a href="#topik-1">' in contents
+    assert "Sudut Keselamatan" not in contents
+    assert "Teks penutup" not in contents
+
+
 def test_the_buyer_line_is_confined_to_the_early_pages():
     html = typeset(parse_markdown(MANUSCRIPT), Buyer(name="Aisyah Rahman"))
     assert "@page:nth(2)" in html

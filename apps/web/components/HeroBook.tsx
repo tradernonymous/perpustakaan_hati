@@ -11,27 +11,21 @@ export function HeroBook({ name = "Edisi Poket" }: { name?: string }) {
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
   const pages = [
-    { title: "Kad Refleksi", text: "Namakan satu red flag dan satu green flag tanpa menghukum diri." },
-    { title: "7 Hari Reset", text: "Satu langkah kecil hari ini. Baca 60 saat, kemudian tulis satu ayat." },
-    { title: "Skrip untuk hari ini", text: "“Saya perlukan jeda 10 minit, kemudian kita sambung dengan tenang.”" },
+    { title: "Kad Refleksi", text: "Apa yang kamu rasa bila dia belum balas?" },
+    { title: "Tujuh Hari Reset", text: "Hari 1 — Namakan perasaan. Satu perkataan: kecewa, takut, marah, rindu." },
+    { title: "Skrip Bincang Hati ke Hati", text: "“Aku perlukan masa untuk fikir.”" },
   ];
   const active = pages[page];
 
   return (
     <div className="ph-book-scene mx-auto max-w-[340px]" aria-label={`Buku interaktif ${name}`}>
       <div className="ph-book-shadow" aria-hidden="true" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/brand/animated/seal-edisi-poket.svg" alt="" width={96} height={96} className="ph-book-seal ph-coin" />
       <div className="ph-book-3d" data-page={page}>
         <div className="ph-book-spine" aria-hidden="true" />
         <div className="ph-book-pages" aria-hidden="true" />
         <div className="ph-book-cover" aria-hidden={open}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/animated/emblem-book-heart.svg" alt="" width={150} height={105} className="ph-book-emblem" />
-          <p className="ph-book-kicker">Perpustakaan Hati</p>
-          <p className="ph-book-title">{name}</p>
-          <p className="ph-book-subtitle">Karya untuk jiwa yang pernah terluka</p>
-          <p className="ph-book-serial">Baca · Renung · Pulih</p>
+          <img src="/ebooks/cover-poket.png" alt={`Kulit ${name}`} width={599} height={902} className="ph-book-art" />
           <div className="ph-book-sheen" aria-hidden="true" />
         </div>
         <div className="ph-book-open" key={page} data-open={open} aria-hidden={!open} aria-live="polite">

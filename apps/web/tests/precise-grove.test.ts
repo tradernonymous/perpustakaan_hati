@@ -129,7 +129,7 @@ describe("3.6 escape hatches", () => {
   });
 });
 
-describe("3.6 release bookkeeping", () => {
+describe("Design system release bookkeeping", () => {
   it("is the current version in both copies", () => {
     expect(css).toContain("--ph-system-version: '3.9.0'");
     expect(css).toBe(docsCss);

@@ -38,15 +38,17 @@ describe("animated logo files (build-animated-logos.py)", () => {
 });
 
 describe("animated logos on the site", () => {
-
-  it("header mark and the 3D book use the animated emblem", () => {
+  it("sets the compact headline on the daylight stage", () => {
+    const html = renderToStaticMarkup(<Hero />);
+    expect(html).toContain("ph-day-stage");
+    expect(html).toContain("Bacaan kecil.");
+    expect(html).not.toContain("ph-logo-lockup");
+  });
+  it("the header animates the emblem and the 3D book uses the exported cover", () => {
     expect(renderToStaticMarkup(<BrandMark />)).toContain("/brand/animated/emblem-book-heart.svg");
-    expect(renderToStaticMarkup(<HeroBook />)).toContain("/brand/animated/emblem-book-heart.svg");
+    expect(renderToStaticMarkup(<HeroBook />)).toContain("/ebooks/cover-poket.png");
   });
   it("seals are animated, 3D coins, and at least the 96px brand minimum", () => {
-    const book = renderToStaticMarkup(<HeroBook />);
-    expect(book).toContain("/brand/animated/seal-edisi-poket.svg");
-    expect(book).toMatch(/ph-book-seal[^>]*width="96"|width="96"[^>]*ph-book-seal/);
     const cover = renderToStaticMarkup(<ProductCover name="Teman Hidup" src={null} seal="/brand/animated/seal-teman-hidup.svg" />);
     expect(cover).toContain("ph-coin");
     expect(cover).toContain("h-24 w-24");

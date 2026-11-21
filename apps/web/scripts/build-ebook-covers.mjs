@@ -1,15 +1,14 @@
 /**
  * Perpustakaan Hati — A4 ebook cover preview generator.
  *
- * Extracts page 1 from each PDF in docs/brand/preview/ (source PDFs stay
- * outside git tracking) and normalizes every preview into an exact A4 aspect
+ * Extracts page 1 from each PDF in docs/brand/preview/ and normalizes every preview into an exact A4 aspect
  * ratio (560x792, 210:297) WebP + JPG fallback inside apps/web/public/ebooks/.
  *
  * Run:
  *     node apps/web/scripts/build-ebook-covers.mjs
  */
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -89,10 +88,6 @@ async function build() {
     throw new Error(`missing source PDFs in ${PREVIEW_DIR}`);
   }
 
-  for (const entry of readdirSync(OUT)) {
-    rmSync(path.join(OUT, entry), { recursive: true, force: true });
-  }
-
   const tmp = mkdtempSync(path.join(tmpdir(), "ph-ebook-covers-"));
   const manifest = [];
   let totalBytes = 0;
@@ -101,7 +96,7 @@ async function build() {
     for (const item of EBOOKS) {
       const pdfPath = path.join(PREVIEW_DIR, item.pdf);
       const prefix = path.join(tmp, item.slug);
-      execFileSync("pdftoppm", ["-png", "-f", "1", "-l", "1", "-singlefile", "-r", "150", pdfPath, prefix]);
+      execFileSync("pdftoppm", ["-png", "-f", "1", "-l", "1", "-singlefile", "-r", "150", pdfPath, prefix], { stdio: "inherit" });
       const pngPath = `${prefix}.png`;
 
       // Contain inside exact A4 560x792 forest ground so border details never clip

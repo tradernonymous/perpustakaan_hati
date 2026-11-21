@@ -268,3 +268,10 @@ packages/brand-tools/fonts/source/
 # ---------------------------------------------------------------------------
 /docs/brand/illustrations/
 /videos/
+
+# Paid ebook files. This repo is public, so these must never be committed.
+# Edisi Poket (tier-1-free and the edisi-poket-* books) is the free lead
+# magnet and stays tracked; Membangun and Teman Hidup are paid masters.
+/apps/web/private/
+/content/ebooks/tier-2-standard/
+/content/ebooks/tier-3-premium/

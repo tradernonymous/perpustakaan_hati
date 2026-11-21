@@ -6,368 +6,242 @@
   Source: docs/brand/ui-kit.md -> "eBook Layout Templates"
   Trim: 6x9in (152x229mm)
 -->
-<html lang="ms">
+<html lang="ms" class="ph-ebook-poket">
 <head>
 <meta charset="utf-8" />
 <title>Perpustakaan Hati</title>
+<link rel="stylesheet" href="../../../docs/brand/design-tokens.css" />
 <style>
-  @page { size: 152mm 229mm; margin: 18mm 15mm 20mm 20mm; }
-  * { box-sizing: border-box; }
-
   :root {
-    --ink: #0a0a0c;
-    --ink-soft: #17171a;
-    --gold: #c9a86a;
-    --gold-light: #e9cea2;
-    --gold-deep: #a07b45;
-    --sepia: #573a2f;
-    --sepia-deep: #3a2a21;
-    --burgundy: #5c1e17;
-    --terracotta: #da725b;
-    --cream: #fdfee6;
-    --green-950: #0b2418;
-    --green-900: #123d2a;
-    --green-800: #1d5a3d;
-    --green-700: #2d7954;
-    --green-600: #3f9167;
-    --green: #5b9b7d;
-    --green-light: #7db895;
-    --green-300: #a7d3b6;
-    --green-200: #cbe8d5;
-    --green-100: #e4f4e9;
-    --lime-glow: #c8e986;
-    --mint-glass: #9de1c1;
+    --book-page: var(--ebook-poket-page); --book-ink: var(--ebook-poket-ink);
+    --book-heading: var(--ebook-poket-heading); --book-rule: var(--ebook-poket-rule);
+    --book-ornament: var(--ebook-poket-ornament); --book-field: var(--ebook-poket-field);
+    --book-field-ink: var(--ebook-poket-field-ink); --book-wash: var(--ebook-poket-wash);
+    --book-edition: "Edisi Poket";
   }
-
-  /* Brand fonts, self-hosted and subset.
-     Source: packages/brand-tools/fonts/ */
-  @font-face {
-    font-family: 'Fraunces';
-    src: url('../../brand-tools/fonts/FrauncesDisplay.woff2') format('woff2');
-    font-weight: 400 700; font-style: normal; font-display: swap;
+  @page {
+    size: 152mm 229mm;
+    margin: 19mm 16mm 18mm;
+    background: radial-gradient(ellipse at 48% 34%, var(--book-wash), var(--book-page) 80%);
+    background-repeat: no-repeat;
+    background-size: 152mm 229mm;
+    background-position: -16mm -19mm;
+    @top-center {
+      content: var(--book-edition) "  /  Perpustakaan Hati";
+      color: var(--book-heading); font: 7pt/1.4 Inter, sans-serif;
+      letter-spacing: 0.95pt; text-transform: uppercase;
+      border-bottom: 0.45pt solid var(--book-rule); vertical-align: bottom;
+      padding-bottom: 2.3mm; margin-bottom: 4mm;
+    }
+    @bottom-left {
+      content: "Muka " counter(page, decimal-leading-zero);
+      font: 7.5pt Inter, sans-serif; color: var(--book-heading); letter-spacing: 0.6pt;
+    }
   }
-  @font-face {
-    font-family: 'Fraunces';
-    src: url('../../brand-tools/fonts/FrauncesDisplayItalic.woff2') format('woff2');
-    font-weight: 400 700; font-style: italic; font-display: swap;
-  }
-  @font-face {
-    font-family: 'Source Serif 4';
-    src: url('../../brand-tools/fonts/SourceSerifText.woff2') format('woff2');
-    font-weight: 400 700; font-style: normal; font-display: swap;
-  }
-  @font-face {
-    font-family: 'Inter';
-    src: url('../../brand-tools/fonts/InterUI.woff2') format('woff2');
-    font-weight: 400 700; font-style: normal; font-display: swap;
-  }
-
-  body {
+  @page cover {
     margin: 0;
-    font-family: 'Source Serif 4', Georgia, serif;
-    font-size: 11.5pt;
-    line-height: 1.6;
-    color: var(--ink);
-    background: var(--cream);
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+    @top-center { content: none }
+    @bottom-left { content: none }
+    @bottom-right { content: none }
   }
+  * { box-sizing: border-box }
+  body { margin: 0; color: var(--book-ink); font: 11.25pt/1.51 'Source Serif 4', serif }
+  h1, h2, h3, .numeral { font-family: Fraunces, serif; line-height: 1.12 }
+  h2, h3, h4 { color: var(--book-heading); break-after: avoid }
+  h2 { font-size: 20pt; margin: 6mm 0 3mm }
+  h3 { font-size: 14pt; margin: 5mm 0 2mm }
+  p { margin: 0 0 3mm; orphans: 3; widows: 3 }
+  ul, ol { padding-left: 6mm }
+  li { margin-bottom: 1.6mm; break-inside: avoid }
+  li::marker { color: var(--book-ornament); font-weight: 600 }
+  a { color: inherit }
+  table { width: 100%; border-collapse: collapse; font-size: 10.5pt }
+  td, th { border-bottom: 0.45pt solid var(--book-rule); padding: 2mm; text-align: left }
+  tr { break-inside: avoid }
 
-  .page {
-    position: relative;
-    min-height: 191mm; /* 229 - top - bottom margins */
-    padding: 0 0 14mm;
-    page-break-after: always;
-  }
-  .page:last-child { page-break-after: auto; }
-
-  .folio {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    font-family: 'Inter', sans-serif;
-    font-size: 9pt;
-    color: var(--sepia-deep);
-  }
-
-  /* ---------- cover ---------- */
   .layout-cover {
+    page: cover; position: relative; height: 229mm; padding: 22mm 19mm;
+    background: radial-gradient(ellipse at 50% 41%, var(--book-wash), var(--book-page) 76%);
+    color: var(--book-heading); text-align: center;
+  }
+  .layout-cover::before, .layout-cover::after {
+    content: ""; position: absolute; inset: 7mm; border: 0.6pt solid var(--book-rule);
+  }
+  .layout-cover::after { inset: 9mm; border: 0.35pt solid var(--book-rule) }
+  .wordmark, .byline, .card-prompt, .col-head {
+    font: 8.5pt/1.4 Inter, sans-serif; text-transform: uppercase; letter-spacing: 1.15pt;
+  }
+  .cover-emblem { display: block; width: 52mm; height: 36mm; object-fit: contain; margin: 18mm auto 0 }
+  .tier-bar, .rule {
+    width: 36mm; height: 0.6pt; background: linear-gradient(90deg, var(--book-rule), var(--book-ornament), var(--book-rule));
+  }
+  .tier-bar { margin: 7mm auto 8mm }
+  .layout-cover h1 { font-size: 42pt; font-weight: 500; margin: 0 auto 7mm; max-width: 105mm }
+  .layout-cover .tagline { margin: 0 auto 10mm; max-width: 85mm; font: italic 13.5pt/1.34 Fraunces, serif }
+  .tier-seal { position: absolute; width: 22mm; height: 22mm; bottom: 15mm; right: 16mm }
+  .byline { position: absolute; left: 19mm; bottom: 19mm; margin: 0 }
+  .tier-free.layout-cover::before, .tier-free.layout-cover::after { border-radius: 42mm 42mm 0 0 }
+  .tier-standard.layout-cover { text-align: left; border-left: 4mm solid var(--book-heading) }
+  .tier-standard.layout-cover::before { inset: 8mm 8mm 8mm 12mm }
+  .tier-standard.layout-cover::after { display: none }
+  .tier-standard .cover-emblem { margin: 18mm 0 0; width: 44mm; height: 31mm }
+  .tier-standard .tier-bar, .tier-standard.layout-cover h1, .tier-standard.layout-cover .tagline { margin-left: 0 }
+  .tier-standard .tier-seal { bottom: 15mm }
+  .tier-premium.layout-cover::after { inset: 10mm; border-color: var(--book-ornament) }
+  .tier-premium .cover-emblem { position: relative; width: 48mm; height: 34mm; margin: 32mm auto 7mm }
+  .tier-premium .tier-seal { width: 25mm; height: 25mm }
+  .cover-orbit { position: absolute; top: 35mm; left: 26mm; width: 100mm; opacity: 0.42 }
+  .cover-orbit .chapter-art { position: static; width: 100%; height: auto }
+
+  .layout-title-page { break-after: page; padding-top: 8mm }
+  .layout-title-page h2 { font-size: 32pt; margin: 7mm 0 5mm }
+  .layout-title-page ol { list-style: none; padding-left: 0; counter-reset: entry }
+  .layout-title-page li {
+    border-bottom: 0.45pt solid var(--book-rule); margin: 0; counter-increment: entry;
+  }
+  .layout-title-page a {
+    display: block; padding: 2.7mm 0; text-decoration: none; font-variant-numeric: tabular-nums;
+  }
+  .layout-title-page a::before {
+    content: counter(entry, decimal-leading-zero); display: inline-block; width: 9mm;
+    color: var(--book-heading); font: 8pt Inter, sans-serif;
+  }
+  .layout-title-page a::after {
+    content: target-counter(attr(href), page, decimal-leading-zero); float: right;
+    margin-left: 3mm; color: var(--book-heading); font: 8pt Inter, sans-serif;
+  }
+  .layout-chapter-opener, .layout-topic { break-before: page; break-after: avoid; padding-top: 4mm; position: relative }
+  .numeral { color: var(--book-ornament); font-size: 29pt; font-variant-numeric: tabular-nums }
+  .layout-chapter-opener h2, .layout-topic h2 { font-size: 27pt; margin: 2mm 0 4mm }
+  .tier-standard .layout-chapter-opener .numeral { display: none }
+  .layout-chapter-opener .rule, .layout-topic .rule { margin: 0 0 6mm }
+  .chapter-art { width: 36mm; height: 24mm; color: var(--book-rule); stroke-width: 0.85 }
+  .layout-chapter-opener > .chapter-art, .layout-topic > .chapter-art {
+    position: absolute; right: 0; top: 1mm; opacity: 0.48; width: 27mm; height: 18mm;
+  }
+  .layout-chapter-opener:has(> .chapter-art) h2, .layout-topic:has(> .chapter-art) h2 { max-width: 90mm }
+  .tier-standard .layout-chapter-opener { border-top: 0.5pt solid var(--book-rule); padding-top: 6mm }
+  .section-link, .worksheet-nav a {
+    display: inline-block; padding: 1.1mm 2.4mm; border: 0.5pt solid var(--book-rule);
+    color: var(--book-heading); font: 8pt/1.25 Inter, sans-serif; text-decoration: none;
+  }
+  .layout-chapter-opener .section-link { margin: 0 0 3mm }
+  .tier-premium .layout-chapter-opener {
+    break-after: page; min-height: 172mm; padding: 12mm 8mm 7mm; text-align: center;
+    border: 0.45pt solid var(--book-rule);
+  }
+  .tier-premium .layout-chapter-opener > .chapter-art {
+    position: static; width: 92mm; height: 61mm; opacity: 0.74;
+  }
+  .tier-premium .layout-chapter-opener:has(> .chapter-art) h2 { max-width: none; margin: 2mm auto 4mm }
+  .tier-premium .layout-chapter-opener h2 { font-size: 34pt }
+  .tier-premium .numeral { font-size: 65pt }
+  .tier-premium .rule { margin: 5mm auto }
+
+  .layout-pull-quote, .layout-reflection-card, .script-row {
+    break-inside: avoid; margin: 3mm 0 5mm; padding: 4mm 5mm;
+    background: var(--book-field); color: var(--book-field-ink);
+    border: 0.45pt solid var(--book-rule); border-left: 1mm solid var(--book-ornament);
+  }
+  .layout-pull-quote .rule { display: none }
+  .quote, .script-row p:last-child { margin-bottom: 0 }
+  .card-quote, .quote { font: italic 14pt/1.35 Fraunces, serif }
+  .card-prompt, .col-head { margin: 0 0 2mm }
+  .layout-reflection-card { position: relative; padding-right: 10mm }
+  .card-diamond {
+    position: absolute; top: 5mm; right: 4mm; width: 3mm; height: 3mm;
+    transform: rotate(45deg); border: 0.55pt solid var(--book-rule);
+  }
+  .topic-script {
+    break-inside: avoid; margin-top: 4mm; padding: 4mm 5mm;
+    border: 0.45pt solid var(--book-rule);
+  }
+  .topic-script h2 { font-size: 17pt; margin: 0 0 3mm }
+  .topic-script p:last-child { margin-bottom: 0 }
+  .manuscript-break + section { break-before: page }
+  .layout-worksheet { break-before: page; padding: 3mm 0 0 }
+  .layout-worksheet h3 { color: var(--book-heading); margin: 3mm 0; font-size: 23pt }
+  .layout-worksheet .rule { margin: 0 0 4mm }
+  .tier-premium .layout-worksheet .rule { margin-left: 0 }
+  .worksheet-kicker { display: flex; justify-content: space-between; align-items: center; }
+  .worksheet-kicker {
+    font: 8pt/1.3 Inter, sans-serif; letter-spacing: 1pt; text-transform: uppercase;
+    color: var(--book-heading); border-bottom: 0.55pt solid var(--book-rule); padding: 0 0 2mm;
+  }
+  .journal-progress { display: flex; gap: 0.7mm; padding-top: 2mm; }
+  .journal-progress i { flex: 1; min-width: 0; height: 0.8mm; background: var(--book-field); }
+  .journal-progress .is-current { background: var(--book-rule); }
+  .worksheet-prompt { padding: 2.6mm 4mm; border-left: 1mm solid var(--book-ornament); background: var(--book-field) }
+  .worksheet-prompt p:last-child { margin-bottom: 0 }
+  .worksheet-nav { margin-top: 4mm }
+  .worksheet-nav a + a { margin-left: 2mm }
+  .writing-space {
+    margin-top: 4mm; padding: 2.5mm 4mm 3mm;
+    border: 0.45pt solid var(--book-rule); background: var(--book-field);
+    break-inside: avoid;
+  }
+  .field-label { display: block; color: var(--book-field-ink); font: 8pt/1.35 Inter, sans-serif; margin-bottom: 1.2mm }
+  .writing-area { position: relative; height: calc(var(--writing-lines) * 10mm); }
+  .writing-rules { position: absolute; left: 0; right: 0; top: 0; }
+  .write-rule { height: 10mm; border-bottom: 0.38pt solid var(--book-rule); opacity: 0.60 }
+  .writing-space textarea {
+    position: absolute; display: block; top: 0; left: 0; width: 100%; height: 100%;
+    appearance: auto; resize: none; border: 0; padding: 0 1mm;
+    color: var(--book-field-ink); font: 10pt/10mm 'Source Serif 4', serif;
+    background: transparent;
+  }
+  .tier-premium .writing-space { border-left: 1mm solid var(--book-ornament) }
+  .tier-premium .field-label { letter-spacing: 0.35pt }
+  .tier-free .layout-body .writing-space { margin: 4mm 0 6mm }
+  .layout-index { break-before: page; break-after: page; padding: 4mm 0; }
+  .layout-index > .chapter-art { width: 44mm; height: 23mm }
+  .layout-index h2 { font-size: 27pt; margin: 2mm 0 3mm }
+  .index-grid { table-layout: fixed; border-collapse: separate; border-spacing: 1.4mm 1.6mm; margin: 4mm 0; }
+  .index-grid td { border: 0; padding: 0; }
+  .index-grid a {
+    display: block; padding: 2.4mm 1mm;
+    border: 0.5pt solid var(--book-rule); color: var(--book-heading);
+    font: 15pt/1.16 Fraunces, serif; text-align: center; text-decoration: none;
+    break-inside: avoid; font-variant-numeric: tabular-nums;
+  }
+  .index-grid a span { display: block; font: 6.3pt/1.35 Inter, sans-serif; text-transform: uppercase; }
+  .tier-standard .index-grid a { background: var(--book-field); }
+  .tier-premium .index-grid a { border-left: 1mm solid var(--book-ornament); background: var(--book-field); }
+  .reading-path {
+    margin-top: 7mm; padding: 4mm; background: var(--book-field); border: 0.5pt solid var(--book-rule);
+    break-inside: avoid; color: var(--book-field-ink);
+  }
+  .reading-path ol { display: flex; justify-content: space-between; margin: 3mm 0 0; padding-left: 4mm; }
+  .reading-path li { width: 31%; margin: 0; padding: 2mm 2mm 0 0; border-top: 0.4pt solid var(--book-rule); }
+  .topic-checklist ul, .topic-seven-days ul { list-style: none; padding: 0 }
+  .topic-checklist li { position: relative; padding-left: 5.5mm }
+  .topic-checklist li::before {
+    content: ""; position: absolute; left: 0; top: 1.45mm; height: 2.6mm; width: 2.6mm;
+    border: 0.55pt solid var(--book-rule);
+  }
+  .topic-seven-days ul { counter-reset: day }
+  .topic-seven-days li {
+    counter-increment: day; padding: 2mm 0 2mm 10mm; border-top: 0.4pt solid var(--book-rule);
     position: relative;
-    background: var(--ink);
-    color: var(--gold-light);
-    margin: -18mm -15mm -20mm -20mm;
-    padding: 24mm 18mm 20mm;
-    min-height: 229mm;
-    display: flex;
-    flex-direction: column;
   }
-  .layout-cover .wordmark {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 22pt;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gold);
-    text-align: center;
+  .topic-seven-days li::before {
+    content: counter(day, decimal-leading-zero); position: absolute; left: 0;
+    font: 10pt/1.8 Inter, sans-serif; color: var(--book-ornament);
   }
-  .layout-cover .tier-bar {
-    height: 6px;
-    width: 60mm;
-    margin: 10mm auto 14mm;
-    background: var(--green);
-  }
-
-  /* The tier ramp on the printed cover. Each edition's cover is framed
-     and lit in that edition's own tier colour and metal, so the three
-     editions are three different books, not one book in three sizes.
-     The values are the ones the web reads from --tier-*-tokens. */
-  .layout-cover.tier-free {
-    --cover-accent: #2d7954;
-    --cover-metal: #a7d3b6;
-  }
-  .layout-cover.tier-standard {
-    --cover-accent: #c9a86a;
-    --cover-metal: #e9cea2;
-  }
-  .layout-cover.tier-premium {
-    --cover-accent: #a34a56;
-    --cover-metal: #dd9b93;
-  }
-  .layout-cover.tier-free .tier-bar,
-  .layout-cover.tier-standard .tier-bar,
-  .layout-cover.tier-premium .tier-bar {
-    background: var(--cover-accent);
-  }
-  .layout-cover .tier-seal {
-    position: absolute;
-    right: 14mm;
-    bottom: 16mm;
-    width: 26mm;
-    height: auto;
-  }
-  .layout-cover h1 {
-    font-size: 28pt;
-    line-height: 1.15;
-    text-align: center;
-    margin: 0 0 6mm;
-    font-weight: 500;
-  }
-  .layout-cover .byline {
-    font-family: 'Inter', sans-serif;
-    font-size: 11pt;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    text-align: center;
-    color: var(--gold);
-  }
-  .layout-cover .tagline {
-    font-style: italic;
-    text-align: center;
-    margin-top: 12mm;
-    color: var(--gold-light);
-  }
-
-  /* ---------- title page ---------- */
-  .layout-title-page { text-align: center; padding-top: 30mm; }
-  .layout-title-page .wordmark { font-family: 'Fraunces', Georgia, serif; font-size: 20pt; letter-spacing: 0.18em; text-transform: uppercase; }
-  .layout-title-page .tagline { font-style: italic; margin-top: 8mm; color: var(--sepia); }
-
-  /* ---------- chapter opener ---------- */
-  .layout-chapter-opener {
-    background: var(--ink);
-    color: var(--gold-light);
-    margin: -18mm -15mm -20mm -20mm;
-    padding: 40mm 18mm 20mm;
-    min-height: 229mm;
-  }
-  .layout-chapter-opener .numeral {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 72pt;
-    line-height: 1;
-    color: transparent;
-    -webkit-text-stroke: 1px var(--gold);
-    text-align: center;
-  }
-  .layout-chapter-opener h2 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 24pt;
-    text-align: center;
-    margin: 6mm 0 4mm;
-    font-weight: 600;
-  }
-  .layout-chapter-opener .epigraph {
-    font-style: italic;
-    text-align: center;
-    color: var(--gold-light);
-  }
-  .layout-chapter-opener .rule {
-    width: 24mm;
-    height: 1px;
-    background: var(--gold-deep);
-    margin: 8mm auto 0;
-  }
-
-  /* ---------- body ---------- */
-  .layout-body p { margin: 0 0 3mm; text-align: justify; hyphens: none; }
-  .layout-body p.indent { text-indent: 5mm; }
-  .layout-body p.lead::first-letter {
-    float: left;
-    font-size: 34pt;
-    line-height: 0.85;
-    padding-right: 2mm;
-    color: var(--sepia);
-  }
-  .layout-body h3 {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 15pt;
-    font-weight: 600;
-    margin: 6mm 0 2mm;
-  }
-  .layout-body h4 {
-    font-family: 'Inter', sans-serif;
-    font-size: 10pt;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gold-deep);
-    margin: 5mm 0 2mm;
-  }
-
-  /* ---------- pull quote ---------- */
-  .layout-pull-quote {
-    background: var(--ink);
-    color: var(--gold-light);
-    margin: -18mm -15mm -20mm -20mm;
-    padding: 45mm 20mm 20mm;
-    min-height: 229mm;
-    text-align: center;
-  }
-  .layout-pull-quote .quote {
-    font-family: 'Fraunces', Georgia, serif;
-    font-size: 22pt;
-    font-style: italic;
-    line-height: 1.35;
-  }
-  .layout-pull-quote .rule {
-    width: 24mm;
-    height: 1px;
-    background: var(--gold-deep);
-    margin: 8mm auto;
-  }
-
-  /* ---------- worksheet ---------- */
-  .layout-worksheet { padding-top: 4mm; }
-  .layout-worksheet h3 { font-size: 14pt; margin: 0 0 1mm; }
-  .layout-worksheet .prompt {
-    font-family: 'Inter', sans-serif;
-    font-size: 10pt;
-    color: var(--sepia);
-    margin-bottom: 5mm;
-  }
-  .write-line {
-    border-bottom: 1px dotted rgba(87, 58, 47, 0.3);
-    height: 8mm;
-  }
-  .checkbox-column {
-    display: inline-block;
-    width: 6mm;
-    border-right: 1px dotted rgba(87, 58, 47, 0.3);
-    height: 8mm;
-    margin-right: 3mm;
-    vertical-align: top;
-  }
-
-  /* ---------- reflection card ---------- */
-  .layout-reflection-card {
-    background: var(--ink-soft);
-    border: 1px solid var(--gold);
-    border-radius: 4mm;
-    width: 90mm;
-    min-height: 50mm;
-    padding: 7mm;
-    color: var(--gold-light);
-    position: relative;
-    overflow: hidden;
-  }
-  .layout-reflection-card .healing-marker {
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-    background: var(--green);
-  }
-  .layout-reflection-card .card-quote { font-style: italic; font-size: 11pt; line-height: 1.4; }
-  .layout-reflection-card .card-prompt {
-    font-family: 'Inter', sans-serif;
-    font-size: 8.5pt;
-    color: var(--gold);
-    margin-top: 4mm;
-  }
-
-  /* ---------- script page ---------- */
-  .layout-script-page .script-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6mm;
-    margin-bottom: 5mm;
-  }
-  .layout-script-page .col-head {
-    font-family: 'Inter', sans-serif;
-    font-size: 9pt;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--gold-deep);
-    padding-bottom: 1.5mm;
-    margin-bottom: 2mm;
-  }
-  .layout-script-page .want .col-head { color: var(--terracotta); }
-  .layout-script-page .how  .col-head { color: var(--sepia); }
-  .layout-script-page .script-row p { font-size: 10.5pt; margin: 0 0 2mm; }
-
-  /* ---------- back matter ---------- */
-  .layout-back-matter h3 { font-size: 14pt; margin-bottom: 2mm; }
-  .layout-back-matter .helpline {
-    font-family: 'Inter', sans-serif;
-    font-size: 11pt;
-    color: var(--sepia);
-    margin-bottom: 4mm;
-  }
-  .layout-back-matter .pdpa {
-    font-family: 'Inter', sans-serif;
-    font-size: 8pt;
-    color: var(--sepia-deep);
-    margin-top: 8mm;
-  }
-
-  /* ---------- watermark (paid pages) ---------- */
-  .watermark {
-    position: absolute;
-    right: 8mm;
-    bottom: 14mm;
-    transform: rotate(-20deg);
-    font-family: 'Inter', sans-serif;
-    font-size: 8pt;
-    letter-spacing: 0.12em;
-    color: rgba(233, 206, 162, 0.1);
-    pointer-events: none;
-  }
-  .buyer-line {
-    position: absolute;
-    bottom: 8mm;
-    left: 0;
-    right: 0;
-    text-align: center;
-    font-family: 'Inter', sans-serif;
-    font-size: 7pt;
-    color: rgba(87, 58, 47, 0.14);
-  }
+  .layout-back-matter { margin-top: 7mm; padding-top: 4mm; border-top: 0.7pt solid var(--book-rule); break-inside: avoid }
+  .tier-free .layout-back-matter { break-before: page; padding: 8mm 6mm; background: var(--book-field) }
+  .tier-free .layout-back-matter h2 { margin-top: 0; font-size: 25pt }
 </style>
 </head>
-<body>
+<body class="tier-free">
 
 <!-- COVER -->
-<section class="page layout-cover">
+<section class="page layout-cover tier-free">
   <div class="wordmark">Perpustakaan Hati</div>
+  <img class="cover-emblem" src="../../../docs/brand/assets/emblem-book-heart.svg" alt="" />
   <div class="tier-bar"></div>
   <h1>Edisi Poket</h1>
-  <div class="byline">by @rahimam</div>
+  <div class="byline">@rahimam</div>
   <p class="tagline">Teman hati sementara menunggu bas atau train.</p>
   <div class="watermark">Cop Perpustakaan Hati</div>
 </section>
@@ -375,16 +249,16 @@
 <!-- TITLE PAGE -->
 <section class="page layout-title-page">
   <div class="wordmark">Perpustakaan Hati</div>
-  <p class="tagline">Karya untuk jiwa yang pernah terluka</p>
-  <div class="folio">i</div>
+  <h2>Kandungan</h2>
+  <ol><li><a href="#bab-1">Kenapa Buku Ini</a></li></ol>
 </section>
 
 <!-- CHAPTER OPENER -->
-<section class="page layout-chapter-opener">
+<section class="page layout-chapter-opener" id="bab-1">
   <div class="numeral">01</div>
   <h2>Kenapa Buku Ini</h2>
   <div class="rule"></div>
-  <p class="epigraph">"Sekali baca, lama terasa."</p>
+
   <div class="watermark">Cop Perpustakaan Hati</div>
 </section>
 
@@ -414,10 +288,12 @@
 <section class="page layout-worksheet">
   <h3>Hari 1: Satu tindakan kecil</h3>
   <p class="prompt">Tulis satu perkara kecil yang boleh kamu buat hari ini.</p>
-  <div class="checkbox-column"></div><div class="write-line"></div>
-  <div class="checkbox-column"></div><div class="write-line"></div>
-  <div class="checkbox-column"></div><div class="write-line"></div>
-  <div class="checkbox-column"></div><div class="write-line"></div>
+  <div class="writing-space" aria-hidden="true">
+    <div class="write-line"></div>
+    <div class="write-line"></div>
+    <div class="write-line"></div>
+    <div class="write-line"></div>
+  </div>
   <div class="folio">12</div>
 </section>
 
@@ -454,10 +330,7 @@
     Jika kamu berada dalam keadaan tidak selamat, hubungi 999 atau pergi ke unit
     kecemasan hospital terdekat.
   </p>
-  <p class="pdpa">
-    Privasi: data anda dilindungi mengikut PDPA 2010 (Malaysia). Tiada perkongsian data dengan
-    pihak ketiga tanpa kebenaran anda.
-  </p>
+
   <div class="folio">28</div>
 </section>
 
