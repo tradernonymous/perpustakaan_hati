@@ -5,6 +5,7 @@
 @import "../styles/motion-books.css";
 @import "../styles/motion-aje.css";
 @import "../styles/motion-scenes.css";
+@import "../styles/motion-upgrade.css";
 
 @tailwind base;
 @tailwind components;

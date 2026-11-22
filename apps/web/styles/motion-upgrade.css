@@ -1,0 +1,452 @@
+/* Design-system motion upgrade. Borrowed from the EzyMap design system
+   (assets/motion/ezymap-motion-3d.css, ezymap-motion.css, ezymap-motion-text.css,
+   ezymap-motion-hero.css), re-scoped to the Void Grove tokens.
+   Import after globals.css. Animate transform and opacity only.
+   Every animation has a prefers-reduced-motion fallback. */
+
+/* ============ 3D stage, ring and orbit ============ */
+.ph-stage {
+  perspective: 1000px;
+  perspective-origin: 50% 40%;
+}
+/* Slow coin turn for emblems, seals and covers. */
+.ph-3d-turn {
+  transform-style: preserve-3d;
+  animation: ph-3d-turn 12s linear infinite;
+}
+@keyframes ph-3d-turn {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+/* Wobble in X and Y with a small lift, for hero objects. */
+.ph-3d-wobble {
+  transform-style: preserve-3d;
+  animation: ph-3d-wobble 7s var(--ease-out) infinite;
+}
+@keyframes ph-3d-wobble {
+  0%, 100% { transform: rotateX(0deg) rotateY(0deg) translateZ(0); }
+  25% { transform: rotateX(6deg) rotateY(-5deg) translateZ(10px); }
+  50% { transform: rotateX(-4deg) rotateY(7deg) translateZ(0); }
+  75% { transform: rotateX(5deg) rotateY(3deg) translateZ(6px); }
+}
+/* Tilted rotating ring around a centre, like an orbit behind a medallion. */
+.ph-ring-3d {
+  transform: rotateX(68deg);
+  transform-style: preserve-3d;
+  animation: ph-ring-3d 14s linear infinite;
+}
+@keyframes ph-ring-3d {
+  from { transform: rotateX(68deg) rotateZ(0deg); }
+  to { transform: rotateX(68deg) rotateZ(360deg); }
+}
+/* Hover depth: the card lifts toward the viewer and gains a shadow. */
+.ph-depth {
+  transform-style: preserve-3d;
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+}
+.ph-depth:hover,
+.ph-depth:focus-visible {
+  transform: translateZ(18px) rotateX(4deg);
+  box-shadow: 0 24px 48px -16px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(201 168 106 / 0.25);
+}
+/* Entrance: rises out of a slight X rotation. Pair with .ph-stagger. */
+.ph-reveal-3d {
+  transform-origin: 50% 0;
+  animation: ph-reveal-3d var(--dur-slow) var(--ease-out) both;
+}
+@keyframes ph-reveal-3d {
+  from { opacity: 0; transform: rotateX(-18deg) translateY(24px); }
+  to { opacity: 1; transform: rotateX(0deg) translateY(0); }
+}
+/* Staggered children: set --i (0, 1, 2 ...) on each child. */
+.ph-stagger > * {
+  animation: ph-rise var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+/* ============ Flip card, 3D cube ============ */
+.ph-flip { position: relative; perspective: 1000px; }
+.ph-flip__inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+.ph-flip:hover .ph-flip__inner,
+.ph-flip:focus-within .ph-flip__inner { transform: rotateY(180deg); }
+.ph-flip__face { backface-visibility: hidden; }
+.ph-flip__face.ph-flip__back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+/* Cube: six faces, .ph-cube__face + front/back/left/right/top/bottom. */
+.ph-cube-3d { position: relative; transform-style: preserve-3d; animation: ph-cube 16s linear infinite; }
+@keyframes ph-cube {
+  from { transform: rotateX(-18deg) rotateY(0deg); }
+  to { transform: rotateX(-18deg) rotateY(360deg); }
+}
+.ph-cube__face { position: absolute; inset: 0; backface-visibility: hidden; }
+
+/* ============ Border beam: rotating conic border ============ */
+.ph-beam { position: relative; isolation: isolate; }
+.ph-beam::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--ph-beam-angle, 0deg), transparent 0deg, var(--gold) 40deg, var(--gold-light) 60deg, transparent 100deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: ph-beam-spin 6s linear infinite;
+}
+@property --ph-beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes ph-beam-spin {
+  to { --ph-beam-angle: 360deg; }
+}
+
+/* ============ Hover glow halo ============ */
+.ph-hover-glow { position: relative; isolation: isolate; transition: opacity var(--dur-fast) var(--ease-out); }
+.ph-hover-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity var(--dur-base) var(--ease-out);
+  background: radial-gradient(closest-side at 50% 50%, rgb(91 155 125 / 0.28), transparent 75%);
+}
+.ph-hover-glow:hover::before,
+.ph-hover-glow:focus-visible::before { opacity: 1; }
+
+/* ============ Sheen sweep, spring-in, blur-in, heartbeat ============ */
+.ph-sheen { position: relative; overflow: hidden; }
+.ph-sheen::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(115deg, transparent 42%, rgb(253 254 230 / 0.16) 50%, transparent 58%);
+  transform: translateX(-70%);
+  pointer-events: none;
+}
+.ph-sheen:hover::after,
+.ph-sheen:focus-visible::after { animation: ph-sheen-move var(--dur-slow) var(--ease-out) 1; }
+@keyframes ph-sheen-move {
+  to { transform: translateX(70%); }
+}
+.ph-spring-in { animation: ph-spring-in var(--dur-slow) var(--ease-out) both; }
+@keyframes ph-spring-in {
+  from { opacity: 0; transform: scale(0.5); }
+}
+.ph-blur-in { opacity: 0; filter: blur(6px); animation: ph-blur-in var(--dur-base) var(--ease-out) both; }
+@keyframes ph-blur-in {
+  to { opacity: 1; filter: blur(0); }
+}
+.ph-heartbeat { animation: ph-heartbeat 1.8s var(--ease-out) infinite; }
+@keyframes ph-heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.12); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.08); }
+  56% { transform: scale(1); }
+}
+/* Gentle breathing scale for hero objects. */
+.ph-breathe { animation: ph-breathe 5s var(--ease-out) infinite; }
+@keyframes ph-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+
+/* ============ Text motion: word, line, underline, rotator ============ */
+/* Word-by-word reveal: wrap each word in a span with --i set. */
+.ph-words > span {
+  display: inline-block;
+  animation: ph-word-in var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+@keyframes ph-word-in {
+  from { opacity: 0; transform: translateY(0.5em); }
+}
+/* Masked line rise: each line is a .ph-line with one inner span. */
+.ph-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.1em;
+  margin-bottom: -0.1em;
+}
+.ph-line > span {
+  display: block;
+  animation: ph-line-up var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+@keyframes ph-line-up {
+  from { transform: translateY(105%); }
+}
+/* Gradient underline that draws left to right under one accent word. */
+.ph-underline {
+  position: relative;
+  display: inline-block;
+}
+.ph-underline::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.12em;
+  height: 0.08em;
+  min-height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--green-500), var(--gold));
+  transform-origin: left center;
+  animation: ph-underline-draw var(--dur-slow) var(--ease-out) 400ms both;
+}
+@keyframes ph-underline-draw {
+  from { transform: scaleX(0); }
+}
+/* Rotating keyword: set --n to the number of words and repeat the first
+   word at the end so the loop is seamless. */
+.ph-rotator {
+  display: inline-block;
+  height: 1.2em;
+  line-height: 1.2;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+.ph-rotator__track {
+  display: block;
+  animation: ph-rotator calc(var(--n, 3) * 2.2s) steps(var(--n, 3)) infinite;
+}
+.ph-rotator__track > * {
+  display: block;
+  height: 1.2em;
+}
+@keyframes ph-rotator {
+  to { transform: translateY(calc(var(--n, 3) * -1.2em)); }
+}
+/* Text shimmer for gold accents. */
+.ph-text-shimmer {
+  background: linear-gradient(100deg, var(--gold-deep) 0%, var(--gold) 30%, var(--gold-light) 50%, var(--gold) 70%, var(--gold-deep) 100%);
+  background-size: 220% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ph-text-shimmer 6s var(--ease-out) infinite;
+}
+@keyframes ph-text-shimmer {
+  to { background-position: 0% 0; }
+}
+
+/* ============ Ambient: float, orbit, particles, sparkles, aurora ============ */
+.ph-float { animation: ph-float 6s var(--ease-out) infinite; }
+@keyframes ph-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.ph-float-slow { animation: ph-float-slow 9s var(--ease-out) infinite; }
+@keyframes ph-float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+.ph-float-x { animation: ph-float-x 7s var(--ease-out) infinite; }
+@keyframes ph-float-x {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(10px); }
+}
+.ph-spin-slow { animation: ph-spin-slow 14s linear infinite; }
+@keyframes ph-spin-slow {
+  to { transform: rotate(360deg); }
+}
+/* Orbiting dots around a centre. */
+.ph-orbit { position: relative; }
+.ph-orbit > .ph-orbit__marker {
+  position: absolute;
+  inset: 0;
+  animation: ph-spin-slow 12s linear infinite;
+}
+/* Particle burst: children with .ph-particle rise and fade. */
+.ph-particle-burst > .ph-particle { animation: ph-particle var(--dur-slow) var(--ease-out) both; }
+@keyframes ph-particle {
+  from { opacity: 0; transform: translateY(0) scale(0.4); }
+  50% { opacity: 1; transform: translateY(-30px) scale(1.1); }
+  to { opacity: 0; transform: translateY(-60px) scale(0.8); }
+}
+/* Twinkling sparkle for gold accents. Set --i to offset each sparkle. */
+.ph-sparkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ph-sparkle 2.8s var(--ease-out) infinite;
+  animation-delay: calc(var(--i, 0) * 420ms);
+}
+@keyframes ph-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(45deg); }
+}
+/* Auto-breathing glow for featured panels. */
+.ph-auto-glow { position: relative; isolation: isolate; }
+.ph-auto-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(closest-side at 50% 30%, rgb(91 155 125 / 0.22), transparent 72%);
+  animation: ph-auto-glow 8s var(--ease-out) infinite alternate;
+  pointer-events: none;
+}
+@keyframes ph-auto-glow {
+  from { background-position: 50% 25%; opacity: 0.5; }
+  to { background-position: 50% 70%; opacity: 1; }
+}
+/* Aurora: two slow drifting colour fields. */
+.ph-aurora { position: relative; isolation: isolate; }
+.ph-aurora::before,
+.ph-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+}
+.ph-aurora::before {
+  background: radial-gradient(38% 30% at 30% 30%, rgb(91 155 125 / 0.16), transparent 70%);
+  animation: ph-aurora-a 14s var(--ease-out) infinite alternate;
+}
+.ph-aurora::after {
+  background: radial-gradient(34% 28% at 70% 65%, rgb(201 168 106 / 0.14), transparent 70%);
+  animation: ph-aurora-b 18s var(--ease-out) infinite alternate;
+}
+@keyframes ph-aurora-a {
+  from { transform: translate3d(-6%, -4%, 0) scale(1); }
+  to { transform: translate3d(6%, 5%, 0) scale(1.12); }
+}
+@keyframes ph-aurora-b {
+  from { transform: translate3d(5%, 6%, 0) scale(1.1); }
+  to { transform: translate3d(-5%, -5%, 0) scale(1); }
+}
+
+/* ============ Pointer parallax and spotlight (hero) ============ */
+/* Pair with a small script that sets --px, --py (-1..1) and --mx, --my (px
+   from centre). Without the script the layers sit at their rest position. */
+.ph-parallax {
+  transform: translate3d(
+    calc(var(--px, 0) * var(--ph-depth, 1) * 14px),
+    calc(var(--py, 0) * var(--ph-depth, 1) * 14px),
+    0
+  );
+  transition: transform var(--dur-base) var(--ease-out);
+  will-change: transform;
+}
+.ph-spotlight {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.ph-spotlight::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46rem;
+  height: 46rem;
+  margin: -23rem 0 0 -23rem;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(91 155 125 / 0.16), rgb(91 155 125 / 0));
+  transform: translate3d(var(--mx, 0px), var(--my, 0px), 0);
+  transition: transform var(--dur-base) var(--ease-out);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ============ Draw-on SVG lines ============ */
+/* Give the path pathLength="1" so the dash maths holds for any length. */
+.ph-draw {
+  stroke-dasharray: 1;
+  animation: ph-draw 1.6s var(--ease-out) both;
+}
+@keyframes ph-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* ============ Ken Burns and slow pan ============ */
+.ph-kenburns {
+  animation: ph-kenburns 18s var(--ease-out) infinite alternate;
+  transform-origin: center;
+}
+@keyframes ph-kenburns {
+  from { transform: scale(1) translate(0, 0); }
+  to { transform: scale(1.12) translate(-1.5%, -1%); }
+}
+.ph-pan {
+  background-size: 200% 200%;
+  animation: ph-pan 9s var(--ease-out) infinite alternate;
+}
+@keyframes ph-pan {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
+}
+
+/* ============ Scroll-driven: parallax and stagger ============ */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* Parallax drift while the element crosses the viewport.
+       Distance is --ph-parallax (default 40px). Put it on a wrapper,
+       not on an element that already animates transform. */
+    .ph-scroll-parallax {
+      animation: ph-scroll-parallax linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+    @keyframes ph-scroll-parallax {
+      from { transform: translateY(var(--ph-parallax, 40px)); }
+      to { transform: translateY(calc(var(--ph-parallax, 40px) * -1)); }
+    }
+    /* Children reveal one after another as the parent scrolls in.
+       Set --i (0, 1, 2 ...) on each child. */
+    .ph-scroll-stagger > * {
+      animation: ph-scroll-reveal linear both;
+      animation-timeline: view();
+      animation-range:
+        entry calc(var(--i, 0) * 6%)
+        cover calc(24% + var(--i, 0) * 6%);
+    }
+    @keyframes ph-scroll-reveal {
+      from { opacity: 0; transform: translateY(32px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
+}
+
+/* ============ Reduced motion: everything stops ============ */
+@media (prefers-reduced-motion: reduce) {
+  .ph-stage, .ph-3d-turn, .ph-3d-wobble, .ph-ring-3d, .ph-depth,
+  .ph-reveal-3d, .ph-stagger > *, .ph-flip__inner, .ph-cube-3d,
+  .ph-beam::before, .ph-hover-glow::before, .ph-sheen::after,
+  .ph-spring-in, .ph-blur-in, .ph-heartbeat, .ph-breathe,
+  .ph-words > span, .ph-line > span, .ph-underline::after,
+  .ph-rotator__track, .ph-text-shimmer, .ph-float, .ph-float-slow,
+  .ph-float-x, .ph-spin-slow, .ph-orbit > .ph-orbit__marker,
+  .ph-particle-burst > .ph-particle, .ph-sparkle, .ph-auto-glow::before,
+  .ph-aurora::before, .ph-aurora::after, .ph-parallax, .ph-draw,
+  .ph-kenburns, .ph-pan {
+    animation: none !important;
+    transition: none !important;
+  }
+  .ph-parallax { transform: none; }
+  .ph-spotlight::before { transition: none; transform: none; }
+  .ph-blur-in { opacity: 1; filter: none; }
+  .ph-words > span, .ph-line > span { opacity: 1; transform: none; }
+  .ph-sheen::after { display: none; }
+  .ph-hover-glow::before { opacity: 0; }
+  .ph-depth:hover, .ph-depth:focus-visible { transform: none; }
+  .ph-flip:hover .ph-flip__inner,
+  .ph-flip:focus-within .ph-flip__inner { transform: none; }
+}
