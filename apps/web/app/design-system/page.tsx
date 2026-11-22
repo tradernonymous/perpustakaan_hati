@@ -90,9 +90,9 @@ export default function DesignSystem() {
         </nav>
 
         <Section index={0}>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {colors.map(([name, hex]) => (
-              <figure key={name} className="ph-card m-0 overflow-hidden">
+          <div className="ph-scroll-stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {colors.map(([name, hex], i) => (
+              <figure key={name} className="ph-card ph-sheen m-0 overflow-hidden" style={{ "--i": i } as React.CSSProperties}>
                 <div aria-hidden="true" className="h-14 border-b border-line" style={{ backgroundColor: `var(--${name})` }} />
                 <figcaption className="grid gap-1 p-2 text-xs sm:p-3 sm:text-sm"><code>{name}</code><span className="text-fg-muted">{hex}</span></figcaption>
               </figure>
@@ -133,8 +133,11 @@ export default function DesignSystem() {
           <div className="grid gap-4 md:grid-cols-2">
             <article className="ph-card p-5">
               <p className="text-sm text-fg-accent">Instrument Serif · paparan</p>
-              <p className="ph-title mt-2 text-5xl">Ruang untuk pulih.</p>
+              <p className="ph-title ph-words mt-2 text-5xl">
+                {"Ruang untuk pulih.".split(" ").map((w, i) => <span key={i} style={{ "--i": i } as React.CSSProperties}>{w}</span>)}{" "}
+              </p>
               <p className="font-display mt-2 text-3xl italic">Baca mengikut rentakmu.</p>
+              <span className="ph-underline font-display mt-3 inline-block text-xl">rentakmu</span>
             </article>
             <article className="ph-card grid gap-4 p-5">
               <p><span className="block text-sm text-fg-accent">Geist Sans · antara muka</span>Bacaan kecil dalam Bahasa Melayu.</p>
@@ -158,10 +161,10 @@ export default function DesignSystem() {
         </Section>
 
         <Section index={2}>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {brandAssets.map(([file, label]) => (
-              <figure key={file} className="ph-card m-0 grid content-start gap-3 p-4">
-                <img src={`/brand/${file}`} alt="" width={180} height={110} className="mx-auto h-24 w-full object-contain" loading="lazy" />
+          <div className="ph-scroll-stagger grid grid-cols-2 gap-3 md:grid-cols-4">
+            {brandAssets.map(([file, label], i) => (
+              <figure key={file} className="ph-card ph-sheen ph-depth m-0 grid content-start gap-3 p-4" style={{ "--i": i } as React.CSSProperties}>
+                <img src={`/brand/${file}`} alt="" width={180} height={110} className="ph-float mx-auto h-24 w-full object-contain" loading="lazy" />
                 <figcaption><a href={`/brand/${file}`} className="text-sm text-fg-healing underline">{label}</a></figcaption>
               </figure>
             ))}
@@ -210,9 +213,9 @@ export default function DesignSystem() {
         </Section>
 
         <Section index={6}>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {TIERS.map((tier) => (
-              <article key={tier.id} data-tier={tier.id} className="ph-tier-card p-4">
+          <div className="ph-scroll-stagger grid gap-4 sm:grid-cols-3">
+            {TIERS.map((tier, i) => (
+              <article key={tier.id} data-tier={tier.id} className="ph-tier-card ph-depth ph-sheen p-4" style={{ "--i": i } as React.CSSProperties}>
                 <div className="ph-book-stage mx-auto w-full max-w-[190px]">
                   <div className="ph-book-object">
                     <ProductCover name={tier.name} src={tier.cover} seal={tier.seal} tier={tier.id} />
@@ -251,11 +254,13 @@ export default function DesignSystem() {
             </div>
           </div>
           <div className="mb-4 grid gap-4 md:grid-cols-2">
-            <figure className="ph-card m-0 grid justify-items-center gap-2 p-5">
-              <img src="/brand/animated/emblem-book-heart.svg" width={110} height={80} alt="" />
-              <figcaption className="text-sm text-fg-muted">Animasi lambang</figcaption>
+            <figure className="ph-card ph-3d-stage m-0 grid justify-items-center gap-2 p-5">
+              <div className="ph-stage">
+                <img src="/brand/animated/emblem-book-heart.svg" width={110} height={80} alt="" className="ph-3d-wobble" />
+              </div>
+              <figcaption className="text-sm text-fg-muted">Animasi lambang 3D</figcaption>
             </figure>
-            <div className="ph-card self-stretch p-5">
+            <div className="ph-card ph-hover-glow self-stretch p-5">
               <h3 className="ph-title text-2xl">Maklum balas dan peralihan</h3>
               <p className="mt-2 text-fg-muted">Tiga lencana di atas mempamerkan kemasan emas, lambang buku dan hati asal, serta kemasan grid berinspirasikan fintech. Jeda latar untuk menghentikan lencana dan orbit. Halakan penuding pada kulit bab untuk melihat kilauan, atau selak buku di bawah. Lapisan gerakan terkini: medan glif terapung dengan paralaks penuding, gelang putar di belakang medali, kilauan diagonal pada setiap <code>ph-cta</code>, dan kemasukan muka surat 3D secara berperingkat. Semua dilumpuhkan di bawah <code>prefers-reduced-motion</code>.</p>
             </div>
@@ -266,14 +271,10 @@ export default function DesignSystem() {
         </Section>
 
         <Section index={8}>
-          <div className="grid gap-4 md:grid-cols-3">
-            {TIERS.map(({ id, name }) => (
-              <article key={id} className={`ph-ebook-${id} rounded-lg border p-5`}
-                style={{
-                  backgroundColor: `var(--ebook-${id}-page)`,
-                  color: `var(--ebook-${id}-ink)`,
-                  borderColor: `var(--ebook-${id}-rule)`,
-                }}>
+          <div className="ph-scroll-stagger grid gap-4 md:grid-cols-3">
+            {TIERS.map(({ id, name }, i) => (
+              <article key={id} className={`ph-ebook-${id} ph-depth ph-sheen rounded-lg border p-5`} data-tier={id}
+                style={{ "--i": i, backgroundColor: `var(--ebook-${id}-page)`, color: `var(--ebook-${id}-ink)`, borderColor: `var(--ebook-${id}-rule)` } as React.CSSProperties}>
                 <p className="mb-3 text-sm">{name}</p>
                 <h3 className="font-display text-3xl" style={{ color: `var(--ebook-${id}-heading)` }}>Sehalaman untuk diri</h3>
                 <p className="my-4 font-reading">Ada hari yang meminta kita memperlahankan langkah. Bacalah mengikut rentakmu.</p>
