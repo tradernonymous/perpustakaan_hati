@@ -216,6 +216,9 @@ tempCodeRunnerFile.py
 # Ruff stuff:
 .ruff_cache/
 
+# Graphify (code-graph analysis tool) working output — per-machine, not project source.
+graphify-out/
+
 # PyPI configuration file
 .pypirc
 
