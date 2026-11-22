@@ -2,13 +2,13 @@
 <html lang="ms">
 <head>
 <meta charset="utf-8">
-<title>Perpustakaan Hati — Design System 3.6 "Precise Grove"</title>
+<title>Perpustakaan Hati — Design System 3.10 "Void Grove"</title>
 <!--
-  Perpustakaan Hati — Design System 3.6 showcase sheet (1600x1200).
+  Perpustakaan Hati — Design System 3.10 showcase sheet (1600x1200).
   Every colour and component here reads from design-tokens.css; nothing
   is hard-coded except layout. Render to PNG with any headless Chromium:
 
-    chrome-headless-shell --screenshot=docs/brand/preview/design-system-3-6.png \
+    chrome-headless-shell --screenshot=docs/brand/preview/design-system-3-10.png \
       --window-size=1600,1200 --allow-file-access-from-files \
       file://$PWD/docs/brand/templates/design-system-3-sheet.html
 -->
@@ -108,11 +108,12 @@
   <section class="hero ph-stage">
     <img src="../assets/lockup-cinematic.svg" alt="Perpustakaan Hati cinematic lockup">
     <div>
-      <h1>Design System 3.6 — <em>Precise Grove</em></h1>
-      <p>Cinematic, lantern-lit and foil-stamped, with a warm ivory storefront layer. Green still
-        leads: the dark ground is a green-black, the hero word is emerald foil, and gold is only the
-        frame around it. 3.6 keeps this look and makes the details exact: focus, selection, motion
-        roles and one elevation ladder.</p>
+      <h1>Design System 3.10 — <em>Void Grove</em></h1>
+      <p>Cinematic, lantern-lit and foil-stamped, with an Apple-informed storefront layer.
+        Green still leads: the dark ground is a green-black, the hero word is emerald foil, and
+        gold is only the frame around it. 3.10 keeps that look and sharpens the interface —
+        Instrument Serif display, Geist Sans UI, tighter hero tracking, an Apple frosted-glass
+        header, and rounder panels and controls.</p>
       <div class="share">
         <div class="bar">
           <i style="flex:50;background:var(--foil-emerald)"></i>
@@ -195,19 +196,19 @@
     </div>
 
     <div>
-      <h2>3.6 precision — focus · selection · elevation · motion</h2>
+      <h2>3.10 clarity — type · surface · motion</h2>
       <div class="precision">
         <div class="tile">
-          <span>Focus · 2px · 3:1</span>
-          <span class="demo"><button class="focus-demo" type="button">Muat turun</button></span>
+          <span>Hero · −0.028em · 0.96</span>
+          <span class="demo" style="font-family: var(--font-display); font-size: 20px; letter-spacing: -0.028em; line-height: 0.96;">Ruang untuk pulih</span>
         </div>
         <div class="tile">
-          <span>Selection · green, not blue</span>
-          <span class="demo"><span class="sel-demo">Teman hati</span></span>
+          <span>Card radius 18px · control 10px</span>
+          <span class="demo"><span style="display:inline-block;padding:8px 16px;border-radius:18px;background:var(--forest-raised);border:1px solid var(--forest-edge)">kad 18px</span></span>
         </div>
         <div class="tile">
-          <span>Elevation 1–4</span>
-          <span class="elev-row"><i></i><i></i><i></i><i></i></span>
+          <span>Header · frosted glass</span>
+          <span class="demo"><span style="display:inline-block;padding:6px 12px;border-radius:10px;background:rgb(7 20 13 / 0.82);backdrop-filter:saturate(180%) blur(20px)">kaca beku</span></span>
         </div>
       </div>
       <p class="cap">Motion picks a role, not a curve: decelerate on arrival, accelerate on exit,

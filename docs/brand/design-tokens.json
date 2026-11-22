@@ -1,8 +1,8 @@
 {
   "$meta": {
-    "name": "Perpustakaan Hati — Design System 3.9 Void Grove",
-    "version": "3.9.0",
-    "date": "2026-11-21",
+    "name": "Perpustakaan Hati — Design System 3.10 Void Grove",
+    "version": "3.10.0",
+    "date": "2026-11-22",
     "source": "docs/brand/design-tokens.css",
     "share": "green 50 / gold 40 / ruby + cream 10",
     "note": "Mirrors design-tokens.css, including scoped eBook tiers, motion roles and the storefront typography and book materials."
@@ -14,10 +14,14 @@
     "font-script": "'Instrument Serif', Georgia, serif",
     "weight-title": 400,
     "type-hero-size": "clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)",
-    "type-hero-leading": 0.98,
-    "type-hero-tracking": "-0.02em",
-    "type-title-tracking": "-0.012em",
-    "type-title-leading": 1.05
+    "type-hero-leading": 0.96,
+    "type-hero-tracking": "-0.028em",
+    "type-title-tracking": "-0.018em",
+    "type-title-leading": 1.04,
+    "type-body-tracking": "-0.011em",
+    "type-body-leading": 1.5,
+    "radius-control": "10px",
+    "radius-panel": "18px"
   },
   "bookMaterial": {
     "book-perspective": "960px",

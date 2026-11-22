@@ -7,7 +7,7 @@ import { PageShell } from "@/components/PageShell";
 import { getOrders } from "@/src/server/instance";
 import { redirect } from "next/navigation";
 import { activeReader } from "@/src/server/reader-session";
-import { availablePocketBooks } from "@/src/server/poket-books";
+import { listPocketBooks } from "@/src/server/poket-books";
 import { libraryForEmail } from "@/src/server/library";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +30,7 @@ export default async function Pustaka({ searchParams }: { searchParams: Promise<
     );
   }
   const bookmark = getTipsBookmark(lib.email);
-  const poketBooks = await availablePocketBooks();
+  const poketBooks = await listPocketBooks();
   return (
     <PageShell title="Pustaka Saya" intro={`Untuk ${lib.email}`}>
       <section className="ph-card mx-auto mb-8 grid max-w-reading gap-3 p-4" aria-labelledby="pustaka-bacaan">
@@ -50,7 +50,11 @@ export default async function Pustaka({ searchParams }: { searchParams: Promise<
           {poketBooks.map((book) => (
             <li key={book.slug} className="ph-card flex flex-wrap items-center justify-between gap-2 p-3">
               <span>{book.title}</span>
-              <a href={`/api/pustaka/poket/${book.slug}`} className="btn-ghost min-h-tap">Muat turun PDF</a>
+              {book.available ? (
+                <a href={`/api/pustaka/poket/${book.slug}`} className="btn-ghost min-h-tap">Muat turun PDF</a>
+              ) : (
+                <span className="text-sm text-fg-muted">Segera hadir</span>
+              )}
             </li>
           ))}
         </ul>

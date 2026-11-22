@@ -15,7 +15,7 @@ import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ShowcaseControls } from "./Controls";
 
 export const metadata: Metadata = {
-  title: "Sistem Reka Bentuk 3.9 | Perpustakaan Hati",
+  title: "Sistem Reka Bentuk 3.10 | Perpustakaan Hati",
   description: "Panduan visual Void Grove: tipografi, warna, identiti, komponen, gerakan dan edisi buku.",
   alternates: { canonical: "/design-system" },
 };
@@ -78,7 +78,7 @@ export default function DesignSystem() {
           <HeroAtmosphere />
           <HeroGlyphs />
           <div className={atmosphere.copy}>
-            <p className="mb-2 text-sm font-semibold text-fg-accent">Sistem Reka Bentuk 3.9</p>
+            <p className="mb-2 text-sm font-semibold text-fg-accent">Sistem Reka Bentuk 3.10</p>
             <h1 className="ph-display-hero font-display">Void Grove</h1>
             <p className="mt-4 max-w-reading text-fg-muted">Panduan Perpustakaan Hati untuk identiti, tipografi, bahan buku, gerakan dan komponen antara muka.</p>
           </div>
@@ -146,11 +146,13 @@ export default function DesignSystem() {
             <h3 className="ph-title mb-3 text-2xl">Kemas kini kejelasan</h3>
             <dl className="grid gap-2 text-sm sm:grid-cols-2">
               <div><dt className="text-fg-accent">Saiz hero</dt><dd><code>clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)</code></dd></div>
-              <div><dt className="text-fg-accent">Surat headline hero</dt><dd><code>−0.02em · leading 0.98</code></dd></div>
-              <div><dt className="text-fg-accent">Surat headline seksyen</dt><dd><code>−0.012em · leading 1.05</code></dd></div>
-              <div><dt className="text-fg-accent">Badan</dt><dd><code>Geist Sans 17px · leading 1.55 · optical sizing auto</code></dd></div>
+              <div><dt className="text-fg-accent">Surat headline hero</dt><dd><code>−0.028em · leading 0.96</code></dd></div>
+              <div><dt className="text-fg-accent">Surat headline seksyen</dt><dd><code>−0.018em · leading 1.04</code></dd></div>
+              <div><dt className="text-fg-accent">Badan</dt><dd><code>Geist Sans 17px · −0.011em · leading 1.5</code></dd></div>
               <div><dt className="text-fg-accent">Tindakan utama</dt><dd><code>bayang kabur lembut, tekan scale(0.98), tanpa tepi 3D</code></dd></div>
-              <div><dt className="text-fg-accent">Kad</dt><dd><code>radius 16px, bayang lebih tenang, hairline border</code></dd></div>
+              <div><dt className="text-fg-accent">Kad</dt><dd><code>radius 18px, bayang lebih tenang, hairline border</code></dd></div>
+              <div><dt className="text-fg-accent">Kepala</dt><dd><code>kaca beku saturate(180%) blur(20px)</code></dd></div>
+              <div><dt className="text-fg-accent">Kawalan</dt><dd><code>radius 10px</code></dd></div>
             </dl>
           </div>
         </Section>

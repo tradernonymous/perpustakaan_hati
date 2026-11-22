@@ -1,12 +1,12 @@
-# Design System 3.9 "Void Grove"
+# Design System 3.10 "Void Grove"
 
-**Current storefront release, 2026-11-21.** Version token `--ph-system-version: '3.9.0'` in `design-tokens.css`.
+**Current storefront release, 2026-11-22.** Version token `--ph-system-version: '3.10.0'` in `design-tokens.css`.
 
-**Clarity refinement, 2026-11-22 (still 3.9).** An Apple.com-informed pass on the storefront scope only: the hero scale grows to `clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)` with −0.02em tracking, section titles tighten to −0.012em at 1.05 leading, body copy moves to 17px / 1.55, `.ph-cta` loses its hard extruded edge for a soft diffuse shadow with a scale press, `.ph-card` rounds to 16px with a quieter shadow ladder, and `.btn-ghost` becomes a translucent pill on the void ground. All changes live inside `.ph-storefront` / `.ph-void` scopes; the shared component recipes are unchanged for eBook, admin and publishing surfaces.
+**Clarity refinement, 2026-11-22 (3.10).** A deeper Apple.com-informed pass on the storefront scope only: the hero scale keeps `clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)` but tightens to −0.028em tracking at 0.96 leading, section titles tighten to −0.018em at 1.04 leading, body copy carries a faint −0.011em tracking at 1.5 leading (like SF Pro Text), `.ph-cta` keeps its soft diffuse shadow and scale press, `.ph-card` rounds to an 18px panel radius with a quieter shadow ladder, the sticky header moves to an Apple frosted-glass `saturate(180%) blur(20px)`, and controls share a 10px radius. All changes live inside `.ph-storefront` / `.ph-void` scopes; the shared component recipes are unchanged for eBook, admin and publishing surfaces.
 
 | Role | Recipe |
 |---|---|
-| Display | Instrument Serif regular for headlines and italic for editorial emphasis. The hero uses a 44–120px fluid scale, 0.98 leading, and −0.02em tracking. |
+| Display | Instrument Serif regular for headlines and italic for editorial emphasis. The hero uses a 44–120px fluid scale, 0.96 leading, and −0.028em tracking. |
 | Interface | Variable Geist Sans for navigation, labels, controls, and body copy. |
 | Reading and publishing | Source Serif 4 for reading text. The publishing templates use their established Fraunces and Inter roles for covers and labels. |
 | Dimensional covers | `.ph-book-stage` sets perspective and reserves space for the edges. Its `.ph-book-object` child uses a right paper edge, a bottom edge, a tier-tinted bevel, and a cast shadow. Hover on a fine pointer tilts and lifts the cover. |
