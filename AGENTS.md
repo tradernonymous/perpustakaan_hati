@@ -5,7 +5,7 @@
 - This repo is `tradernonymous/perpustakaan_hati` (private). Use the **github-work** MCP for all PR/CI/merge operations.
 - `printezy247` resources (e.g. private `website_sam` reference repo) use the **github** MCP or the `gh` CLI — different account.
 - Account routing for builds: `tradernonymous/*` repos → **github-work** MCP only. `printezy247/*` repos → **github** MCP or `gh` CLI. The `gh` CLI is logged in as `printezy247`, so never use it for PR/CI/merge on this repo. If github-work MCP is unavailable, stop and ask instead of falling back to `gh` or switching credentials.
-- Flow that works with Railway auto-deploy: feature branch → push → MCP `create_pull_request` → `pull_request_read get_check_runs` until green → `merge_pull_request` → sync local `main` → delete merged branch. Merging to `main` triggers Railway deploys for both `web` and `perpustakaan_hati` (research-admin) services.
+- Flow that works with Railway auto-deploy: feature branch → push → MCP `create_pull_request` → `pull_request_read get_check_runs` until green → `merge_pull_request` → sync local `main` → delete merged branch. Merging to `main` triggers Railway auto-deploys for both services below.
 - Railway occasionally parks deploys as `NEEDS_APPROVAL`; approve via `railway api 'mutation { deploymentApprove(id:"...") }'` or the dashboard.
 - CI failing only because of a GitHub billing issue (jobs blocked by payment or spending limit, not by test or build errors): squash merge anyway, as Jack said. Check the check-run output first to confirm the failure is billing-only, and say so in the PR and the report. Any other CI failure still blocks the merge.
 
@@ -34,3 +34,10 @@
 - Brand tools: `uv run --no-project --with pytest --with fonttools --with brotli pytest packages/brand-tools/tests -q` and `check-lock.py --strict`.
 - Browser checks/screenshots: Lightpanda CLI only (`/home/jack/.local/bin/lightpanda fetch <url> --dump html|png`) — PNGs are text-layout approximations, not pixel-accurate.
 - Live site: https://perpustakaanhati.biz · Railway project "Perpustakaan Hati" · services `web` and `perpustakaan_hati`.
+
+## Deploy & app roots (Railway)
+
+- Railway auto-deploys on every push/merge to `main` — no manual deploy step. Each service builds from its own Dockerfile/`railway.json`.
+- **Storefront web app** (Next.js, service `web`) → repo root `apps/web` · serves https://perpustakaanhati.biz.
+- **Research-admin web app** (Python, service `perpustakaan_hati`) → repo root `packages/research-admin` · serves https://perpustakaanhati-production.up.railway.app.
+- Both healthcheck at `/healthz`; both `ON_FAILURE` restart with 5 retries.
