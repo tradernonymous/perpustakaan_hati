@@ -68,6 +68,12 @@ Pure Vercel-inspired dark luxury. All changes scoped to `.ph-storefront.ph-void`
 
 Brand palette (green/gold/burgundy) preserved as accent colors only — not as page grounds.
 
+## Earlier: Design System 3.11 "Precision Grove" (Precise Grove)
+
+**Superseded by Void Luxury 4.0.** The 3.11 refinement layer introduced Vercel.com-informed alpha-based hairline borders (`rgb(157 225 193 / 0.08)`), grid-dot background texture, refined radial hero glow, sharper 12px card radius, saturate+blur header glass, and translucent surface cards. All changes lived inside `.ph-storefront.ph-void`; the shared component recipes, eBook tiers, admin and publishing surfaces were untouched. Brand palette (green/gold/burgundy) was preserved.
+
+**Earlier: Clarity refinement (3.10).** Apple.com-informed pass: hero clamp(2.75rem–7.5rem) at −0.028em/0.96 leading, titles −0.018em/1.04, body −0.011em/1.5, 18px panel radius, 10px control radius. Still active beneath 3.11.
+
 ## Earlier: Dark Grove (3.7), built on Design System 3.6 "Precise Grove"
 
 Introduced the dark forest-night stage for the storefront and the research admin (`<body class="ph-nightlight">`). Ivory (`.ph-daylight`) is used for print and light eBook templates. Green leads the palette and gold carries the detail.

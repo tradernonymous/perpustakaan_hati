@@ -38,9 +38,9 @@ describe("animated logo files (build-animated-logos.py)", () => {
 });
 
 describe("animated logos on the site", () => {
-  it("sets the compact headline on the daylight stage", () => {
+  it("sets the compact headline with BrandMark emblem in the void hero", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("ph-day-stage");
+    expect(html).toContain("Perpustakaan Hati"); /* BrandMark aria-label */
     expect(html).toContain("Bacaan kecil.");
     expect(html).not.toContain("ph-logo-lockup");
   });
@@ -87,11 +87,11 @@ describe("website_sam ports", () => {
     expect(html).toContain("ph-reveal");
     expect(html).toContain("ph-section-warm");
   });
-  it("hero is a pure void stage with grid-dots and the display-hero headline (Void Luxury 4.0)", () => {
+  it("hero is a Vercel-style animated void stage with BrandMark emblem (Void Luxury 4.0)", () => {
     const html = renderToStaticMarkup(<Home />);
-    expect(html).toContain("ph-day-stage");
-    expect(html).toContain("ph-grid-dots");
-    expect(html).toContain("ph-display-hero");
+    expect(html).toContain("Perpustakaan Hati"); /* BrandMark aria-label */
+    expect(html).toContain('aria-hidden="true"'); /* decorative dots + glow */
+    expect(html).toContain("Bacaan kecil.");
     const flipCss = readFileSync(path.join(__dirname, "../components/TipsFlipbook.module.css"), "utf8");
     expect(flipCss).toContain("rotateX(6deg)");
   });
