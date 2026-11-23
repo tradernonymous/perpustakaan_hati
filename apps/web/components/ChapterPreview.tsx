@@ -1,5 +1,7 @@
 import { CHAPTERS } from "@/src/content";
 import { EBOOK_COVERS } from "@/src/ebook-covers";
+import { PsycheBadge } from "./PsycheIcon";
+import { EBOOK_PSYCHE } from "@/src/psyche";
 
 /**
  * Real sample section: seven chapter cards with their A4 cover art.
@@ -41,7 +43,10 @@ export function ChapterPreview() {
                 </div>
               </div>
               <div className="flex flex-col gap-1.5">
-                <p className="ph-chapter-num">Bab {c.no}</p>
+                <div className="flex items-center gap-2">
+                  <p className="ph-chapter-num">Bab {c.no}</p>
+                  <PsycheBadge id={EBOOK_PSYCHE[cover.slug] ?? "awareness"} tier="poket" className="ml-auto !h-6 !w-6 [&_.ph-psyche-glyph]:!h-3 [&_.ph-psyche-glyph]:!w-3" />
+                </div>
                 <h3 className={`ph-title text-xl ${c.pending ? "italic text-fg-healing" : "text-fg"}`}>
                   {c.title}
                 </h3>

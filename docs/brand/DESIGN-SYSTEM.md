@@ -1,6 +1,8 @@
-# Design System 4.0 "Void Luxury"
+# Design System 4.1 "Void Luxury"
 
-**Current storefront release, 2026-11-23.** Version token `--ph-system-version: '4.0.0'` in `design-tokens.css`.
+**Current storefront release, 2026-11-23.** Version token `--ph-system-version: '4.1.0'` in `design-tokens.css`.
+
+**Psychology & motion increment (4.1).** Every product now carries its own psychology-and-relationships mark: the three editions and the four A4 pocket editions each resolve to one of ten healing-journey concepts (`src/psyche.ts`), rendered as a line glyph inside a tier-tinted gilt medallion (`PsycheBadge` / `motion-psyche.css`). Each concept has its own 3D pose and tempo: awareness breathes, companion beats like a heart, build rises, heal grows, voice trembles, and so on. All motion is pure CSS and off under `prefers-reduced-motion`.
 
 **Vercel-inspired precision, 2026-11-23 (3.11).** A Vercel.com-informed refinement on the storefront scope: alpha-based hairline borders (`rgb(157 225 193 / 0.08)`), grid-dot background texture, refined radial hero glow, sharper 12px card radius, saturate+blur header glass, and translucent surface cards. All changes live inside `.ph-storefront.ph-void`; the shared component recipes, eBook tiers, admin and publishing surfaces are untouched. Brand palette (green/gold/burgundy) is preserved.
 
@@ -48,6 +50,20 @@ Pinned by `packages/brand-tools/tests/test_phase1_foundations.py`: token presenc
 | Gradient headings | `.ph-void .ph-title` | White fading to muted, with a forced-colours fallback |
 | Lit card ring | `.ph-void .ph-lux:not(.ph-beam)::before` | A cursor-lit 1px border ring on spotlight cards; chapter cards and the edition card now join the spotlight |
 | Eyebrow link | `.ph-hero-eyebrow` as `<a href="#edisi">` | The pill is a link with an arrow, as on the reference |
+
+## Void Luxury 4.1 (2026-11-23)
+
+Psychology and relationships layer on top of Void Luxury 4.0. Pure CSS, brand palette preserved.
+
+| Change | Detail |
+|---|---|
+| Icon vocabulary | `src/psyche.ts` — ten healing-journey concepts, one per `PsycheId` |
+| Medallion component | `components/PsycheIcon.tsx` — `PsycheIcon` glyph + `PsycheBadge` ring |
+| Motion | `styles/motion-psyche.css` — tier-tinted disc, open gilt ring, one distinct 3D pose per concept |
+| Wiring | `Catalog` (three editions + four A4 ebooks), `EbookDeck` info panel, design-system showcase |
+| Version | `--ph-system-version: '4.1.0'` in `design-tokens.css`, `design-tokens.json` |
+
+Brand palette (green/gold/burgundy) preserved; every medallion reads from the tier ladder and never invents a hue.
 
 ## Void Luxury 4.0 (2026-11-23)
 

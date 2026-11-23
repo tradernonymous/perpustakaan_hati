@@ -6,6 +6,7 @@
 @import "../styles/motion-aje.css";
 @import "../styles/motion-scenes.css";
 @import "../styles/motion-upgrade.css";
+@import "../styles/motion-psyche.css";
 
 @tailwind base;
 @tailwind components;

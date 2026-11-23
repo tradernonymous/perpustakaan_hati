@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 import { TIERS } from "@/src/content";
 import { ProductCover } from "./ProductCover";
+import { PsycheBadge } from "./PsycheIcon";
+import { TIER_PSYCHE } from "@/src/psyche";
 
 const LAUNCH_NOTE: Record<string, string> = {
   poket: "Percuma sepenuhnya",
@@ -156,7 +158,10 @@ export function EbookDeck() {
       </div>
 
       <div className="ph-tier-card ph-lux mx-auto mt-6 max-w-reading p-5 text-center" data-tier={tier.id}>
-        <h3 className="ph-title text-2xl ph-tier-ink">{tier.name}</h3>
+        <div className="flex items-center justify-center gap-2.5">
+          <PsycheBadge id={TIER_PSYCHE[tier.id]} tier={tier.id} />
+          <h3 className="ph-title text-2xl ph-tier-ink">{tier.name}</h3>
+        </div>
         <p className="mt-1 font-display text-3xl ph-tier-ink">{tier.price}</p>
         <p className="mt-1 text-xs font-semibold uppercase tracking-kicker ph-tier-ink">{LAUNCH_NOTE[tier.id]}</p>
         <p className="mt-2 text-sm text-fg-muted">{tier.size}</p>
