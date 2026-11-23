@@ -1,8 +1,10 @@
-# Design System 3.10 "Void Grove"
+# Design System 3.11 "Precision Grove"
 
-**Current storefront release, 2026-11-22.** Version token `--ph-system-version: '3.10.0'` in `design-tokens.css`.
+**Current storefront release, 2026-11-23.** Version token `--ph-system-version: '3.11.0'` in `design-tokens.css`.
 
-**Clarity refinement, 2026-11-22 (3.10).** A deeper Apple.com-informed pass on the storefront scope only: the hero scale keeps `clamp(2.75rem, 1.1rem + 7.5vw, 7.5rem)` but tightens to −0.028em tracking at 0.96 leading, section titles tighten to −0.018em at 1.04 leading, body copy carries a faint −0.011em tracking at 1.5 leading (like SF Pro Text), `.ph-cta` keeps its soft diffuse shadow and scale press, `.ph-card` rounds to an 18px panel radius with a quieter shadow ladder, the sticky header moves to an Apple frosted-glass `saturate(180%) blur(20px)`, and controls share a 10px radius. All changes live inside `.ph-storefront` / `.ph-void` scopes; the shared component recipes are unchanged for eBook, admin and publishing surfaces.
+**Vercel-inspired precision, 2026-11-23 (3.11).** A Vercel.com-informed refinement on the storefront scope: alpha-based hairline borders (`rgb(157 225 193 / 0.08)`), grid-dot background texture, refined radial hero glow, sharper 12px card radius, saturate+blur header glass, and translucent surface cards. All changes live inside `.ph-storefront.ph-void`; the shared component recipes, eBook tiers, admin and publishing surfaces are untouched. Brand palette (green/gold/burgundy) is preserved.
+
+**Earlier: Clarity refinement (3.10).** Apple.com-informed pass: hero clamp(2.75rem–7.5rem) at −0.028em/0.96 leading, titles −0.018em/1.04, body −0.011em/1.5, 18px panel radius, 10px control radius. Still active beneath 3.11.
 
 | Role | Recipe |
 |---|---|

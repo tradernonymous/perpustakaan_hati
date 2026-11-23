@@ -11,6 +11,7 @@ export function Hero() {
   return (
     <>
       <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden border-b border-line px-4 py-12 sm:px-5 sm:py-24">
+        <div className="ph-grid-dots" aria-hidden="true" />
         <HeroAtmosphere />
         <HeroGlyphs />
         <div className={`${styles.copy} mx-auto max-w-3xl text-center`}>
