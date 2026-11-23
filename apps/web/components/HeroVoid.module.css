@@ -89,12 +89,17 @@
   max-width: 52rem;
 }
 
-/* Emblem — floats above headline */
+/* Emblem — floats above headline, sized responsively (Vercel-scale centerpiece) */
 .emblem {
   margin-bottom: 2rem;
   opacity: 0;
   transform: translateY(16px) scale(0.92);
   animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
+}
+
+.emblem svg {
+  width: clamp(88px, 10vw, 128px);
+  height: auto;
 }
 
 @media (min-width: 640px) {
