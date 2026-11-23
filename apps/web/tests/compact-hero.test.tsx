@@ -16,13 +16,9 @@ describe("compact hero", () => {
     expect(html).toContain('id="lib-email"');
     expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
   });
-  it("uses only local brand-mark images in the intro", () => {
+  it("Void Luxury 4.0 keeps the intro pure typography — no images or decorative layers", () => {
     const images = [...intro.matchAll(/<img[^>]*src="([^"]+)"/g)].map((match) => match[1]);
-    expect(images).toEqual([
-      "/brand/ph-mark-flat.svg",
-      "/brand/emblem-book-heart.svg",
-      "/brand/ph-mark-flat.svg",
-    ]);
+    expect(images).toEqual([]);
     expect(intro).not.toMatch(/<video|<canvas|ph-hero-plinth|ph-hero-fx|ph-art/);
   });
 });

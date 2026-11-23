@@ -46,12 +46,12 @@ function CountUp({ to }: { to: number }) {
 
 export function StatsStrip() {
   return (
-    <section aria-label="Apa yang ada di dalam" className="ph-stats ph-section-warm bg-surface px-5 py-10">
-      <dl className="mx-auto grid max-w-grid grid-cols-2 gap-4 md:grid-cols-4">
+    <section aria-label="Apa yang ada di dalam" className="ph-stats ph-section-warm px-5 py-16 md:py-24">
+      <dl className="mx-auto grid max-w-grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
         {STATS.map((s) => (
-          <div key={s.label} className="ph-lux ph-card flex flex-col items-center gap-1 p-5 text-center">
+          <div key={s.label} className="ph-lux ph-card flex flex-col items-center gap-2 p-6 text-center">
             <dt className="order-2 text-sm text-fg">{s.label}</dt>
-            <dd className="ph-stat-num ph-foil-gold order-1 font-display text-5xl tabular-nums">
+            <dd className="ph-stat-num order-1 font-display text-5xl tabular-nums md:text-6xl">
               <CountUp to={s.value} />
             </dd>
             <dd className="order-3 text-xs uppercase tracking-kicker text-fg-muted">{s.note}</dd>

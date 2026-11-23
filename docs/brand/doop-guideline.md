@@ -1,4 +1,4 @@
-# Perpustakaan Hati — Design System 3.11 "Precision Grove"
+# Perpustakaan Hati — Design System 4.0 "Void Luxury"
 
 Brand: Perpustakaan Hati by @rahimam. Malay-language healing eBooks. Tagline: "Karya untuk jiwa yang pernah terluka".
 Mood: a sunlit reading room with a lantern still lit in the corner. Editorial, foil-stamped, calm. **GREEN LEADS.**

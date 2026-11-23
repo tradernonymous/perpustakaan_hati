@@ -1,5 +1,3 @@
-import { SectionOrnament } from "@/components/SectionOrnament";
-
 /** Last band of the home page: one more clear path back to the free opt-in. */
 export function ClosingCta() {
   return (
@@ -7,7 +5,6 @@ export function ClosingCta() {
       <div className="ph-closing-glow" aria-hidden="true" />
       <div className="relative mx-auto max-w-reading">
         <h2 id="penutup-h" className="ph-title ph-closing-title text-4xl text-fg md:text-6xl">Mulakan dengan satu buku kecil.</h2>
-        <SectionOrnament className="mt-4" />
         <p className="mx-auto mt-4 max-w-prose text-fg-muted">
           Edisi Poket percuma. Baca 60 saat sehari, naik ke edisi seterusnya bila kamu bersedia.
         </p>

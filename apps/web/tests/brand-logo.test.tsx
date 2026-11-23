@@ -20,10 +20,10 @@ describe("3.2 Daylight Grove hero", () => {
     expect(html).toContain('id="hero-heading"');
     expect(html).toContain("Bacaan kecil.");
   });
-  it("identifies the publisher and reading language", () => {
+  it("identifies the healing promise in the hero subline (Void Luxury 4.0)", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("Perpustakaan Hati · Bahasa Melayu");
     expect(html).toContain("pemulihan diri");
+    expect(html).toContain("Bahasa Melayu");
   });
   it("the cinematic lockup stays in the system for covers and posters", () => {
     const svg = publicBrand("lockup-hero.svg");
@@ -41,10 +41,10 @@ describe("original book-heart emblem", () => {
     expect(html).toContain("ph-mark-glow");
     expect(html).toContain("ph-mark-orbit");
   });
-  it("header shows the emblem at 48px, the brand minimum for its detail", () => {
+  it("header shows the emblem at 36px for a refined Vercel-like header (Void Luxury 4.0)", () => {
     const html = renderToStaticMarkup(<SiteHeader />);
     expect(html).toContain("/brand/animated/emblem-book-heart.svg");
-    expect(html).toContain('width="48"');
+    expect(html).toContain('width="36"');
   });
   it("the 3D book shows the exported cover with the emblem and seal", () => {
     const html = renderToStaticMarkup(<HeroBook name="Edisi Poket" />);
@@ -81,9 +81,10 @@ describe("gilt section ornaments", () => {
     expect(html).toContain("ph-ornament");
     expect(html).toContain('aria-hidden="true"');
   });
-  it("every homepage section title carries the ornament", () => {
+  it("Void Luxury 4.0 strips ornaments from the homepage — typography carries the hierarchy", () => {
     const html = renderToStaticMarkup(<Home />);
-    expect(html.match(/ph-ornament/g)?.length).toBeGreaterThanOrEqual(6);
+    expect(html).not.toContain("ph-ornament");
+    expect(html.match(/ph-title/g)?.length).toBeGreaterThanOrEqual(6);
   });
 });
 

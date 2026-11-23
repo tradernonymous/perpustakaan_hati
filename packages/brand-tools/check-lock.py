@@ -63,7 +63,7 @@ SKIP = {".git", "node_modules", ".claude", ".idea", ".vscode", ".ruff_cache",
 SELF = {"check-lock.py", BASELINE_NAME, "DESIGN-SYSTEM.md"}
 # Files that deliberately name retired assets to say "do not bring these back".
 RETIREMENT_DOCS = {"DESIGN-SYSTEM.md", "visual-identity.md"}
-CURRENT_VERSION = "3.11"
+CURRENT_VERSION = "4.0"
 CURRENT_SHOWCASE_REFERENCE = "specimens/foundations.html"
 CURRENT_SHOWCASE = f"docs/brand/{CURRENT_SHOWCASE_REFERENCE}"
 ACTIVE_TEMPLATES = (

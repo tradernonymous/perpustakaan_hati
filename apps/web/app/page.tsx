@@ -11,10 +11,7 @@ import { TierCompare } from "@/components/TierCompare";
 import { Testimonials } from "@/components/Testimonials";
 import { EcosystemHub } from "@/components/EcosystemHub";
 import { PlateGallery } from "@/components/PlateGallery";
-import { SectionOrnament } from "@/components/SectionOrnament";
 import { StatsStrip } from "@/components/StatsStrip";
-import { Ticker } from "@/components/Ticker";
-import { LuxCursor } from "@/components/LuxCursor";
 import { OrganizationSchema } from "@/components/OrganizationSchema";
 
 import type { Metadata } from "next";
@@ -25,14 +22,13 @@ function Section({ id, index, title, intro, tone = "plain", children }: {
   id?: string; index?: string; title: string; intro?: string; tone?: "plain" | "soft"; children: React.ReactNode;
 }) {
   return (
-    <section id={id} className={`ph-section-warm ${tone === "soft" ? "ph-dark-section-raised" : "ph-dark-section"} px-4 py-10 sm:px-5 md:overflow-x-clip md:py-24`}>
-      <div className="mx-auto mb-6 max-w-reading text-center md:mb-10">
-        {index && <span className="ph-sec-index hidden md:inline-block">{index}</span>}
-        <h2 className="ph-title ph-ink-in text-balance text-4xl text-fg md:text-6xl">{title}</h2>
-        <SectionOrnament className="mt-3 md:mt-4" />
-        {intro && <p className="mt-3 text-fg-muted">{intro}</p>}
+    <section id={id} className={`ph-section-warm ${tone === "soft" ? "ph-dark-section-raised" : "ph-dark-section"} px-4 py-16 sm:px-5 md:overflow-x-clip md:py-32`}>
+      <div className="mx-auto mb-10 max-w-reading text-center md:mb-16">
+        {index && <span className="ph-sec-index mb-3 block text-sm tabular-nums text-fg-muted">{index}</span>}
+        <h2 className="ph-title text-balance text-fg">{title}</h2>
+        {intro && <p className="mt-4 text-lg text-fg-muted">{intro}</p>}
       </div>
-      <Reveal className="ph-home-reveal">{children}</Reveal>
+      <Reveal className="ph-reveal">{children}</Reveal>
     </section>
   );
 }
@@ -47,7 +43,6 @@ export default function Home() {
       <main id="utama" tabIndex={-1}>
         <Hero />
         <StatsStrip />
-        <Ticker />
         <Section index="01" id="cara" tone="soft" title="Bagaimana ia berfungsi" intro="Tiga langkah kecil. Kamu tentukan kelajuan sendiri.">
           <HowItWorks />
         </Section>
@@ -73,7 +68,6 @@ export default function Home() {
       </main>
       <SafetyFooter />
       <StickyCta />
-      <LuxCursor />
     </>
   );
 }

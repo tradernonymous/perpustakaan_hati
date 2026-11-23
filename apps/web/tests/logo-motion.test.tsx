@@ -80,21 +80,18 @@ describe("website_sam ports", () => {
   it("glyphs carry a parallax depth each", () => {
     expect(renderToStaticMarkup(<HeroGlyphs />).match(/--depth:/g)?.length).toBeGreaterThanOrEqual(6);
   });
-  it("homepage wires stats, ticker, cursor spotlight cards, ink-in titles and page-in chapters", () => {
+  it("homepage wires stats, bento lux cards and cinematic reveal sections (Void Luxury 4.0)", () => {
     const html = renderToStaticMarkup(<Home />);
     expect(html).toContain("ph-stats");
-    expect(html).toContain("ph-ticker");
     expect(html).toContain("ph-lux");
-    expect(html).toContain("ph-ink-in");
-    expect(html).toContain("ph-page-in");
+    expect(html).toContain("ph-reveal");
+    expect(html).toContain("ph-section-warm");
   });
-  it("hero carries the Sam-style motion set: glyphs, ring, CTA sheen and 3D page turn", () => {
+  it("hero is a pure void stage with grid-dots and the display-hero headline (Void Luxury 4.0)", () => {
     const html = renderToStaticMarkup(<Home />);
-    expect(html).toContain("ph-glyphs");
-    const heroCss = readFileSync(path.join(__dirname, "../components/HeroAtmosphere.module.css"), "utf8");
-    expect(heroCss).toContain("@keyframes spin-ring");
-    const tokens = readFileSync(path.join(__dirname, "../styles/design-tokens.css"), "utf8");
-    expect(tokens).toContain("@keyframes ph-cta-sheen");
+    expect(html).toContain("ph-day-stage");
+    expect(html).toContain("ph-grid-dots");
+    expect(html).toContain("ph-display-hero");
     const flipCss = readFileSync(path.join(__dirname, "../components/TipsFlipbook.module.css"), "utf8");
     expect(flipCss).toContain("rotateX(6deg)");
   });
