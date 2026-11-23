@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { TIERS } from "@/src/content";
 import { EBOOK_COVERS } from "@/src/ebook-covers";
 import { ProductCover } from "./ProductCover";
+import { PsycheBadge } from "./PsycheIcon";
+import { TIER_PSYCHE, EBOOK_PSYCHE } from "@/src/psyche";
 
 type PublishedCard = {
   tier: string;
@@ -149,7 +151,10 @@ export function Catalog({ publications = [], prices = {} }: { publications?: Pub
                     <ProductCover name={t.title} src={t.artwork} seal={t.seal} tier={t.id} />
                   </div>
                 </div>
-                <h4 className="ph-title text-xl ph-tier-ink">{t.title}</h4>
+                <div className="flex items-center gap-2.5">
+                  <PsycheBadge id={TIER_PSYCHE[t.id as "poket" | "membangun" | "teman-hidup"]} tier={t.id as "poket" | "membangun" | "teman-hidup"} />
+                  <h4 className="ph-title text-xl ph-tier-ink">{t.title}</h4>
+                </div>
                 <p className="font-display text-2xl ph-tier-ink">{t.price}</p>
                 <p className="text-sm text-fg-muted">{t.size} · {t.summary}</p>
                 {t.sample && (
@@ -193,7 +198,10 @@ export function Catalog({ publications = [], prices = {} }: { publications?: Pub
                   </div>
                 </div>
                 <figcaption className="flex flex-col gap-0.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-caps text-fg-accent">{ebook.pages}</span>
+                  <span className="flex items-center gap-2">
+                    <PsycheBadge id={EBOOK_PSYCHE[ebook.slug] ?? "awareness"} tier="poket" className="!h-7 !w-7 [&_.ph-psyche-glyph]:!h-3.5 [&_.ph-psyche-glyph]:!w-3.5" />
+                    <span className="text-[11px] font-semibold uppercase tracking-caps text-fg-accent">{ebook.pages}</span>
+                  </span>
                   <span className="font-display text-base leading-snug text-fg">{ebook.title}</span>
                   <span className="text-xs leading-relaxed text-fg-muted">{ebook.summary}</span>
                 </figcaption>

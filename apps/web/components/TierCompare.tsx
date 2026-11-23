@@ -2,6 +2,8 @@ import { formatRM, priceSen } from "@/src/catalog";
 import { MobileTierCompare } from "./MobileTierCompare";
 import { TIERS, type Tier } from "@/src/content";
 import { ProductCover } from "./ProductCover";
+import { PsycheBadge } from "./PsycheIcon";
+import { TIER_PSYCHE } from "@/src/psyche";
 
 type MatrixCell = boolean | string;
 
@@ -127,6 +129,7 @@ export function TierCompare() {
             </div>
             <p className="font-display text-lg">{edition.name}</p>
             <p className="text-fg-healing">{edition.price}</p>
+            <PsycheBadge id={TIER_PSYCHE[edition.id]} tier={edition.id} className="mx-auto mt-1" />
             <a className="btn-ghost min-h-tap" href={edition.href}>{edition.id === "poket" ? "Dapatkan percuma" : "Lihat edisi"}</a>
           </li>
         ))}
@@ -166,6 +169,7 @@ export function TierCompare() {
                         <ProductCover name={t.name} src={t.cover} seal={t.seal} tier={t.id} className="rounded-sm" />
                       </div>
                     </div>
+                    <PsycheBadge id={TIER_PSYCHE[t.id]} tier={t.id} className="!h-6 !w-6 [&_.ph-psyche-glyph]:!h-3 [&_.ph-psyche-glyph]:!w-3" />
                     <span className="ph-tier-badge" data-tier={t.id}>{t.name}</span>
                     <span className="font-display text-lg font-semibold ph-tier-ink">{price}</span>
                   </div>

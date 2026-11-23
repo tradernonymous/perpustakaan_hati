@@ -11,12 +11,16 @@ import { TierCompare } from "@/components/TierCompare";
 import { ProductCover } from "@/components/ProductCover";
 import { TipsFlipbook } from "@/components/TipsFlipbook";
 import { TIERS } from "@/src/content";
+import { CHAPTERS } from "@/src/content";
+import { EBOOK_COVERS } from "@/src/ebook-covers";
 import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ShowcaseControls } from "./Controls";
+import { PsycheIcon, PsycheBadge } from "@/components/PsycheIcon";
+import { PSYCHE, TIER_PSYCHE, CHAPTER_PSYCHE, EBOOK_PSYCHE } from "@/src/psyche";
 
 export const metadata: Metadata = {
-  title: "Sistem Reka Bentuk 3.10 | Perpustakaan Hati",
-  description: "Panduan visual Void Grove: tipografi, warna, identiti, komponen, gerakan dan edisi buku.",
+  title: "Sistem Reka Bentuk 4.1 | Perpustakaan Hati",
+  description: "Panduan visual Void Luxury: tipografi, warna, identiti, komponen, gerakan, psikologi dan edisi buku.",
   alternates: { canonical: "/design-system" },
 };
 
@@ -29,6 +33,7 @@ const sections = [
   ["kad", "Kad dan susun atur"],
   ["edisi", "Edisi dan kulit 3D"],
   ["gerakan", "Gerakan dan pembaca"],
+  ["psikologi", "Psikologi dan perhubungan"],
   ["penerbitan", "Reka letak penerbitan"],
 ] as const;
 
@@ -78,8 +83,8 @@ export default function DesignSystem() {
           <HeroAtmosphere />
           <HeroGlyphs />
           <div className={atmosphere.copy}>
-            <p className="mb-2 text-sm font-semibold text-fg-accent">Sistem Reka Bentuk 3.10</p>
-            <h1 className="ph-display-hero font-display">Void Grove</h1>
+            <p className="mb-2 text-sm font-semibold text-fg-accent">Sistem Reka Bentuk 4.1</p>
+            <h1 className="ph-display-hero font-display">Void Luxury</h1>
             <p className="mt-4 max-w-reading text-fg-muted">Panduan Perpustakaan Hati untuk identiti, tipografi, bahan buku, gerakan dan komponen antara muka.</p>
           </div>
         </div>
@@ -271,6 +276,64 @@ export default function DesignSystem() {
         </Section>
 
         <Section index={8}>
+          <div className="grid gap-5">
+            <div className="ph-card p-5">
+              <h3 className="ph-title mb-3 text-2xl">Perbendaharaan ikon psikologi</h3>
+              <p className="mb-4 max-w-reading text-fg-muted">
+                Sepuluh motif perjalanan pemulihan, satu untuk setiap konsep hubungan. Setiap produk membawa satu ikon dan satu gerakan tersendiri, kekal dalam palet hijau, emas dan burgundy.
+              </p>
+              <div className="ph-scroll-stagger grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                {PSYCHE.map((p, i) => (
+                  <figure key={p.id} className="ph-card ph-sheen m-0 grid justify-items-center gap-2 p-3 text-center" data-psyche={p.id} style={{ "--i": i } as React.CSSProperties}>
+                    <PsycheBadge id={p.id} />
+                    <figcaption className="grid gap-0.5">
+                      <span className="font-display text-sm leading-tight text-fg">{p.label}</span>
+                      <span className="text-[11px] leading-snug text-fg-muted">{p.concept}</span>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="ph-card p-5">
+                <h3 className="ph-title mb-3 text-xl">Motif tiga edisi</h3>
+                <ul className="flex flex-col gap-3">
+                  {TIERS.map((tier) => (
+                    <li key={tier.id} data-tier={tier.id} className="flex items-center gap-3">
+                      <PsycheBadge id={TIER_PSYCHE[tier.id]} tier={tier.id} />
+                      <span className="ph-tier-badge" data-tier={tier.id}>{tier.name}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="ph-card p-5">
+                <h3 className="ph-title mb-3 text-xl">Motif tujuh bab</h3>
+                <ul className="flex flex-col gap-2 text-sm">
+                  {CHAPTERS.map((c) => (
+                    <li key={c.no} className="flex items-center gap-3">
+                      <PsycheIcon id={CHAPTER_PSYCHE[c.no]} className="h-5 w-5 shrink-0 text-fg-healing" />
+                      <span className="text-fg">{c.no}. {c.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="ph-card p-5">
+                <h3 className="ph-title mb-3 text-xl">Motif A4 Edisi Poket</h3>
+                <ul className="flex flex-col gap-2 text-sm">
+                  {EBOOK_COVERS.map((ebook) => (
+                    <li key={ebook.slug} className="flex items-center gap-3">
+                      <PsycheBadge id={EBOOK_PSYCHE[ebook.slug] ?? "awareness"} tier="poket" className="!h-6 !w-6 [&_.ph-psyche-glyph]:!h-3 [&_.ph-psyche-glyph]:!w-3" />
+                      <span className="text-fg">{ebook.title}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        <Section index={9}>
           <div className="ph-scroll-stagger grid gap-4 md:grid-cols-3">
             {TIERS.map(({ id, name }, i) => (
               <article key={id} className={`ph-ebook-${id} ph-depth ph-sheen rounded-lg border p-5`} data-tier={id}
