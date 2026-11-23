@@ -16,9 +16,10 @@ describe("compact hero", () => {
     expect(html).toContain('id="lib-email"');
     expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
   });
-  it("Void Luxury 4.0 keeps the intro pure typography — no images or decorative layers", () => {
+  it("Void Luxury 4.0 uses the BrandMark emblem SVG, no raster images or decorative layers", () => {
     const images = [...intro.matchAll(/<img[^>]*src="([^"]+)"/g)].map((match) => match[1]);
     expect(images).toEqual([]);
+    expect(intro).toContain("Perpustakaan Hati"); /* BrandMark aria-label */
     expect(intro).not.toMatch(/<video|<canvas|ph-hero-plinth|ph-hero-fx|ph-art/);
   });
 });

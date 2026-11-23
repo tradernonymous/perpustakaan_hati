@@ -2,23 +2,33 @@ import { TipsFlipbook } from "./TipsFlipbook";
 import { SignupDialog } from "./SignupDialog";
 import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ReaderSignup } from "@/components/ReaderSignup";
+import { BrandMark } from "@/components/BrandMark";
+import styles from "./HeroVoid.module.css";
 
-/** A short introduction, followed by the Edisi Poket signup. */
+/** Void Luxury 4.0 hero — Vercel-inspired animated entrance. Less text, more wow. */
 export function Hero() {
   return (
     <>
-      <section id="atas" aria-labelledby="hero-heading" className="ph-day-stage relative overflow-hidden px-4 py-20 sm:px-5 sm:py-32">
-        <div className="ph-grid-dots" aria-hidden="true" />
-        <div className="relative z-10 mx-auto max-w-4xl text-center">
-          <h1 id="hero-heading" className="ph-display-hero text-balance font-display text-fg">
+      <section id="atas" aria-labelledby="hero-heading" className={styles.stage}>
+        <div className={styles.dots} aria-hidden="true" />
+        <div className={styles.glow} aria-hidden="true" />
+        <div className={styles.content}>
+          <div className={styles.emblem}>
+            <BrandMark size={72} />
+          </div>
+          <h1 id="hero-heading" className={styles.headline}>
             Bacaan kecil.<br />Ruang untuk pulih.
           </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-fg-muted sm:mt-8 sm:text-xl">
+          <p className={styles.subline}>
             Tulisan tentang hubungan dan pemulihan diri, dalam Bahasa Melayu yang dekat di hati.
           </p>
-          <div className="mx-auto mt-10 flex max-w-xs flex-col items-stretch justify-center gap-3 sm:mt-12 sm:max-w-none sm:flex-row sm:items-center">
-            <a href="#percuma" className="ph-cta min-h-cta-mobile inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">Mulakan percuma</a>
-            <a href="#edisi" className="btn-ghost min-h-cta-mobile inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">Lihat koleksi</a>
+          <div className={styles.actions}>
+            <a href="#percuma" className="ph-cta inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+              Mulakan percuma
+            </a>
+            <a href="#edisi" className="btn-ghost inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+              Lihat koleksi
+            </a>
           </div>
         </div>
       </section>

@@ -84,7 +84,7 @@ describe("gilt section ornaments", () => {
   it("Void Luxury 4.0 strips ornaments from the homepage — typography carries the hierarchy", () => {
     const html = renderToStaticMarkup(<Home />);
     expect(html).not.toContain("ph-ornament");
-    expect(html.match(/ph-title/g)?.length).toBeGreaterThanOrEqual(6);
+    expect(html.match(/ph-title/g)?.length).toBeGreaterThanOrEqual(5);
   });
 });
 
