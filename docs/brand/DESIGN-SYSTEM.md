@@ -1,6 +1,6 @@
-# Design System 3.11 "Precision Grove"
+# Design System 4.0 "Void Luxury"
 
-**Current storefront release, 2026-11-23.** Version token `--ph-system-version: '3.11.0'` in `design-tokens.css`.
+**Current storefront release, 2026-11-23.** Version token `--ph-system-version: '4.0.0'` in `design-tokens.css`.
 
 **Vercel-inspired precision, 2026-11-23 (3.11).** A Vercel.com-informed refinement on the storefront scope: alpha-based hairline borders (`rgb(157 225 193 / 0.08)`), grid-dot background texture, refined radial hero glow, sharper 12px card radius, saturate+blur header glass, and translucent surface cards. All changes live inside `.ph-storefront.ph-void`; the shared component recipes, eBook tiers, admin and publishing surfaces are untouched. Brand palette (green/gold/burgundy) is preserved.
 
@@ -48,6 +48,25 @@ Pinned by `packages/brand-tools/tests/test_phase1_foundations.py`: token presenc
 | Gradient headings | `.ph-void .ph-title` | White fading to muted, with a forced-colours fallback |
 | Lit card ring | `.ph-void .ph-lux:not(.ph-beam)::before` | A cursor-lit 1px border ring on spotlight cards; chapter cards and the edition card now join the spotlight |
 | Eyebrow link | `.ph-hero-eyebrow` as `<a href="#edisi">` | The pill is a link with an arrow, as on the reference |
+
+## Void Luxury 4.0 (2026-11-23)
+
+Pure Vercel-inspired dark luxury. All changes scoped to `.ph-storefront.ph-void`; eBook, admin, and publishing surfaces untouched.
+
+| Change | Detail |
+|---|---|
+| Ground | Pure black `#000000` replaces near-black green `#030604` |
+| Typography | Geist Sans throughout (display + interface + reading). Massive display type: `clamp(3.5rem, 8vw, 6rem)`, tracking `-0.04em`, leading `0.92` |
+| Borders | Hairline alpha borders only (`rgba(255,255,255,0.06)`), no ornamental lines |
+| Radii | Sharper: 8px cards, 6px controls, 4px badges |
+| Spacing | Wider, more deliberate whitespace; stats strip uses `gap-16` |
+| Components removed | HeroAtmosphere, HeroGlyphs, SectionOrnament, Ticker, LuxCursor stripped from homepage |
+| Hero | Pure void stage — single headline, no decorative layers |
+| Reveal | Updated to use `ph-reveal` class with staggered scroll animations |
+| Header | Tighter: `py-3`, BrandMark 36px, reduced nav spacing |
+| Version | `--ph-system-version: '4.0.0'` in `design-tokens.css`, `design-tokens.json`, `check-lock.py` |
+
+Brand palette (green/gold/burgundy) preserved as accent colors only — not as page grounds.
 
 ## Earlier: Dark Grove (3.7), built on Design System 3.6 "Precise Grove"
 

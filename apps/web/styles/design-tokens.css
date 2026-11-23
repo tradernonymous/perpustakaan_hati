@@ -238,7 +238,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.11.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '4.0.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -2657,34 +2657,62 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
     0 4px 10px rgb(0 0 0 / 0.24),
     0 24px 56px -10px rgb(0 0 0 / 0.46);
 
-  /* ---- 3.11 Vercel-inspired precision layer --------------------------
-     Alpha-based borders, grid-dot texture, refined glows, and tighter
-     component radii. All values reference existing PH primitives so
-     the brand palette stays intact. These override the base storefront
-     tokens above when both scopes apply. */
-  --ph-alpha-border: rgb(157 225 193 / 0.08);
-  --ph-alpha-border-hover: rgb(157 225 193 / 0.18);
-  --ph-alpha-surface: rgb(255 255 255 / 0.03);
-  --ph-alpha-surface-hover: rgb(255 255 255 / 0.06);
-  --ph-grid-dot-color: rgb(157 225 193 / 0.07);
+  /* ---- 4.0 Void Luxury — Vercel-inspired precision system -----------
+     Pure black void, Geist typography, hairline borders, cinematic
+     reveals. Stripped ornamentation, confident whitespace, brand
+     colour used surgically. This is the new baseline for storefront. */
+  --ph-alpha-border: rgb(255 255 255 / 0.08);
+  --ph-alpha-border-hover: rgb(255 255 255 / 0.16);
+  --ph-alpha-surface: rgb(255 255 255 / 0.02);
+  --ph-alpha-surface-hover: rgb(255 255 255 / 0.05);
+  --ph-grid-dot-color: rgb(255 255 255 / 0.05);
   --ph-grid-dot-size: 1px;
-  --ph-grid-gap: 24px;
+  --ph-grid-gap: 32px;
   --ph-glow-hero:
-    radial-gradient(ellipse 60% 50% at 50% 0%, rgb(63 145 103 / 0.18), transparent 70%),
-    radial-gradient(ellipse 40% 35% at 50% 0%, rgb(201 168 106 / 0.08), transparent 65%);
-  --ph-card-radius: 12px;
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgb(63 145 103 / 0.15), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgb(201 168 106 / 0.06), transparent 65%);
+  --ph-glow-section:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgb(63 145 103 / 0.08), transparent 70%);
+  --ph-card-radius: 16px;
   --ph-cta-radius: 999px;
-  --ph-header-blur: saturate(180%) blur(20px);
+  --ph-header-blur: saturate(180%) blur(24px);
+  --ph-type-hero-size: clamp(3.5rem, 8vw, 6rem);
+  --ph-type-hero-leading: 0.95;
+  --ph-type-hero-tracking: -0.04em;
+  --ph-type-title-size: clamp(2rem, 5vw, 3.5rem);
+  --ph-type-title-leading: 1.05;
+  --ph-type-title-tracking: -0.03em;
+  --ph-type-body-tracking: -0.01em;
+  --ph-type-body-leading: 1.6;
 }
-.ph-storefront :is(.font-display, .ph-title) { font-synthesis-weight: none; }
+/* ---- 4.0 Void Luxury typography ------------------------------------
+   Geist Sans throughout, tight tracking, massive scale. Display and
+   body share the same face — hierarchy comes from weight and size,
+   not font switching. */
+.ph-storefront {
+  --font-display: 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Geist Sans', ui-sans-serif, system-ui, sans-serif;
+}
+.ph-storefront :is(.font-display, .ph-title, .ph-display-hero) {
+  font-family: var(--font-display);
+  font-synthesis-weight: none;
+  font-weight: 500;
+}
 .ph-storefront .ph-title {
-  letter-spacing: var(--type-title-tracking);
-  line-height: var(--type-title-leading);
+  font-size: var(--ph-type-title-size);
+  line-height: var(--ph-type-title-leading);
+  letter-spacing: var(--ph-type-title-tracking);
+  font-weight: 500;
 }
 .ph-display-hero {
-  font-size: var(--type-hero-size);
-  line-height: var(--type-hero-leading);
-  letter-spacing: var(--type-hero-tracking);
+  font-size: var(--ph-type-hero-size);
+  line-height: var(--ph-type-hero-leading);
+  letter-spacing: var(--ph-type-hero-tracking);
+  font-weight: 500;
+}
+.ph-storefront :is(p, li, dd, dt, .ph-copy) {
+  letter-spacing: var(--ph-type-body-tracking);
+  line-height: var(--ph-type-body-leading);
 }
 /* Apple-style control finish: flat fill, soft shadow, scale on press. */
 .ph-storefront .ph-cta { text-shadow: none; }
@@ -2717,37 +2745,58 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   color: var(--text-primary);
 }
 
-/* ---- 3.11 Vercel-inspired storefront refinements --------------------
-   Precision layer: alpha borders, grid-dot texture, refined card and
-   header treatments. All scoped to .ph-storefront so eBook, admin and
-   publishing surfaces are untouched. */
+/* ---- 4.0 Void Luxury storefront system -----------------------------
+   Pure black ground, hairline borders, cinematic scroll reveals.
+   Stripped ornamentation — content is the decoration. Scoped to
+   .ph-storefront so eBook, admin and publishing surfaces are untouched. */
+
+/* Pure void ground — true black, not forest green */
+.ph-storefront.ph-void {
+  --ph-void: #000000;
+  --ph-void-raised: #0a0a0a;
+  --ph-void-soft: #141414;
+  background-color: #000000;
+  color: #ededed;
+}
+
+/* Cards: hairline borders, subtle hover lift */
 .ph-storefront.ph-void .ph-card {
   border-radius: var(--ph-card-radius);
-  border-color: var(--ph-alpha-border);
+  border: 1px solid var(--ph-alpha-border);
   background: var(--ph-alpha-surface);
-  box-shadow: 0 0 0 1px var(--ph-alpha-border), 0 8px 30px rgb(0 0 0 / 0.36);
-  transition: border-color var(--dur-base) var(--ease-standard),
-              box-shadow var(--dur-base) var(--ease-standard),
-              transform var(--dur-base) var(--ease-standard);
+  box-shadow: 0 0 0 0 transparent;
+  transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .ph-storefront.ph-void .ph-card:is(a, button, [tabindex]):hover {
   border-color: var(--ph-alpha-border-hover);
-  box-shadow: 0 0 0 1px var(--ph-alpha-border-hover), 0 12px 40px rgb(0 0 0 / 0.42);
+  background: var(--ph-alpha-surface-hover);
+  transform: translateY(-2px);
 }
+
+/* Header: transparent with blur, hairline bottom */
 .ph-storefront.ph-void .ph-header {
+  background: rgb(0 0 0 / 0.6);
   backdrop-filter: var(--ph-header-blur);
   -webkit-backdrop-filter: var(--ph-header-blur);
-  border-color: var(--ph-alpha-border);
+  border-bottom: 1px solid var(--ph-alpha-border);
+}
+
+/* Bento grid: asymmetric, confident spacing */
+.ph-storefront.ph-void .ph-bento {
+  gap: 1.5rem;
 }
 .ph-storefront.ph-void .ph-bento > * {
   border-radius: var(--ph-card-radius);
-  border-color: var(--ph-alpha-border);
+  border: 1px solid var(--ph-alpha-border);
 }
 .ph-storefront.ph-void .ph-bento-feature {
   border-color: var(--ph-alpha-border-hover);
-  background: linear-gradient(158deg, rgb(13 33 23 / 0.8), rgb(3 6 4 / 0.9) 78%);
+  background: linear-gradient(180deg, rgb(20 20 20 / 0.8), rgb(10 10 10 / 0.9));
 }
-/* Grid-dot background texture for hero and dark sections. */
+
+/* Grid-dot texture: subtle, masked to fade at edges */
 .ph-storefront.ph-void .ph-grid-dots {
   position: absolute;
   inset: 0;
@@ -2755,16 +2804,103 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   z-index: 0;
   background-image: radial-gradient(var(--ph-grid-dot-color) var(--ph-grid-dot-size), transparent var(--ph-grid-dot-size));
   background-size: var(--ph-grid-gap) var(--ph-grid-gap);
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 20%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 20%, transparent 70%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, #000 20%, transparent 70%);
 }
-/* Refined hero glow: subtler, more Vercel-like radial wash. */
+
+/* Hero: radial glow wash, no ornamentation */
 .ph-storefront.ph-void .ph-day-stage {
-  background-color: var(--ph-void);
+  background-color: #000000;
   background-image: var(--ph-glow-hero);
+  border-bottom: 1px solid var(--ph-alpha-border);
 }
+
+/* Sections: subtle top glow for depth */
+.ph-storefront.ph-void .ph-section-warm {
+  position: relative;
+  border-top: 1px solid var(--ph-alpha-border);
+}
+.ph-storefront.ph-void .ph-section-warm::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--ph-glow-section);
+  opacity: 0.6;
+}
+
+/* CTAs: pill shape, green accent used surgically */
+.ph-storefront.ph-void .ph-cta {
+  border-radius: var(--ph-cta-radius);
+  background: linear-gradient(135deg, #3f9167, #5b9b7d);
+  color: #000000;
+  font-weight: 500;
+  padding: 0.875rem 2rem;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ph-storefront.ph-void .ph-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgb(63 145 103 / 0.3);
+}
+.ph-storefront.ph-void .ph-cta:active {
+  transform: translateY(0);
+}
+
+/* Ghost buttons: translucent, hairline border */
+.ph-storefront.ph-void .btn-ghost:not(.ph-daylight *) {
+  border: 1px solid var(--ph-alpha-border);
+  background: transparent;
+  color: #ededed;
+  border-radius: var(--ph-cta-radius);
+  padding: 0.875rem 2rem;
+  font-weight: 500;
+  transition: border-color 200ms cubic-bezier(0.16, 1, 0.3, 1),
+              background 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ph-storefront.ph-void .btn-ghost:not(.ph-daylight *):hover {
+  border-color: var(--ph-alpha-border-hover);
+  background: rgb(255 255 255 / 0.05);
+}
+
+/* Cinematic scroll reveals: staggered fade-up */
+.ph-storefront.ph-void .ph-reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ph-storefront.ph-void .ph-reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+.ph-storefront.ph-void .ph-reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(1) { transition-delay: 0ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(2) { transition-delay: 80ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(3) { transition-delay: 160ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(4) { transition-delay: 240ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(5) { transition-delay: 320ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(6) { transition-delay: 400ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(7) { transition-delay: 480ms; }
+.ph-storefront.ph-void .ph-reveal-stagger[data-revealed="true"] > *:nth-child(8) { transition-delay: 560ms; }
+
 @media (prefers-reduced-motion: reduce) {
-  .ph-storefront.ph-void .ph-card:is(a, button, [tabindex]):hover { transform: none; }
+  .ph-storefront.ph-void .ph-card:is(a, button, [tabindex]):hover,
+  .ph-storefront.ph-void .ph-cta:hover,
+  .ph-storefront.ph-void .ph-reveal,
+  .ph-storefront.ph-void .ph-reveal-stagger > * {
+    transform: none;
+    transition-duration: 0.01ms;
+  }
 }
 
 :root {

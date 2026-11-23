@@ -24,7 +24,7 @@ export function SiteHeader({ base = "" }: { base?: string }) {
   const homeHref = base ? "/" : "#atas";
 
   return (
-    <header className="ph-header sticky top-0 z-header border-b border-line">
+    <header className="ph-header sticky top-0 z-header">
       {/* First tab stop on every page: jumps the sticky header entirely. */}
       <a
         href="#utama"
@@ -32,28 +32,28 @@ export function SiteHeader({ base = "" }: { base?: string }) {
       >
         Lompat ke kandungan
       </a>
-      <div className="mx-auto flex max-w-grid items-center justify-between gap-3 px-4 py-2 sm:px-5 lg:gap-4">
-        <a href={homeHref} onClick={() => setOpen(false)} className="flex min-h-tap min-w-0 items-center gap-2 font-display text-base leading-tight text-fg sm:gap-3 sm:text-lg">
-          <BrandMark size={48} className="h-9 w-9 shrink-0 sm:h-12 sm:w-12" />
-          <span>Perpustakaan Hati</span>
+      <div className="mx-auto flex max-w-grid items-center justify-between gap-3 px-4 py-3 sm:px-5 lg:gap-4">
+        <a href={homeHref} onClick={() => setOpen(false)} className="flex min-h-tap min-w-0 items-center gap-2.5 font-display text-sm leading-tight text-fg sm:gap-3 sm:text-base">
+          <BrandMark size={36} className="h-8 w-8 shrink-0 sm:h-9 sm:w-9" />
+          <span className="font-medium tracking-tight">Perpustakaan Hati</span>
         </a>
 
         <nav aria-label="Utama" className="hidden items-center gap-1 lg:flex">
           {NAV.map((n) => (
-            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg-muted transition-colors hover:text-fg">
+            <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center rounded-md px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg">
               {n.label}
             </a>
           ))}
-          <a href={`${base}#interaktif`} className="flex min-h-tap items-center rounded px-2.5 text-sm text-fg-muted transition-colors hover:text-fg">
+          <a href={`${base}#interaktif`} className="flex min-h-tap items-center rounded-md px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg">
             Interaktif
           </a>
-          <a href="/pustaka" className="flex min-h-tap items-center rounded px-2.5 text-sm font-medium text-fg-healing transition-colors hover:text-fg">
+          <a href="/pustaka" className="flex min-h-tap items-center rounded-md px-3 py-1.5 text-sm font-medium text-fg transition-colors hover:text-fg">
             Pustaka
           </a>
-          <button type="button" onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))} className="ph-kbd-hint ml-1" aria-label="Lompat ke bahagian atau halaman (Ctrl atau Cmd + K)">
+          <button type="button" onClick={() => window.dispatchEvent(new Event(OPEN_PALETTE_EVENT))} className="ph-kbd-hint ml-2" aria-label="Lompat ke bahagian atau halaman (Ctrl atau Cmd + K)">
             <span>Lompat ke</span><kbd aria-hidden="true">Ctrl K</kbd>
           </button>
-          <a href={`${base}#percuma`} className="ph-cta ml-2 min-h-tap text-sm">Edisi Poket, percuma</a>
+          <a href={`${base}#percuma`} className="ph-cta ml-3 min-h-tap text-sm">Mulakan percuma</a>
         </nav>
 
         <button
