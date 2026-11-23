@@ -30,9 +30,10 @@
 
 ## Verification
 
-- Web: `cd apps/web && npm run lint && npx vitest run` (62 files / 412 tests).
+- Web: `cd apps/web && npm run lint && npx vitest run` (63 files / 414 tests).
 - Brand tools: `uv run --no-project --with pytest --with fonttools --with brotli pytest packages/brand-tools/tests -q` and `check-lock.py --strict`.
-- Browser checks/screenshots: Lightpanda CLI only (`/home/jack/.local/bin/lightpanda fetch <url> --dump html|png`) — PNGs are text-layout approximations, not pixel-accurate.
+- Browser checks/screenshots: Lightpanda CLI (`/home/jack/.local/bin/lightpanda fetch <url> --dump html|png`) for HTML/text only — its PNGs are text-layout approximations and it has no viewport flag. For real visual audits use headless Chrome via Playwright (`/tmp/opencode/ocr-env`, `executable_path="/usr/bin/google-chrome"`): scroll sections with `scroll_into_view_if_needed()` + ~1.2s wait so `ph-reveal` IntersectionObserver animations fire, then OCR the PNGs with PaddleOCR (`ocr.predict()`, `enable_mkldnn=False` — mkldnn crashes on this CPU; slice images >4000px). Never screenshot with a giant `--window-size` height: `100svh` heroes stretch to fill it and `--virtual-time-budget` freezes reveal animations (all-black frames).
+- Specificity gotcha: `.ph-storefront .ph-title` (0,2,0) beats Tailwind v3 `text-xl`/`text-2xl` utilities (0,1,0) — card headings that mix `ph-title` with a size utility need an explicit higher-specificity rule in design-tokens.css (see the card-heading block after the `.ph-storefront .ph-title` rule).
 - Live site: https://perpustakaanhati.biz · Railway project "Perpustakaan Hati" · services `web` and `perpustakaan_hati`.
 
 ## Deploy & app roots (Railway)
