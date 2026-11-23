@@ -14,7 +14,7 @@ export function Hero() {
         <div className={styles.glow} aria-hidden="true" />
         <div className={styles.content}>
           <div className={styles.emblem}>
-            <BrandMark size={72} />
+            <BrandMark size={128} />
           </div>
           <h1 id="hero-heading" className={styles.headline}>
             Bacaan kecil.<br />Ruang untuk pulih.
