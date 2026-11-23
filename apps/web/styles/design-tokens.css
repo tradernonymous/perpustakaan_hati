@@ -238,7 +238,7 @@
      Green stays the lead; gold warmth rises via borders, rules, lantern glow.
      ===================================================================== */
 
-  --ph-system-version: '3.10.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
+  --ph-system-version: '3.11.0';  /* current version — see docs/brand/DESIGN-SYSTEM.md */
 
   /* ---- v3 grounds: green-black instead of neutral black -------------- */
   --forest-night: #07140d;   /* default dark ground — 14.58:1 under text-on-dark */
@@ -2616,11 +2616,14 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
 .ph-palette-foot { margin: 0; padding: 0.6rem 1rem; display: flex; gap: 0.4rem; align-items: center; color: var(--text-muted); font-size: 0.75rem; border-top: 1px solid rgb(157 225 193 / 0.1); }
 @media (max-width: 1023px) { .ph-kbd-hint { display: none; } }
 
-/* 3.9 storefront typography and book materials.
-   Refinement pass (Apple-informed clarity): the hero runs larger with
-   tighter tracking, section titles tighten to match, the primary action
-   loses its hard extruded edge for a soft diffuse shadow, and cards sit
-   rounder. Scoped tokens only — the shared component recipes above are
+/* 3.9–3.11 storefront typography and book materials.
+   Refinement pass (Apple-informed clarity → Vercel-inspired precision):
+   the hero runs larger with tighter tracking, section titles tighten to
+   match, the primary action loses its hard extruded edge for a soft
+   diffuse shadow, and cards sit rounder. 3.11 adds Vercel-like alpha
+   borders, sharper radii, grid-dot backgrounds, and refined glow
+   treatments while keeping the PH brand palette intact.
+   Scoped tokens only — the shared component recipes above are
    unchanged for eBook, admin and publishing surfaces. */
 .ph-storefront {
   --font-display: 'Instrument Serif', Georgia, serif;
@@ -2653,6 +2656,25 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
     0 0 0 1px rgb(0 0 0 / 0.2),
     0 4px 10px rgb(0 0 0 / 0.24),
     0 24px 56px -10px rgb(0 0 0 / 0.46);
+
+  /* ---- 3.11 Vercel-inspired precision layer --------------------------
+     Alpha-based borders, grid-dot texture, refined glows, and tighter
+     component radii. All values reference existing PH primitives so
+     the brand palette stays intact. These override the base storefront
+     tokens above when both scopes apply. */
+  --ph-alpha-border: rgb(157 225 193 / 0.08);
+  --ph-alpha-border-hover: rgb(157 225 193 / 0.18);
+  --ph-alpha-surface: rgb(255 255 255 / 0.03);
+  --ph-alpha-surface-hover: rgb(255 255 255 / 0.06);
+  --ph-grid-dot-color: rgb(157 225 193 / 0.07);
+  --ph-grid-dot-size: 1px;
+  --ph-grid-gap: 24px;
+  --ph-glow-hero:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgb(63 145 103 / 0.18), transparent 70%),
+    radial-gradient(ellipse 40% 35% at 50% 0%, rgb(201 168 106 / 0.08), transparent 65%);
+  --ph-card-radius: 12px;
+  --ph-cta-radius: 999px;
+  --ph-header-blur: saturate(180%) blur(20px);
 }
 .ph-storefront :is(.font-display, .ph-title) { font-synthesis-weight: none; }
 .ph-storefront .ph-title {
@@ -2693,6 +2715,56 @@ p, li, figcaption, blockquote { text-wrap: pretty; }
   border-color: rgb(157 225 193 / 0.32);
   background: rgb(255 255 255 / 0.1);
   color: var(--text-primary);
+}
+
+/* ---- 3.11 Vercel-inspired storefront refinements --------------------
+   Precision layer: alpha borders, grid-dot texture, refined card and
+   header treatments. All scoped to .ph-storefront so eBook, admin and
+   publishing surfaces are untouched. */
+.ph-storefront.ph-void .ph-card {
+  border-radius: var(--ph-card-radius);
+  border-color: var(--ph-alpha-border);
+  background: var(--ph-alpha-surface);
+  box-shadow: 0 0 0 1px var(--ph-alpha-border), 0 8px 30px rgb(0 0 0 / 0.36);
+  transition: border-color var(--dur-base) var(--ease-standard),
+              box-shadow var(--dur-base) var(--ease-standard),
+              transform var(--dur-base) var(--ease-standard);
+}
+.ph-storefront.ph-void .ph-card:is(a, button, [tabindex]):hover {
+  border-color: var(--ph-alpha-border-hover);
+  box-shadow: 0 0 0 1px var(--ph-alpha-border-hover), 0 12px 40px rgb(0 0 0 / 0.42);
+}
+.ph-storefront.ph-void .ph-header {
+  backdrop-filter: var(--ph-header-blur);
+  -webkit-backdrop-filter: var(--ph-header-blur);
+  border-color: var(--ph-alpha-border);
+}
+.ph-storefront.ph-void .ph-bento > * {
+  border-radius: var(--ph-card-radius);
+  border-color: var(--ph-alpha-border);
+}
+.ph-storefront.ph-void .ph-bento-feature {
+  border-color: var(--ph-alpha-border-hover);
+  background: linear-gradient(158deg, rgb(13 33 23 / 0.8), rgb(3 6 4 / 0.9) 78%);
+}
+/* Grid-dot background texture for hero and dark sections. */
+.ph-storefront.ph-void .ph-grid-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(var(--ph-grid-dot-color) var(--ph-grid-dot-size), transparent var(--ph-grid-dot-size));
+  background-size: var(--ph-grid-gap) var(--ph-grid-gap);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, #000 20%, transparent 70%);
+}
+/* Refined hero glow: subtler, more Vercel-like radial wash. */
+.ph-storefront.ph-void .ph-day-stage {
+  background-color: var(--ph-void);
+  background-image: var(--ph-glow-hero);
+}
+@media (prefers-reduced-motion: reduce) {
+  .ph-storefront.ph-void .ph-card:is(a, button, [tabindex]):hover { transform: none; }
 }
 
 :root {
