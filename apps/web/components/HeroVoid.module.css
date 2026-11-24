@@ -1,6 +1,6 @@
-/* Void Luxury 4.0 — Vercel-inspired hero animation
-   Pure CSS, no JS runtime. Respects prefers-reduced-motion.
-   Mobile-first: smaller type/padding below sm, scales up via clamp. */
+/* Void Luxury 4.1 — full-bleed 3D hero with floating content overlay.
+   The canvas fills the entire stage; text and buttons float above it.
+   Respects prefers-reduced-motion. Mobile-first sizing. */
 
 .stage {
   position: relative;
@@ -11,7 +11,7 @@
   justify-content: center;
   min-height: 100svh;
   padding: 6rem 1.25rem 4rem;
-  background-color: #000;
+  background-color: #030604;
 }
 
 @media (min-width: 640px) {
@@ -20,65 +20,15 @@
   }
 }
 
-/* Grid dots — subtle texture */
-.dots {
+/* Full-bleed canvas layer — sits behind all content */
+.canvasLayer {
   position: absolute;
   inset: 0;
-  pointer-events: none;
   z-index: 0;
-  background-image: radial-gradient(
-    rgb(255 255 255 / 0.04) 1px,
-    transparent 1px
-  );
-  background-size: 32px 32px;
-  mask-image: radial-gradient(
-    ellipse 80% 60% at 50% 40%,
-    #000 20%,
-    transparent 70%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 80% 60% at 50% 40%,
-    #000 20%,
-    transparent 70%
-  );
+  pointer-events: auto;
 }
 
-/* Radial glow behind emblem — breathes slowly */
-.glow {
-  position: absolute;
-  top: 18%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(90vw, 700px);
-  height: min(60vw, 420px);
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgb(63 145 103 / 0.18) 0%,
-    rgb(201 168 106 / 0.06) 40%,
-    transparent 70%
-  );
-  filter: blur(60px);
-  pointer-events: none;
-  z-index: 0;
-  animation: breathe 6s ease-in-out infinite alternate;
-}
-
-@media (max-width: 639px) {
-  .glow {
-    top: 12%;
-    width: 85vw;
-    height: 50vw;
-    filter: blur(40px);
-  }
-}
-
-@keyframes breathe {
-  from { opacity: 0.6; transform: translateX(-50%) scale(0.96); }
-  to   { opacity: 1;   transform: translateX(-50%) scale(1.04); }
-}
-
-/* Content wrapper */
+/* Floating content overlay — above the canvas */
 .content {
   position: relative;
   z-index: 1;
@@ -87,25 +37,14 @@
   align-items: center;
   text-align: center;
   max-width: 52rem;
+  pointer-events: none;
 }
 
-/* Emblem — floats above headline, sized responsively */
-.emblem {
-  margin-bottom: 1.5rem;
-  width: min(90vw, 420px);
-  opacity: 0;
-  transform: translateY(16px) scale(0.92);
-  animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 100ms forwards;
+.content > * {
+  pointer-events: auto;
 }
 
-@media (min-width: 640px) {
-  .emblem {
-    margin-bottom: 2rem;
-    width: min(80vw, 560px);
-  }
-}
-
-/* Headline — massive, tight tracking */
+/* Headline — massive, tight tracking, readable over the 3D scene */
 .headline {
   font-family: var(--font-display, 'Geist Sans', ui-sans-serif, system-ui, sans-serif);
   font-size: clamp(2.5rem, 7vw, 5.5rem);
@@ -114,6 +53,7 @@
   font-weight: 500;
   color: #ededed;
   margin: 0;
+  text-shadow: 0 2px 24px rgb(0 0 0 / 0.6), 0 0 80px rgb(3 6 4 / 0.8);
   opacity: 0;
   transform: translateY(20px);
   animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 250ms forwards;
@@ -125,14 +65,15 @@
   }
 }
 
-/* Subline — muted, one line on desktop, two on mobile */
+/* Subline — muted, readable over the scene */
 .subline {
   margin-top: 1.25rem;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   line-height: 1.5;
   letter-spacing: -0.01em;
-  color: rgb(237 237 237 / 0.55);
+  color: rgb(237 237 237 / 0.7);
   max-width: 36rem;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.5);
   opacity: 0;
   transform: translateY(16px);
   animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 420ms forwards;
@@ -175,13 +116,8 @@
   }
 }
 
-/* Reduced motion: show everything instantly, no breathing */
+/* Reduced motion: show everything instantly */
 @media (prefers-reduced-motion: reduce) {
-  .glow {
-    animation: none;
-    opacity: 0.8;
-  }
-  .emblem,
   .headline,
   .subline,
   .actions {
