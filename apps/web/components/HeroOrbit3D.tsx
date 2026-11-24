@@ -25,6 +25,94 @@ const COVERS = [
   { name: "Teman Hidup", src: "/ebooks/cover-teman-hidup.png", back: 0x5c1e17, phase: (2 * TAU) / 3 },
 ] as const;
 
+// Psychology glyphs — healing-journey motifs rendered as canvas textures on sprites.
+// Each glyph is a simple line-art shape drawn procedurally to avoid extra asset loads.
+const PSYCHE_GLYPHS = [
+  { id: "awareness", color: 0xa7d3b6, x: -1.8, y: 0.9, z: -0.5, size: 0.18, speed: 0.7 },
+  { id: "heal",        color: 0x9de1c1, x:  1.9, y: 0.7, z: -0.3, size: 0.16, speed: 0.9 },
+  { id: "companion",   color: 0xe9cea2, x: -1.6, y:-0.8, z: -0.4, size: 0.15, speed: 0.6 },
+  { id: "build",       color: 0xc9a86a, x:  1.7, y:-0.9, z: -0.6, size: 0.17, speed: 0.8 },
+  { id: "voice",       color: 0x7db895, x: -2.1, y: 0.1, z: -0.7, size: 0.14, speed: 1.0 },
+  { id: "talk",        color: 0xf2b85c, x:  2.0, y: 0.0, z: -0.5, size: 0.15, speed: 0.75 },
+  { id: "fence",       color: 0xa7d3b6, x: -0.8, y: 1.3, z: -0.8, size: 0.13, speed: 0.65 },
+  { id: "links",       color: 0xe9cea2, x:  0.9, y:-1.3, z: -0.6, size: 0.14, speed: 0.85 },
+] as const;
+
+function drawGlyph(ctx: CanvasRenderingContext2D, id: string, s: number) {
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = s * 0.08;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  const h = s / 2;
+  ctx.beginPath();
+  switch (id) {
+    case "awareness": // eye
+      ctx.moveTo(-h, 0); ctx.quadraticCurveTo(0, -h * 0.8, h, 0);
+      ctx.quadraticCurveTo(0, h * 0.8, -h, 0);
+      ctx.moveTo(h * 0.22, 0); ctx.arc(0, 0, h * 0.22, 0, TAU);
+      break;
+    case "heal": // sprout
+      ctx.moveTo(0, h); ctx.lineTo(0, -h * 0.2);
+      ctx.moveTo(0, -h * 0.2); ctx.quadraticCurveTo(h * 0.6, -h * 0.8, h * 0.5, -h * 0.1);
+      ctx.moveTo(0, -h * 0.2); ctx.quadraticCurveTo(-h * 0.6, -h * 0.8, -h * 0.5, -h * 0.1);
+      break;
+    case "companion": // heart
+      ctx.moveTo(0, h * 0.7);
+      ctx.bezierCurveTo(-h, h * 0.1, -h, -h * 0.6, 0, -h * 0.3);
+      ctx.bezierCurveTo(h, -h * 0.6, h, h * 0.1, 0, h * 0.7);
+      break;
+    case "build": // steps
+      ctx.rect(-h * 0.7, h * 0.2, h * 0.4, h * 0.6);
+      ctx.rect(-h * 0.15, -h * 0.3, h * 0.4, h * 1.1);
+      ctx.rect(h * 0.4, -h * 0.8, h * 0.4, h * 1.6);
+      break;
+    case "voice": // sound bars
+      for (let i = -2; i <= 2; i++) {
+        const bh = h * (0.4 + 0.3 * Math.abs(Math.sin(i * 1.2)));
+        ctx.moveTo(i * h * 0.3, -bh); ctx.lineTo(i * h * 0.3, bh);
+      }
+      break;
+    case "talk": // speech bubble
+      ctx.moveTo(-h * 0.6, -h * 0.5); ctx.lineTo(h * 0.6, -h * 0.5);
+      ctx.quadraticCurveTo(h * 0.8, -h * 0.5, h * 0.8, -h * 0.2);
+      ctx.lineTo(h * 0.8, h * 0.2);
+      ctx.quadraticCurveTo(h * 0.8, h * 0.5, h * 0.6, h * 0.5);
+      ctx.lineTo(-h * 0.1, h * 0.5); ctx.lineTo(-h * 0.5, h * 0.8);
+      ctx.lineTo(-h * 0.5, h * 0.5); ctx.lineTo(-h * 0.6, h * 0.5);
+      ctx.quadraticCurveTo(-h * 0.8, h * 0.5, -h * 0.8, h * 0.2);
+      ctx.lineTo(-h * 0.8, -h * 0.2);
+      ctx.quadraticCurveTo(-h * 0.8, -h * 0.5, -h * 0.6, -h * 0.5);
+      break;
+    case "fence": // picket fence
+      for (let i = -1.5; i <= 1.5; i += 1) {
+        ctx.moveTo(i * h * 0.35, -h * 0.7); ctx.lineTo(i * h * 0.35, h * 0.7);
+      }
+      ctx.moveTo(-h * 0.8, -h * 0.2); ctx.lineTo(h * 0.8, -h * 0.2);
+      ctx.moveTo(-h * 0.8, h * 0.3); ctx.lineTo(h * 0.8, h * 0.3);
+      break;
+    case "links": // two interlocking circles
+      ctx.arc(-h * 0.25, 0, h * 0.4, 0, TAU);
+      ctx.moveTo(h * 0.65, 0); ctx.arc(h * 0.25, 0, h * 0.4, 0, TAU);
+      break;
+    default:
+      ctx.arc(0, 0, h * 0.5, 0, TAU);
+  }
+  ctx.stroke();
+}
+
+function makeGlyphTexture(id: string, color: number): [THREE.CanvasTexture, number] {
+  const size = 128;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, size, size);
+  drawGlyph(ctx, id, size * 0.7);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return [texture, color];
+}
+
 function makeHalo(): [THREE.Mesh, THREE.CanvasTexture] {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
@@ -145,6 +233,29 @@ export function HeroOrbit3D() {
     let smoothScroll = 0;
     let emblemPivot: THREE.Group | null = null;
     let coverItems: { group: THREE.Group; frontMat: THREE.MeshBasicMaterial; phase: number; index: number }[] = [];
+    let glyphSprites: { sprite: THREE.Sprite; baseX: number; baseY: number; baseZ: number; speed: number; baseOpacity: number; baseSize: number }[] = [];
+
+    // Psychology glyph sprites
+    const glyphGroup = new THREE.Group();
+    rig.add(glyphGroup);
+    for (const g of PSYCHE_GLYPHS) {
+      const [tex] = makeGlyphTexture(g.id, g.color);
+      disposables.push(tex);
+      const mat = new THREE.SpriteMaterial({
+        map: tex,
+        color: g.color,
+        transparent: true,
+        opacity: 0.35,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      });
+      disposables.push(mat);
+      const sprite = new THREE.Sprite(mat);
+      sprite.scale.setScalar(g.size);
+      sprite.position.set(g.x, g.y, g.z);
+      glyphGroup.add(sprite);
+      glyphSprites.push({ sprite, baseX: g.x, baseY: g.y, baseZ: g.z, speed: g.speed, baseOpacity: 0.35, baseSize: g.size });
+    }
 
     const init = async () => {
       const [emblemTex, ...coverTextures] = await Promise.all([
@@ -241,6 +352,26 @@ export function HeroOrbit3D() {
         item.group.rotation.y = -0.45 * Math.sin(a);
         item.frontMat.color.setScalar(0.88 + 0.12 * wave(t, 4));
       }
+
+      // Psychology glyphs: float gently, react to pointer proximity
+      for (const g of glyphSprites) {
+        const floatY = 0.06 * Math.sin(t * g.speed + g.baseX * 2);
+        const floatX = 0.03 * Math.cos(t * g.speed * 0.7 + g.baseY * 3);
+        g.sprite.position.x = g.baseX + floatX + smoothPointer.x * 0.15 * g.speed;
+        g.sprite.position.y = g.baseY + floatY + smoothPointer.y * 0.1 * g.speed;
+        g.sprite.position.z = g.baseZ;
+
+        // Hover sensitivity: brighten when pointer is near
+        const dx = smoothPointer.x - g.baseX * 0.3;
+        const dy = smoothPointer.y - g.baseY * 0.3;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const hover = Math.max(0, 1 - dist * 1.5);
+        const targetOpacity = g.baseOpacity + hover * 0.5;
+        const mat = g.sprite.material as THREE.SpriteMaterial;
+        mat.opacity += (targetOpacity - mat.opacity) * follow;
+        const scaleBoost = 1 + hover * 0.3;
+        g.sprite.scale.setScalar(g.baseSize * scaleBoost);
+      }
     };
 
     let time = reduced ? CLEAN_POSE_TIME : 0;
@@ -272,6 +403,13 @@ export function HeroOrbit3D() {
       const h = Math.max(1, container.clientHeight);
       renderer!.setSize(w, h, false);
       camera.aspect = w / h;
+      // Mobile: a portrait viewport is tall but narrow, so the scene must be
+      // zoomed out (camera further back) and scaled down to keep the emblem
+      // and its orbiting covers fully visible behind the floating text.
+      const isMobile = w < 640;
+      camera.position.z = isMobile ? 4.6 : 3.0;
+      camera.position.y = isMobile ? 0.2 : 0.15;
+      rig.scale.setScalar(isMobile ? 0.8 : 1.0);
       camera.updateProjectionMatrix();
       refresh();
     };

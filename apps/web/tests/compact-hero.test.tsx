@@ -16,9 +16,9 @@ describe("compact hero", () => {
     expect(html).toContain('id="lib-email"');
     expect(html.match(/<h1[\s>]/g)).toHaveLength(1);
   });
-  it("uses HeroOrbit3D for the emblem, loaded client-side via dynamic import", () => {
-    // ssr: false means the 3D canvas is absent from SSR; the emblem div is an empty shell until hydration
-    expect(intro).toContain("_emblem_");
+  it("uses HeroOrbit3D full-bleed behind the content, loaded client-side", () => {
+    // ssr: false means the 3D canvas is absent from SSR; the canvas layer is an empty shell until hydration
+    expect(intro).toContain("canvasLayer");
     expect(intro).not.toContain("BrandMark");
     expect(intro).not.toMatch(/<video|ph-hero-plinth|ph-hero-fx|ph-art/);
   });

@@ -5,17 +5,17 @@ import { ReaderSignup } from "@/components/ReaderSignup";
 import { HeroOrbitClient } from "./HeroOrbitClient";
 import styles from "./HeroVoid.module.css";
 
-/** Void Luxury 4.0 hero — 3D heartbeat emblem with orbiting ebook covers. */
+/** Void Luxury 4.1 hero — full-bleed 3D orbit scene with floating content overlay. */
 export function Hero() {
   return (
     <>
       <section id="atas" aria-labelledby="hero-heading" className={styles.stage}>
-        <div className={styles.dots} aria-hidden="true" />
-        <div className={styles.glow} aria-hidden="true" />
+        {/* Full-bleed 3D canvas behind everything */}
+        <div className={styles.canvasLayer}>
+          <HeroOrbitClient />
+        </div>
+        {/* Floating content overlay */}
         <div className={styles.content}>
-          <div className={styles.emblem}>
-            <HeroOrbitClient />
-          </div>
           <h1 id="hero-heading" className={styles.headline}>
             Bacaan kecil.<br />Ruang untuk pulih.
           </h1>
