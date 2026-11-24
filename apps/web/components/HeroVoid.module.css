@@ -8,7 +8,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* Text is anchored to the top so it clears the emblem, which sits below */
+  justify-content: flex-start;
   min-height: 100svh;
   padding: 6rem 1.25rem 4rem;
   background-color: #030604;
@@ -16,7 +17,7 @@
 
 @media (min-width: 640px) {
   .stage {
-    padding: 8rem 2rem 6rem;
+    padding: 8rem 2rem 5rem;
   }
 }
 
