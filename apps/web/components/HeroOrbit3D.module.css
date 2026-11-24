@@ -20,7 +20,7 @@
 .poster {
   position: absolute;
   left: 50%;
-  top: 45%;
+  top: 68%;
   width: min(40vw, 280px);
   height: auto;
   transform: translate(-50%, -50%);

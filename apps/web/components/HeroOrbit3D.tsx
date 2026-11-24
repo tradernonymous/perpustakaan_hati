@@ -18,6 +18,9 @@ const WAVE_COUNT = 3;
 const ORBIT_SPEED = 0.12;
 const CLEAN_POSE_TIME = 0.8;
 const MAX_PIXEL_RATIO = 2;
+// Scene is pushed down (negative) so the emblem sits below the top-anchored text.
+const SCENE_LIFT_DESKTOP = -0.32;
+const SCENE_LIFT_MOBILE = -0.46;
 
 const COVERS = [
   { name: "Edisi Poket", src: "/ebooks/cover-poket.png", back: 0x5b9b7d, phase: 0 },
@@ -231,6 +234,7 @@ export function HeroOrbit3D() {
     const pointer = { x: 0, y: 0 };
     const smoothPointer = { x: 0, y: 0 };
     let smoothScroll = 0;
+    let sceneLift = SCENE_LIFT_DESKTOP;
     let emblemPivot: THREE.Group | null = null;
     let coverItems: { group: THREE.Group; frontMat: THREE.MeshBasicMaterial; phase: number; index: number }[] = [];
     let glyphSprites: { sprite: THREE.Sprite; baseX: number; baseY: number; baseZ: number; speed: number; baseOpacity: number; baseSize: number }[] = [];
@@ -320,7 +324,9 @@ export function HeroOrbit3D() {
       const scrollTarget = clamp01(window.scrollY / Math.max(1, window.innerHeight));
       smoothScroll += (scrollTarget - smoothScroll) * follow;
 
-      rig.position.y = -0.012 * wave(t, 6);
+      // Push the scene down so the emblem sits below the top-anchored text.
+      // The tiny breathing bob rides on top.
+      rig.position.y = sceneLift - 0.012 * wave(t, 6);
       rig.rotation.y = 0.6 * smoothScroll;
 
       if (emblemPivot) {
@@ -410,6 +416,7 @@ export function HeroOrbit3D() {
       camera.position.z = isMobile ? 4.6 : 3.0;
       camera.position.y = isMobile ? 0.2 : 0.15;
       rig.scale.setScalar(isMobile ? 0.8 : 1.0);
+      sceneLift = isMobile ? SCENE_LIFT_MOBILE : SCENE_LIFT_DESKTOP;
       camera.updateProjectionMatrix();
       refresh();
     };
