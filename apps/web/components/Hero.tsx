@@ -2,10 +2,10 @@ import { TipsFlipbook } from "./TipsFlipbook";
 import { SignupDialog } from "./SignupDialog";
 import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ReaderSignup } from "@/components/ReaderSignup";
-import { BrandMark } from "@/components/BrandMark";
+import { HeroOrbitClient } from "./HeroOrbitClient";
 import styles from "./HeroVoid.module.css";
 
-/** Void Luxury 4.0 hero — Vercel-inspired animated entrance. Less text, more wow. */
+/** Void Luxury 4.0 hero — 3D heartbeat emblem with orbiting ebook covers. */
 export function Hero() {
   return (
     <>
@@ -14,7 +14,7 @@ export function Hero() {
         <div className={styles.glow} aria-hidden="true" />
         <div className={styles.content}>
           <div className={styles.emblem}>
-            <BrandMark size={128} />
+            <HeroOrbitClient />
           </div>
           <h1 id="hero-heading" className={styles.headline}>
             Bacaan kecil.<br />Ruang untuk pulih.

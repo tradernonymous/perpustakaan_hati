@@ -38,11 +38,11 @@ describe("animated logo files (build-animated-logos.py)", () => {
 });
 
 describe("animated logos on the site", () => {
-  it("sets the compact headline with BrandMark emblem in the void hero", () => {
+  it("renders the void hero headline without BrandMark (3D orbit is client-only)", () => {
     const html = renderToStaticMarkup(<Hero />);
-    expect(html).toContain("Perpustakaan Hati"); /* BrandMark aria-label */
     expect(html).toContain("Bacaan kecil.");
     expect(html).not.toContain("ph-logo-lockup");
+    // BrandMark's "Perpustakaan Hati" aria-label is gone: HeroOrbit3D uses dynamic ssr:false
   });
   it("the header animates the emblem and the 3D book uses the exported cover", () => {
     expect(renderToStaticMarkup(<BrandMark />)).toContain("/brand/animated/emblem-book-heart.svg");
