@@ -10,9 +10,9 @@
   align-items: center;
   /* Text is anchored to the top so it clears the emblem, which sits below */
   justify-content: flex-start;
-  min-height: 100svh;
+  min-height: calc(100svh - 4.5625rem);
   padding: 6rem 1.25rem 4rem;
-  background-color: #030604;
+  background-color: var(--ph-void);
 }
 
 @media (min-width: 640px) {
@@ -52,7 +52,7 @@
   line-height: 0.95;
   letter-spacing: -0.04em;
   font-weight: 500;
-  color: #ededed;
+  color: var(--text-on-dark, #ededed);
   margin: 0;
   text-shadow: 0 2px 24px rgb(0 0 0 / 0.6), 0 0 80px rgb(3 6 4 / 0.8);
   opacity: 0;
@@ -72,7 +72,7 @@
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   line-height: 1.5;
   letter-spacing: -0.01em;
-  color: rgb(237 237 237 / 0.7);
+  color: color-mix(in srgb, var(--text-on-dark, #ededed) 70%, transparent);
   max-width: 36rem;
   text-shadow: 0 1px 12px rgb(0 0 0 / 0.5);
   opacity: 0;

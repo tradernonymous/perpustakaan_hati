@@ -46,24 +46,24 @@
   font: inherit;
   font-size: 0.8125rem;
   line-height: 1.2;
-  color: var(--gold-light, #e9cea2);
+  color: var(--gold-light);
   background: rgb(0 0 0 / 0.35);
-  border: 1px solid rgb(233 206 162 / 0.5);
+  border: 1px solid color-mix(in srgb, var(--gold-light) 50%, transparent);
   border-radius: 999px;
   cursor: pointer;
   z-index: 2;
 }
 
 .toggle:hover {
-  border-color: var(--gold-light, #e9cea2);
+  border-color: var(--gold-light);
 }
 
 .toggle[aria-pressed="true"] {
-  background: rgb(233 206 162 / 0.18);
+  background: color-mix(in srgb, var(--gold-light) 18%, transparent);
 }
 
 .toggle:focus-visible {
-  outline: 2px solid rgb(200 233 134);
+  outline: 2px solid var(--lime-glow);
   outline-offset: 2px;
 }
 

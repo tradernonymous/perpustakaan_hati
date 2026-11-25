@@ -35,7 +35,8 @@ export function ChapterPreview() {
                         alt={`Kulit rujukan A4 ${cover.title}`}
                         width={cover.width}
                         height={cover.height}
-                        loading="lazy"
+                        loading={i === 0 ? "eager" : "lazy"}
+                        fetchPriority={i === 0 ? "high" : "auto"}
                         decoding="async"
                       />
                     </picture>

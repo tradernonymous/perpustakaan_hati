@@ -120,11 +120,11 @@ export function TierCompare() {
   return (
     <div className="mx-auto max-w-grid">
       <ul className="ph-compare-desktop ph-compare-covers mb-6 grid-cols-3 gap-4" aria-label="Kulit tiga edisi">
-        {editions.map((edition) => (
+        {editions.map((edition, index) => (
           <li key={edition.id} className="ph-card grid content-start gap-3 p-4 text-center">
             <div className="ph-book-stage mx-auto w-full max-w-[145px]" data-tier={edition.id}>
               <div className="ph-book-object">
-                {edition.cover && <img src={edition.cover} alt={`Kulit ${edition.name}`} width={145} height={205} className="h-auto w-full rounded" loading="lazy" />}
+                {edition.cover && <img src={edition.cover} alt={`Kulit ${edition.name}`} width={145} height={205} className="h-auto w-full rounded" loading={index === 0 ? "eager" : "lazy"} fetchPriority={index === 0 ? "high" : "auto"} />}
               </div>
             </div>
             <p className="font-display text-lg">{edition.name}</p>

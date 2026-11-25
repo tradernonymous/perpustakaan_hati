@@ -141,7 +141,7 @@ export function EbookDeck() {
               <span
                 aria-hidden="true"
                 data-tier={t.id}
-                className={`block h-2 rounded-pill transition-all duration-300 ${i === index ? "w-6" : "w-2 bg-line"}`}
+                className={`block h-2 rounded-pill transition-[width] duration-300 ${i === index ? "w-6" : "w-2 bg-line"}`}
                 style={i === index ? { background: "var(--tier-fill)" } : undefined}
               />
             </button>
@@ -153,7 +153,7 @@ export function EbookDeck() {
           aria-label="Edisi seterusnya"
           className="flex min-h-tap min-w-tap cursor-pointer items-center justify-center rounded-pill border border-line bg-surface-raised text-xl text-fg transition-colors hover:border-gold-deep"
         >
-          <span aria-hidden="true">›</span>
+          <span aria-hidden="true">Seterusnya</span>
         </button>
       </div>
 
@@ -163,7 +163,7 @@ export function EbookDeck() {
           <h3 className="ph-title text-2xl ph-tier-ink">{tier.name}</h3>
         </div>
         <p className="mt-1 font-display text-3xl ph-tier-ink">{tier.price}</p>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-kicker ph-tier-ink">{LAUNCH_NOTE[tier.id]}</p>
+        <p className="mt-1 text-xs font-semibold ph-tier-ink">{LAUNCH_NOTE[tier.id]}</p>
         <p className="mt-2 text-sm text-fg-muted">{tier.size}</p>
         <p className="mt-2 font-display italic text-fg">{tier.subcopy}</p>
         <ul className="mx-auto mt-4 flex max-w-[460px] flex-col gap-1.5 text-left text-sm text-fg">

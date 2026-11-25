@@ -32,7 +32,7 @@ export function MobileTierCompare({ editions, rows }: { editions: Edition[]; row
             {edition.cover && (
               <div className="ph-book-stage w-[72px]" data-tier={edition.id}>
                 <div className="ph-book-object">
-                  <img src={edition.cover} alt="" width={72} height={101} className="h-auto w-[64px] rounded" loading="lazy" />
+                  <img src={edition.cover} alt="" width={72} height={101} className="h-auto w-[64px] rounded" loading={slot === 0 ? "eager" : "lazy"} fetchPriority={slot === 0 ? "high" : "auto"} />
                 </div>
               </div>
             )}

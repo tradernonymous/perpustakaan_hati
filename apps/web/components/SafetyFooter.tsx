@@ -29,7 +29,7 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
 
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-kicker text-fg-accent">Edisi Buku</p>
+              <p className="text-xs font-semibold text-fg-accent">Edisi buku</p>
               <nav aria-label="Pautan edisi" className="mt-2 flex flex-col">
                 {NAV.map((n) => (
                   <a key={n.href} href={`${base}${n.href}`} className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">
@@ -43,7 +43,7 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-kicker text-fg-accent">Interaktif</p>
+              <p className="text-xs font-semibold text-fg-accent">Interaktif</p>
               <nav aria-label="Pautan interaktif" className="mt-2 flex flex-col">
                 <a href="/kad-jujur-hati" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Kad Jujur Hati</a>
                 <a href="/cermin-pasangan" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Cermin Pasangan</a>
@@ -53,7 +53,7 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-kicker text-fg-accent">Komuniti &amp; Sesi</p>
+              <p className="text-xs font-semibold text-fg-accent">Komuniti &amp; sesi</p>
               <nav aria-label="Pautan perkhidmatan" className="mt-2 flex flex-col">
                 <a href="/surat-hati" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Surat Hati</a>
                 <a href="/hadiah-hati" className="flex min-h-tap items-center text-fg-healing underline-offset-4 hover:underline">Hadiah Hati</a>
@@ -67,7 +67,7 @@ export function SafetyFooter({ base = "" }: { base?: string }) {
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-line pt-6">
           <div className="flex items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/emblem-book-heart.svg" alt="" width={72} height={50} loading="lazy" className="h-[50px] w-[72px] shrink-0" />
+            <img src="/brand/emblem-book-heart.svg" alt="" width={72} height={50} loading="eager" fetchPriority="high" className="h-[50px] w-[72px] shrink-0" />
             <div className="text-fg-muted">
               <span className="ph-caps block text-xs text-fg">Perpustakaan Hati</span>
               <AuthorByline className="justify-start px-0 text-xs text-fg" />
