@@ -5,19 +5,14 @@ import { ReaderSignup } from "@/components/ReaderSignup";
 import { HeroOrbitClient } from "./HeroOrbitClient";
 import styles from "./HeroVoid.module.css";
 
-/** Void Luxury 4.1 hero — full-bleed 3D orbit scene with floating content overlay. */
 export function Hero() {
   return (
     <>
       <section id="atas" aria-labelledby="hero-heading" className={styles.stage}>
-        {/* Full-bleed 3D canvas behind everything */}
-        <div className={styles.canvasLayer}>
-          <HeroOrbitClient />
-        </div>
-        {/* Floating content overlay */}
         <div className={styles.content}>
+          <p className={styles.kicker}>Perpustakaan Hati <span>/</span> Edisi Poket</p>
           <h1 id="hero-heading" className={styles.headline}>
-            Bacaan kecil.<br />Ruang untuk pulih.
+            Bacaan kecil.<br /><em>Ruang untuk pulih.</em>
           </h1>
           <p className={styles.subline}>
             Tulisan tentang hubungan dan pemulihan diri, dalam Bahasa Melayu yang dekat di hati.
@@ -31,6 +26,10 @@ export function Hero() {
             </a>
           </div>
         </div>
+        <figure className={styles.exhibit}>
+          <div className={styles.canvasLayer}><HeroOrbitClient /></div>
+          <figcaption className={styles.caption}><span>Rajah 01</span>Orbit koleksi</figcaption>
+        </figure>
       </section>
       <section id="percuma" aria-labelledby="percuma-heading" className="px-4 py-8 sm:px-5 sm:py-14">
         <div className="mx-auto mb-6 max-w-reading text-center">
