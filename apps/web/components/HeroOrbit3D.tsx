@@ -17,7 +17,7 @@ const WAVE_LIFE = 1.8;
 const WAVE_COUNT = 3;
 const ORBIT_SPEED = 0.12;
 const CLEAN_POSE_TIME = 0.8;
-const MAX_PIXEL_RATIO = 2;
+const MAX_PIXEL_RATIO = 1.5;
 // Scene is pushed down (negative) so the emblem sits below the top-anchored text.
 const SCENE_LIFT_DESKTOP = -0.32;
 const SCENE_LIFT_MOBILE = -0.46;
@@ -467,6 +467,7 @@ export function HeroOrbit3D() {
         alt=""
         width={600}
         height={420}
+        fetchPriority="high"
       />
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       <p className={styles.srOnly}>

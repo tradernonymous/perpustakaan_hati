@@ -278,3 +278,8 @@ packages/brand-tools/fonts/source/
 /apps/web/private/
 /content/ebooks/tier-2-standard/
 /content/ebooks/tier-3-premium/
+
+# Hallmark pre-flight / sweep scratch (screenshots and records are local only)
+.hallmark/before/
+.hallmark/before.json
+.hallmark/before.txt

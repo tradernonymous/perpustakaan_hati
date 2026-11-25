@@ -1,4 +1,7 @@
 /* Order matters: fonts + brand tokens first, then Tailwind, per packages/ui docs. */
+/* Hallmark · checked: 2026-11-25 · genre: editorial (inferred)
+ * floor: 0 FAIL · fixed: 10 (10a, 24a, 26a, 34, 48, 54, 63) · structural: 2 printed (44d, 58)
+ * built: the project · redesign: polish · v2.0.0 */
 @import "../styles/fonts.css";
 @import "../styles/design-tokens.css";
 @import "../styles/shadcn-theme.css";
@@ -29,7 +32,7 @@
 .ph-compare-desktop .ph-compare-table :is(th, td):first-child { position: static; }
 
 @media (max-width: 1023px) {
-  .ph-compare-desktop .ph-compare-table :is(th, td) { padding-inline: 0.5rem; }
+  .ph-compare-desktop .ph-compare-table :is(th, td) { padding-inline: var(--space-2); }
 
   .ph-nightlight.ph-void .ph-header {
     background: var(--surface-base);
@@ -52,19 +55,23 @@ body:has(#menu-mudah-alih) .ph-sticky-cta { display: none; }
 @media (max-width: 479px) {
   #bab .ph-chapter-card {
     grid-template-columns: 72px minmax(0, 1fr);
-    gap: 0.75rem;
+    gap: var(--space-3);
     padding: 0.875rem;
   }
 }
 
 @layer base {
+  html,
+  body {
+    overflow-x: clip;
+  }
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 4.5rem;
     -webkit-text-size-adjust: 100%;
   }
   body { @apply bg-surface font-body text-[1.0625rem] leading-[1.55] text-fg antialiased; font-optical-sizing: auto; }
-  :focus-visible { outline: var(--focus-width, 2px) solid var(--focus-color, #a7d3b6); outline-offset: var(--focus-offset, 2px); }
+  :focus-visible { outline: var(--focus-width, 2px) solid var(--focus-color, var(--green-300)); outline-offset: var(--focus-offset, 2px); }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }

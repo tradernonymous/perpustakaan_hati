@@ -10,10 +10,10 @@ import { useEffect, useRef, useState } from "react";
  * count-up only runs in the browser when the strip scrolls into view.
  */
 const STATS = [
-  { value: 7, label: "bab panduan", note: "Edisi Membangun" },
-  { value: 30, label: "soalan refleksi", note: "Kit Refleksi" },
-  { value: 60, label: "saat sehari", note: "7 Hari Reset" },
-  { value: 12, label: "kad refleksi", note: "Teman Hidup" },
+  { value: 7, label: "bab panduan", note: "Edisi membangun" },
+  { value: 30, label: "soalan refleksi", note: "Kit refleksi" },
+  { value: 60, label: "saat sehari", note: "7 hari reset" },
+  { value: 12, label: "kad refleksi", note: "Teman hidup" },
 ];
 
 function CountUp({ to }: { to: number }) {
@@ -54,7 +54,7 @@ export function StatsStrip() {
             <dd className="ph-stat-num order-1 font-display text-5xl tabular-nums md:text-6xl">
               <CountUp to={s.value} />
             </dd>
-            <dd className="order-3 text-xs uppercase tracking-kicker text-fg-muted">{s.note}</dd>
+            <dd className="order-3 text-xs text-fg-muted">{s.note}</dd>
           </div>
         ))}
       </dl>

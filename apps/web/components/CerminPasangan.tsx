@@ -69,7 +69,7 @@ export function CerminPasangan() {
 
     return (
       <div className="ph-card mx-auto flex max-w-reading flex-col gap-4 p-6" role="status" aria-live="polite">
-        <span className="inline-block w-fit rounded-full bg-surface-soft px-3 py-1 text-xs font-medium uppercase tracking-wider text-fg">
+        <span className="inline-block w-fit rounded-full bg-surface-soft px-3 py-1 text-xs font-medium text-fg">
           {copy.badge}
         </span>
         <h3 className="font-display text-2xl text-fg">Peta Hubungan kamu</h3>
@@ -115,7 +115,7 @@ export function CerminPasangan() {
 
       <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-soft" aria-hidden="true">
         <div
-          className="h-full rounded-full bg-green-400 transition-all duration-300"
+          className="h-full rounded-full bg-green-400 transition-[width] duration-300"
           style={{ width: `${progressPct}%` }}
         />
       </div>

@@ -178,7 +178,7 @@ export function Catalog({ publications = [], prices = {} }: { publications?: Pub
         <section aria-labelledby="katalog-a4">
           <h3 id="katalog-a4" className="ph-title mb-5 text-center text-2xl">Buku A4 untuk dibaca sekarang</h3>
           <div className="ph-ebook-shelf" role="region" aria-label="Pratonton kulit ebook A4" tabIndex={0}>
-            {covers.map((ebook) => (
+            {covers.map((ebook, index) => (
               <figure key={ebook.slug} data-ebook={ebook.slug} className="flex flex-col gap-2.5">
                 <div className="ph-book-stage">
                   <div className="ph-book-object">
@@ -190,7 +190,8 @@ export function Catalog({ publications = [], prices = {} }: { publications?: Pub
                           alt={`Kulit A4 ebook ${ebook.title}`}
                           width={ebook.width}
                           height={ebook.height}
-                          loading="lazy"
+                          loading={index === 0 ? "eager" : "lazy"}
+                          fetchPriority={index === 0 ? "high" : "auto"}
                           decoding="async"
                         />
                       </picture>

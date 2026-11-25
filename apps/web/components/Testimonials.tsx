@@ -68,13 +68,13 @@ export function Testimonials() {
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
         <div className="flex items-center gap-2">
           <button type="button" className="btn-ghost min-w-tap px-0 py-0" aria-label="Maklum balas sebelumnya" onClick={() => move(-1)}>
-            <span aria-hidden="true">‹</span>
+            Sebelumnya
           </button>
           <p className="px-1 text-sm tabular-nums text-fg-muted" aria-live={playing ? "off" : "polite"}>
             <span className="sr-only">Maklum balas </span>{active + 1} / {COUNT}
           </p>
           <button type="button" className="btn-ghost min-w-tap px-0 py-0" aria-label="Maklum balas seterusnya" onClick={() => move(1)}>
-            <span aria-hidden="true">›</span>
+            Seterusnya
           </button>
         </div>
         {motionAllowed && (

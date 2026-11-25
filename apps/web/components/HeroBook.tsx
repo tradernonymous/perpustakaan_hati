@@ -62,7 +62,7 @@ export function HeroBook({
           }}
           aria-label="Muka surat sebelumnya"
         >
-          ‹
+          Sebelumnya
         </button>
         {!open ? (
           <button
@@ -89,7 +89,7 @@ export function HeroBook({
           }}
           aria-label="Muka surat seterusnya"
         >
-          ›
+          Seterusnya
         </button>
       </div>
     </div>
