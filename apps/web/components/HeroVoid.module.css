@@ -1,129 +1,46 @@
-/* Void Luxury 4.1 — full-bleed 3D hero with floating content overlay.
-   The canvas fills the entire stage; text and buttons float above it.
-   Respects prefers-reduced-motion. Mobile-first sizing. */
-
 .stage {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  --foil: var(--gold-light, #e6ce9c);
+  display: grid;
   align-items: center;
-  /* Text is anchored to the top so it clears the emblem, which sits below */
-  justify-content: flex-start;
-  min-height: calc(100svh - 4.5625rem);
-  padding: 6rem 1.25rem 4rem;
-  background-color: var(--ph-void);
+  gap: 2rem;
+  padding: clamp(3rem, 7vw, 7rem) max(1.25rem, calc((100% - 82rem) / 2));
+  background: radial-gradient(ellipse at 85% 45%, #162421, transparent 60%), #080e0d;
+  color: #faf5eb;
+  border-bottom: 1px solid #35403a;
 }
-
-@media (min-width: 640px) {
-  .stage {
-    padding: 8rem 2rem 5rem;
-  }
+.content, .exhibit { min-width: 0; }
+.kicker, .caption {
+  font: 500 .75rem/1.5 ui-monospace, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--foil);
 }
-
-/* Full-bleed canvas layer — sits behind all content */
-.canvasLayer {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: auto;
-}
-
-/* Floating content overlay — above the canvas */
-.content {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  max-width: 52rem;
-  pointer-events: none;
-}
-
-.content > * {
-  pointer-events: auto;
-}
-
-/* Headline — massive, tight tracking, readable over the 3D scene */
+.kicker { margin: 0 0 1.75rem; }
+.kicker span { opacity: .65; margin-inline: .4em; }
 .headline {
-  font-family: var(--font-display, 'Geist Sans', ui-sans-serif, system-ui, sans-serif);
-  font-size: clamp(2.5rem, 7vw, 5.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.04em;
-  font-weight: 500;
-  color: var(--text-on-dark, #ededed);
   margin: 0;
-  text-shadow: 0 2px 24px rgb(0 0 0 / 0.6), 0 0 80px rgb(3 6 4 / 0.8);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 250ms forwards;
+  font: 500 clamp(3.1rem, 6vw, 6.4rem)/1.02 var(--font-display, system-ui), sans-serif;
+  letter-spacing: -.055em;
+  text-wrap: balance;
 }
-
-@media (min-width: 640px) {
-  .headline {
-    font-size: clamp(3.5rem, 8vw, 6rem);
-  }
+.headline em { font-family: Georgia, serif; font-weight: 400; color: var(--foil); }
+.subline { max-width: 40ch; margin: 1.5rem 0 2rem; font-size: 1.075rem; line-height: 1.65; color: #c6cfc7; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.actions a { min-height: 44px; }
+.exhibit { margin: 0; }
+.canvasLayer {
+  position: relative;
+  isolation: isolate;
+  aspect-ratio: 1.35;
+  background: radial-gradient(ellipse closest-side, #34504755, transparent);
 }
-
-/* Subline — muted, readable over the scene */
-.subline {
-  margin-top: 1.25rem;
-  font-size: clamp(1rem, 2.5vw, 1.25rem);
-  line-height: 1.5;
-  letter-spacing: -0.01em;
-  color: color-mix(in srgb, var(--text-on-dark, #ededed) 70%, transparent);
-  max-width: 36rem;
-  text-shadow: 0 1px 12px rgb(0 0 0 / 0.5);
-  opacity: 0;
-  transform: translateY(16px);
-  animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 420ms forwards;
+.canvasLayer::before {
+  content: ''; position: absolute; inset: 10% 15%; border: 1px solid #a9c2ac29;
+  border-radius: 50%; transform: rotate(-16deg); pointer-events: none;
 }
-
-@media (min-width: 640px) {
-  .subline {
-    margin-top: 1.5rem;
-  }
-}
-
-/* CTA row */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 2.5rem;
-  width: 100%;
-  max-width: 20rem;
-  opacity: 0;
-  transform: translateY(16px);
-  animation: fadeUp 700ms cubic-bezier(0.16, 1, 0.3, 1) 580ms forwards;
-}
-
-@media (min-width: 640px) {
-  .actions {
-    flex-direction: row;
-    gap: 1rem;
-    margin-top: 3rem;
-    width: auto;
-    max-width: none;
-  }
-}
-
-/* Shared entrance keyframe */
-@keyframes fadeUp {
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Reduced motion: show everything instantly */
-@media (prefers-reduced-motion: reduce) {
-  .headline,
-  .subline,
-  .actions {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
+.caption { display: flex; align-items: center; gap: .85rem; color: #bcc8bf; }
+.caption span { color: var(--foil); }
+.caption::before { content: ''; width: 2rem; height: 1px; background: currentColor; }
+@media (min-width: 800px) {
+  .stage { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); min-height: min(80svh, 53rem); padding-inline: max(4vw, calc((100% - 82rem) / 2)); }
 }

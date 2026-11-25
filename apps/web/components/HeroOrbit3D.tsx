@@ -19,8 +19,6 @@ const ORBIT_SPEED = 0.12;
 const CLEAN_POSE_TIME = 0.8;
 const MAX_PIXEL_RATIO = 1.5;
 // Scene is pushed down (negative) so the emblem sits below the top-anchored text.
-const SCENE_LIFT_DESKTOP = -0.32;
-const SCENE_LIFT_MOBILE = -0.46;
 
 const COVERS = [
   { name: "Edisi Poket", src: "/ebooks/cover-poket.png", back: 0x5b9b7d, phase: 0 },
@@ -234,7 +232,6 @@ export function HeroOrbit3D() {
     const pointer = { x: 0, y: 0 };
     const smoothPointer = { x: 0, y: 0 };
     let smoothScroll = 0;
-    let sceneLift = SCENE_LIFT_DESKTOP;
     let emblemPivot: THREE.Group | null = null;
     let coverItems: { group: THREE.Group; frontMat: THREE.MeshBasicMaterial; phase: number; index: number }[] = [];
     let glyphSprites: { sprite: THREE.Sprite; baseX: number; baseY: number; baseZ: number; speed: number; baseOpacity: number; baseSize: number }[] = [];
@@ -326,7 +323,7 @@ export function HeroOrbit3D() {
 
       // Push the scene down so the emblem sits below the top-anchored text.
       // The tiny breathing bob rides on top.
-      rig.position.y = sceneLift - 0.012 * wave(t, 6);
+      rig.position.y = 0.012 * wave(t, 6);
       rig.rotation.y = 0.6 * smoothScroll;
 
       if (emblemPivot) {
@@ -354,7 +351,7 @@ export function HeroOrbit3D() {
         const a = item.phase + t * ORBIT_SPEED + 0.25 * smoothPointer.x;
         item.group.position.x = 0.85 * Math.sin(a);
         item.group.position.z = 0.5 * Math.cos(a);
-        item.group.position.y = 0.06 * Math.sin(2 * a) + 0.02 * Math.sin((TAU * t) / 5 + item.index);
+        item.group.position.y = 0.24 * Math.sin(a) - 0.12 * Math.cos(a);
         item.group.rotation.y = -0.45 * Math.sin(a);
         item.frontMat.color.setScalar(0.88 + 0.12 * wave(t, 4));
       }
@@ -409,14 +406,8 @@ export function HeroOrbit3D() {
       const h = Math.max(1, container.clientHeight);
       renderer!.setSize(w, h, false);
       camera.aspect = w / h;
-      // Mobile: a portrait viewport is tall but narrow, so the scene must be
-      // zoomed out (camera further back) and scaled down to keep the emblem
-      // and its orbiting covers fully visible behind the floating text.
-      const isMobile = w < 640;
-      camera.position.z = isMobile ? 4.6 : 3.0;
-      camera.position.y = isMobile ? 0.2 : 0.15;
-      rig.scale.setScalar(isMobile ? 0.8 : 1.0);
-      sceneLift = isMobile ? SCENE_LIFT_MOBILE : SCENE_LIFT_DESKTOP;
+      camera.position.z = Math.max(2.9, 3.9 / camera.aspect);
+      camera.position.y = 0;
       camera.updateProjectionMatrix();
       refresh();
     };
