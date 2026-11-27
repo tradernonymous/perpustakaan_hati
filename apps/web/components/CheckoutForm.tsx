@@ -134,6 +134,7 @@ export function CheckoutForm({ product, name, priceLabel, priceSen, bump }: Prop
       </div>
 
       <button type="submit" disabled={busy} className="ph-cta min-h-cta-mobile items-center justify-center disabled:opacity-60">
+        {busy && <span className="ph-spinner" aria-hidden="true" />}
         {busy ? "Membuka pembayaran..." : `Bayar ${rm(total)}`}
       </button>
       <p aria-live="polite" role="status" className="text-danger">{error}</p>

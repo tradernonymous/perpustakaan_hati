@@ -37,7 +37,7 @@ export function HeroBook({
       <div className="ph-book-shadow" aria-hidden="true" />
       {seal && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={seal} alt="" width={96} height={96} className="ph-book-seal ph-coin" />
+        <img src={seal} alt="" width={96} height={96} className="ph-book-seal ph-coin ph-coin-edge" />
       )}
       <div className="ph-book-3d" data-page={page}>
         <div className="ph-book-spine" aria-hidden="true" />

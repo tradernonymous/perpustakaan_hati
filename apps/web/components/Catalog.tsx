@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { TIERS } from "@/src/content";
 import { EBOOK_COVERS } from "@/src/ebook-covers";
 import { ProductCover } from "./ProductCover";
+import { FlipCard } from "./FlipCard";
 import { PsycheBadge } from "./PsycheIcon";
 import { TIER_PSYCHE, EBOOK_PSYCHE } from "@/src/psyche";
 
@@ -146,11 +147,24 @@ export function Catalog({ publications = [], prices = {} }: { publications?: Pub
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {tiers.map((t) => (
               <article key={t.id} data-tier={t.id} className="ph-tier-card ph-lux flex flex-col gap-3 p-5">
-                <div className="ph-book-stage mx-auto w-full max-w-[220px]">
-                  <div className="ph-book-object">
-                    <ProductCover name={t.title} src={t.artwork} seal={t.seal} tier={t.id} />
-                  </div>
-                </div>
+                <FlipCard
+                  className="mx-auto w-full max-w-[220px]"
+                  label="Lihat isi"
+                  front={
+                    <div className="ph-book-stage">
+                      <div className="ph-book-object">
+                        <ProductCover name={t.title} src={t.artwork} seal={t.seal} tier={t.id} />
+                      </div>
+                    </div>
+                  }
+                  back={
+                    <ul className="flex h-full flex-col justify-center gap-2 rounded border border-line bg-surface-raised p-4 text-left text-sm text-fg">
+                      {t.includes.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  }
+                />
                 <div className="flex items-center gap-2.5">
                   <PsycheBadge id={TIER_PSYCHE[t.id as "poket" | "membangun" | "teman-hidup"]} tier={t.id as "poket" | "membangun" | "teman-hidup"} />
                   <h4 className="ph-title text-xl ph-tier-ink">{t.title}</h4>

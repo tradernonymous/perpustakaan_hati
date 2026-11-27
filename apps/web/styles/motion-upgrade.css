@@ -71,8 +71,9 @@
   transform-style: preserve-3d;
   transition: transform var(--dur-slow) var(--ease-out);
 }
-.ph-flip:hover .ph-flip__inner,
-.ph-flip:focus-within .ph-flip__inner { transform: rotateY(180deg); }
+.ph-flip:hover .ph-flip__inner { transform: rotateY(180deg); }
+/* Touch: a tap handler sets data-flipped="true" on .ph-flip to show the back face. */
+.ph-flip[data-flipped="true"] .ph-flip__inner { transform: rotateY(180deg); }
 .ph-flip__face { backface-visibility: hidden; }
 .ph-flip__face.ph-flip__back {
   position: absolute;
@@ -86,6 +87,16 @@
   to { transform: rotateX(-18deg) rotateY(360deg); }
 }
 .ph-cube__face { position: absolute; inset: 0; backface-visibility: hidden; }
+
+/* Coin edge: a stacked drop-shadow rim so a spinning seal reads as thick.
+   Layered on top of .ph-coin (design-tokens.css) for seal images. */
+.ph-coin.ph-coin-edge {
+  filter:
+    drop-shadow(1px 0 0 #7a5f2e)
+    drop-shadow(2px 0 0 #7a5f2e)
+    drop-shadow(3px 0 0 #5c4620)
+    drop-shadow(0 8px 12px rgb(0 0 0 / 0.5));
+}
 
 /* ============ Border beam: rotating conic border ============ */
 .ph-beam { position: relative; isolation: isolate; }
@@ -146,9 +157,10 @@
 @keyframes ph-spring-in {
   from { opacity: 0; transform: scale(0.5); }
 }
-.ph-blur-in { opacity: 0; filter: blur(6px); animation: ph-blur-in var(--dur-base) var(--ease-out) both; }
+/* Named "blur-in" for history. It fades only: animating filter forces repaints. */
+.ph-blur-in { opacity: 0; animation: ph-blur-in var(--dur-base) var(--ease-out) both; }
 @keyframes ph-blur-in {
-  to { opacity: 1; filter: blur(0); }
+  to { opacity: 1; }
 }
 .ph-heartbeat { animation: ph-heartbeat 1.8s var(--ease-out) infinite; }
 @keyframes ph-heartbeat {
@@ -422,31 +434,89 @@
       from { opacity: 0; transform: translateY(32px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    /* Hero fades and lifts as it leaves the viewport. Set on the hero section. */
+    .ph-scroll-hero-out {
+      animation: ph-scroll-hero-out linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 70%;
+    }
+    @keyframes ph-scroll-hero-out {
+      to { opacity: 0.2; transform: translateY(-48px); }
+    }
   }
 }
 
-/* ============ Reduced motion: everything stops ============ */
-@media (prefers-reduced-motion: reduce) {
-  .ph-stage, .ph-3d-turn, .ph-3d-wobble, .ph-ring-3d, .ph-depth,
-  .ph-reveal-3d, .ph-stagger > *, .ph-flip__inner, .ph-cube-3d,
-  .ph-beam::before, .ph-hover-glow::before, .ph-sheen::after,
-  .ph-spring-in, .ph-blur-in, .ph-heartbeat, .ph-breathe,
-  .ph-words > span, .ph-line > span, .ph-underline::after,
-  .ph-rotator__track, .ph-text-shimmer, .ph-float, .ph-float-slow,
-  .ph-float-x, .ph-spin-slow, .ph-orbit > .ph-orbit__marker,
-  .ph-particle-burst > .ph-particle, .ph-sparkle, .ph-auto-glow::before,
-  .ph-aurora::before, .ph-aurora::after, .ph-parallax, .ph-draw,
-  .ph-kenburns, .ph-pan {
-    animation: none !important;
-    transition: none !important;
+/* Pointer parallax (item 14). PointerParallax.tsx writes --ph-px and --ph-py (-1 to 1).
+   Layers shift by --ph-depth. Only fine-pointer, wide, motion-allowed screens get the transform. */
+.ph-parallax-3d { --ph-px: 0; --ph-py: 0; }
+@media (hover: hover) and (pointer: fine) and (min-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .ph-parallax-3d .ph-parallax-layer {
+    --ph-depth: 6px;
+    transform: translate3d(calc(var(--ph-px) * var(--ph-depth)), calc(var(--ph-py) * var(--ph-depth)), 0);
+    transition: transform var(--dur-slow) var(--ease-out);
   }
-  .ph-parallax { transform: none; }
-  .ph-spotlight::before { transition: none; transform: none; }
-  .ph-blur-in { opacity: 1; filter: none; }
-  .ph-words > span, .ph-line > span { opacity: 1; transform: none; }
-  .ph-sheen::after { display: none; }
-  .ph-hover-glow::before { opacity: 0; }
-  .ph-depth:hover, .ph-depth:focus-visible { transform: none; }
-  .ph-flip:hover .ph-flip__inner,
-  .ph-flip:focus-within .ph-flip__inner { transform: none; }
+}
+
+/* Touch flip toggle (item 13). Shown on every device so keyboard and touch users can flip. */
+.ph-flip__toggle {
+  position: absolute;
+  left: 50%;
+  bottom: 0.5rem;
+  z-index: 1;
+  min-height: 44px;
+  transform: translateX(-50%);
+  padding: 0 0.75rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--gold-light, #e6ce9c);
+  background: rgb(8 14 13 / 0.7);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.ph-flip__toggle:focus-visible { outline: 2px solid var(--gold-light, #e6ce9c); outline-offset: 3px; }
+
+/* Progress ring for busy buttons (checkout while the payment session opens). */
+.ph-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+  vertical-align: -0.125em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: ph-spinner-turn 0.8s linear infinite;
+}
+@keyframes ph-spinner-turn {
+  to { transform: rotate(360deg); }
+}
+
+/* ============ Reduced motion: everything stops ============
+   Selectors are prefixed with "html" (specificity 0,1,1) instead of using
+   !important, so they beat the animation classes whatever the import order. */
+@media (prefers-reduced-motion: reduce) {
+  html .ph-stage, html .ph-3d-turn, html .ph-3d-wobble, html .ph-ring-3d, html .ph-depth,
+  html .ph-reveal-3d, html .ph-stagger > *, html .ph-flip__inner, html .ph-cube-3d,
+  html .ph-beam::before, html .ph-hover-glow::before, html .ph-sheen::after,
+  html .ph-spring-in, html .ph-blur-in, html .ph-heartbeat, html .ph-breathe,
+  html .ph-words > span, html .ph-line > span, html .ph-underline::after,
+  html .ph-rotator__track, html .ph-text-shimmer, html .ph-float, html .ph-float-slow,
+  html .ph-float-x, html .ph-spin-slow, html .ph-orbit > .ph-orbit__marker,
+  html .ph-particle-burst > .ph-particle, html .ph-sparkle, html .ph-auto-glow::before,
+  html .ph-aurora::before, html .ph-aurora::after, html .ph-parallax, html .ph-draw,
+  html .ph-kenburns, html .ph-pan, html .ph-scroll-hero-out {
+    animation: none;
+    transition: none;
+  }
+  html .ph-parallax { transform: none; }
+  html .ph-spotlight::before { transition: none; transform: none; }
+  html .ph-blur-in { opacity: 1; }
+  html .ph-words > span, html .ph-line > span { opacity: 1; transform: none; }
+  html .ph-sheen::after { display: none; }
+  html .ph-hover-glow::before { opacity: 0; }
+  html .ph-depth:hover, html .ph-depth:focus-visible { transform: none; }
+  html .ph-flip:hover .ph-flip__inner,
+  html .ph-flip[data-flipped="true"] .ph-flip__inner { transform: none; }
+  html .ph-spinner { animation: none; }
 }
