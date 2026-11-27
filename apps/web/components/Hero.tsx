@@ -3,29 +3,32 @@ import { SignupDialog } from "./SignupDialog";
 import { hasTipsArtwork } from "@/src/server/tips-artwork";
 import { ReaderSignup } from "@/components/ReaderSignup";
 import { HeroOrbitClient } from "./HeroOrbitClient";
+import { PointerParallax } from "./PointerParallax";
 import styles from "./HeroVoid.module.css";
 
 export function Hero() {
   return (
     <>
-      <section id="atas" aria-labelledby="hero-heading" className={styles.stage}>
-        <div className={styles.content}>
-          <p className={styles.kicker}>Perpustakaan Hati <span>/</span> Edisi Poket</p>
-          <h1 id="hero-heading" className={styles.headline}>
-            Bacaan kecil.<br /><em>Ruang untuk pulih.</em>
-          </h1>
-          <p className={styles.subline}>
-            Tulisan tentang hubungan dan pemulihan diri, dalam Bahasa Melayu yang dekat di hati.
-          </p>
-          <div className={styles.actions}>
-            <a href="#percuma" className="ph-cta inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
-              Mulakan percuma
-            </a>
-            <a href="#edisi" className="btn-ghost inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
-              Lihat koleksi
-            </a>
+      <section id="atas" aria-labelledby="hero-heading" className={`${styles.stage} ph-scroll-hero-out`}>
+        <PointerParallax className="min-w-0">
+          <div className={`${styles.content} ph-parallax-layer`}>
+            <p className={styles.kicker}>Perpustakaan Hati <span>/</span> Edisi Poket</p>
+            <h1 id="hero-heading" className={styles.headline}>
+              Bacaan kecil.<br /><em>Ruang untuk pulih.</em>
+            </h1>
+            <p className={styles.subline}>
+              Tulisan tentang hubungan dan pemulihan diri, dalam Bahasa Melayu yang dekat di hati.
+            </p>
+            <div className={styles.actions}>
+              <a href="#percuma" className="ph-cta inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+                Mulakan percuma
+              </a>
+              <a href="#edisi" className="btn-ghost inline-flex items-center justify-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4">
+                Lihat koleksi
+              </a>
+            </div>
           </div>
-        </div>
+        </PointerParallax>
         <figure className={styles.exhibit}>
           <div className={styles.canvasLayer}><HeroOrbitClient /></div>
           <figcaption className={styles.caption}><span>Rajah 01</span>Orbit koleksi</figcaption>

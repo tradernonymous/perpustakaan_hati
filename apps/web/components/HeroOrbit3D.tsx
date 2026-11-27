@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import {
+  AdditiveBlending, BoxGeometry, CanvasTexture, DoubleSide, Group, Material, Mesh, MeshBasicMaterial,
+  PerspectiveCamera, PlaneGeometry, PolarGridHelper, RingGeometry, Scene, Sprite, SpriteMaterial,
+  SRGBColorSpace, Texture, TextureLoader, WebGLRenderer,
+} from "three";
 import styles from "./HeroOrbit3D.module.css";
 
 export const EMBLEM_SRC = "/brand/emblem-book-heart.svg";
@@ -101,7 +105,7 @@ function drawGlyph(ctx: CanvasRenderingContext2D, id: string, s: number) {
   ctx.stroke();
 }
 
-function makeGlyphTexture(id: string, color: number): [THREE.CanvasTexture, number] {
+function makeGlyphTexture(id: string): CanvasTexture {
   const size = 128;
   const canvas = document.createElement("canvas");
   canvas.width = size;
@@ -109,12 +113,12 @@ function makeGlyphTexture(id: string, color: number): [THREE.CanvasTexture, numb
   const ctx = canvas.getContext("2d")!;
   ctx.clearRect(0, 0, size, size);
   drawGlyph(ctx, id, size * 0.7);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return [texture, color];
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  return texture;
 }
 
-function makeHalo(): [THREE.Mesh, THREE.CanvasTexture] {
+function makeHalo(): [Mesh, CanvasTexture] {
   const canvas = document.createElement("canvas");
   canvas.width = 256;
   canvas.height = 256;
@@ -124,14 +128,14 @@ function makeHalo(): [THREE.Mesh, THREE.CanvasTexture] {
   gradient.addColorStop(1, "rgba(201, 168, 106, 0)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 256, 256);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.6 });
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.2), material);
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
+  const material = new MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, opacity: 0.6 });
+  const mesh = new Mesh(new PlaneGeometry(2.2, 2.2), material);
   return [mesh, texture];
 }
 
-function makeGlowTexture(hex: number): THREE.CanvasTexture {
+function makeGlowTexture(hex: number): CanvasTexture {
   const canvas = document.createElement("canvas");
   canvas.width = 128;
   canvas.height = 128;
@@ -143,15 +147,15 @@ function makeGlowTexture(hex: number): THREE.CanvasTexture {
   gradient.addColorStop(1, `rgba(${r},${g},${b},0)`);
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, 128, 128);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
+  const texture = new CanvasTexture(canvas);
+  texture.colorSpace = SRGBColorSpace;
   return texture;
 }
 
-function makeGlowSprite(hex: number, size: number, opacity: number): [THREE.Sprite, THREE.CanvasTexture] {
+function makeGlowSprite(hex: number, size: number, opacity: number): [Sprite, CanvasTexture] {
   const tex = makeGlowTexture(hex);
-  const material = new THREE.SpriteMaterial({ map: tex, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
-  const sprite = new THREE.Sprite(material);
+  const material = new SpriteMaterial({ map: tex, transparent: true, opacity, blending: AdditiveBlending, depthWrite: false });
+  const sprite = new Sprite(material);
   sprite.scale.setScalar(size);
   return [sprite, tex];
 }
@@ -164,6 +168,7 @@ export function HeroOrbit3D() {
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [ready, setReady] = useState(false);
+  const [webglFailed, setWebglFailed] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -173,56 +178,57 @@ export function HeroOrbit3D() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setReducedMotion(reduced);
 
-    let renderer: THREE.WebGLRenderer | null = null;
+    let renderer: WebGLRenderer | null = null;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer = new WebGLRenderer({ canvas, antialias: true, alpha: true });
     } catch {
+      setWebglFailed(true);
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO));
     renderer.setClearColor(0x000000, 0);
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.outputColorSpace = SRGBColorSpace;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(35, 1, 0.01, 100);
     camera.position.set(0, 0.15, 3.0);
 
-    const rig = new THREE.Group();
+    const rig = new Group();
     scene.add(rig);
 
     const disposables: { dispose: () => void }[] = [];
     let disposed = false;
-    const loader = new THREE.TextureLoader();
+    const loader = new TextureLoader();
 
-    const loadTex = (url: string): Promise<THREE.Texture> => new Promise((resolve) => {
+    const loadTex = (url: string): Promise<Texture | null> => new Promise((resolve) => {
       loader.load(url, (tex) => {
         if (disposed) { tex.dispose(); return; }
-        tex.colorSpace = THREE.SRGBColorSpace;
+        tex.colorSpace = SRGBColorSpace;
         disposables.push(tex);
         resolve(tex);
-      }, undefined, () => resolve(null as unknown as THREE.Texture));
+      }, undefined, () => resolve(null));
     });
 
     // Halo
     const [halo, haloTex] = makeHalo();
     halo.position.z = -0.12;
     rig.add(halo);
-    disposables.push(halo.geometry, halo.material as THREE.Material, haloTex);
+    disposables.push(halo.geometry, halo.material as Material, haloTex);
 
     // Polar grid
-    const grid = new THREE.PolarGridHelper(1.6, 16, 6, 64, 0xc9a86a, 0x7db895);
+    const grid = new PolarGridHelper(1.6, 16, 6, 64, 0xc9a86a, 0x7db895);
     grid.position.y = -0.62;
-    (grid.material as THREE.Material).transparent = true;
-    (grid.material as THREE.Material).opacity = 0.14;
-    (grid.material as THREE.Material).depthWrite = false;
+    (grid.material as Material).transparent = true;
+    (grid.material as Material).opacity = 0.14;
+    (grid.material as Material).depthWrite = false;
     rig.add(grid);
-    disposables.push(grid.geometry, grid.material as THREE.Material);
+    disposables.push(grid.geometry, grid.material as Material);
 
     // Heartbeat waves
     const waves = Array.from({ length: WAVE_COUNT }, () => {
-      const geo = new THREE.RingGeometry(0.9, 0.93, 96);
-      const mat = new THREE.MeshBasicMaterial({ color: 0x9de1c1, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide });
-      const mesh = new THREE.Mesh(geo, mat);
+      const geo = new RingGeometry(0.9, 0.93, 96);
+      const mat = new MeshBasicMaterial({ color: 0x9de1c1, transparent: true, opacity: 0, depthWrite: false, side: DoubleSide });
+      const mesh = new Mesh(geo, mat);
       mesh.position.z = -0.05;
       rig.add(mesh);
       disposables.push(geo, mat);
@@ -232,26 +238,26 @@ export function HeroOrbit3D() {
     const pointer = { x: 0, y: 0 };
     const smoothPointer = { x: 0, y: 0 };
     let smoothScroll = 0;
-    let emblemPivot: THREE.Group | null = null;
-    let coverItems: { group: THREE.Group; frontMat: THREE.MeshBasicMaterial; phase: number; index: number }[] = [];
-    let glyphSprites: { sprite: THREE.Sprite; baseX: number; baseY: number; baseZ: number; speed: number; baseOpacity: number; baseSize: number }[] = [];
+    let emblemPivot: Group | null = null;
+    let coverItems: { group: Group; frontMat: MeshBasicMaterial; phase: number; index: number }[] = [];
+    let glyphSprites: { sprite: Sprite; baseX: number; baseY: number; baseZ: number; speed: number; baseOpacity: number; baseSize: number }[] = [];
 
     // Psychology glyph sprites
-    const glyphGroup = new THREE.Group();
+    const glyphGroup = new Group();
     rig.add(glyphGroup);
     for (const g of PSYCHE_GLYPHS) {
-      const [tex] = makeGlyphTexture(g.id, g.color);
+      const tex = makeGlyphTexture(g.id);
       disposables.push(tex);
-      const mat = new THREE.SpriteMaterial({
+      const mat = new SpriteMaterial({
         map: tex,
         color: g.color,
         transparent: true,
         opacity: 0.35,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
       });
       disposables.push(mat);
-      const sprite = new THREE.Sprite(mat);
+      const sprite = new Sprite(mat);
       sprite.scale.setScalar(g.size);
       sprite.position.set(g.x, g.y, g.z);
       glyphGroup.add(sprite);
@@ -268,47 +274,47 @@ export function HeroOrbit3D() {
       // Emblem
       const ew = 1.2;
       const eh = ew * (emblemTex.image.height / emblemTex.image.width);
-      const emblemGeo = new THREE.PlaneGeometry(ew, eh);
-      const emblemMat = new THREE.MeshBasicMaterial({ map: emblemTex, transparent: true, depthWrite: false });
-      const emblem = new THREE.Mesh(emblemGeo, emblemMat);
+      const emblemGeo = new PlaneGeometry(ew, eh);
+      const emblemMat = new MeshBasicMaterial({ map: emblemTex, transparent: true, depthWrite: false });
+      const emblem = new Mesh(emblemGeo, emblemMat);
       emblem.renderOrder = 2;
-      const pivot = new THREE.Group();
+      const pivot = new Group();
       pivot.add(emblem);
       const [emblemGlow, glowTex] = makeGlowSprite(0xc9a86a, 1.6, 0.4);
       emblemGlow.position.z = -0.08;
       pivot.add(emblemGlow);
       rig.add(pivot);
       emblemPivot = pivot;
-      disposables.push(emblemGeo, emblemMat, glowTex, emblemGlow.material as THREE.Material);
+      disposables.push(emblemGeo, emblemMat, glowTex, emblemGlow.material as Material);
 
       // Covers
-      coverItems = COVERS.map((cover, i) => {
+      coverItems = COVERS.flatMap((cover, i) => {
         const tex = coverTextures[i];
-        if (!tex) return null as unknown as typeof coverItems[number];
+        if (!tex) return [];
         const w = 0.42;
         const h = w * (tex.image.height / tex.image.width);
-        const frontMat = new THREE.MeshBasicMaterial({ map: tex });
-        const backMat = new THREE.MeshBasicMaterial({ color: cover.back });
-        const group = new THREE.Group();
-        const frontGeo = new THREE.PlaneGeometry(w, h);
-        const backGeo = new THREE.PlaneGeometry(w, h);
-        const spineGeo = new THREE.BoxGeometry(0.014, h, 0.012);
-        const spineMat = new THREE.MeshBasicMaterial({ color: cover.back });
-        const front = new THREE.Mesh(frontGeo, frontMat);
+        const frontMat = new MeshBasicMaterial({ map: tex });
+        const backMat = new MeshBasicMaterial({ color: cover.back });
+        const group = new Group();
+        const frontGeo = new PlaneGeometry(w, h);
+        const backGeo = new PlaneGeometry(w, h);
+        const spineGeo = new BoxGeometry(0.014, h, 0.012);
+        const spineMat = new MeshBasicMaterial({ color: cover.back });
+        const front = new Mesh(frontGeo, frontMat);
         front.position.z = 0.006;
-        const back = new THREE.Mesh(backGeo, backMat);
+        const back = new Mesh(backGeo, backMat);
         back.rotation.y = Math.PI;
         back.position.z = -0.006;
-        const spine = new THREE.Mesh(spineGeo, spineMat);
+        const spine = new Mesh(spineGeo, spineMat);
         spine.position.x = -w / 2;
         group.add(front, back, spine);
         const [glow, gTex] = makeGlowSprite(cover.back, w * 2.2, 0.3);
         glow.position.z = -0.03;
         group.add(glow);
         rig.add(group);
-        disposables.push(frontGeo, backGeo, spineGeo, frontMat, backMat, spineMat, gTex, glow.material as THREE.Material);
-        return { group, frontMat, phase: cover.phase, index: i };
-      }).filter(Boolean);
+        disposables.push(frontGeo, backGeo, spineGeo, frontMat, backMat, spineMat, gTex, glow.material as Material);
+        return [{ group, frontMat, phase: cover.phase, index: i }];
+      });
 
       setReady(true);
       if (reduced) pose(CLEAN_POSE_TIME, 0);
@@ -338,11 +344,11 @@ export function HeroOrbit3D() {
           const p = clamp01((cycle + j * BEAT) / WAVE_LIFE);
           const eased = 1 - (1 - p) * (1 - p);
           mesh.scale.setScalar(0.7 + 1.3 * eased);
-          (mesh.material as THREE.MeshBasicMaterial).opacity = 0.7 * (1 - p) * (1 - p);
+          (mesh.material as MeshBasicMaterial).opacity = 0.7 * (1 - p) * (1 - p);
         });
 
         halo.scale.setScalar(0.92 + 0.14 * wave(t, 4) + 0.12 * beat);
-        (halo.material as THREE.MeshBasicMaterial).opacity = 0.25 + 0.15 * wave(t, 4);
+        (halo.material as MeshBasicMaterial).opacity = 0.25 + 0.15 * wave(t, 4);
       }
 
       grid.rotation.y = t * 0.04;
@@ -370,7 +376,7 @@ export function HeroOrbit3D() {
         const dist = Math.sqrt(dx * dx + dy * dy);
         const hover = Math.max(0, 1 - dist * 1.5);
         const targetOpacity = g.baseOpacity + hover * 0.5;
-        const mat = g.sprite.material as THREE.SpriteMaterial;
+        const mat = g.sprite.material as SpriteMaterial;
         mat.opacity += (targetOpacity - mat.opacity) * follow;
         const scaleBoost = 1 + hover * 0.3;
         g.sprite.scale.setScalar(g.baseSize * scaleBoost);
@@ -413,6 +419,9 @@ export function HeroOrbit3D() {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      // Touch scrolling must not drive the scene, and small screens skip pointer parallax.
+      if (e.pointerType === "touch") return;
+      if (window.matchMedia("(max-width: 639px)").matches) return;
       const r = container.getBoundingClientRect();
       if (!r.width || !r.height) return;
       pointer.x = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
@@ -453,7 +462,7 @@ export function HeroOrbit3D() {
   return (
     <div className={styles.orbit} ref={containerRef}>
       <img
-        className={ready ? `${styles.poster} ${styles.posterHidden}` : styles.poster}
+        className={ready || webglFailed ? `${styles.poster} ${styles.posterHidden}` : styles.poster}
         src={EMBLEM_SRC}
         alt=""
         width={600}
@@ -461,6 +470,16 @@ export function HeroOrbit3D() {
         fetchPriority="high"
       />
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
+      {webglFailed && (
+        <ol className={styles.fallback} aria-label="Edisi koleksi">
+          {COVERS.map((cover) => (
+            <li key={cover.name} className={styles.fallbackItem}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={cover.src} alt={cover.name} width={599} height={902} loading="lazy" />
+            </li>
+          ))}
+        </ol>
+      )}
       <p className={styles.srOnly}>
         Perpustakaan Hati emblem, orbited by the Edisi Poket, Edisi Membangun and Teman Hati covers.
       </p>

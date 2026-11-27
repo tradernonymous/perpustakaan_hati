@@ -22,6 +22,8 @@ export function TiltCard({ children, className = "" }: { children: ReactNode; cl
   const onMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const el = ref.current;
     if (!el || e.pointerType === "touch" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Tilt and glare only for a fine pointer that can hover, so coarse input never triggers them.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     const r = el.getBoundingClientRect();
     set(-((e.clientY - r.top) / r.height - 0.5) * 10, ((e.clientX - r.left) / r.width - 0.5) * 12);
   }, [set]);
